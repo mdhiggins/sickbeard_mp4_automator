@@ -1,3 +1,6 @@
+__author__ = "dbr/Ben"
+__version = "0.1"
+
 class _Ddict(dict):
     def __init__(self, default=None):
         self.default = default
