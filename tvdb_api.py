@@ -2,6 +2,8 @@ __author__ = "dbr/Ben"
 __version = "0.1"
 
 class _Ddict(dict):
+    """Lazy-dict, automatically creates multidimensional dicts
+    by having __getitem__ create sub-dict automatically"""
     def __init__(self, default=None):
         self.default = default
     #end __init__
@@ -12,9 +14,12 @@ class _Ddict(dict):
         return dict.__getitem__(self, key)
     #end __getitem__
 #end _Ddict
+
+# Custom exceptions
 class tvdb_error(Exception):pass
 class tvdb_shownotfound(Exception):pass
 class tvdb_userabort(Exception):pass
+
 class tvdb:
     """
     Create easy-to-use interface to name of season/episode name
@@ -65,7 +70,7 @@ class tvdb:
         hdlr.setFormatter(formatter)
         logger.addHandler(hdlr)
         
-        if self.config['debug']:
+        if self.config['debug_enabled']:
             logger.setLevel(logging.DEBUG)
         else:
             logger.setLevel(logging.INFO)
@@ -159,7 +164,6 @@ class tvdb:
         """
         if self.corrections.has_key(name):
             self.log.debug('Correcting %s to %s' % (name,self.corrections[name]) )
-            print self.corrections
             sid = self.corrections[name]
         else:
             self.log.debug('Getting show %s' % (name))
