@@ -62,9 +62,9 @@ class tvdb:
         formatter = logging.Formatter('%(asctime)s) %(levelname)s %(message)s')
         
         if self.config['debug_tofile']:
-            hdlr = logging.StreamHandler(sys.stdout)
-        else:
             hdlr = logging.FileHandler(logpath)
+        else:
+            hdlr = logging.StreamHandler(sys.stdout)
         #end if debug_tofile
         
         hdlr.setFormatter(formatter)
