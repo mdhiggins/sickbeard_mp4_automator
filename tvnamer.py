@@ -142,7 +142,7 @@ def main():
     validFiles = processNames(allFiles)
     
     if len(validFiles) == 0:
-        sys.stderr.write("No valid files found")
+        sys.stderr.write("No valid files found\n")
         sys.exit(1)
     
     print "Starting tvdb"
