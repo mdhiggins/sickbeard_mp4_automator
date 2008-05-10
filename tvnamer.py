@@ -126,12 +126,18 @@ def renameFile(oldfile,newfile,force=False):
     
 
 def main():
-    parser = OptionParser()
+    parser = OptionParser(usage="%prog [options] <file or directories>")
 
-    parser.add_option("-d","--debug",action="store_true",default=False,dest="debug", help="Show debugging info")
-    parser.add_option("-b","--batch",action="store_false",dest="interactive",help="Selects first search result, requires no human intervention once launched",default=False)
-    parser.add_option("-i","--interactive",action="store_true",dest="interactive",help="Interactivly prompt for show",default=True)
-    parser.add_option("-f","--force",action="store_true",default=False,dest="force",help="Skips checking if new filename already exists before renaming")
+    parser.add_option(  "-d","--debug",action="store_true",default=False,dest="debug",
+                        help="show debugging info")
+    parser.add_option(  "-b","--batch",action="store_false",dest="interactive",
+                        help="selects first search result, requires no human intervention once launched",default=False)
+    parser.add_option(  "-i","--interactive",action="store_true",dest="interactive",default=True,
+                        help="interactivly select correct show from search results [default]")
+    parser.add_option(  "-a","--always",action="store_true",default=False,dest="always",
+                        help="always renames files (but still lets user select correct show). Can be changed during runtime with the 'a' prompt-option")
+    parser.add_option(  "-f","--force",action="store_true",default=False,dest="force",
+                        help="forces file to be renamed, even if it will overwrite an existing file")
     
     opts,args = parser.parse_args()
     if len(args) == 0:
@@ -145,29 +151,50 @@ def main():
         sys.stderr.write("No valid files found\n")
         sys.exit(1)
     
-    print "Starting tvdb"
+    print "#"*20
+    print "# Starting tvnamer"
+    print "# Processing %d files" % ( len(validFiles) )
+    
     t = tvdb(debug = opts.debug, interactive = opts.interactive)
-    print "Done"
-    print "Starting processing files"
-    always=False
+    
+    print "# ..got tvdb mirrors"
+    print "# Starting to process files"
+    
     for cfile in validFiles:
+        
+        # Ask for episode name from tvdb_api
         epname = t[ cfile['showname'] ][ cfile['seasno'] ][ cfile['epno'] ]['name']
+        
+        # Either use the found episode name, warn if not found
         if epname:
             cfile['epname'] = epname
         else:
             cfile['epname'] = None
-            sys.stderr.write("Episode name not found for %s" % ( cfile['fullpath']) )
+            sys.stderr.write("! Episode name not found for %s\n" % ( cfile ) )
         #end if epname
-
+        
+        # Format new filename, strip unwanted characters
         newname = formatName( cfile )
         newname = cleanName(newname)
-        oldfile = os.path.join( cfile['filepath'],cfile['filename'] + cfile['ext'] )
-        newfile = os.path.join( cfile['filepath'],newname )
-        print "*"*20
+        
+        # Append new filename (with extension) to path
+        oldfile = os.path.join(
+            cfile['filepath'], 
+            cfile['filename'] + cfile['ext']
+        )
+        # Join path to new file name
+        newfile = os.path.join(
+            cfile['filepath'], 
+            newname
+        )
+        
+        # Show new/old filename
+        print "#"*20
         print "Old name: %s" % ( cfile['filename'] + cfile['ext'] )
         print "New name: %s" % ( newname )
         
-        if always:
+        # Either always rename, or prompt user
+        if opts.always or not opts.interactive:
             rename_result = renameFile(oldfile,newname,force=opts.force)
             if rename_result:
                 print "..auto-renaming"
