@@ -171,10 +171,12 @@ class tvdb:
             sname, sid = selected_series['name'], selected_series['sid']
             self.log.debug( "Got %s, sid %s" % (sname,sid) )
             self.shows[sid] = _Ddict(dict)
+            self.shows[sid]['showname'] = sname
             self.corrections[name] = sid
             self._getEps( sid )
         #end if self.corrections.has_key
         return sid
+    #end _nameToSid
 
     def __getitem__(self,key):
         """
