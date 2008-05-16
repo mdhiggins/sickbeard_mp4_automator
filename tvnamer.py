@@ -161,8 +161,11 @@ def main():
                         help="always renames files (but still lets user select correct show). Can be changed during runtime with the 'a' prompt-option")
     parser.add_option(  "-f","--force",action="store_true",default=False,dest="force",
                         help="forces file to be renamed, even if it will overwrite an existing file")
+    parser.add_option(  "-t","--tests",action="store_true",default=False,dest="dotests",
+                        help="Run unittests (mostly useful for development)")
     
     opts,args = parser.parse_args()
+
     if len(args) == 0:
         parser.error("No filenames or directories supplied")
     #end if len(args)
