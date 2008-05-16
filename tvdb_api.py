@@ -104,7 +104,7 @@ class tvdb:
         return mirrors
     #end _getMirrors
 
-    def _getSeries(self,series,interactive=False):
+    def _getSeries(self,series):
         seriesSoup = self._getsoupsrc( self.config['url_getSeries'] % (series) )
         allSeries=[]
         for series in seriesSoup.findAll('series'):
