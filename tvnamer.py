@@ -166,6 +166,12 @@ def main():
     
     opts,args = parser.parse_args()
 
+    if opts.dotests:
+        suite = unittest.TestLoader().loadTestsFromTestCase(test_tvnamer)
+        unittest.TextTestRunner(verbosity=2).run(suite)
+        sys.exit(0)
+    #end if dotests
+
     if len(args) == 0:
         parser.error("No filenames or directories supplied")
     #end if len(args)
@@ -300,9 +306,7 @@ class test_tvnamer(unittest.TestCase):
         self.assertEquals(t['24']['showname'], '24')
         self.assertRaises(tvdb_api.tvdb_shownotfound,t['the fake show thingy'])
     #end test_tvdb
-    
-#end test_nameregexes
+#end test_tvnamer
 
 if __name__ == "__main__":
-    unittest.main()
     main()
