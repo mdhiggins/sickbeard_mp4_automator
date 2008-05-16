@@ -19,12 +19,32 @@ config['with_ep_name'] = '%(showname)s - [%(seasno)02dx%(epno)02d] - %(epname)s.
 config['without_ep_name'] = '%(showname)s - [%(seasno)02dx%(epno)02d].%(ext)s'
 
 config['name_parse'] = [
+    # show name - [01x23] - blah
+    re.compile('''
+    ^(
+        [\w\. ]* # show name
+    )
+    (?: \- )? # -
+    [\[ ]{1,2}           #(?=\[)? #.*?
+    .*?
+        (\d+)x(\d+)
+    .*?
+    (?:\])?
+    .*?
+    $
+    ''', re.IGNORECASE|re.VERBOSE),
+    
+    # show.name.s01e02
     re.compile('''
     ^(
         [\w\. ]*
     )
-    (?= \- |\.)?
-    s(\d+)e(\d+)\D
+    #[-. ]{1}
+    (?: \- |\.|\-)?
+    s(\d+)
+        (?:[\.\-]{1})?
+    e(\d+)
+    (?:\D|$)
     ''', re.IGNORECASE|re.VERBOSE ),
     
     re.compile('''
@@ -33,7 +53,7 @@ config['name_parse'] = [
     )
     (?= \- |\.)?
     .*?
-    (\d+)x(\d+)\D
+    (?=\d+)x(\d+)(\D|$)
     ''', re.IGNORECASE|re.VERBOSE ),
     
     re.compile('''
@@ -43,7 +63,8 @@ config['name_parse'] = [
     (?= \- )?
     \D+
     (\d+?)(\d{2})
-    \D''', re.IGNORECASE|re.VERBOSE ),
+    .*?
+    (?=\D|$)''', re.IGNORECASE|re.VERBOSE ),
 ]
 
 config['valid_filename_chars'] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@£$%^&*()_+=-[]{}\"'.,<>`~? "
@@ -226,24 +247,45 @@ def main():
     #end for cfile
 #end main
 
+import unittest
+class test_tvnamer(unittest.TestCase):
+    def test_name_parser(self):
+        names = [
+            'show.name.s01e21.dsr.nf.avi',
+            'show.name.s01.e21.avi',
+            'show.name-s01e21.avi',
+            'show.name-s01e21.the.wrong.ep.name.avi',
+            'show.name.s01e21.dsr.nf.avi',
+            'show name - [01x21].avi',
+            'show name - [1x21].avi',
+            'show name - [1x21].avi',
+            'show name - [01x021].avi',
+            'show name-[01x21].avi',
+            'show name [01x21].avi',
+            'show name [01x21] - the wrong ep name.avi',
+            'show name [01x21] the wrong ep name.avi',
+        ]
+        proced = processNames(names)
+        self.assertEquals( len(names), len(proced) )
+        for c in proced:
+            self.assertEquals( c['epno'], 21)
+            self.assertEquals( c['seasno'], 1 )
+            self.assertEquals( c['file_showname'], 'show name' )
+    #end test_01_21
+    
+    def test_tvdb(self):
+        import tvdb_api
+        t=tvdb_api.tvdb()
+        self.assertEquals(t['scrubs'][1][4]['name'], 'My Old Lady')
+        self.assertEquals(t['sCruBs']['showname'], 'Scrubs')
+        
+        self.assertEquals(t['24'][2][20]['name'], 'Day 2: 3:00 A.M.-4:00 A.M.')
+        self.assertEquals(t['24']['showname'], '24')
+        self.assertRaises(tvdb_api.tvdb_shownotfound,t['the fake show thingy'])
+    #end test_tvdb
+    
+#end test_nameregexes
+
 if __name__ == "__main__":
+    unittest.main()
     main()
-
-def prompts():
-    if always:
-        print "Processing",x
-    else:
-        ans=raw_input()
-        if ans=="a":
-            always=True
-            print "processing",x
-        elif ans=="q":
-            pass#break
-        elif ans=="n":
-            print "Skipping",x
-            pass#continue
-        elif ans=="y":
-            print "processing",x
-        #end if ans
-    #end if always
-
