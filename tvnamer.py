@@ -25,10 +25,8 @@ config['name_parse'] = [
         [\w\. ]* # show name
     )
     (?: \- )? # -
-    [\[ ]{1,2}           #(?=\[)? #.*?
-    .*?
+    [\[ ]{1,2}
         (\d+)x(\d+)
-    .*?
     (?:\])?
     .*?
     $
@@ -51,23 +49,24 @@ config['name_parse'] = [
     ^(
         [\w\. ]*
     )
-    (?= \- |\.)?
+    (?: \- |\.)?
     .*?
-    (?=\d+)x(\d+)(\D|$)
+    (\d+)x(\d+)
+    (?:\D|$)
     ''', re.IGNORECASE|re.VERBOSE ),
     
     re.compile('''
     ^(
         [\w\. ]*
     )
-    (?= \- )?
+    (?: \- )?
     \D+
     (\d+?)(\d{2})
     .*?
-    (?=\D|$)''', re.IGNORECASE|re.VERBOSE ),
+    (?:\D|$)''', re.IGNORECASE|re.VERBOSE ),
 ]
 
-config['valid_filename_chars'] = """0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@£$%^&*()_+=-[]{}"'.,<>`~?"""
+config['valid_filename_chars'] = """0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@£$%^&*()_+=-[]{}"'.,<>`~? """
 
 def findFiles(args):
     allfiles=[]
@@ -287,6 +286,7 @@ class test_tvnamer(unittest.TestCase):
             'show name [01x21].avi',
             'show name [01x21] - the wrong ep name.avi',
             'show name [01x21] the wrong ep name.avi',
+            'show.name.1x21.The_Wrong_ep_name.avi'
         ]
         proced = processNames(names)
         self.assertEquals( len(names), len(proced) )
