@@ -67,7 +67,7 @@ config['name_parse'] = [
     (?=\D|$)''', re.IGNORECASE|re.VERBOSE ),
 ]
 
-config['valid_filename_chars'] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@£$%^&*()_+=-[]{}\"'.,<>`~? "
+config['valid_filename_chars'] = """0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@£$%^&*()_+=-[]{}"'.,<>`~?"""
 
 def findFiles(args):
     allfiles=[]
