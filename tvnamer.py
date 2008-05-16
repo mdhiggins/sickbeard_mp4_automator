@@ -192,7 +192,7 @@ def main():
     print "# Starting to process files"
     
     for cfile in validFiles:
-        
+        print "Processing %(file_showname)s (season: %(epno)d, episode %(seasno)d)" % (cfile)
         # Ask for episode name from tvdb_api
         try:
             epname = t[ cfile['file_showname'] ][ cfile['seasno'] ][ cfile['epno'] ]['name']
