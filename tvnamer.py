@@ -126,6 +126,8 @@ def formatName(cfile):
 #end formatName
 
 def cleanName(name):
+    name = name.encode('ascii','ignore') # convert unicode to ASCII
+    
     return ''.join( [c for c in name if c in config['valid_filename_chars']] )
         
 
