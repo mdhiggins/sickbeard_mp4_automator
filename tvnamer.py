@@ -97,12 +97,12 @@ def processNames(names):
                 showname,seasno,epno = match.groups()
                 showname = showname.replace("."," ").strip()
                 seasno,epno = int(seasno), int(epno)
-                allEps.append({ 'showname':showname,
-                                 'seasno':seasno,
-                                 'epno':epno,
-                                 'filepath':filepath,
-                                 'filename':filename,
-                                 'ext':ext
+                allEps.append({ 'file_showname':showname,
+                                'seasno':seasno,
+                                'epno':epno,
+                                'filepath':filepath,
+                                'filename':filename,
+                                'ext':ext
                              })
                 break
         else:
@@ -184,7 +184,14 @@ def main():
     for cfile in validFiles:
         
         # Ask for episode name from tvdb_api
-        epname = t[ cfile['showname'] ][ cfile['seasno'] ][ cfile['epno'] ]['name']
+        try:
+            epname = t[ cfile['file_showname'] ][ cfile['seasno'] ][ cfile['epno'] ]['name']
+        except tvdb_shownotfound:
+            # No such show
+            epname = None
+            showname = None
+        finally:
+            showname = t[ cfile['file_showname'] ]['showname'] # get the corrected showname
         
         # Either use the found episode name, warn if not found
         if epname:
@@ -193,6 +200,11 @@ def main():
             cfile['epname'] = None
             sys.stderr.write("! Episode name not found for %s\n" % ( cfile ) )
         #end if epname
+        
+        if showname:
+            cfile['showname'] = showname
+        else:
+            cfile['showname'] = cfile['file_showname'] # no corrected showname found, use one from filename
         
         # Format new filename, strip unwanted characters
         newname = formatName( cfile )
