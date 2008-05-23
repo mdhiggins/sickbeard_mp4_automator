@@ -15,6 +15,56 @@ class _Ddict(dict):
     #end __getitem__
 #end _Ddict
 
+class Cache:
+    import os
+    import tempfile
+    import urllib
+    try:
+        import sha1 as hasher
+    except ImportError:
+        import md5 as hasher
+    
+    def __init__(self,prefix="tvdb_api"):
+        self.prefix = prefix
+        tmp = self.tempfile.gettempdir()
+        tmppath = self.os.path.join(tmp, prefix)
+        if not self.os.path.isdir(tmppath):
+            self.os.mkdir(tmppath)
+        self.tmp = tmppath
+    #end __init__
+    
+    def getCachePath(self,url):
+        cache_name = self.hasher.new(url).hexdigest()
+        cache_path = self.os.path.join(self.tmp, cache_name)
+        return cache_path
+    #end getUrl
+    
+    def checkCache(self,url):
+        path = self.getCachePath(url)
+        if self.os.path.isfile(path):
+            return path
+        else:
+            return False
+    #end checkCache
+
+    def getUrl(self,url):
+        cacheExists = self.checkCache(url)
+        if cacheExists:
+            f=open(cacheExists)
+            dat = f.read()
+            f.close()
+            return dat
+        else:
+            path = self.getCachePath(url)
+            dat = self.urllib.urlopen(url).read()
+            f=open(path,"w+")
+            f.write(dat)
+            f.close()
+            return dat
+        #end if cacheExists
+    #end getUrl
+#end Cache
+
 # Custom exceptions
 class tvdb_error(Exception):pass
 class tvdb_shownotfound(Exception):pass
