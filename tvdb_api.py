@@ -47,7 +47,7 @@ class Cache:
             return False
     #end checkCache
 
-    def getUrl(self,url):
+    def loadUrl(self,url):
         cacheExists = self.checkCache(url)
         if cacheExists:
             f=open(cacheExists)
@@ -77,7 +77,6 @@ class tvdb:
     >>> i['showname']['1']['24']['name']
     'Last Episode'
     """
-    import urllib
     from BeautifulSoup import BeautifulStoneSoup
     
     def __init__(self,interactive=False,debug=False):
@@ -95,6 +94,7 @@ class tvdb:
         self.config['debug_filename'] = "tvdb.log"
         self.config['debug_path'] = '.'
         
+        self.cache = Cache("tvdb_api") # Caches retreived URLs in tmp dir
         self.log = self.initLogger() # Setups the logger (self.log.debug() etc)
         self.shows = {} # Holds all show data in shows[show_id] = dict of ep data
         self.corrections = {} # Holds show-name to show_id mapping
@@ -132,7 +132,7 @@ class tvdb:
         
         url=url.replace(" ","+")
         try:
-            src=self.urllib.urlopen(url).read()
+            src=self.cache.loadUrl(url)
         except IOError,errormsg:
             raise tvdb_error("Could not connect to server: %s\n" % (errormsg))
         #end try
