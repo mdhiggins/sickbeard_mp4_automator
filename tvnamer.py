@@ -11,18 +11,24 @@ __version__ = "0.1"
 
 import os,sys,re
 from optparse import OptionParser
+
 from tvdb_api import tvdb
 
 config={}
 
+# The format of the renamed files (with and without episode names)
 config['with_ep_name'] = '%(showname)s - [%(seasno)02dx%(epno)02d] - %(epname)s.%(ext)s'
 config['without_ep_name'] = '%(showname)s - [%(seasno)02dx%(epno)02d].%(ext)s'
 
+config['valid_filename_chars'] = """0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@£$%^&*()_+=-[]{}"'.,<>`~? """
+
+# Regex's to parse filenames with. Must have 3 groups, showname, season number
+# and episode number. Use (?: optional) non-capturing groups if you need others.
 config['name_parse'] = [
     # show name - [01x23] - blah
     re.compile('''
     ^(
-        [\w\. ]* # show name
+        [\w\d\.\-\' ]* # show name
     )
     (?: \- )? # -
     [\[ ]{1,2}
@@ -35,10 +41,9 @@ config['name_parse'] = [
     # show.name.s01e02
     re.compile('''
     ^(
-        [\w\. ]*
+        [\w\d\.\-\' ]*
     )
-    #[-. ]{1}
-    (?: \- |\.|\-)?
+    (?: \- |\.|\-)
     s(\d+)
         (?:[\.\-]{1})?
     e(\d+)
@@ -47,7 +52,7 @@ config['name_parse'] = [
     
     re.compile('''
     ^(
-        [\w\. ]*
+        [\w\d\.\-\' ]*
     )
     (?: \- |\.)?
     .*?
@@ -57,7 +62,7 @@ config['name_parse'] = [
     
     re.compile('''
     ^(
-        [\w\. ]*
+        [\w\d\.\-\' ]*
     )
     (?: \- )?
     \D+
@@ -66,9 +71,12 @@ config['name_parse'] = [
     (?:\D|$)''', re.IGNORECASE|re.VERBOSE ),
 ]
 
-config['valid_filename_chars'] = """0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@£$%^&*()_+=-[]{}"'.,<>`~? """
 
 def findFiles(args):
+    """
+    Takes a list of files/folders, grabs files inside them. Does not recurse
+    more than one level (if a folder is supplied, it will list files within)
+    """
     allfiles=[]
     for x in args:
         if os.path.isdir(x):
@@ -86,6 +94,9 @@ def findFiles(args):
 #end findFiles
 
 def processNames(names):
+    """
+    Takes list of names, runs them though the config['name_parse'] regexs
+    """
     allEps=[]
     for f in names:
         filepath,filename = os.path.split( f )
@@ -113,6 +124,9 @@ def processNames(names):
 #end processNames
 
 def formatName(cfile):
+    """
+    Takes a file dict and renames files using the configured format
+    """
     orig_ext = cfile['ext']
     cfile['ext'] = cfile['ext'].replace(".","",1)
     if cfile['epname']:
@@ -125,12 +139,18 @@ def formatName(cfile):
 #end formatName
 
 def cleanName(name):
+    """
+    Cleans the supplied filename for renaming-to
+    """
     name = name.encode('ascii','ignore') # convert unicode to ASCII
     
     return ''.join( [c for c in name if c in config['valid_filename_chars']] )
-        
+#end cleanName
 
 def renameFile(oldfile,newfile,force=False):
+    """
+    Renames files, does not overwrite files unless forced
+    """
     new_exists = os.access(newfile,os.F_OK)
     if new_exists:
         sys.stderr.write("New filename already exists.. ")
@@ -260,6 +280,8 @@ def main():
         elif ans[0] == "n":
             print "Skipping"
             continue
+        else:
+            print "Invalid input"
         #end if ans
         if rename_result:
             print "..renamed"
@@ -278,6 +300,8 @@ class test_tvnamer(unittest.TestCase):
             'show.name-s01e21.avi',
             'show.name-s01e21.the.wrong.ep.name.avi',
             'show.name.s01e21.dsr.nf.avi',
+            's-how.name.S01E21.Some.Episode.avi',
+            's-how.name.S01E21.avi',
             'show name - [01x21].avi',
             'show name - [1x21].avi',
             'show name - [1x21].avi',
@@ -287,6 +311,7 @@ class test_tvnamer(unittest.TestCase):
             'show name [01x21] - the wrong ep name.avi',
             'show name [01x21] the wrong ep name.avi',
             'show.name.1x21.The_Wrong_ep_name.avi'
+            '123 - [02x24].avi'
         ]
         proced = processNames(names)
         self.assertEquals( len(names), len(proced) )
