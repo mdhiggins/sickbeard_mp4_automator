@@ -154,11 +154,17 @@ class tvdb:
         return mirrors
     #end _getMirrors
 
+    def _cleanName(self,name):
+        name = name.replace("&amp;","and")
+        return name
+    #end _cleanName
+    
     def _getSeries(self,series):
         seriesSoup = self._getsoupsrc( self.config['url_getSeries'] % (series) )
         allSeries=[]
         for series in seriesSoup.findAll('series'):
             cur_name = series.find('seriesname').contents[0]
+            cur_name = self._cleanName(cur_name)
             cur_sid = series.find('id').contents[0]
             self.log.debug('Found series %s (id: %s)' % (cur_name,cur_sid))
             allSeries.append( {'sid':cur_sid, 'name':cur_name} )
