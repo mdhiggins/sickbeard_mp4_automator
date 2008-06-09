@@ -258,7 +258,7 @@ def main():
         print "New name: %s" % ( newname )
         
         # Either always rename, or prompt user
-        if opts.always or not opts.interactive:
+        if opts.always or (not opts.interactive):
             rename_result = renameFile(oldfile,newname,force=opts.force)
             if rename_result:
                 print "..auto-renaming"
@@ -271,7 +271,7 @@ def main():
         print "(y/n/a/q)",
         ans=raw_input()
         if ans[0] == "a":
-            always=True
+            opts.always=True
             rename_result = renameFile(oldfile,newname,force=opts.force)
         elif ans[0] == "q":
             print "Aborting"
