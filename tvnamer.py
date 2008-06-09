@@ -210,9 +210,10 @@ def main():
     
     print "# ..got tvdb mirrors"
     print "# Starting to process files"
+    print "#"*20
     
     for cfile in validFiles:
-        print "Processing %(file_showname)s (season: %(epno)d, episode %(seasno)d)" % (cfile)
+        print "Processing %(file_showname)s (season: %(seasno)d, episode %(epno)d)" % (cfile)
         # Ask for episode name from tvdb_api
         try:
             epname = t[ cfile['file_showname'] ][ cfile['seasno'] ][ cfile['epno'] ]['name']
@@ -228,7 +229,7 @@ def main():
             cfile['epname'] = epname
         else:
             cfile['epname'] = None
-            sys.stderr.write("! Episode name not found for %s\n" % ( cfile ) )
+            sys.stderr.write("! Warning: Episode name not found for %s (in %s)\n" % ( cfile['file_showname'], cfile['filepath'] ) )
         #end if epname
         
         if showname:
