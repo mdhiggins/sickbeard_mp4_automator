@@ -179,7 +179,7 @@ class tvdb:
             for i in range(len(allSeries[:6])):
                 i_show = i + 1 # Start at more human readable number 1 (not zero)
                 self.log.debug( 'Showing allSeries[%s] = %s)' % (i_show,allSeries[i]) )
-                print "%s -> %s (tvdb id: %s)" % (i_show,allSeries[i]['name'],allSeries[i]['sid'])
+                print "%s -> %s (tvdb id: %s)" % (i_show,allSeries[i]['name'].encode("UTF-8","ignore"),allSeries[i]['sid'].encode("UTF-8","ignore"))
             print "Enter choice (first number):"
             ans=raw_input()
             self.log.debug( 'Got choice of: %s' % (ans))
