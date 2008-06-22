@@ -68,6 +68,7 @@ class Cache:
 # Custom exceptions
 class tvdb_error(Exception):pass
 class tvdb_shownotfound(Exception):pass
+class tvdb_epnamenotfound(Exception):pass
 class tvdb_userabort(Exception):pass
 
 class tvdb:
@@ -206,7 +207,10 @@ class tvdb:
         for ep in epsSoup.findAll('episode'):
             ep_no = int( ep.find('episodenumber').contents[0] )
             seas_no = int( ep.find('seasonnumber').contents[0] )
-            ep_name = str( ep.find('episodename').contents[0] )
+            if len( ep.find('episodename').contents ) == 0:
+                raise tvdb_epnamenotfound
+            else:
+                ep_name = str( ep.find('episodename').contents[0] )
             
             self.shows[sid][seas_no][ep_no] = {'name':ep_name}
         #end for ep
