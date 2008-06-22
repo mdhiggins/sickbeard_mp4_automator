@@ -12,6 +12,7 @@ __version__ = "0.1"
 import os,sys,re
 from optparse import OptionParser
 
+from tvdb_api import tvdb_shownotfound, tvdb_epnamenotfound
 from tvdb_api import tvdb
 
 config={}
@@ -217,7 +218,7 @@ def main():
         # Ask for episode name from tvdb_api
         try:
             epname = t[ cfile['file_showname'] ][ cfile['seasno'] ][ cfile['epno'] ]['name']
-        except tvdb_shownotfound:
+        except (tvdb_shownotfound,tvdb_epnamenotfound):
             # No such show
             epname = None
             showname = None
