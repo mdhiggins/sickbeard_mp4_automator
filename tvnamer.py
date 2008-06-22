@@ -94,7 +94,7 @@ def findFiles(args):
     return allfiles
 #end findFiles
 
-def processNames(names):
+def processNames(names,verbose=False):
     """
     Takes list of names, runs them though the config['name_parse'] regexs
     """
@@ -108,6 +108,16 @@ def processNames(names):
                 showname,seasno,epno = match.groups()
                 showname = showname.replace("."," ").strip()
                 seasno,epno = int(seasno), int(epno)
+                
+                if verbose:
+                    print "*"*20
+                    print "File:", filename
+                    print "Pattern:", r.pattern
+                    print "Showname:", showname
+                    print "Seas:", seasno
+                    print "Ep:", epno
+                    print "*"*20
+                
                 allEps.append({ 'file_showname':showname,
                                 'seasno':seasno,
                                 'epno':epno,
