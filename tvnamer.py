@@ -305,33 +305,64 @@ def main():
 
 import unittest
 class test_tvnamer(unittest.TestCase):
-    def test_name_parser(self):
-        names = [
-            'show.name.s01e21.dsr.nf.avi',
-            'show.name.s01.e21.avi',
-            'show.name-s01e21.avi',
-            'show.name-s01e21.the.wrong.ep.name.avi',
-            'show.name.s01e21.dsr.nf.avi',
-            's-how.name.S01E21.Some.Episode.avi',
-            's-how.name.S01E21.avi',
-            'show name - [01x21].avi',
-            'show name - [1x21].avi',
-            'show name - [1x21].avi',
-            'show name - [01x021].avi',
-            'show name-[01x21].avi',
-            'show name [01x21].avi',
-            'show name [01x21] - the wrong ep name.avi',
-            'show name [01x21] the wrong ep name.avi',
-            'show.name.1x21.The_Wrong_ep_name.avi'
-            '123 - [02x24].avi'
+    def setUp(self):
+        self.verbose = False
+        print dir(self)
+        
+        self.name_formats = [
+            '%(showname)s.s%(seasno)de%(epno)d.dsr.nf.avi',
+            '%(showname)s.s%(seasno)d.e%(epno)d.avi',
+            '%(showname)s-s%(seasno)de%(epno)d.avi',
+            '%(showname)s-s%(seasno)de%(epno)d.the.wrong.ep.name.avi',
+            '%(showname)s.s%(seasno)de%(epno)d.dsr.nf.avi',
+            '%(showname)s - [%(seasno)dx%(epno)d].avi',
+            '%(showname)s - [%(seasno)dx%(epno)d].avi',
+            '%(showname)s - [%(seasno)dx%(epno)d].avi',
+            '%(showname)s - [%(seasno)dx0%(epno)d].avi',
+            '%(showname)s-[%(seasno)dx%(epno)d].avi',
+            '%(showname)s [%(seasno)dx%(epno)d].avi',
+            '%(showname)s [%(seasno)dx%(epno)d] - the wrong ep name.avi',
+            '%(showname)s [%(seasno)dx%(epno)d] the wrong ep name.avi',
+            '%(showname)s.%(seasno)dx%(epno)d.The_Wrong_ep_name.avi'
         ]
-        proced = processNames(names)
+    
+    def test_name_parser_showname(self):
+        name_data = {'showname':'show name', 'seasno':1, 'epno':21}
+        names = [x % name_data for x in self.name_formats]
+        
+        proced = processNames(names, self.verbose)
         self.assertEquals( len(names), len(proced) )
         for c in proced:
             self.assertEquals( c['epno'], 21)
             self.assertEquals( c['seasno'], 1 )
-            self.assertEquals( c['file_showname'], 'show name' )
-    #end test_01_21
+            self.assertEquals( c['file_showname'], name_data['showname'] )
+    #end test_name_parser
+    
+    def test_name_parser_showdashname(self):
+        name_data = {'showname':'S-how name', 'seasno':1, 'epno':21}
+        names = [x % name_data for x in self.name_formats]
+        
+        proced = processNames(names, self.verbose)
+        self.assertEquals( len(names), len(proced) )
+        for c in proced:
+            self.assertEquals( c['epno'], 21)
+            self.assertEquals( c['seasno'], 1 )
+            self.assertEquals( c['file_showname'], name_data['showname'] )
+    #end test_name_parser_showdashname
+    
+    def test_name_parser_shownumeric(self):
+        name_data = {'showname':'123', 'seasno':1, 'epno':21}
+        names = [x % name_data for x in self.name_formats]
+        
+        proced = processNames(names, self.verbose)
+        self.assertEquals( len(names), len(proced) )
+        for c in proced:
+            self.assertEquals( c['epno'], 21)
+            self.assertEquals( c['seasno'], 1 )
+            self.assertEquals( c['file_showname'], name_data['showname'] )
+    #end test_name_parser_shownumeric
+        
+        
     
     def test_tvdb(self):
         import tvdb_api
@@ -341,7 +372,9 @@ class test_tvnamer(unittest.TestCase):
         
         self.assertEquals(t['24'][2][20]['name'], 'Day 2: 3:00 A.M.-4:00 A.M.')
         self.assertEquals(t['24']['showname'], '24')
-        self.assertRaises(tvdb_api.tvdb_shownotfound,t['the fake show thingy'])
+        def _tmp_tvdb_raiser():
+            t['the fake show thingy']
+        self.assertRaises(tvdb_api.tvdb_shownotfound, _tmp_tvdb_raiser)
     #end test_tvdb
 #end test_tvnamer
 
