@@ -1,3 +1,14 @@
+#!/usr/bin/env python
+#encoding:utf-8
+#author:dbr/Ben
+#project:tvdb_api
+#repository:http://github.com/dbr/tvdb_api
+#license:Creative Commons GNU GPL v2 (http://creativecommons.org/licenses/GPL/2.0/)
+
+#
+# tvdb_api.py
+# Simple-to-use Python interface to The TVDB's API (www.thetvdb.com)
+#
 __author__ = "dbr/Ben"
 __version = "0.1"
 
