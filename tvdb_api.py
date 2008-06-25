@@ -184,32 +184,45 @@ class tvdb:
         
         if len(allSeries) == 0:
             self.log.debug('Series result returned zero')
-            raise tvdb_shownotfound("Show-name search returned zero results")
+            raise tvdb_shownotfound("Show-name search returned zero results (cannot find show on TVDB)")
         
-        if self.config['interactive']:
+        if not self.config['interactive']:
+            self.log.debug('Auto-selecting first search result')
+            return allSeries[0]
+        else:
             self.log.debug('Interactivily selecting show')
-            for i in range(len(allSeries[:6])):
+            print "TVDB Search Results:"
+            for i in range(len(allSeries[:6])): # list first 6 search results
                 i_show = i + 1 # Start at more human readable number 1 (not zero)
                 self.log.debug( 'Showing allSeries[%s] = %s)' % (i_show,allSeries[i]) )
                 print "%s -> %s (tvdb id: %s)" % (i_show,allSeries[i]['name'].encode("UTF-8","ignore"),allSeries[i]['sid'].encode("UTF-8","ignore"))
-            print "Enter choice (first number):"
-            ans=raw_input()
-            self.log.debug( 'Got choice of: %s' % (ans))
-            try:
-                selected_id = int(ans) - 1 # The human entered 1 as first result, not zero
-                self.log.debug( 'Trying to return ID: %d' % (selected_id))
-                return allSeries[ selected_id ]
-            except ValueError: # Input was not number
-                if ans == "q":
-                    self.log.debug('Got quit command (q)')
-                    raise tvdb_userabort("User aborted")
-                else:
-                    self.log.debug('Unknown keypress %s' % (ans))
-                    raise tvdb_userabort("Invalid keypress") # TODO: Better UI
-            #end for k,v
-        else:
-            self.log.debug('Auto-selecting first search result')
-            return allSeries[0]
+            
+            valid_input = False
+            while not valid_input:
+                try:
+                    print "Enter choice (first number, ? for help):"
+                    ans=raw_input()
+                except KeyboardInterrupt:
+                    raise tvdb_userabort("User aborted ('^c' keyboard interupt)")
+            
+                self.log.debug( 'Got choice of: %s' % (ans))
+                try:
+                    selected_id = int(ans) - 1 # The human entered 1 as first result, not zero
+                    self.log.debug( 'Trying to return ID: %d' % (selected_id))
+                    return allSeries[ selected_id ]
+                except ValueError: # Input was not number
+                    if ans == "q":
+                        self.log.debug('Got quit command (q)')
+                        raise tvdb_userabort("User aborted ('q' quit command)")
+                    elif ans == "?":
+                        print "## Help"
+                        print "# Enter the number that corresponds to the correct show."
+                        print "# ? - this help"
+                        print "# q - abort tvnamer"
+                    else:
+                        self.log.debug('Unknown keypress %s' % (ans))
+                #end try
+            #end while not valid_input
     #end _getSeries
 
     def _getEps(self,sid):

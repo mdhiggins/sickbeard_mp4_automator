@@ -16,7 +16,7 @@ __version__ = "0.1"
 import os,sys,re
 from optparse import OptionParser
 
-from tvdb_api import tvdb_shownotfound, tvdb_epnamenotfound
+from tvdb_api import tvdb_shownotfound, tvdb_epnamenotfound, tvdb_userabort
 from tvdb_api import tvdb
 
 config={}
@@ -228,14 +228,18 @@ def main():
     print "#"*20
     
     for cfile in validFiles:
-        print "Processing %(file_showname)s (season: %(seasno)d, episode %(epno)d)" % (cfile)
-        # Ask for episode name from tvdb_api
+        print "# Processing %(file_showname)s (season: %(seasno)d, episode %(epno)d)" % (cfile)
         try:
+            # Ask for episode name from tvdb_api
             epname = t[ cfile['file_showname'] ][ cfile['seasno'] ][ cfile['epno'] ]['name']
         except (tvdb_shownotfound,tvdb_epnamenotfound):
             # No such show
             epname = None
             showname = None
+        except (tvdb_userabort), errormsg:
+            # User aborted selection (q or ^c)
+            print "\n", errormsg
+            os._exit(1)
         finally:
             showname = t[ cfile['file_showname'] ]['showname'] # get the corrected showname
         
@@ -279,13 +283,25 @@ def main():
                 print "..auto-renaming"
             else:
                 print "..not renamed"
+            #end if rename_result
+            
             continue # next filename!
         #end if always
         
         print "Rename?"
-        print "(y/n/a/q)",
-        ans=raw_input()
-        if ans[0] == "a":
+        print "([y]/n/a/q)",
+        try:
+            ans=raw_input()
+            ans = ans.strip()
+        except KeyboardInterrupt, errormsg:
+            print "User aborted (^c)"
+            break
+        #end try
+        
+        if len(ans) == 0:
+            print "Renaming (default)"
+            rename_result = renameFile(oldfile,newfile,force=opts.force)
+        elif ans[0] == "a":
             opts.always=True
             rename_result = renameFile(oldfile,newfile,force=opts.force)
         elif ans[0] == "q":
@@ -297,7 +313,7 @@ def main():
             print "Skipping"
             continue
         else:
-            print "Invalid input"
+            print "Invalid input, skipping"
         #end if ans
         if rename_result:
             print "..renamed"
