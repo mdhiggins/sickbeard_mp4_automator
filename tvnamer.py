@@ -257,7 +257,7 @@ def main():
             cfile['showname'] = cfile['file_showname'] # no corrected showname found, use one from filename
         
         # Format new filename, strip unwanted characters
-        newname = formatName( cfile )
+        newname = formatName(cfile)
         newname = cleanName(newname)
         
         # Append new filename (with extension) to path
@@ -321,6 +321,7 @@ def main():
             print "..not renamed"
         #end if rename_result
     #end for cfile
+    print "# Done"
 #end main
 
 import unittest
