@@ -240,7 +240,7 @@ def main():
             # User aborted selection (q or ^c)
             print "\n", errormsg
             os._exit(1)
-        finally:
+        else:
             showname = t[ cfile['file_showname'] ]['showname'] # get the corrected showname
         
         # Either use the found episode name, warn if not found
