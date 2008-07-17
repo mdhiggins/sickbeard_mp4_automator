@@ -33,6 +33,10 @@ class Cache:
     return urllib.urlopen("http://example.com").read()
     
     Caches complete files to temp directory, 
+    
+    >>> ca = Cache()
+    >>> ca.loadUrl("http://example.com")
+    <html><body>page!</body></html>
     """
     import os
     import tempfile
@@ -157,6 +161,10 @@ class tvdb:
     #end initLogger
     
     def _getsoupsrc(self,url):
+        """
+        Helper to get a URL, turn it into 
+        a BeautifulStoneSoup instance (for XML parsing)
+        """
         self.log.debug('Retriving URL %s' % (url.replace(" ","+")))
         
         url=url.replace(" ","+")
@@ -170,6 +178,9 @@ class tvdb:
     #end _getsoupsrc
     
     def _getMirrors(self):
+        """
+        Gets a list of mirrors from the API
+        """
         mirrorSoup=self._getsoupsrc( self.config['url_mirror'] )
         mirrors=[]
         for mirror in mirrorSoup.findAll('mirror'):
@@ -184,11 +195,23 @@ class tvdb:
     #end _getMirrors
 
     def _cleanName(self,name):
+        """
+        Cleans up showname returned by TheTVDB.com
+        
+        Issues corrected:
+        - Returns &amp; instead of &, since &s in filenames
+        are bad, replace &amp; with "and"
+        """
         name = name.replace("&amp;","and")
         return name
     #end _cleanName
     
     def _getSeries(self,series):
+        """
+        This searches TheTVDB.com for the series name,
+        and either interactivly selects the correct show,
+        or returns the first result.
+        """
         seriesSoup = self._getsoupsrc( self.config['url_getSeries'] % (series) )
         allSeries=[]
         for series in seriesSoup.findAll('series'):
@@ -282,7 +305,7 @@ class tvdb:
     def __getitem__(self,key):
         """
         Handles tvdb_instance['showname'] calls.
-        The dict index should be the show name
+        The dict index should be the show id
         """
         key=key.lower() # make key lower case
         sid = self._nameToSid(key)
