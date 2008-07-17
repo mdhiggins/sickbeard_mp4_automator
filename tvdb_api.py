@@ -234,7 +234,7 @@ class tvdb:
             print "TVDB Search Results:"
             for i in range(len(allSeries[:6])): # list first 6 search results
                 i_show = i + 1 # Start at more human readable number 1 (not zero)
-                self.log.debug( 'Showing allSeries[%s] = %s)' % (i_show,allSeries[i]) )
+                self.log.debug('Showing allSeries[%s] = %s)' % (i_show,allSeries[i]))
                 print "%s -> %s (tvdb id: %s)" % (i_show,allSeries[i]['name'].encode("UTF-8","ignore"),allSeries[i]['sid'].encode("UTF-8","ignore"))
             
             valid_input = False
@@ -245,10 +245,10 @@ class tvdb:
                 except KeyboardInterrupt:
                     raise tvdb_userabort("User aborted ('^c' keyboard interupt)")
             
-                self.log.debug( 'Got choice of: %s' % (ans))
+                self.log.debug('Got choice of: %s' % (ans))
                 try:
                     selected_id = int(ans) - 1 # The human entered 1 as first result, not zero
-                    self.log.debug( 'Trying to return ID: %d' % (selected_id))
+                    self.log.debug('Trying to return ID: %d' % (selected_id))
                     return allSeries[ selected_id ]
                 except ValueError: # Input was not number
                     if ans == "q":
@@ -293,7 +293,7 @@ class tvdb:
             self.log.debug('Getting show %s' % (name))
             selected_series = self._getSeries( name )
             sname, sid = selected_series['name'], selected_series['sid']
-            self.log.debug( "Got %s, sid %s" % (sname,sid) )
+            self.log.debug('Got %s, sid %s' % (sname,sid) )
             self.shows[sid] = _Ddict(dict)
             self.shows[sid]['showname'] = sname
             self.corrections[name] = sid
