@@ -272,7 +272,8 @@ class tvdb:
             ep_no = int( ep.find('episodenumber').contents[0] )
             seas_no = int( ep.find('seasonnumber').contents[0] )
             if len( ep.find('episodename').contents ) == 0:
-                raise tvdb_epnamenotfound
+                self.log.debug('Could not find episode name for seas:%s ep:%s' % (seas_no,ep_no))
+                ep_name = None
             else:
                 ep_name = str( ep.find('episodename').contents[0] )
             
