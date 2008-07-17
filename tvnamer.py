@@ -328,7 +328,6 @@ import unittest
 class test_tvnamer(unittest.TestCase):
     def setUp(self):
         self.verbose = False
-        print dir(self)
         
         self.name_formats = [
             '%(showname)s.s%(seasno)de%(epno)d.dsr.nf.avi',
