@@ -406,7 +406,6 @@ def simple_example():
     print db['Lost'][1][4]
 
 if __name__ == '__main__':
-    import sys
     from optparse import OptionParser
     parser = OptionParser(usage="%prog [options]")
 
@@ -418,6 +417,5 @@ if __name__ == '__main__':
     if opts.dotests:
         suite = unittest.TestLoader().loadTestsFromTestCase(test_tvdb)
         unittest.TextTestRunner(verbosity=2).run(suite)
-        sys.exit(0)
-    
-    simple_example()
+    else:
+        simple_example()
