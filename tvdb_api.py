@@ -113,7 +113,7 @@ class Cache:
             target_socket.close()
             return dat
         #end if cacheExists
-    #end getUrl
+    #end loadUrl
 #end Cache
 
 # Custom exceptions
