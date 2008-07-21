@@ -18,7 +18,7 @@ import os, sys, re
 from optparse import OptionParser
 
 from tvdb_api import tvdb_shownotfound, tvdb_epnamenotfound, tvdb_userabort
-from tvdb_api import tvdb
+from tvdb_api import Tvdb
 
 config={}
 
@@ -222,7 +222,7 @@ def main():
     print "# Starting tvnamer"
     print "# Processing %d files" % ( len(validFiles) )
     
-    t = tvdb(debug = opts.debug, interactive = opts.interactive)
+    t = Tvdb(debug = opts.debug, interactive = opts.interactive)
     
     print "# ..got tvdb mirrors"
     print "# Starting to process files"
