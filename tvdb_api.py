@@ -146,30 +146,35 @@ class tvdb:
     'Last Episode'
     """
     from BeautifulSoup import BeautifulStoneSoup
+    import random
     
     def __init__(self, interactive=False, debug=False):
-        self.config = {}
-        self.config['apikey'] = "0629B785CE550C8D"
-        # The following url_ configs are based of the
-        # http://thetvdb.com/wiki/index.php/Programmers_API
-        self.config['url_mirror'] = "http://www.thetvdb.com/api/%s/mirrors.xml" % (self.config['apikey'])
-        self.config['url_getSeries'] = "http://www.thetvdb.com/api/GetSeries.php?seriesname=%s"
-        self.config['url_epInfo'] = "http://www.thetvdb.com/api/%s/series/%%s/all/" % (self.config['apikey'])
+        self.shows = {} # Holds all show data in shows[show_id] = dict of ep data
+        self.corrections = {} # Holds show-name to show_id mapping
         
-        self.config['interactive'] = interactive # prompt for correct series?
+        self.config = {}
+        
+        self.config['apikey'] = "0629B785CE550C8D" # thetvdb.com API key
         
         self.config['debug_enabled'] = debug # show debugging messages
         self.config['debug_tofile'] = False
         self.config['debug_filename'] = "tvdb.log"
         self.config['debug_path'] = '.'
         
+        self.config['interactive'] = interactive # prompt for correct series?
+        
         self.cache = Cache(prefix="tvdb_api") # Caches retreived URLs in tmp dir
         self.log = self._initLogger() # Setups the logger (self.log.debug() etc)
-        self.shows = {} # Holds all show data in shows[show_id] = dict of ep data
-        self.corrections = {} # Holds show-name to show_id mapping
         
-        # Config setup. Grab TVDB mirrors
-        self.mirrors = self._getMirrors() # TODO: MINOR: Use random mirror
+        # The following url_ configs are based of the
+        # http://thetvdb.com/wiki/index.php/Programmers_API
+        self.config['url_mirror'] = "http://www.thetvdb.com/api/%(apikey)s/mirrors.xml" % self.config
+        self.mirrors = self._getMirrors()
+        
+        self.config['random_mirror'] = self.random.choice(self.mirrors)
+        
+        self.config['url_getSeries'] = "%(random_mirror)s/api/GetSeries.php?seriesname=%%s" % self.config
+        self.config['url_epInfo'] = "%(random_mirror)s/api/%(apikey)s/series/%%s/all/" % self.config
     #end __init__
     
     def _initLogger(self):
