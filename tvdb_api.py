@@ -3,19 +3,28 @@
 #author:dbr/Ben
 #project:tvdb_api
 #repository:http://github.com/dbr/tvdb_api
-#license:Creative Commons GNU GPL v2 (http://creativecommons.org/licenses/GPL/2.0/)
+#license:Creative Commons GNU GPL v2 
+# (http://creativecommons.org/licenses/GPL/2.0/)
 
-#
-# tvdb_api.py
-# Simple-to-use Python interface to The TVDB's API (www.thetvdb.com)
-#
+"""
+tvdb_api.py
+Simple-to-use Python interface to The TVDB's API (www.thetvdb.com)
+
+Example usage:
+
+>>> from tvdb_api import tvdb
+>>> db = tvdb()
+>>> db['Lost'][4][11]['name']
+'Cabin Fever'
+"""
 __author__ = "dbr/Ben"
-__version = "0.1"
+__version__ = "0.1"
 
 class _Ddict(dict):
     """Lazy-dict, automatically creates multidimensional dicts
     by having __getitem__ create sub-dicts automatically"""
     def __init__(self, default=None):
+        dict.__init__(self)
         self.default = default
     #end __init__
 
@@ -46,7 +55,7 @@ class Cache:
     except ImportError:
         import md5 as hasher
     
-    def __init__(self,prefix="tvdb_api"):
+    def __init__(self, prefix="tvdb_api"):
         self.prefix = prefix
         tmp = self.tempfile.gettempdir()
         tmppath = self.os.path.join(tmp, prefix)
@@ -55,7 +64,7 @@ class Cache:
         self.tmp = tmppath
     #end __init__
     
-    def getCachePath(self,url):
+    def getCachePath(self, url):
         """
         Calculates the cache path (/temp_directory/hash_of_URL)
         """
@@ -64,7 +73,7 @@ class Cache:
         return cache_path
     #end getUrl
     
-    def checkCache(self,url):
+    def checkCache(self, url):
         """
         Takes a URL, checks if a cache exists for it.
         If so, returns path, if not, returns False
@@ -76,32 +85,48 @@ class Cache:
             return False
     #end checkCache
 
-    def loadUrl(self,url):
+    def loadUrl(self, url):
         """
         Takes a URL, returns the contents of the URL, and does the caching.
         """
         cacheExists = self.checkCache(url)
         if cacheExists:
-            f=open(cacheExists)
-            dat = f.read()
-            f.close()
+            cache_file = open(cacheExists)
+            dat = cache_file.read()
+            cache_file.close()
             return dat
         else:
             path = self.getCachePath(url)
             dat = self.urllib.urlopen(url).read()
-            f=open(path,"w+")
-            f.write(dat)
-            f.close()
+            target_socket = open(path, "w+")
+            target_socket.write(dat)
+            target_socket.close()
             return dat
         #end if cacheExists
     #end getUrl
 #end Cache
 
 # Custom exceptions
-class tvdb_error(Exception):pass
-class tvdb_shownotfound(Exception):pass
-class tvdb_epnamenotfound(Exception):pass
-class tvdb_userabort(Exception):pass
+class tvdb_error(Exception):
+    """
+    An error with www.thetvdb.com (Cannot connect, for example)
+    """
+    pass
+class tvdb_shownotfound(Exception):
+    """
+    Show cannot be found on www.thetvdb.com (non-existant show)
+    """
+    pass
+class tvdb_epnamenotfound(Exception):
+    """
+    Episode name cannot be found on www.thetvdb.com
+    """
+    pass
+class tvdb_userabort(Exception):
+    """
+    User aborted the interactive selection (either via the q command, ^c etc)
+    """
+    pass
 
 class tvdb:
     """
@@ -112,15 +137,16 @@ class tvdb:
     """
     from BeautifulSoup import BeautifulStoneSoup
     
-    def __init__(self,interactive=False,debug=False):
-        self.config={}
+    def __init__(self, interactive=False, debug=False):
+        self.config = {}
         self.config['apikey'] = "0629B785CE550C8D"
-        # The following url_ configs are based of the http://www.thetvdb.com API documentation
+        # The following url_ configs are based of the
+        # http://thetvdb.com/wiki/index.php/Programmers_API
         self.config['url_mirror'] = "http://www.thetvdb.com/api/%s/mirrors.xml" % (self.config['apikey'])
         self.config['url_getSeries'] = "http://www.thetvdb.com/api/GetSeries.php?seriesname=%s"
         self.config['url_epInfo'] = "http://www.thetvdb.com/api/%s/series/%%s/all/" % (self.config['apikey'])
         
-        self.config['interactive'] = interactive # prompt for correct series if needed
+        self.config['interactive'] = interactive # prompt for correct series?
         
         self.config['debug_enabled'] = debug # show debugging messages
         self.config['debug_tofile'] = False
@@ -128,18 +154,21 @@ class tvdb:
         self.config['debug_path'] = '.'
         
         self.cache = Cache("tvdb_api") # Caches retreived URLs in tmp dir
-        self.log = self.initLogger() # Setups the logger (self.log.debug() etc)
+        self.log = self._initLogger() # Setups the logger (self.log.debug() etc)
         self.shows = {} # Holds all show data in shows[show_id] = dict of ep data
         self.corrections = {} # Holds show-name to show_id mapping
         
         # Config setup. Grab TVDB mirrors
-        self.mirrors = self._getMirrors() # TODO: Apply random mirror urls (Minor: Currently 1 mirror)
+        self.mirrors = self._getMirrors() # TODO: MINOR: Use random mirror
     #end __init__
     
-    def initLogger(self):
-        import os,logging,sys
+    def _initLogger(self):
+        """
+        Setups a logger using the logging module, returns a log object
+        """
+        import os, logging, sys
         logdir = os.path.expanduser( self.config['debug_path'] )
-        logpath = os.path.join(logdir,self.config['debug_filename'])
+        logpath = os.path.join(logdir, self.config['debug_filename'])
         
         logger = logging.getLogger("tvdb")
         formatter = logging.Formatter('%(asctime)s) %(levelname)s %(message)s')
@@ -160,20 +189,20 @@ class tvdb:
         return logger
     #end initLogger
     
-    def _getsoupsrc(self,url):
+    def _getsoupsrc(self, url):
         """
         Helper to get a URL, turn it into 
         a BeautifulStoneSoup instance (for XML parsing)
         """
-        self.log.debug('Retriving URL %s' % (url.replace(" ","+")))
+        self.log.debug('Retriving URL %s' % (url.replace(" ", "+")))
         
-        url=url.replace(" ","+")
+        url = url.replace(" ", "+")
         try:
-            src=self.cache.loadUrl(url)
-        except IOError,errormsg:
+            src = self.cache.loadUrl(url)
+        except IOError, errormsg:
             raise tvdb_error("Could not connect to server: %s\n" % (errormsg))
         #end try
-        soup=self.BeautifulStoneSoup(src)
+        soup = self.BeautifulStoneSoup(src)
         return soup
     #end _getsoupsrc
     
@@ -181,8 +210,8 @@ class tvdb:
         """
         Gets a list of mirrors from the API
         """
-        mirrorSoup=self._getsoupsrc( self.config['url_mirror'] )
-        mirrors=[]
+        mirrorSoup = self._getsoupsrc( self.config['url_mirror'] )
+        mirrors = []
         for mirror in mirrorSoup.findAll('mirror'):
             self.log.debug('Found mirror %s' % (mirror))
             
@@ -194,7 +223,7 @@ class tvdb:
         return mirrors
     #end _getMirrors
 
-    def _cleanName(self,name):
+    def _cleanName(self, name):
         """
         Cleans up showname returned by TheTVDB.com
         
@@ -202,23 +231,23 @@ class tvdb:
         - Returns &amp; instead of &, since &s in filenames
         are bad, replace &amp; with "and"
         """
-        name = name.replace("&amp;","and")
+        name = name.replace("&amp;", "and")
         return name
     #end _cleanName
     
-    def _getSeries(self,series):
+    def _getSeries(self, series):
         """
         This searches TheTVDB.com for the series name,
         and either interactivly selects the correct show,
         or returns the first result.
         """
         seriesSoup = self._getsoupsrc( self.config['url_getSeries'] % (series) )
-        allSeries=[]
+        allSeries = []
         for series in seriesSoup.findAll('series'):
             cur_name = series.find('seriesname').contents[0]
             cur_name = self._cleanName(cur_name)
             cur_sid = series.find('id').contents[0]
-            self.log.debug('Found series %s (id: %s)' % (cur_name,cur_sid))
+            self.log.debug('Found series %s (id: %s)' % (cur_name, cur_sid))
             allSeries.append( {'sid':cur_sid, 'name':cur_name} )
         #end for series
         
@@ -233,17 +262,21 @@ class tvdb:
             self.log.debug('Interactivily selecting show')
             print "TVDB Search Results:"
             for i in range(len(allSeries[:6])): # list first 6 search results
-                i_show = i + 1 # Start at more human readable number 1 (not zero)
-                self.log.debug('Showing allSeries[%s] = %s)' % (i_show,allSeries[i]))
-                print "%s -> %s (tvdb id: %s)" % (i_show,allSeries[i]['name'].encode("UTF-8","ignore"),allSeries[i]['sid'].encode("UTF-8","ignore"))
+                i_show = i + 1 # Start at more human readable number 1 (not 0)
+                self.log.debug('Showing allSeries[%s] = %s)' % (i_show, allSeries[i]))
+                print "%s -> %s (tvdb id: %s)" % (
+                    i_show,
+                    allSeries[i]['name'].encode("UTF-8","ignore"),
+                    allSeries[i]['sid'].encode("UTF-8","ignore")
+                )
             
             valid_input = False
             while not valid_input:
                 try:
                     print "Enter choice (first number, ? for help):"
-                    ans=raw_input()
+                    ans = raw_input()
                 except KeyboardInterrupt:
-                    raise tvdb_userabort("User aborted ('^c' keyboard interupt)")
+                    raise tvdb_userabort("User aborted (^c keyboard interupt)")
             
                 self.log.debug('Got choice of: %s' % (ans))
                 try:
@@ -265,14 +298,19 @@ class tvdb:
             #end while not valid_input
     #end _getSeries
 
-    def _getEps(self,sid):
+    def _getEps(self, sid):
+        """
+        Takes a series ID, gets the epInfo URL and parses the TVDB
+        XML file into the shows dict in layout:
+        shows[series_id][season_number][episode_number]
+        """
         self.log.debug('Getting all episodes of %s' % (sid))
-        epsSoup=self._getsoupsrc( self.config['url_epInfo']% (sid) )
+        epsSoup = self._getsoupsrc( self.config['url_epInfo']% (sid) )
         for ep in epsSoup.findAll('episode'):
             ep_no = int( ep.find('episodenumber').contents[0] )
             seas_no = int( ep.find('seasonnumber').contents[0] )
             if len( ep.find('episodename').contents ) == 0:
-                self.log.debug('Could not find episode name for seas:%s ep:%s' % (seas_no,ep_no))
+                self.log.debug('Could not find episode name for seas:%s ep:%s' % (seas_no, ep_no))
                 ep_name = None
             else:
                 ep_name = str( ep.find('episodename').contents[0] )
@@ -281,20 +319,20 @@ class tvdb:
         #end for ep
     #end _geEps
     
-    def _nameToSid(self,name):
+    def _nameToSid(self, name):
         """
         Takes show name, returns the correct series ID (if the show has
         already been grabbed), or grabs all episodes and returns 
         the correct SID.
         """
         if self.corrections.has_key(name):
-            self.log.debug('Correcting %s to %s' % (name,self.corrections[name]) )
+            self.log.debug('Correcting %s to %s' % (name, self.corrections[name]) )
             sid = self.corrections[name]
         else:
             self.log.debug('Getting show %s' % (name))
             selected_series = self._getSeries( name )
             sname, sid = selected_series['name'], selected_series['sid']
-            self.log.debug('Got %s, sid %s' % (sname,sid) )
+            self.log.debug('Got %s, sid %s' % (sname, sid) )
             self.shows[sid] = _Ddict(dict)
             self.shows[sid]['showname'] = sname
             self.corrections[name] = sid
@@ -303,27 +341,73 @@ class tvdb:
         return sid
     #end _nameToSid
 
-    def __getitem__(self,key):
+    def __getitem__(self, key):
         """
         Handles tvdb_instance['showname'] calls.
         The dict index should be the show id
         """
-        key=key.lower() # make key lower case
+        key = key.lower() # make key lower case
         sid = self._nameToSid(key)
         self.log.debug('Got series id %s' % (sid))
         return dict.__getitem__(self.shows, sid)
     #end __getitem__
     
-    def __setitem__(self,key,value):
-        self.log.debug('Setting %s = %s' % (key,value))
+    def __setitem__(self, key, value):
+        self.log.debug('Setting %s = %s' % (key, value))
         self.shows[key] = value
     #end __getitem__
     def __str__(self):
-        return str(self.shows) #TODO: Improve this
+        return str(self.shows)
     #end __str__
 #end tvdb
 
+import unittest
+class test_tvdb(unittest.TestCase):
+    def setUp(self):
+        self.t = tvdb()
+    
+    def test_different_case(self):
+        self.assertEquals(self.t['scrubs'][1][4]['name'], 'My Old Lady')
+        self.assertEquals(self.t['sCruBs']['showname'], 'Scrubs')
+    
+    def test_spaces(self):
+        self.assertEquals(self.t['My Name Is Earl']['showname'], 'My Name Is Earl')
+        self.assertEquals(self.t['My Name Is Earl'][1][4]['name'], 'Faked His Own Death')
+    
+    def test_numeric(self):
+        self.assertEquals(self.t['24'][2][20]['name'], 'Day 2: 3:00 A.M.-4:00 A.M.')
+        self.assertEquals(self.t['24']['showname'], '24')
+    
+    def test_epnamenotfound(self):
+        self.assertRaises(tvdb_epnamenotfound, lambda:self.t['CNNNN'][1][2])
+    
+    def test_shownotfound(self):
+        self.assertRaises(tvdb_shownotfound, lambda:self.t['the fake show thingy'])
+    
+#end test_tvnamer
+
+def simple_example():
+    """
+    Simple example of using tvdb_api - it just 
+    grabs an episode name interactivly.
+    """
+    db = tvdb(interactive=True, debug=True)
+    print db['lost'][1][4]
+    print db['Lost'][1][4]
+
 if __name__ == '__main__':
-    x=tvdb(interactive=True,debug=True)
-    print x['lost'][1][4]
-    print x['Lost'][1][4]
+    import sys
+    from optparse import OptionParser
+    parser = OptionParser(usage="%prog [options]")
+
+    parser.add_option(  "-t", "--tests", action="store_true", default=False, dest="dotests",
+                        help="Run unittests (mostly useful for development)")
+    
+    opts, args = parser.parse_args()
+
+    if opts.dotests:
+        suite = unittest.TestLoader().loadTestsFromTestCase(test_tvdb)
+        unittest.TextTestRunner(verbosity=2).run(suite)
+        sys.exit(0)
+    
+    simple_example()

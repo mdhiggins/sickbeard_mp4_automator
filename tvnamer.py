@@ -5,15 +5,16 @@
 #repository:http://github.com/dbr/tvdb_api
 #license:Creative Commons GNU GPL v2 (http://creativecommons.org/licenses/GPL/2.0/)
 
-#
-# tvnamer.py
-# Automatic TV episode namer.
-# Uses data from www.thetvdb.com via tvdb_api
-#
+"""
+tvnamer.py
+Automatic TV episode namer.
+Uses data from www.thetvdb.com via tvdb_api
+"""
+
 __author__ = "dbr/Ben"
 __version__ = "0.1"
 
-import os,sys,re
+import os, sys, re
 from optparse import OptionParser
 
 from tvdb_api import tvdb_shownotfound, tvdb_epnamenotfound, tvdb_userabort
@@ -83,35 +84,35 @@ def findFiles(args):
     more than one level (if a folder is supplied, it will list files within)
     """
     allfiles=[]
-    for x in args:
-        if os.path.isdir(x):
-            for sf in os.listdir(x):
-                newpath = os.path.join(x,sf)
+    for cfile in args:
+        if os.path.isdir(cfile):
+            for sf in os.listdir(cfile):
+                newpath = os.path.join(cfile, sf)
                 if os.path.isfile(newpath):
                     allfiles.append(newpath)
                 #end if isfile
             #end for sf
-        elif os.path.isfile(x):
-            allfiles.append(x)
+        elif os.path.isfile(cfile):
+            allfiles.append(cfile)
         #end if isdir
-    #end for x
+    #end for cfile
     return allfiles
 #end findFiles
 
-def processNames(names,verbose=False):
+def processNames(names, verbose=False):
     """
     Takes list of names, runs them though the config['name_parse'] regexs
     """
     allEps=[]
     for f in names:
-        filepath,filename = os.path.split( f )
-        filename,ext = os.path.splitext( filename )
+        filepath, filename = os.path.split( f )
+        filename, ext = os.path.splitext( filename )
         for r in config['name_parse']:
             match = r.match(filename)
             if match:
-                showname,seasno,epno = match.groups()
-                showname = showname.replace("."," ").strip()
-                seasno,epno = int(seasno), int(epno)
+                showname, seasno, epno = match.groups()
+                showname = showname.replace(".", " ").strip()
+                seasno, epno = int(seasno), int(epno)
                 
                 if verbose:
                     print "*"*20
@@ -143,7 +144,7 @@ def formatName(cfile):
     Takes a file dict and renames files using the configured format
     """
     orig_ext = cfile['ext']
-    cfile['ext'] = cfile['ext'].replace(".","",1)
+    cfile['ext'] = cfile['ext'].replace(".", "", 1)
     if cfile['epname']:
         n = config['with_ep_name'] % (cfile)
     else:
@@ -157,27 +158,27 @@ def cleanName(name):
     """
     Cleans the supplied filename for renaming-to
     """
-    name = name.encode('ascii','ignore') # convert unicode to ASCII
+    name = name.encode('ascii', 'ignore') # convert unicode to ASCII
     
     return ''.join( [c for c in name if c in config['valid_filename_chars']] )
 #end cleanName
 
-def renameFile(oldfile,newfile,force=False):
+def renameFile(oldfile, newfile, force=False):
     """
     Renames files, does not overwrite files unless forced
     """
-    new_exists = os.access(newfile,os.F_OK)
+    new_exists = os.access(newfile, os.F_OK)
     if new_exists:
         sys.stderr.write("New filename already exists.. ")
         if force:
             sys.stderr.write("overwriting\n")
-            os.rename(oldfile,newfile)
+            os.rename(oldfile, newfile)
         else:
             sys.stderr.write("skipping\n")
             return False
         #end if force
     else:
-        os.rename(oldfile,newfile)
+        os.rename(oldfile, newfile)
         return True
     #end if new_exists
     
@@ -185,20 +186,20 @@ def renameFile(oldfile,newfile,force=False):
 def main():
     parser = OptionParser(usage="%prog [options] <file or directories>")
 
-    parser.add_option(  "-d","--debug",action="store_true",default=False,dest="debug",
+    parser.add_option(  "-d", "--debug", action="store_true", default=False, dest="debug",
                         help="show debugging info")
-    parser.add_option(  "-b","--batch",action="store_false",dest="interactive",
-                        help="selects first search result, requires no human intervention once launched",default=False)
-    parser.add_option(  "-i","--interactive",action="store_true",dest="interactive",default=True,
+    parser.add_option(  "-b", "--batch", action="store_false", dest="interactive",
+                        help="selects first search result, requires no human intervention once launched", default=False)
+    parser.add_option(  "-i", "--interactive", action="store_true", dest="interactive", default=True,
                         help="interactivly select correct show from search results [default]")
-    parser.add_option(  "-a","--always",action="store_true",default=False,dest="always",
+    parser.add_option(  "-a", "--always", action="store_true", default=False, dest="always",
                         help="always renames files (but still lets user select correct show). Can be changed during runtime with the 'a' prompt-option")
-    parser.add_option(  "-f","--force",action="store_true",default=False,dest="force",
+    parser.add_option(  "-f", "--force", action="store_true", default=False, dest="force",
                         help="forces file to be renamed, even if it will overwrite an existing file")
-    parser.add_option(  "-t","--tests",action="store_true",default=False,dest="dotests",
+    parser.add_option(  "-t", "--tests", action="store_true", default=False, dest="dotests",
                         help="Run unittests (mostly useful for development)")
     
-    opts,args = parser.parse_args()
+    opts, args = parser.parse_args()
 
     if opts.dotests:
         suite = unittest.TestLoader().loadTestsFromTestCase(test_tvnamer)
@@ -232,7 +233,7 @@ def main():
         try:
             # Ask for episode name from tvdb_api
             epname = t[ cfile['file_showname'] ][ cfile['seasno'] ][ cfile['epno'] ]['name']
-        except (tvdb_shownotfound,tvdb_epnamenotfound):
+        except (tvdb_shownotfound, tvdb_epnamenotfound):
             # No such show
             epname = None
             showname = None
@@ -248,13 +249,17 @@ def main():
             cfile['epname'] = epname
         else:
             cfile['epname'] = None
-            sys.stderr.write("! Warning: Episode name not found for %s (in %s)\n" % ( cfile['file_showname'], cfile['filepath'] ) )
+            sys.stderr.write("! Warning: Episode name not found for %s (in %s)\n" % (
+                cfile['file_showname'],
+                cfile['filepath'] ) 
+            )
         #end if epname
         
         if showname:
             cfile['showname'] = showname
         else:
-            cfile['showname'] = cfile['file_showname'] # no corrected showname found, use one from filename
+            # no corrected showname found, use one from filename
+            cfile['showname'] = cfile['file_showname']
         
         # Format new filename, strip unwanted characters
         newname = formatName(cfile)
@@ -278,7 +283,7 @@ def main():
         
         # Either always rename, or prompt user
         if opts.always or (not opts.interactive):
-            rename_result = renameFile(oldfile,newfile,force=opts.force)
+            rename_result = renameFile(oldfile, newfile, force=opts.force)
             if rename_result:
                 print "..auto-renaming"
             else:
@@ -300,15 +305,15 @@ def main():
         
         if len(ans) == 0:
             print "Renaming (default)"
-            rename_result = renameFile(oldfile,newfile,force=opts.force)
+            rename_result = renameFile(oldfile, newfile, force=opts.force)
         elif ans[0] == "a":
             opts.always=True
-            rename_result = renameFile(oldfile,newfile,force=opts.force)
+            rename_result = renameFile(oldfile, newfile, force=opts.force)
         elif ans[0] == "q":
             print "Aborting"
             break
         elif ans[0] == "y":
-            rename_result = renameFile(oldfile,newfile,force=opts.force)
+            rename_result = renameFile(oldfile, newfile, force=opts.force)
         elif ans[0] == "n":
             print "Skipping"
             continue
@@ -381,21 +386,6 @@ class test_tvnamer(unittest.TestCase):
             self.assertEquals( c['seasno'], 1 )
             self.assertEquals( c['file_showname'], name_data['showname'] )
     #end test_name_parser_shownumeric
-        
-        
-    
-    def test_tvdb(self):
-        import tvdb_api
-        t=tvdb_api.tvdb()
-        self.assertEquals(t['scrubs'][1][4]['name'], 'My Old Lady')
-        self.assertEquals(t['sCruBs']['showname'], 'Scrubs')
-        
-        self.assertEquals(t['24'][2][20]['name'], 'Day 2: 3:00 A.M.-4:00 A.M.')
-        self.assertEquals(t['24']['showname'], '24')
-        def _tmp_tvdb_raiser():
-            t['the fake show thingy']
-        self.assertRaises(tvdb_api.tvdb_shownotfound, _tmp_tvdb_raiser)
-    #end test_tvdb
 #end test_tvnamer
 
 if __name__ == "__main__":
