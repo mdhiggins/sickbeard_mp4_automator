@@ -48,6 +48,7 @@ class Cache:
     <html><body>page!</body></html>
     """
     import os
+    import time
     import tempfile
     import urllib
     try:
@@ -55,8 +56,10 @@ class Cache:
     except ImportError:
         import md5 as hasher
     
-    def __init__(self, prefix="tvdb_api"):
+    def __init__(self, max_age=21600, prefix="tvdb_api"):
         self.prefix = prefix
+        self.max_age = max_age
+        
         tmp = self.tempfile.gettempdir()
         tmppath = self.os.path.join(tmp, prefix)
         if not self.os.path.isdir(tmppath):
@@ -80,7 +83,14 @@ class Cache:
         """
         path = self.getCachePath(url)
         if self.os.path.isfile(path):
-            return path
+            cache_modified_time = self.os.stat(path).st_mtime
+            time_now = self.time.time()
+            if cache_modified_time < time_now - self.max_age:
+                print "Cache old!"
+                # Cache is old
+                return False
+            else:
+                return path
         else:
             return False
     #end checkCache
@@ -153,7 +163,7 @@ class tvdb:
         self.config['debug_filename'] = "tvdb.log"
         self.config['debug_path'] = '.'
         
-        self.cache = Cache("tvdb_api") # Caches retreived URLs in tmp dir
+        self.cache = Cache(prefix="tvdb_api") # Caches retreived URLs in tmp dir
         self.log = self._initLogger() # Setups the logger (self.log.debug() etc)
         self.shows = {} # Holds all show data in shows[show_id] = dict of ep data
         self.corrections = {} # Holds show-name to show_id mapping
