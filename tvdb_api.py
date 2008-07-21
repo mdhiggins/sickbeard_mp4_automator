@@ -138,10 +138,10 @@ class tvdb_userabort(Exception):
     """
     pass
 
-class tvdb:
+class Tvdb:
     """
     Create easy-to-use interface to name of season/episode name
-    >>> i = tvdb()
+    >>> i = Tvdb()
     >>> i['showname']['1']['24']['name']
     'Last Episode'
     """
@@ -374,12 +374,12 @@ class tvdb:
     def __str__(self):
         return str(self.shows)
     #end __str__
-#end tvdb
+#end Tvdb
 
 import unittest
 class test_tvdb(unittest.TestCase):
     def setUp(self):
-        self.t = tvdb()
+        self.t = Tvdb()
     
     def test_different_case(self):
         self.assertEquals(self.t['scrubs'][1][4]['name'], 'My Old Lady')
@@ -406,7 +406,7 @@ def simple_example():
     Simple example of using tvdb_api - it just 
     grabs an episode name interactivly.
     """
-    db = tvdb(interactive=True, debug=True)
+    db = Tvdb(interactive=True, debug=True)
     print db['lost'][1][4]
     print db['Lost'][1][4]
 
