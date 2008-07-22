@@ -116,6 +116,100 @@ class Cache:
     #end loadUrl
 #end Cache
 
+
+class ShowContainer:
+    def __init__(self):
+        self.shows = {}
+    #end __init__
+    
+    def __getitem__(self, show_name):
+        if not self.shows.has_key(show_name):
+            self.shows[show_name] = Show(show_name)
+        return dict.__getitem__(self.shows, show_name)
+    #end __getitem__
+    
+    def __str__(self):
+        out=""
+        for current_show_name, current_show in self.shows.items():
+            out += str(current_show) + "\n"
+        return out
+        
+class Show:
+    def __init__(self, name):
+        self.show_name = name
+        self.seasons = {}
+    #end __init__
+    
+    def __getitem__(self,season_number):
+        if not self.seasons.has_key(season_number):
+            self.seasons[season_number] = Season(season_number)
+        
+        return dict.__getitem__(self.seasons, season_number)
+    #end __getattr__
+    
+    def __setitem__(self,season_number, season):
+        if not self.seasons.has_key(season_number):
+            self.seasons[season_number] = Season(season_number)
+        
+        self.seasons[season_number] = season
+    #end __setitem__
+    
+    def __str__(self):
+        out = self.show_name + "\n"
+        for cur_season_no, cur_season in self.seasons.items():
+            out += str(cur_season) + "\n"
+        return out
+    #end __str__
+#end Show
+
+class Season:
+    def __init__(self, number):
+        self.season_number = number
+        self.episodes = {}
+    #end __init__
+    
+    def __getitem__(self, episode_number):
+        if not self.episodes.has_key(episode_number):
+            self.episodes[episode_number] = Episode(number = episode_number)
+        
+        return dict.__getitem__(self.episodes, episode_number)
+    #end __getitem__
+    
+    def __setitem__(self,episode_number, episode):
+        if not self.episodes.has_key(episode_number):
+            self.episodes[episode_number] = Episode(episode_number)
+        
+        self.episodes[episode_number] = episode
+    #end __setitem__
+    
+    def __str__(self):
+        out = "\tSeason %s\n" % (self.season_number)
+        out += "\t\t"
+        all_ep_nums = [cur_ep_num for cur_ep_num in self.episodes.keys()]
+        out += "Episodes " + str(seq_display(all_ep_nums))
+        return out
+    #end __str__
+#end Season
+
+class Episode:
+    def __init__(self, number):
+        self.episode_number = number
+        self.episode={}
+    #end __init__
+    
+    def __getitem__(self,attr):
+        return dict.__getitem__(self.episode, attr)
+    #end __getitem__
+    
+    def __setitem__(self,attr,name):
+        dict.__setitem__(self.episode, attr, name)
+    #end __setitem__
+    
+    def __str__(self):
+        return "%d - %s" % (self.episode_number, str(self.episode))
+#end Episode
+
+
 # Custom exceptions
 class tvdb_error(Exception):
     """
@@ -149,7 +243,7 @@ class Tvdb:
     import random
     
     def __init__(self, interactive=False, debug=False):
-        self.shows = {} # Holds all show data in shows[show_id] = dict of ep data
+        self.shows = ShowContainer() # Holds all Show classes
         self.corrections = {} # Holds show-name to show_id mapping
         
         self.config = {}
@@ -348,7 +442,7 @@ class Tvdb:
             selected_series = self._getSeries( name )
             sname, sid = selected_series['name'], selected_series['sid']
             self.log.debug('Got %s, sid %s' % (sname, sid) )
-            self.shows[sid] = _Ddict(dict)
+            #self.shows[sid]
             self.shows[sid]['showname'] = sname
             self.corrections[name] = sid
             self._getEps( sid )
@@ -364,7 +458,7 @@ class Tvdb:
         key = key.lower() # make key lower case
         sid = self._nameToSid(key)
         self.log.debug('Got series id %s' % (sid))
-        return dict.__getitem__(self.shows, sid)
+        return self.shows[sid]
     #end __getitem__
     
     def __setitem__(self, key, value):
