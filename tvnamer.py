@@ -77,7 +77,7 @@ def processNames(names, verbose=False):
             if match:
                 showname, seasno, epno = match.groups()
                 #remove ._- characters from name (- removed only if next to end of line)
-                showname = re.sub("[\._]|\-(?=$)", " ", showname.strip()).strip() 
+                showname = re.sub("[\._]|\-(?=$)", " ", showname).strip() 
                 seasno, epno = int(seasno), int(epno)
                 
                 if verbose:
