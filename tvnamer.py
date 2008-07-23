@@ -171,7 +171,7 @@ def main():
     opts, args = parser.parse_args()
 
     if opts.dotests:
-        suite = unittest.TestLoader().loadTestsFromTestCase(test_tvnamer)
+        suite = unittest.TestLoader().loadTestsFromTestCase(test_name_parser)
         unittest.TextTestRunner(verbosity=2).run(suite)
         sys.exit(0)
     #end if dotests
@@ -298,7 +298,7 @@ def main():
 #end main
 
 import unittest
-class test_tvnamer(unittest.TestCase):
+class test_name_parser(unittest.TestCase):
     def setUp(self):
         self.verbose = False
         
@@ -357,6 +357,7 @@ class test_tvnamer(unittest.TestCase):
             self.assertEquals( c['file_showname'], name_data['showname'] )
     #end test_name_parser_shownumeric
 #end test_tvnamer
+#end test_name_parser
 
 if __name__ == "__main__":
     main()
