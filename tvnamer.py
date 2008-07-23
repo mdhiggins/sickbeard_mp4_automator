@@ -305,59 +305,90 @@ class test_name_parser(unittest.TestCase):
         
         #scene naming standards: http://tvunderground.org.ru/forum/index.php?showtopic=8488
         self.name_formats = [
-            '%(showname)s.s%(seasno)de%(epno)d.dsr.nf.avi',               #showname.s01e02.epname.avi
-            '%(showname)s.S%(seasno)dE%(epno)d.PROPER.dsr.nf.avi',        #showname.S01E02.PROPER.epname.avi
-            '%(showname)s.s%(seasno)d.e%(epno)d.avi',                     #showname.s01.e02.avi
-            '%(showname)s-s%(seasno)de%(epno)d.avi',                      #showname-s01e02.avi
-            '%(showname)s-s%(seasno)de%(epno)d.the.wrong.ep.name.avi',    #showname-s01e02.epname
-            '%(showname)s - [%(seasno)dx%(epno)d].avi',                   #showname - [01x02].avi
-            '%(showname)s - [%(seasno)dx0%(epno)d].avi',                  #showname - [01x002].avi
-            '%(showname)s-[%(seasno)dx%(epno)d].avi',                     #showname-[01x02].avi
-            '%(showname)s [%(seasno)dx%(epno)d].avi',                     #showname [01x02].avi
-            '%(showname)s [%(seasno)dx%(epno)d] - the wrong ep name.avi', #showname [01x02] - epname.avi
-            '%(showname)s [%(seasno)dx%(epno)d] the wrong ep name.avi',   #showname [01x02] epname.avi
-            '%(showname)s.%(seasno)dx%(epno)d.The_Wrong_ep_name.avi',     #showname.01x02.epname.avi
-            '%(showname)s.%(seasno)d%(epno)d.The Wrong_ep.names.avi',     #showname.102.epname.avi
-            '%(showname)s_s%(seasno)de%(epno)d_The_Wrong_ep_na-me.avi',   #showname_s1e02_epname.avi
-            '%(showname)s - s%(seasno)de%(epno)d - dsr.nf.avi'            #showname - s01e02 - epname.avi
+            '%(showname)s.s%(seasno)de%(epno)d.dsr.nf.avi',                 #showname.s01e02.dsr.nf.avi
+            '%(showname)s.S%(seasno)dE%(epno)d.PROPER.dsr.nf.avi',          #showname.S01E02.PROPER.dsr.nf.avi
+            '%(showname)s.s%(seasno)d.e%(epno)d.avi',                       #showname.s01.e02.avi
+            '%(showname)s-s%(seasno)de%(epno)d.avi',                        #showname-s01e02.avi
+            '%(showname)s-s%(seasno)de%(epno)d.the.wrong.ep.name.avi',      #showname-s01e02.the.wrong.ep.name.avi
+            '%(showname)s - [%(seasno)dx%(epno)d].avi',                     #showname - [01x02].avi
+            '%(showname)s - [%(seasno)dx0%(epno)d].avi',                    #showname - [01x002].avi
+            '%(showname)s-[%(seasno)dx%(epno)d].avi',                       #showname-[01x02].avi
+            '%(showname)s [%(seasno)dx%(epno)d].avi',                       #showname [01x02].avi
+            '%(showname)s [%(seasno)dx%(epno)d] the wrong ep name.avi',     #showname [01x02] epname.avi
+            '%(showname)s [%(seasno)dx%(epno)d] - the wrong ep name.avi',   #showname [01x02] - the wrong ep name.avi
+            '%(showname)s - [%(seasno)dx%(epno)d] - the wrong ep name.avi', #showname - [01x02] - the wrong ep name.avi
+            '%(showname)s.%(seasno)dx%(epno)d.The_Wrong_ep_name.avi',       #showname.01x02.epname.avi
+            '%(showname)s.%(seasno)d%(epno)02d.The Wrong_ep.names.avi',     #showname.102.epname.avi
+            '%(showname)s_s%(seasno)de%(epno)d_The_Wrong_ep_na-me.avi',     #showname_s1e02_epname.avi
+            '%(showname)s - s%(seasno)de%(epno)d - dsr.nf.avi'              #showname - s01e02 - dsr.nf.avi
+            '%(showname)s - s%(seasno)de%(epno)d - the wrong ep name.avi'   #showname - s01e02 - the wrong ep name.avi
+            '%(showname)s - s%(seasno)de%(epno)d - the wrong ep name.avi'   #showname - s01e02 - the_wrong_ep_name!.avi
         ]
     
-    def test_name_parser_showname(self):
-        name_data = {'showname':'show name', 'seasno':1, 'epno':21}
-        names = [x % name_data for x in self.name_formats]
+    def test_name_parser_basic(self):
+        """
+        Tests most basic filename (simple showname, season 1 ep 21)
+        """
+        name_data = {'showname':'show name'}
         
-        proced = processNames(names, self.verbose)
-        self.assertEquals( len(names), len(proced) )
-        for c in proced:
-            self.assertEquals( c['epno'], 21)
-            self.assertEquals( c['seasno'], 1 )
-            self.assertEquals( c['file_showname'], name_data['showname'] )
+        self._run_test(name_data)
     #end test_name_parser
     
     def test_name_parser_showdashname(self):
-        name_data = {'showname':'S-how name', 'seasno':1, 'epno':21}
-        names = [x % name_data for x in self.name_formats]
+        """
+        Tests with dash in showname
+        """
+        name_data = {'showname':'S-how name'}
         
-        proced = processNames(names, self.verbose)
-        self.assertEquals( len(names), len(proced) )
-        for c in proced:
-            self.assertEquals( c['epno'], 21)
-            self.assertEquals( c['seasno'], 1 )
-            self.assertEquals( c['file_showname'], name_data['showname'] )
+        self._run_test(name_data)
     #end test_name_parser_showdashname
     
     def test_name_parser_shownumeric(self):
-        name_data = {'showname':'123 2008', 'seasno':1, 'epno':21}
-        names = [x % name_data for x in self.name_formats]
+        name_data = {'showname':'123'}
         
-        proced = processNames(names, self.verbose)
-        self.assertEquals( len(names), len(proced) )
-        for c in proced:
-            self.assertEquals( c['epno'], 21)
-            self.assertEquals( c['seasno'], 1 )
-            self.assertEquals( c['file_showname'], name_data['showname'] )
+        self._run_test(name_data)
     #end test_name_parser_shownumeric
-#end test_tvnamer
+    
+    def test_name_parser_exclaim(self):
+        name_data = {'showname':'Show name!'}
+        
+        self._run_test(name_data)
+    #end test_name_parser_exclaim
+    
+    def test_name_parser_num_seq(self):
+        name_data = {'showname' : 'Show name'}
+        self._run_test(name_data)
+    #end test_name_parser_num_seq
+    
+    def _run_test(self, name_data):
+        """
+        Runs the tests and checks if the parsed values have
+        the correct showname/season number/episode number.
+        Runs from season 0 ep 0 to season 1000, ep 1000.
+        """
+        for seas in xrange(1, 99):
+            for ep in xrange(1, 99):
+                name_data['seasno'] = seas
+                name_data['epno'] = ep
+                
+                names = [x % name_data for x in self.name_formats]
+        
+                proced = processNames(names, self.verbose)
+                self.assertEquals(len(names), len(proced))
+                
+                for c in proced:
+                    try:
+                        self.assertEquals( c['epno'], name_data['epno'])
+                        self.assertEquals( c['seasno'], name_data['seasno'] )
+                        self.assertEquals( c['file_showname'], name_data['showname'] )
+                    except AssertionError, errormsg:
+                        # Show output of regex match in traceback (instead of "0 != 10")
+                        new_errormsg = str(c) + "\n" + str(errormsg)
+                        raise AssertionError, new_errormsg
+                #end for c in proced
+            #end for ep
+        #end for seas
+    #end run_test
 #end test_name_parser
 
 if __name__ == "__main__":
