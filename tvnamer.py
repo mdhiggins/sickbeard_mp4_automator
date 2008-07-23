@@ -21,7 +21,7 @@ from optparse import OptionParser
 from tvdb_api import tvdb_shownotfound, tvdb_epnamenotfound, tvdb_userabort
 from tvdb_api import Tvdb
 
-config={}
+config = {}
 
 # The format of the renamed files (with and without episode names)
 config['with_ep_name'] = '%(showname)s - [%(seasno)02dx%(epno)02d] - %(epname)s.%(ext)s'
@@ -48,7 +48,7 @@ def findFiles(args):
     Takes a list of files/folders, grabs files inside them. Does not recurse
     more than one level (if a folder is supplied, it will list files within)
     """
-    allfiles=[]
+    allfiles = []
     for cfile in args:
         if os.path.isdir(cfile):
             for sf in os.listdir(cfile):
@@ -68,7 +68,7 @@ def processNames(names, verbose=False):
     """
     Takes list of names, runs them though the config['name_parse'] regexs
     """
-    allEps=[]
+    allEps = []
     for f in names:
         filepath, filename = os.path.split( f )
         filename, ext = os.path.splitext( filename )
@@ -262,8 +262,7 @@ def main():
         print "Rename?"
         print "([y]/n/a/q)",
         try:
-            ans=raw_input()
-            ans = ans.strip()
+            ans = raw_input().strip()
         except KeyboardInterrupt, errormsg:
             print "User aborted (^c)"
             break
@@ -273,7 +272,7 @@ def main():
             print "Renaming (default)"
             rename_result = renameFile(oldfile, newfile, force=opts.force)
         elif ans[0] == "a":
-            opts.always=True
+            opts.always = True
             rename_result = renameFile(oldfile, newfile, force=opts.force)
         elif ans[0] == "q":
             print "Aborting"
