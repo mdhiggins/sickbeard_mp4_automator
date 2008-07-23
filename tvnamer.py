@@ -300,6 +300,7 @@ def main():
 import unittest
 class test_name_parser(unittest.TestCase):
     def setUp(self):
+        # Shows verbose regex matching information
         self.verbose = False
         
         #scene naming standards: http://tvunderground.org.ru/forum/index.php?showtopic=8488
