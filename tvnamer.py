@@ -32,50 +32,14 @@ config['valid_filename_chars'] = """0123456789abcdefghijklmnopqrstuvwxyzABCDEFGH
 # Regex's to parse filenames with. Must have 3 groups, showname, season number
 # and episode number. Use (?: optional) non-capturing groups if you need others.
 config['name_parse'] = [
-    # show name - [01x23] - blah
-    re.compile('''
-    ^(
-        [\w\d\.\-\' ]* # show name
-    )
-    (?: \- )? -
-    [\[ ]{1,2}
-        (\d+)x(\d+)
-    (?:\])?
-    .*?
-    $
-    ''', re.IGNORECASE|re.VERBOSE),
-    
-    # show.name.s01e02
-    re.compile('''
-    ^(
-        [\w\d\.\-\' ]*
-    )
-    (?: \- |\.|\-)
-    s(\d+)
-        (?:[\.\-]{1})?
-    e(\d+)
-    (?:\D|$)
-    ''', re.IGNORECASE|re.VERBOSE ),
-    
-    re.compile('''
-    ^(
-        [\w\d\.\-\' ]*
-    )
-    (?: \- |\.)?
-    .*?
-    (\d+)x(\d+)
-    (?:\D|$)
-    ''', re.IGNORECASE|re.VERBOSE ),
-    
-    re.compile('''
-    ^(
-        [\w\d\.\-\' ]*
-    )
-    (?: \- )?
-    \D+
-    (\d+?)(\d{2})
-    .*?
-    (?:\D|$)''', re.IGNORECASE|re.VERBOSE ),
+    # foo_[s01]_[e01]
+    re.compile('''^([\w\d\.\-\' ]*)[ \._\-]\[[Ss]([0-9]+)\]_\[[Ee]([0-9]+)\]?[^\\/]*$'''),
+    # foo.1x09*
+    re.compile('''^([\w\d\.\-\' ]*)[ \._\-]\[?([0-9]+)x([0-9]+)[^\\/]*$'''),
+    # foo.s01.e01, foo.s01_e01
+    re.compile('''^([\w\d\.\-\' ]*)[ \._\-][Ss]([0-9]+)[\.-]?[Ee]([0-9]+)[^\\/]*$'''),
+    # foo.103*
+    re.compile('''^([\w\d\.\-\' ]*)[ \._\-]([0-9]+)([0-9][0-9])[\._ -][^\\/]*$'''),
 ]
 
 
@@ -112,7 +76,8 @@ def processNames(names, verbose=False):
             match = r.match(filename)
             if match:
                 showname, seasno, epno = match.groups()
-                showname = showname.replace(".", " ").strip()
+                #remove ._- characters from name (- removed only if next to end of line)
+                showname = re.sub("[\._]|\-(?=$)", " ", showname.strip()).strip() 
                 seasno, epno = int(seasno), int(epno)
                 
                 if verbose:
@@ -133,7 +98,7 @@ def processNames(names, verbose=False):
                              })
                 break
         else:
-            print "Invalid name %s"%(f)
+            print "Invalid name: %s"%(f)
         #end for r
     #end for f
     
@@ -335,21 +300,23 @@ class test_tvnamer(unittest.TestCase):
     def setUp(self):
         self.verbose = False
         
+        #scene naming standards: http://tvunderground.org.ru/forum/index.php?showtopic=8488
         self.name_formats = [
-            '%(showname)s.s%(seasno)de%(epno)d.dsr.nf.avi',
-            '%(showname)s.s%(seasno)d.e%(epno)d.avi',
-            '%(showname)s-s%(seasno)de%(epno)d.avi',
-            '%(showname)s-s%(seasno)de%(epno)d.the.wrong.ep.name.avi',
-            '%(showname)s.s%(seasno)de%(epno)d.dsr.nf.avi',
-            '%(showname)s - [%(seasno)dx%(epno)d].avi',
-            '%(showname)s - [%(seasno)dx%(epno)d].avi',
-            '%(showname)s - [%(seasno)dx%(epno)d].avi',
-            '%(showname)s - [%(seasno)dx0%(epno)d].avi',
-            '%(showname)s-[%(seasno)dx%(epno)d].avi',
-            '%(showname)s [%(seasno)dx%(epno)d].avi',
-            '%(showname)s [%(seasno)dx%(epno)d] - the wrong ep name.avi',
-            '%(showname)s [%(seasno)dx%(epno)d] the wrong ep name.avi',
-            '%(showname)s.%(seasno)dx%(epno)d.The_Wrong_ep_name.avi'
+            '%(showname)s.s%(seasno)de%(epno)d.dsr.nf.avi',               #showname.s01e02.epname.avi
+            '%(showname)s.S%(seasno)dE%(epno)d.PROPER.dsr.nf.avi',        #showname.S01E02.PROPER.epname.avi
+            '%(showname)s.s%(seasno)d.e%(epno)d.avi',                     #showname.s01.e02.avi
+            '%(showname)s-s%(seasno)de%(epno)d.avi',                      #showname-s01e02.avi
+            '%(showname)s-s%(seasno)de%(epno)d.the.wrong.ep.name.avi',    #showname-s01e02.epname
+            '%(showname)s - [%(seasno)dx%(epno)d].avi',                   #showname - [01x02].avi
+            '%(showname)s - [%(seasno)dx0%(epno)d].avi',                  #showname - [01x002].avi
+            '%(showname)s-[%(seasno)dx%(epno)d].avi',                     #showname-[01x02].avi
+            '%(showname)s [%(seasno)dx%(epno)d].avi',                     #showname [01x02].avi
+            '%(showname)s [%(seasno)dx%(epno)d] - the wrong ep name.avi', #showname [01x02] - epname.avi
+            '%(showname)s [%(seasno)dx%(epno)d] the wrong ep name.avi',   #showname [01x02] epname.avi
+            '%(showname)s.%(seasno)dx%(epno)d.The_Wrong_ep_name.avi',     #showname.01x02.epname.avi
+            '%(showname)s.%(seasno)d%(epno)d.The Wrong_ep.names.avi',     #showname.102.epname.avi
+            '%(showname)s_s%(seasno)de%(epno)d_The_Wrong_ep_na-me.avi',   #showname_s1e02_epname.avi
+            '%(showname)s - s%(seasno)de%(epno)d - dsr.nf.avi'            #showname - s01e02 - epname.avi
         ]
     
     def test_name_parser_showname(self):
@@ -377,7 +344,7 @@ class test_tvnamer(unittest.TestCase):
     #end test_name_parser_showdashname
     
     def test_name_parser_shownumeric(self):
-        name_data = {'showname':'123', 'seasno':1, 'epno':21}
+        name_data = {'showname':'123 2008', 'seasno':1, 'epno':21}
         names = [x % name_data for x in self.name_formats]
         
         proced = processNames(names, self.verbose)
