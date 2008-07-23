@@ -222,16 +222,27 @@ class tvdb_shownotfound(Exception):
     Show cannot be found on www.thetvdb.com (non-existant show)
     """
     pass
-class tvdb_epnamenotfound(Exception):
+class tvdb_seasonnotfound(Exception):
     """
-    Episode name cannot be found on www.thetvdb.com
-    """
-    pass
-class tvdb_userabort(Exception):
-    """
-    User aborted the interactive selection (either via the q command, ^c etc)
+    Season cannot be found on www.thetvdb.com
     """
     pass
+class tvdb_episodenotfound(Exception):
+    """
+    Episode cannot be found on www.thetvdb.com
+    """
+    pass
+class tvdb_episodenotfound(Exception):
+    """
+    User aborted the interactive selection (via
+    the q command, ^c etc)
+    """
+    pass
+class tvdb_attributenotfound(Exception):
+    """
+    Raised if an episode does not have the requested 
+    attribute (such as a episode name)
+    """
 
 class Tvdb:
     """
@@ -477,6 +488,10 @@ class test_tvdb(unittest.TestCase):
         self.t = Tvdb()
     
     def test_different_case(self):
+        """
+        Checks the auto-correction of show names is working.
+        It should correct the weirdly capitalised 'sCruBs' to 'Scrubs'
+        """
         self.assertEquals(self.t['scrubs'][1][4]['name'], 'My Old Lady')
         self.assertEquals(self.t['sCruBs']['showname'], 'Scrubs')
     
@@ -488,11 +503,27 @@ class test_tvdb(unittest.TestCase):
         self.assertEquals(self.t['24'][2][20]['name'], 'Day 2: 3:00 A.M.-4:00 A.M.')
         self.assertEquals(self.t['24']['showname'], '24')
     
-    def test_epnamenotfound(self):
-        self.assertRaises(tvdb_epnamenotfound, lambda:self.t['CNNNN'][1][2])
+    def test_seasonnotfound(self):
+        """
+        Using CNNNN as it is cancelled
+        """
+        self.assertRaises(tvdb_seasonnotfound, lambda:self.t['CNNNN'][10][1])
     
     def test_shownotfound(self):
+        """
+        Hopefully no-one creates a show called "the fake show thingy"..
+        """
         self.assertRaises(tvdb_shownotfound, lambda:self.t['the fake show thingy'])
+        
+    def test_episodenamenotfound(self):
+        """
+        Check it raises tvdb_attributenotfound if an episode name is not found.
+        CNNNN is a fake news program, so episodes don't have names, and the
+        show has been moved to "Chaser Constant News Network" so it wont 
+        be updated ever (to have the episode name be the air-date)
+        """
+        self.assertRaises(tvdb_attributenotfound, lambda:self.t['CNNNN'][1][10]['name'])
+        
     
 #end test_tvnamer
 
