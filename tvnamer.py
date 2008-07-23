@@ -206,7 +206,7 @@ def main():
         except (tvdb_userabort), errormsg:
             # User aborted selection (q or ^c)
             print "\n", errormsg
-            os._exit(1)
+            os.exit(1)
         else:
             showname = t[ cfile['file_showname'] ]['showname'] # get the corrected showname
         
