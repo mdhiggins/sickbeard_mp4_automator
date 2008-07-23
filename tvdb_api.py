@@ -170,8 +170,7 @@ class Season:
     def __getitem__(self, episode_number):
         if not self.episodes.has_key(episode_number):
             self.episodes[episode_number] = Episode(number = episode_number)
-        
-        return dict.__getitem__(self.episodes, episode_number)
+        return self.episodes[episode_number]
     #end __getitem__
     
     def __setitem__(self,episode_number, episode):
@@ -192,12 +191,15 @@ class Season:
 
 class Episode:
     def __init__(self, number):
-        self.episode_number = number
-        self.episode={}
+        self.episode = dict()
+        dict.__setitem__(self.episode, "number", number)
     #end __init__
     
     def __getitem__(self,attr):
-        return dict.__getitem__(self.episode, attr)
+        if dict.has_key(self.episode, attr):
+            return dict.__getitem__(self.episode, attr)
+        else:
+            raise tvdb_attributenotfound
     #end __getitem__
     
     def __setitem__(self,attr,name):
@@ -423,7 +425,7 @@ class Tvdb:
             else:
                 ep_name = str( ep.find('episodename').contents[0] )
             
-            self.shows[sid][seas_no][ep_no] = {'name':ep_name}
+            self.shows[sid][seas_no][ep_no]['name'] = ep_name
         #end for ep
     #end _geEps
     
