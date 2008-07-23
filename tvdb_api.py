@@ -86,7 +86,6 @@ class Cache:
             cache_modified_time = self.os.stat(path).st_mtime
             time_now = self.time.time()
             if cache_modified_time < time_now - self.max_age:
-                print "Cache old!"
                 # Cache is old
                 return False
             else:
