@@ -380,10 +380,10 @@ class test_name_parser(unittest.TestCase):
         """
         Runs the tests and checks if the parsed values have
         the correct showname/season number/episode number.
-        Runs from season 0 ep 0 to season 1000, ep 1000.
+        Runs from season 0 ep 0 to season 10, ep 10.
         """
-        for seas in xrange(1, 99):
-            for ep in xrange(1, 99):
+        for seas in xrange(1, 11):
+            for ep in xrange(1, 11):
                 name_data['seasno'] = seas
                 name_data['epno'] = ep
                 
