@@ -34,16 +34,16 @@ config['valid_filename_chars_regex'] = re.escape(config['valid_filename_chars'])
 # Regex's to parse filenames with. Must have 3 groups, showname, season number
 # and episode number. Use (?: optional) non-capturing groups if you need others.
 config['name_parse'] = [
-    # foo.103*
-    re.compile('''^([%s]+?)[ \._\-]([0-9]{1})([0-9]{2})[\._ -][^\\/]*$''' % (config['valid_filename_chars_regex'])),
-    # foo.0103*
-    re.compile('''^([%s]+?)[ \._\-]([0-9]{2})([0-9]{2,3})[\._ -][^\\/]*$''' % (config['valid_filename_chars_regex'])),
     # foo_[s01]_[e01]
     re.compile('''^([%s]+?)[ \._\-]\[[Ss]([0-9]+?)\]_\[[Ee]([0-9]+?)\]?[^\\/]*$'''% (config['valid_filename_chars_regex'])),
     # foo.1x09*
     re.compile('''^([%s]+?)[ \._\-]\[?([0-9]+)x([0-9]+)[^\\/]*$''' % (config['valid_filename_chars_regex'])),
     # foo.s01.e01, foo.s01_e01
     re.compile('''^([%s]+?)[ \._\-][Ss]([0-9]+)[\.-]?[Ee]([0-9]+)[^\\/]*$''' % (config['valid_filename_chars_regex'])),
+    # foo.103*
+    re.compile('''^([%s]+)[ \._\-]([0-9]{1})([0-9]{2})[\._ -][^\\/]*$''' % (config['valid_filename_chars_regex'])),
+    # foo.0103*
+    re.compile('''^([%s]+)[ \._\-]([0-9]{2})([0-9]{2,3})[\._ -][^\\/]*$''' % (config['valid_filename_chars_regex'])),
 ]
 
 
@@ -348,7 +348,19 @@ class test_name_parser(unittest.TestCase):
     #end test_name_parser_showdashname
     
     def test_name_parser_shownumeric(self):
+        """
+        Tests with numeric show name
+        """
         name_data = {'showname':'123'}
+        
+        self._run_test(name_data)
+    #end test_name_parser_shownumeric
+    
+    def test_name_parser_shownumericspaces(self):
+        """
+        Tests with numeric show name, with spaces
+        """
+        name_data = {'showname':'123 2008'}
         
         self._run_test(name_data)
     #end test_name_parser_shownumeric
