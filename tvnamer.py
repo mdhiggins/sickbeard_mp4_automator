@@ -18,7 +18,8 @@ __version__ = "0.1"
 import os, sys, re
 from optparse import OptionParser
 
-from tvdb_api import tvdb_shownotfound, tvdb_epnamenotfound, tvdb_userabort
+from tvdb_api import (tvdb_error, tvdb_shownotfound, tvdb_seasonnotfound, 
+    tvdb_episodenotfound, tvdb_episodenotfound, tvdb_attributenotfound, tvdb_userabort)
 from tvdb_api import Tvdb
 
 config = {}
