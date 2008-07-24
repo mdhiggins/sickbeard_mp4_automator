@@ -469,6 +469,7 @@ class Tvdb:
         self.log.debug('Setting %s = %s' % (key, value))
         self.shows[key] = value
     #end __getitem__
+    
     def __str__(self):
         return str(self.shows)
     #end __str__
