@@ -18,7 +18,8 @@ __version__ = "0.2"
 import os, sys, re
 from optparse import OptionParser
 
-from tvdb_api import tvdb_shownotfound, tvdb_epnamenotfound, tvdb_userabort
+from tvdb_api import (tvdb_error, tvdb_shownotfound, tvdb_seasonnotfound, 
+    tvdb_episodenotfound, tvdb_episodenotfound, tvdb_attributenotfound, tvdb_userabort)
 from tvdb_api import Tvdb
 
 config = {}
@@ -33,16 +34,16 @@ config['valid_filename_chars_regex'] = re.escape(config['valid_filename_chars'])
 # Regex's to parse filenames with. Must have 3 groups, showname, season number
 # and episode number. Use (?: optional) non-capturing groups if you need others.
 config['name_parse'] = [
-    # foo.103*
-    re.compile('''^([%s]+?)[ \._\-]([0-9]{1})([0-9]{2})[\._ -][^\\/]*$''' % (config['valid_filename_chars_regex'])),
-    # foo.0103*
-    re.compile('''^([%s]+?)[ \._\-]([0-9]{2})([0-9]{2,3})[\._ -][^\\/]*$''' % (config['valid_filename_chars_regex'])),
     # foo_[s01]_[e01]
     re.compile('''^([%s]+?)[ \._\-]\[[Ss]([0-9]+?)\]_\[[Ee]([0-9]+?)\]?[^\\/]*$'''% (config['valid_filename_chars_regex'])),
     # foo.1x09*
     re.compile('''^([%s]+?)[ \._\-]\[?([0-9]+)x([0-9]+)[^\\/]*$''' % (config['valid_filename_chars_regex'])),
     # foo.s01.e01, foo.s01_e01
     re.compile('''^([%s]+?)[ \._\-][Ss]([0-9]+)[\.-]?[Ee]([0-9]+)[^\\/]*$''' % (config['valid_filename_chars_regex'])),
+    # foo.103*
+    re.compile('''^([%s]+)[ \._\-]([0-9]{1})([0-9]{2})[\._ -][^\\/]*$''' % (config['valid_filename_chars_regex'])),
+    # foo.0103*
+    re.compile('''^([%s]+)[ \._\-]([0-9]{2})([0-9]{2,3})[\._ -][^\\/]*$''' % (config['valid_filename_chars_regex'])),
 ]
 
 
@@ -101,7 +102,7 @@ def processNames(names, verbose=False):
                              })
                 break
         else:
-            print "Invalid name: %s"%(f)
+            print "Invalid name: %s" % (f)
         #end for r
     #end for f
     
@@ -202,33 +203,33 @@ def main():
         try:
             # Ask for episode name from tvdb_api
             epname = t[ cfile['file_showname'] ][ cfile['seasno'] ][ cfile['epno'] ]['name']
-        except (tvdb_shownotfound, tvdb_epnamenotfound):
-            # No such show
-            epname = None
-            showname = None
-        except (tvdb_userabort), errormsg:
-            # User aborted selection (q or ^c)
-            print "\n", errormsg
-            os.exit(1)
-        else:
-            showname = t[ cfile['file_showname'] ]['showname'] # get the corrected showname
-        
-        # Either use the found episode name, warn if not found
-        if epname:
-            cfile['epname'] = epname
-        else:
+        except tvdb_shownotfound:
+            # No such show found.
+            # Use the show-name from the files name, and None as the ep name
+            sys.stderr.write("! Warning: Show %s not found (in %s)\n" % (
+                cfile['file_showname'],
+                cfile['filepath'] ) 
+            )
+            
+            cfile['showname'] = cfile['file_showname']
             cfile['epname'] = None
+        except (tvdb_seasonnotfound, tvdb_episodenotfound, tvdb_attributenotfound):
+            # The season, episode or name wasn't found, but the show was.
+            # Use the corrected show-name, but no episode name.
             sys.stderr.write("! Warning: Episode name not found for %s (in %s)\n" % (
                 cfile['file_showname'],
                 cfile['filepath'] ) 
             )
-        #end if epname
-        
-        if showname:
-            cfile['showname'] = showname
+            
+            cfile['showname'] = t[ cfile['file_showname'] ]['showname']
+            cfile['epname'] = None
+        except (tvdb_userabort), errormsg:
+            # User aborted selection (q or ^c)
+            print "\n", errormsg
+            sys.exit(1)
         else:
-            # no corrected showname found, use one from filename
-            cfile['showname'] = cfile['file_showname']
+            cfile['epname'] = epname
+            cfile['showname'] = t[ cfile['file_showname'] ]['showname'] # get the corrected showname
         
         # Format new filename, strip unwanted characters
         newname = formatName(cfile)
@@ -262,14 +263,17 @@ def main():
             continue # next filename!
         #end if always
         
-        print "Rename?"
-        print "([y]/n/a/q)",
-        try:
-            ans = raw_input().strip()
-        except KeyboardInterrupt, errormsg:
-            print "User aborted (^c)"
-            break
-        #end try
+        ans = None
+        while ans not in ['y', 'n', 'a', 'q', '']:
+            print "Rename?"
+            print "([y]/n/a/q)",
+            try:
+                ans = raw_input().strip()
+            except KeyboardInterrupt, errormsg:
+                print "\n", errormsg
+                sys.exit(1)
+            #end try
+        #end while
         
         if len(ans) == 0:
             print "Renaming (default)"
@@ -300,6 +304,16 @@ def main():
 import unittest
 class test_name_parser(unittest.TestCase):
     def setUp(self):
+        """
+        Define name formats to test.
+        %(showname)s becomes the showname,
+        %(seasno)s becomes the season number,
+        %(epno)s becomes the episode number.
+        
+        The verbose setting currently shows which 
+        regex matches each filename, and the values
+        it found in each of the three groups.
+        """
         # Shows verbose regex matching information
         self.verbose = False
         
@@ -344,7 +358,19 @@ class test_name_parser(unittest.TestCase):
     #end test_name_parser_showdashname
     
     def test_name_parser_shownumeric(self):
+        """
+        Tests with numeric show name
+        """
         name_data = {'showname':'123'}
+        
+        self._run_test(name_data)
+    #end test_name_parser_shownumeric
+    
+    def test_name_parser_shownumericspaces(self):
+        """
+        Tests with numeric show name, with spaces
+        """
+        name_data = {'showname':'123 2008'}
         
         self._run_test(name_data)
     #end test_name_parser_shownumeric
@@ -364,10 +390,10 @@ class test_name_parser(unittest.TestCase):
         """
         Runs the tests and checks if the parsed values have
         the correct showname/season number/episode number.
-        Runs from season 0 ep 0 to season 1000, ep 1000.
+        Runs from season 0 ep 0 to season 10, ep 10.
         """
-        for seas in xrange(1, 99):
-            for ep in xrange(1, 99):
+        for seas in xrange(1, 11):
+            for ep in xrange(1, 11):
                 name_data['seasno'] = seas
                 name_data['epno'] = ep
                 

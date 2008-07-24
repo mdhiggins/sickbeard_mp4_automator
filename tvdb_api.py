@@ -115,10 +115,17 @@ class Cache:
     #end loadUrl
 #end Cache
 
+
 # Custom exceptions
 class tvdb_error(Exception):
     """
     An error with www.thetvdb.com (Cannot connect, for example)
+    """
+    pass
+class tvdb_userabort(Exception):
+    """
+    User aborted the interactive selection (via
+    the q command, ^c etc)
     """
     pass
 class tvdb_shownotfound(Exception):
@@ -126,16 +133,79 @@ class tvdb_shownotfound(Exception):
     Show cannot be found on www.thetvdb.com (non-existant show)
     """
     pass
-class tvdb_epnamenotfound(Exception):
+class tvdb_seasonnotfound(Exception):
     """
-    Episode name cannot be found on www.thetvdb.com
-    """
-    pass
-class tvdb_userabort(Exception):
-    """
-    User aborted the interactive selection (either via the q command, ^c etc)
+    Season cannot be found on www.thetvdb.com
     """
     pass
+class tvdb_episodenotfound(Exception):
+    """
+    Episode cannot be found on www.thetvdb.com
+    """
+    pass
+class tvdb_attributenotfound(Exception):
+    """
+    Raised if an episode does not have the requested 
+    attribute (such as a episode name)
+    """
+    pass
+
+
+class ShowContainer:
+    def __init__(self):
+        self.shows = {}
+    def has_key(self, key):
+        return dict.has_key(self.shows, key)
+    def __setitem__(self, showid, value):
+        dict.__setitem__(self.shows, showid, value)
+    def __getitem__(self, showid):
+        if not dict.has_key(self.shows, showid):
+            raise tvdb_shownotfound
+        else:
+            return dict.__getitem__(self.shows, showid)
+class Show:
+    def __init__(self):
+        self.seasons = {}
+        self.data = {}
+    def has_key(self, key):
+        return dict.has_key(self.seasons, key)
+    def __setitem__(self, season_number, value):
+        dict.__setitem__(self.seasons, season_number, value)
+    def __getitem__(self, season_numer):
+        if not dict.has_key(self.seasons, season_numer):
+            # Season number doesn't exist
+            if dict.has_key(self.data, season_numer):
+                # check if it's a bit of data
+                return  dict.__getitem__(self.data, season_numer)
+            else:
+                # Nope, it doesn't exist
+                raise tvdb_seasonnotfound
+        else:
+            return dict.__getitem__(self.seasons, season_numer)
+class Season:
+    def __init__(self):
+        self.episodes = {}
+    def has_key(self, key):
+        return dict.has_key(self.episodes, key)
+    def __setitem__(self, episode_number, value):
+        dict.__setitem__(self.episodes, episode_number, value)
+    def __getitem__(self, episode_number):
+        if not dict.has_key(self.episodes, episode_number):
+            print "episodes does not have key", episode_number
+            raise tvdb_episodenotfound
+        else:
+            return dict.__getitem__(self.episodes, episode_number)
+class Episode:
+    def __init__(self):
+        self.data = {}
+    def __getitem__(self, key):
+        if not dict.has_key(self.data, key):
+            raise tvdb_attributenotfound
+        else:
+            return dict.__getitem__(self.data, key)
+    def __setitem__(self, key, value):
+        dict.__setitem__(self.data, key, value)
+
 
 class Tvdb:
     """
@@ -148,7 +218,7 @@ class Tvdb:
     import random
     
     def __init__(self, interactive=False, debug=False):
-        self.shows = {} # Holds all show data in shows[show_id] = dict of ep data
+        self.shows = ShowContainer() # Holds all Show classes
         self.corrections = {} # Holds show-name to show_id mapping
         
         self.config = {}
@@ -219,6 +289,36 @@ class Tvdb:
         soup = self.BeautifulStoneSoup(src)
         return soup
     #end _getsoupsrc
+    
+    def _setItem(self, sid, seas, ep, attrib, value):
+        """
+        Creates a new episode, creating Show(), Season() and
+        Episode()s as required. Called by _getEps to populute
+        
+        Since the nice-to-use tvdb[1][24]['name] interface
+        makes it impossible to do tvdb[1][24]['name] = "name"
+        and still be capable of checking if an episode exists
+        so we can raise tvdb_shownotfound, we have a slightly
+        less pretty method of setting items.. but since the API
+        is supposed to be read-only, this is the best way to
+        do it!
+        The problem is that calling tvdb[1][24]['name'] = "name"
+        calls __getitem__ on tvdb[1], there is no way to check if
+        tvdb.__dict__ should have a key "1" before we auto-create it
+        """
+        if not self.shows.has_key(sid):
+            self.shows[sid] = Show()
+        if not self.shows[sid].has_key(seas):
+            self.shows[sid][seas] = Season()
+        if not self.shows[sid][seas].has_key(ep):
+            self.shows[sid][seas][ep] = Episode()
+        self.shows[sid][seas][ep][attrib] = value
+    #end _set_item
+    
+    def _setShowData(self, sid, key, value):
+        if not self.shows.has_key(sid):
+            self.shows[sid] = Show()
+        self.shows[sid].data.__setitem__(key, value)
     
     def _getMirrors(self):
         """
@@ -328,8 +428,7 @@ class Tvdb:
                 ep_name = None
             else:
                 ep_name = str( ep.find('episodename').contents[0] )
-            
-            self.shows[sid][seas_no][ep_no] = {'name':ep_name}
+            self._setItem(sid, seas_no, ep_no, 'name', ep_name)
         #end for ep
     #end _geEps
     
@@ -347,8 +446,8 @@ class Tvdb:
             selected_series = self._getSeries( name )
             sname, sid = selected_series['name'], selected_series['sid']
             self.log.debug('Got %s, sid %s' % (sname, sid) )
-            self.shows[sid] = _Ddict(dict)
-            self.shows[sid]['showname'] = sname
+            
+            self._setShowData(sid, 'showname', sname)
             self.corrections[name] = sid
             self._getEps( sid )
         #end if self.corrections.has_key
@@ -363,13 +462,14 @@ class Tvdb:
         key = key.lower() # make key lower case
         sid = self._nameToSid(key)
         self.log.debug('Got series id %s' % (sid))
-        return dict.__getitem__(self.shows, sid)
+        return self.shows[sid]
     #end __getitem__
     
     def __setitem__(self, key, value):
         self.log.debug('Setting %s = %s' % (key, value))
         self.shows[key] = value
     #end __getitem__
+    
     def __str__(self):
         return str(self.shows)
     #end __str__
@@ -381,6 +481,10 @@ class test_tvdb(unittest.TestCase):
         self.t = Tvdb()
     
     def test_different_case(self):
+        """
+        Checks the auto-correction of show names is working.
+        It should correct the weirdly capitalised 'sCruBs' to 'Scrubs'
+        """
         self.assertEquals(self.t['scrubs'][1][4]['name'], 'My Old Lady')
         self.assertEquals(self.t['sCruBs']['showname'], 'Scrubs')
     
@@ -392,13 +496,33 @@ class test_tvdb(unittest.TestCase):
         self.assertEquals(self.t['24'][2][20]['name'], 'Day 2: 3:00 A.M.-4:00 A.M.')
         self.assertEquals(self.t['24']['showname'], '24')
     
-    def test_epnamenotfound(self):
-        self.assertRaises(tvdb_epnamenotfound, lambda:self.t['CNNNN'][1][2])
+    def test_seasonnotfound(self):
+        """
+        Using CNNNN, as it is cancelled so it's rather unlikely 
+        they'll make another 8 seasons..
+        """
+        self.assertRaises(tvdb_seasonnotfound, lambda:self.t['CNNNN'][10][1])
     
     def test_shownotfound(self):
+        """
+        Hopefully no-one creates a show called "the fake show thingy"..
+        """
         self.assertRaises(tvdb_shownotfound, lambda:self.t['the fake show thingy'])
-    
+        
+    def test_episodenamenotfound(self):
+        """
+        Check it raises tvdb_attributenotfound if an episode name is not found.
+        CNNNN is a fake news program, so episodes don't have names, and the
+        show has been moved to "Chaser Constant News Network" so it wont 
+        be updated ever (to have the episode name be the air-date)
+        """
+        self.assertRaises(tvdb_attributenotfound, lambda:self.t['CNNNN'][1][6]['afakeattributething'])
 #end test_tvnamer
+
+    
+def run_tests():
+    suite = unittest.TestLoader().loadTestsFromTestCase(test_tvdb)
+    unittest.TextTestRunner(verbosity=2).run(suite)
 
 def simple_example():
     """
@@ -406,20 +530,27 @@ def simple_example():
     grabs an episode name interactivly.
     """
     db = Tvdb(interactive=True, debug=True)
-    print db['lost'][1][4]
-    print db['Lost'][1][4]
+    print db['Lost']['showname']
+    print db['Lost'][1][4]['name']
 
-if __name__ == '__main__':
+def main():
+    """
+    Parses command line options, either runs
+    tests or a simple example using Tvdb()
+    """
     from optparse import OptionParser
+    
     parser = OptionParser(usage="%prog [options]")
-
     parser.add_option(  "-t", "--tests", action="store_true", default=False, dest="dotests",
                         help="Run unittests (mostly useful for development)")
-    
-    opts, args = parser.parse_args()
 
+    opts, args = parser.parse_args()
+    
     if opts.dotests:
-        suite = unittest.TestLoader().loadTestsFromTestCase(test_tvdb)
-        unittest.TextTestRunner(verbosity=2).run(suite)
+        run_tests()
     else:
         simple_example()
+
+
+if __name__ == '__main__':
+    main()
