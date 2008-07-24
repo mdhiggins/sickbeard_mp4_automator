@@ -290,6 +290,36 @@ class Tvdb:
         return soup
     #end _getsoupsrc
     
+    def _setItem(self, sid, seas, ep, attrib, value):
+        """
+        Creates a new episode, creating Show(), Season() and
+        Episode()s as required. Called by _getEps to populute
+        
+        Since the nice-to-use tvdb[1][24]['name] interface
+        makes it impossible to do tvdb[1][24]['name] = "name"
+        and still be capable of checking if an episode exists
+        so we can raise tvdb_shownotfound, we have a slightly
+        less pretty method of setting items.. but since the API
+        is supposed to be read-only, this is the best way to
+        do it!
+        The problem is that calling tvdb[1][24]['name'] = "name"
+        calls __getitem__ on tvdb[1], there is no way to check if
+        tvdb.__dict__ should have a key "1" before we auto-create it
+        """
+        if not self.shows.has_key(sid):
+            self.shows[sid] = Show()
+        if not self.shows[sid].has_key(seas):
+            self.shows[sid][seas] = Season()
+        if not self.shows[sid][seas].has_key(ep):
+            self.shows[sid][seas][ep] = Episode()
+        self.shows[sid][seas][ep][attrib] = value
+    #end _set_item
+    
+    def _setShowData(self, sid, key, value):
+        if not self.shows.has_key(sid):
+            self.shows[sid] = Show()
+        self.shows[sid].data.__setitem__(key, value)
+    
     def _getMirrors(self):
         """
         Gets a list of mirrors from the API
