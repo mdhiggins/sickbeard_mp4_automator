@@ -428,8 +428,7 @@ class Tvdb:
                 ep_name = None
             else:
                 ep_name = str( ep.find('episodename').contents[0] )
-            
-            self.shows[sid][seas_no][ep_no]['name'] = ep_name
+            self._setItem(sid, seas_no, ep_no, 'name', ep_name)
         #end for ep
     #end _geEps
     
@@ -447,8 +446,8 @@ class Tvdb:
             selected_series = self._getSeries( name )
             sname, sid = selected_series['name'], selected_series['sid']
             self.log.debug('Got %s, sid %s' % (sname, sid) )
-            #self.shows[sid]
-            self.shows[sid]['showname'] = sname
+            
+            self._setShowData(sid, 'showname', sname)
             self.corrections[name] = sid
             self._getEps( sid )
         #end if self.corrections.has_key
