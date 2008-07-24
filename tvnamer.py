@@ -102,7 +102,7 @@ def processNames(names, verbose=False):
                              })
                 break
         else:
-            print "Invalid name: %s"%(f)
+            print "Invalid name: %s" % (f)
         #end for r
     #end for f
     
@@ -113,14 +113,12 @@ def formatName(cfile):
     """
     Takes a file dict and renames files using the configured format
     """
-    orig_ext = cfile['ext']
     cfile['ext'] = cfile['ext'].replace(".", "", 1)
     if cfile['epname']:
         n = config['with_ep_name'] % (cfile)
     else:
         n = config['without_ep_name'] % (cfile)
     #end if epname
-    cfile['ext'] = orig_ext 
     return n
 #end formatName
 
@@ -226,7 +224,7 @@ def main():
         except (tvdb_userabort), errormsg:
             # User aborted selection (q or ^c)
             print "\n", errormsg
-            os.quit(1)
+            sys.exit(1)
         else:
             cfile['epname'] = epname
             cfile['showname'] = t[ cfile['file_showname'] ]['showname'] # get the corrected showname
@@ -270,8 +268,8 @@ def main():
             try:
                 ans = raw_input().strip()
             except KeyboardInterrupt, errormsg:
-                print "User aborted (^c)"
-                break
+                print "\n", errormsg
+                sys.exit(1)
             #end try
         #end while
         
@@ -304,6 +302,16 @@ def main():
 import unittest
 class test_name_parser(unittest.TestCase):
     def setUp(self):
+        """
+        Define name formats to test.
+        %(showname)s becomes the showname,
+        %(seasno)s becomes the season number,
+        %(epno)s becomes the episode number.
+        
+        The verbose setting currently shows which 
+        regex matches each filename, and the values
+        it found in each of the three groups.
+        """
         # Shows verbose regex matching information
         self.verbose = False
         
