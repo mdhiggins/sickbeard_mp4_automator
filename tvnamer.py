@@ -76,6 +76,8 @@ def processNames(names, verbose=False):
     for f in names:
         filepath, filename = os.path.split( f )
         filename, ext = os.path.splitext( filename )
+        # Remove leading . from extension
+        ext = ext.replace(".", "", 1)
         for r in config['name_parse']:
             match = r.match(filename)
             if match:
@@ -113,7 +115,6 @@ def formatName(cfile):
     """
     Takes a file dict and renames files using the configured format
     """
-    cfile['ext'] = cfile['ext'].replace(".", "", 1)
     if cfile['epname']:
         n = config['with_ep_name'] % (cfile)
     else:
