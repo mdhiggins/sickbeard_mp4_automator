@@ -203,33 +203,33 @@ def main():
         try:
             # Ask for episode name from tvdb_api
             epname = t[ cfile['file_showname'] ][ cfile['seasno'] ][ cfile['epno'] ]['name']
-        except (tvdb_shownotfound, tvdb_epnamenotfound):
-            # No such show
-            epname = None
-            showname = None
-        except (tvdb_userabort), errormsg:
-            # User aborted selection (q or ^c)
-            print "\n", errormsg
-            os.exit(1)
-        else:
-            showname = t[ cfile['file_showname'] ]['showname'] # get the corrected showname
-        
-        # Either use the found episode name, warn if not found
-        if epname:
-            cfile['epname'] = epname
-        else:
+        except tvdb_shownotfound:
+            # No such show found.
+            # Use the show-name from the files name, and None as the ep name
+            sys.stderr.write("! Warning: Show %s not found (in %s)\n" % (
+                cfile['file_showname'],
+                cfile['filepath'] ) 
+            )
+            
+            cfile['showname'] = cfile['file_showname']
             cfile['epname'] = None
+        except (tvdb_seasonnotfound, tvdb_episodenotfound, tvdb_attributenotfound):
+            # The season, episode or name wasn't found, but the show was.
+            # Use the corrected show-name, but no episode name.
             sys.stderr.write("! Warning: Episode name not found for %s (in %s)\n" % (
                 cfile['file_showname'],
                 cfile['filepath'] ) 
             )
-        #end if epname
-        
-        if showname:
-            cfile['showname'] = showname
+            
+            cfile['showname'] = t[ cfile['file_showname'] ]['showname']
+            cfile['epname'] = None
+        except (tvdb_userabort), errormsg:
+            # User aborted selection (q or ^c)
+            print "\n", errormsg
+            os.quit(1)
         else:
-            # no corrected showname found, use one from filename
-            cfile['showname'] = cfile['file_showname']
+            cfile['epname'] = epname
+            cfile['showname'] = t[ cfile['file_showname'] ]['showname'] # get the corrected showname
         
         # Format new filename, strip unwanted characters
         newname = formatName(cfile)
