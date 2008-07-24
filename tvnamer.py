@@ -263,14 +263,17 @@ def main():
             continue # next filename!
         #end if always
         
-        print "Rename?"
-        print "([y]/n/a/q)",
-        try:
-            ans = raw_input().strip()
-        except KeyboardInterrupt, errormsg:
-            print "User aborted (^c)"
-            break
-        #end try
+        ans = None
+        while ans not in ['y', 'n', 'a', 'q', '']:
+            print "Rename?"
+            print "([y]/n/a/q)",
+            try:
+                ans = raw_input().strip()
+            except KeyboardInterrupt, errormsg:
+                print "User aborted (^c)"
+                break
+            #end try
+        #end while
         
         if len(ans) == 0:
             print "Renaming (default)"
