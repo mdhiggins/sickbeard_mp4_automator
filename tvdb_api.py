@@ -116,101 +116,6 @@ class Cache:
 #end Cache
 
 
-class ShowContainer:
-    def __init__(self):
-        self.shows = {}
-    #end __init__
-    
-    def __getitem__(self, show_name):
-        if not self.shows.has_key(show_name):
-            self.shows[show_name] = Show(show_name)
-        return dict.__getitem__(self.shows, show_name)
-    #end __getitem__
-    
-    def __str__(self):
-        out=""
-        for current_show_name, current_show in self.shows.items():
-            out += str(current_show) + "\n"
-        return out
-        
-class Show:
-    def __init__(self, name):
-        self.show_name = name
-        self.seasons = {}
-    #end __init__
-    
-    def __getitem__(self,season_number):
-        if not self.seasons.has_key(season_number):
-            self.seasons[season_number] = Season(season_number)
-        
-        return dict.__getitem__(self.seasons, season_number)
-    #end __getattr__
-    
-    def __setitem__(self,season_number, season):
-        if not self.seasons.has_key(season_number):
-            self.seasons[season_number] = Season(season_number)
-        
-        self.seasons[season_number] = season
-    #end __setitem__
-    
-    def __str__(self):
-        out = self.show_name + "\n"
-        for cur_season_no, cur_season in self.seasons.items():
-            out += str(cur_season) + "\n"
-        return out
-    #end __str__
-#end Show
-
-class Season:
-    def __init__(self, number):
-        self.season_number = number
-        self.episodes = {}
-    #end __init__
-    
-    def __getitem__(self, episode_number):
-        if not self.episodes.has_key(episode_number):
-            self.episodes[episode_number] = Episode(number = episode_number)
-        return self.episodes[episode_number]
-    #end __getitem__
-    
-    def __setitem__(self,episode_number, episode):
-        if not self.episodes.has_key(episode_number):
-            self.episodes[episode_number] = Episode(episode_number)
-        
-        self.episodes[episode_number] = episode
-    #end __setitem__
-    
-    def __str__(self):
-        out = "\tSeason %s\n" % (self.season_number)
-        out += "\t\t"
-        all_ep_nums = [cur_ep_num for cur_ep_num in self.episodes.keys()]
-        out += "Episodes " + str(seq_display(all_ep_nums))
-        return out
-    #end __str__
-#end Season
-
-class Episode:
-    def __init__(self, number):
-        self.episode = dict()
-        dict.__setitem__(self.episode, "number", number)
-    #end __init__
-    
-    def __getitem__(self,attr):
-        if dict.has_key(self.episode, attr):
-            return dict.__getitem__(self.episode, attr)
-        else:
-            raise tvdb_attributenotfound
-    #end __getitem__
-    
-    def __setitem__(self,attr,name):
-        dict.__setitem__(self.episode, attr, name)
-    #end __setitem__
-    
-    def __str__(self):
-        return "%d - %s" % (self.episode_number, str(self.episode))
-#end Episode
-
-
 # Custom exceptions
 class tvdb_error(Exception):
     """
@@ -244,6 +149,63 @@ class tvdb_attributenotfound(Exception):
     attribute (such as a episode name)
     """
     pass
+
+
+class ShowContainer:
+    def __init__(self):
+        self.shows = {}
+    def has_key(self, key):
+        return dict.has_key(self.shows, key)
+    def __setitem__(self, showid, value):
+        dict.__setitem__(self.shows, showid, value)
+    def __getitem__(self, showid):
+        if not dict.has_key(self.shows, showid):
+            raise tvdb_shownotfound
+        else:
+            return dict.__getitem__(self.shows, showid)
+class Show:
+    def __init__(self):
+        self.seasons = {}
+        self.data = {}
+    def has_key(self, key):
+        return dict.has_key(self.seasons, key)
+    def __setitem__(self, season_number, value):
+        dict.__setitem__(self.seasons, season_number, value)
+    def __getitem__(self, season_numer):
+        if not dict.has_key(self.seasons, season_numer):
+            # Season number doesn't exist
+            if dict.has_key(self.data, season_numer):
+                # check if it's a bit of data
+                return  dict.__getitem__(self.data, season_numer)
+            else:
+                # Nope, it doesn't exist
+                raise tvdb_seasonnotfound
+        else:
+            return dict.__getitem__(self.seasons, season_numer)
+class Season:
+    def __init__(self):
+        self.episodes = {}
+    def has_key(self, key):
+        return dict.has_key(self.episodes, key)
+    def __setitem__(self, episode_number, value):
+        dict.__setitem__(self.episodes, episode_number, value)
+    def __getitem__(self, episode_number):
+        if not dict.has_key(self.episodes, episode_number):
+            print "episodes does not have key", episode_number
+            raise tvdb_episodenotfound
+        else:
+            return dict.__getitem__(self.episodes, episode_number)
+class Episode:
+    def __init__(self):
+        self.data = {}
+    def __getitem__(self, key):
+        if not dict.has_key(self.data, key):
+            raise tvdb_attributenotfound
+        else:
+            return dict.__getitem__(self.data, key)
+    def __setitem__(self, key, value):
+        dict.__setitem__(self.data, key, value)
+
 
 class Tvdb:
     """
