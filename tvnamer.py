@@ -236,7 +236,7 @@ def main():
         # Append new filename (with extension) to path
         oldfile = os.path.join(
             cfile['filepath'], 
-            cfile['filename'] + cfile['ext']
+            cfile['filename'] + "." + cfile['ext']
         )
         # Join path to new file name
         newfile = os.path.join(
@@ -246,7 +246,7 @@ def main():
         
         # Show new/old filename
         print "#"*20
-        print "Old name: %s" % ( cfile['filename'] + cfile['ext'] )
+        print "Old name: %s" % ( cfile['filename'] + "." + cfile['ext'] )
         print "New name: %s" % ( newname )
         
         # Either always rename, or prompt user
