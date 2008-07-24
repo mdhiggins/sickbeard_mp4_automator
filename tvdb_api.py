@@ -191,7 +191,6 @@ class Season:
         dict.__setitem__(self.episodes, episode_number, value)
     def __getitem__(self, episode_number):
         if not dict.has_key(self.episodes, episode_number):
-            print "episodes does not have key", episode_number
             raise tvdb_episodenotfound
         else:
             return dict.__getitem__(self.episodes, episode_number)

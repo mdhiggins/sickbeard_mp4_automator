@@ -76,12 +76,18 @@ def processNames(names, verbose=False):
     for f in names:
         filepath, filename = os.path.split( f )
         filename, ext = os.path.splitext( filename )
+        
+        # Remove leading . from extension
+        ext = ext.replace(".", "", 1)
+        
         for r in config['name_parse']:
             match = r.match(filename)
             if match:
                 showname, seasno, epno = match.groups()
+                
                 #remove ._- characters from name (- removed only if next to end of line)
-                showname = re.sub("[\._]|\-(?=$)", " ", showname).strip() 
+                showname = re.sub("[\._]|\-(?=$)", " ", showname).strip()
+                
                 seasno, epno = int(seasno), int(epno)
                 
                 if verbose:
@@ -100,7 +106,7 @@ def processNames(names, verbose=False):
                                 'filename':filename,
                                 'ext':ext
                              })
-                break
+                break # Matched - to the next file!
         else:
             print "Invalid name: %s" % (f)
         #end for r
@@ -113,14 +119,11 @@ def formatName(cfile):
     """
     Takes a file dict and renames files using the configured format
     """
-    orig_ext = cfile['ext']
-    cfile['ext'] = cfile['ext'].replace(".", "", 1)
     if cfile['epname']:
         n = config['with_ep_name'] % (cfile)
     else:
         n = config['without_ep_name'] % (cfile)
     #end if epname
-    cfile['ext'] = orig_ext 
     return n
 #end formatName
 
@@ -182,11 +185,11 @@ def main():
     #end if len(args)
     
     allFiles = findFiles(args)
-    validFiles = processNames(allFiles)
+    validFiles = processNames(allFiles, verbose = opts.debug)
     
     if len(validFiles) == 0:
         sys.stderr.write("No valid files found\n")
-        sys.exit(1)
+        sys.exit(2)
     
     print "#"*20
     print "# Starting tvnamer"
@@ -238,7 +241,7 @@ def main():
         # Append new filename (with extension) to path
         oldfile = os.path.join(
             cfile['filepath'], 
-            cfile['filename'] + cfile['ext']
+            cfile['filename'] + "." + cfile['ext']
         )
         # Join path to new file name
         newfile = os.path.join(
@@ -248,7 +251,7 @@ def main():
         
         # Show new/old filename
         print "#"*20
-        print "Old name: %s" % ( cfile['filename'] + cfile['ext'] )
+        print "Old name: %s" % ( cfile['filename'] + "." + cfile['ext'] )
         print "New name: %s" % ( newname )
         
         # Either always rename, or prompt user
@@ -283,7 +286,7 @@ def main():
             rename_result = renameFile(oldfile, newfile, force=opts.force)
         elif ans[0] == "q":
             print "Aborting"
-            break
+            sys.exit(1)
         elif ans[0] == "y":
             rename_result = renameFile(oldfile, newfile, force=opts.force)
         elif ans[0] == "n":
