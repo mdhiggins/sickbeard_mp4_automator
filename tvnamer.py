@@ -76,14 +76,18 @@ def processNames(names, verbose=False):
     for f in names:
         filepath, filename = os.path.split( f )
         filename, ext = os.path.splitext( filename )
+        
         # Remove leading . from extension
         ext = ext.replace(".", "", 1)
+        
         for r in config['name_parse']:
             match = r.match(filename)
             if match:
                 showname, seasno, epno = match.groups()
+                
                 #remove ._- characters from name (- removed only if next to end of line)
-                showname = re.sub("[\._]|\-(?=$)", " ", showname).strip() 
+                showname = re.sub("[\._]|\-(?=$)", " ", showname).strip()
+                
                 seasno, epno = int(seasno), int(epno)
                 
                 if verbose:
@@ -102,7 +106,7 @@ def processNames(names, verbose=False):
                                 'filename':filename,
                                 'ext':ext
                              })
-                break
+                break # Matched - to the next file!
         else:
             print "Invalid name: %s" % (f)
         #end for r
