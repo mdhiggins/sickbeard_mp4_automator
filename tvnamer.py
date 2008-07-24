@@ -185,7 +185,7 @@ def main():
     #end if len(args)
     
     allFiles = findFiles(args)
-    validFiles = processNames(allFiles)
+    validFiles = processNames(allFiles, verbose = opts.debug)
     
     if len(validFiles) == 0:
         sys.stderr.write("No valid files found\n")
