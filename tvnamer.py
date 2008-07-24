@@ -189,7 +189,7 @@ def main():
     
     if len(validFiles) == 0:
         sys.stderr.write("No valid files found\n")
-        sys.exit(1)
+        sys.exit(2)
     
     print "#"*20
     print "# Starting tvnamer"
@@ -286,7 +286,7 @@ def main():
             rename_result = renameFile(oldfile, newfile, force=opts.force)
         elif ans[0] == "q":
             print "Aborting"
-            break
+            sys.exit(1)
         elif ans[0] == "y":
             rename_result = renameFile(oldfile, newfile, force=opts.force)
         elif ans[0] == "n":
