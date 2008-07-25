@@ -574,7 +574,15 @@ class test_tvdb(unittest.TestCase):
         be updated ever (to have the episode name be the air-date)
         """
         self.assertRaises(tvdb_attributenotfound, lambda:self.t['CNNNN'][1][6]['afakeattributething'])
-#end test_tvnamer
+    
+    def test_searchepname(self):
+        """
+        Searches for an episode name
+        """
+        self.assertEquals(len(self.t['My Name Is Earl'].search('Faked His Own Death')), 1)
+        self.assertEquals(self.t['My Name Is Earl'].search('Faked His Own Death')[0]['name'], 'Faked His Own Death')
+        self.assertEquals(self.t['Scrubs'].search('my first')[0]['name'], 'My First Day')
+#end test_tvdb
 
     
 def run_tests():
