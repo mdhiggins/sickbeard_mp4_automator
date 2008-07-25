@@ -216,7 +216,7 @@ class Show:
                             # key doesn't match requested search, skip
                             continue
                     #end if key != None
-                    if cur_value.lower().find(contents.lower()) > -1:
+                    if str(cur_value).lower().find(str(contents).lower()) > -1:
                         results.append(cur_ep)
                         continue
                     #end if cur_value.find()
