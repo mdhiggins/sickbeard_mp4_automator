@@ -426,8 +426,7 @@ class Tvdb:
                     allSeries[i]['sid'].encode("UTF-8","ignore")
                 )
             
-            valid_input = False
-            while not valid_input:
+            while True: # return breaks this loop
                 try:
                     print "Enter choice (first number, ? for help):"
                     ans = raw_input()
@@ -465,12 +464,11 @@ class Tvdb:
         for ep in epsSoup.findAll('episode'):
             ep_no = int( ep.find('episodenumber').contents[0] )
             seas_no = int( ep.find('seasonnumber').contents[0] )
-            if len( ep.find('episodename').contents ) == 0:
-                self.log.debug('Could not find episode name for seas:%s ep:%s' % (seas_no, ep_no))
-                ep_name = None
-            else:
+            self._setItem(sid, seas_no, ep_no, 'episodenumber', ep_no)
+            self._setItem(sid, seas_no, ep_no, 'seasonnumber', seas_no)
+            if len( ep.find('episodename').contents ) > 0:
                 ep_name = str( ep.find('episodename').contents[0] )
-            self._setItem(sid, seas_no, ep_no, 'name', ep_name)
+                self._setItem(sid, seas_no, ep_no, 'name', ep_name)
         #end for ep
     #end _geEps
     
@@ -489,8 +487,8 @@ class Tvdb:
             sname, sid = selected_series['name'], selected_series['sid']
             self.log.debug('Got %s, sid %s' % (sname, sid) )
             
-            self._setShowData(sid, 'showname', sname)
             self.corrections[name] = sid
+            self._setShowData(sid, 'showname', sname)
             self._getEps( sid )
         #end if self.corrections.has_key
         return sid
