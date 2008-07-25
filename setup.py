@@ -13,6 +13,18 @@ Automatically names downloaded/recorded TV-episodes, by parsing filenames and re
 Includes tvdb_api - an easy to use API interface to TheTVDB.com
 """,
 
-scripts = ['tvdb_api.py', 'tvnamer.py'],
+py_modules = ['tvdb_api'],
+scripts = ['tvnamer.py'],
 install_requires=['BeautifulSoup'],
+
+classifiers=[
+    "Environment :: Console",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: GNU General Public License (GPL)",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Topic :: Multimedia",
+    "Topic :: Utilities"
+]
 )
