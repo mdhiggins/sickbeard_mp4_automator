@@ -20,21 +20,6 @@ Example usage:
 __author__ = "dbr/Ben"
 __version__ = "0.3"
 
-class _Ddict(dict):
-    """Lazy-dict, automatically creates multidimensional dicts
-    by having __getitem__ create sub-dicts automatically"""
-    def __init__(self, default=None):
-        dict.__init__(self)
-        self.default = default
-    #end __init__
-
-    def __getitem__(self, key):
-        if not self.has_key(key):
-            self[key] = self.__class__(self.default) # Create sub-instance
-        return dict.__getitem__(self, key)
-    #end __getitem__
-#end _Ddict
-
 class Cache:
     """
     Simple caching URL opener. Acts like:
