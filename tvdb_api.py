@@ -12,8 +12,8 @@ Simple-to-use Python interface to The TVDB's API (www.thetvdb.com)
 
 Example usage:
 
->>> from tvdb_api import tvdb
->>> db = tvdb()
+>>> from tvdb_api import Tvdb
+>>> db = Tvdb()
 >>> db['Lost'][4][11]['name']
 'Cabin Fever'
 """
@@ -29,8 +29,8 @@ class Cache:
     Caches complete files to temp directory, 
     
     >>> ca = Cache()
-    >>> ca.loadUrl("http://example.com")
-    <html><body>page!</body></html>
+    >>> ca.loadUrl("http://example.com") #doctest: +ELLIPSIS
+    '<HTML>...'
     """
     import os
     import time
@@ -252,9 +252,9 @@ class Episode:
 class Tvdb:
     """
     Create easy-to-use interface to name of season/episode name
-    >>> i = Tvdb()
-    >>> i['showname']['1']['24']['name']
-    'Last Episode'
+    >>> t = Tvdb()
+    >>> t['Scrubs'][1][24]['name']
+    'My Last Day'
     """
     from BeautifulSoup import BeautifulStoneSoup
     import random
@@ -567,6 +567,10 @@ class test_tvdb(unittest.TestCase):
         self.assertEquals(len(self.t['My Name Is Earl'].search('Faked His Own Death')), 1)
         self.assertEquals(self.t['My Name Is Earl'].search('Faked His Own Death')[0]['name'], 'Faked His Own Death')
         self.assertEquals(self.t['Scrubs'].search('my first')[0]['name'], 'My First Day')
+    
+    def test_doctest(self):
+        import doctest
+        doctest.testmod()
 #end test_tvdb
 
     
