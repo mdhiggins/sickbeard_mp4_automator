@@ -182,6 +182,64 @@ class Show:
                 raise tvdb_seasonnotfound
         else:
             return dict.__getitem__(self.seasons, season_numer)
+    def search(self, contents = None, key = None):
+        """
+        Search all episodes. Can search all values, or a specific one.
+        Always returns an array (can be empty). First index is first
+        found episode, and so on.
+        Each array index is an Episode() instance, so doing
+        search_results[0]['name'] will retrive the episode name.
+        
+        Examples
+        These examples assume  t is an instance of Tvdb():
+        >>> t = Tvdb()
+        >>>
+        
+        Search for all episodes of Scrubs episodes 
+        with a bit of data containg "my first day":
+        
+        >>> t['Scrubs'].search("my first day") #doctest: +ELLIPSIS
+        [<__main__.Episode instance at 0x...>]
+        >>>
+        
+        Search for "My Name Is Earl" named "Faked His Own Death":
+        
+        >>> t['My Name Is Earl'].search('Faked His Own Death', key = 'name') #doctest: +ELLIPSIS
+        [<__main__.Episode instance at 0x...>]
+        >>>
+        
+        Using search results
+        
+        >>> results = t['Scrubs'].search("my first")
+        >>> print results[0]['name']
+        My First Day
+        >>> for x in results: print x['name']
+        My First Day
+        My First Step
+        My First Kill
+        >>>
+        """
+        if key == contents == None:
+            raise TypeError, "must supply atleast one type of search"
+        
+        results = []
+        for cur_season in self.seasons.values():
+            for cur_ep in cur_season.episodes.values():
+                for cur_key, cur_value in cur_ep.data.items():
+                    if key != None:
+                        if not cur_key.find(key) > -1:
+                            # key doesn't match requested search, skip
+                            continue
+                    #end if key != None
+                    if cur_value.lower().find(contents.lower()) > -1:
+                        results.append(cur_ep)
+                        continue
+                    #end if cur_value.find()
+                #end for cur_key, cur_value
+            #end for cur_ep
+        #end for cur_season
+        return results
+            
 class Season:
     def __init__(self):
         self.episodes = {}
