@@ -205,7 +205,7 @@ def main():
         print "# Processing %(file_showname)s (season: %(seasno)d, episode %(epno)d)" % (cfile)
         try:
             # Ask for episode name from tvdb_api
-            epname = t[ cfile['file_showname'] ][ cfile['seasno'] ][ cfile['epno'] ]['name']
+            epname = t[ cfile['file_showname'] ][ cfile['seasno'] ][ cfile['epno'] ]['episodename']
         except tvdb_shownotfound:
             # No such show found.
             # Use the show-name from the files name, and None as the ep name
