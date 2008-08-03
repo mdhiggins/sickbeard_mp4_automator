@@ -422,7 +422,7 @@ class Tvdb:
                 self.log.debug('Showing allSeries[%s] = %s)' % (i_show, allSeries[i]))
                 print "%s -> %s (tvdb id: %s)" % (
                     i_show,
-                    allSeries[i]['seriesname'].encode("UTF-8","ignore"),
+                    allSeries[i]['name'].encode("UTF-8","ignore"),
                     allSeries[i]['sid'].encode("UTF-8","ignore")
                 )
             
