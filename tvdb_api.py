@@ -14,8 +14,8 @@ Example usage:
 
 >>> from tvdb_api import Tvdb
 >>> db = Tvdb()
->>> db['Lost'][4][11]['name']
-'Cabin Fever'
+>>> db['Lost'][4][11]['episodename']
+u'Cabin Fever'
 """
 __author__ = "dbr/Ben"
 __version__ = "0.3"
@@ -173,7 +173,7 @@ class Show:
         Always returns an array (can be empty). First index is first
         found episode, and so on.
         Each array index is an Episode() instance, so doing
-        search_results[0]['name'] will retrive the episode name.
+        search_results[0]['episodename'] will retrive the episode name.
         
         Examples
         These examples assume  t is an instance of Tvdb():
@@ -196,9 +196,9 @@ class Show:
         Using search results
         
         >>> results = t['Scrubs'].search("my first")
-        >>> print results[0]['name']
+        >>> print results[0]['episodename']
         My First Day
-        >>> for x in results: print x['name']
+        >>> for x in results: print x['episodename']
         My First Day
         My First Step
         My First Kill
@@ -253,8 +253,8 @@ class Tvdb:
     """
     Create easy-to-use interface to name of season/episode name
     >>> t = Tvdb()
-    >>> t['Scrubs'][1][24]['name']
-    'My Last Day'
+    >>> t['Scrubs'][1][24]['episodename']
+    u'My Last Day'
     """
     from BeautifulSoup import BeautifulStoneSoup
     import random
@@ -344,7 +344,7 @@ class Tvdb:
         less pretty method of setting items.. but since the API
         is supposed to be read-only, this is the best way to
         do it!
-        The problem is that calling tvdb[1][24]['name'] = "name"
+        The problem is that calling tvdb[1][24]['episodename'] = "name"
         calls __getitem__ on tvdb[1], there is no way to check if
         tvdb.__dict__ should have a key "1" before we auto-create it
         """
@@ -422,7 +422,7 @@ class Tvdb:
                 self.log.debug('Showing allSeries[%s] = %s)' % (i_show, allSeries[i]))
                 print "%s -> %s (tvdb id: %s)" % (
                     i_show,
-                    allSeries[i]['name'].encode("UTF-8","ignore"),
+                    allSeries[i]['seriesname'].encode("UTF-8","ignore"),
                     allSeries[i]['sid'].encode("UTF-8","ignore")
                 )
             
@@ -583,7 +583,7 @@ def simple_example():
     """
     db = Tvdb(interactive=True, debug=True)
     print db['Lost']['showname']
-    print db['Lost'][1][4]['name']
+    print db['Lost'][1][4]['episodename']
 
 def main():
     """
