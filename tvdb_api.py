@@ -525,15 +525,15 @@ class test_tvdb(unittest.TestCase):
         Checks the auto-correction of show names is working.
         It should correct the weirdly capitalised 'sCruBs' to 'Scrubs'
         """
-        self.assertEquals(self.t['scrubs'][1][4]['name'], 'My Old Lady')
+        self.assertEquals(self.t['scrubs'][1][4]['episodename'], 'My Old Lady')
         self.assertEquals(self.t['sCruBs']['showname'], 'Scrubs')
     
     def test_spaces(self):
         self.assertEquals(self.t['My Name Is Earl']['showname'], 'My Name Is Earl')
-        self.assertEquals(self.t['My Name Is Earl'][1][4]['name'], 'Faked His Own Death')
+        self.assertEquals(self.t['My Name Is Earl'][1][4]['episodename'], 'Faked His Own Death')
     
     def test_numeric(self):
-        self.assertEquals(self.t['24'][2][20]['name'], 'Day 2: 3:00 A.M.-4:00 A.M.')
+        self.assertEquals(self.t['24'][2][20]['episodename'], 'Day 2: 3:00 A.M.-4:00 A.M.')
         self.assertEquals(self.t['24']['showname'], '24')
     
     def test_seasonnotfound(self):
@@ -563,8 +563,11 @@ class test_tvdb(unittest.TestCase):
         Searches for an episode name
         """
         self.assertEquals(len(self.t['My Name Is Earl'].search('Faked His Own Death')), 1)
-        self.assertEquals(self.t['My Name Is Earl'].search('Faked His Own Death')[0]['name'], 'Faked His Own Death')
-        self.assertEquals(self.t['Scrubs'].search('my first')[0]['name'], 'My First Day')
+        self.assertEquals(self.t['My Name Is Earl'].search('Faked His Own Death')[0]['episodename'], 'Faked His Own Death')
+        self.assertEquals(self.t['Scrubs'].search('my first')[0]['episodename'], 'My First Day')
+    
+    def test_get_episode_overview(self):
+        self.assertEquals(self.t['Battlestar Galactica (2003)'][1][1]['overview'], 'The Convoy of refugees is attacked exactly thirty three minutes after every FTL jump, leading many to believe there is a traitor in their midst.')
     
     def test_doctest(self):
         import doctest
