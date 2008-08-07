@@ -226,7 +226,15 @@ def main():
             
             cfile['showname'] = t[ cfile['file_showname'] ]['showname']
             cfile['epname'] = None
-        except (tvdb_userabort), errormsg:
+        except tvdb_error, errormsg:
+            # Error communicating with thetvdb.com
+            sys.stderr.write(
+                "! Warning: Error contacting www.thetvdb.com:\n%s\n" % (errormsg)
+            )
+            
+            cfile['showname'] = t[ cfile['file_showname'] ]['showname']
+            cfile['epname'] = None
+        except tvdb_userabort, errormsg:
             # User aborted selection (q or ^c)
             print "\n", errormsg
             sys.exit(1)
