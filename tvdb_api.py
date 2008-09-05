@@ -135,19 +135,8 @@ class tvdb_attributenotfound(Exception):
     """
     pass
 
+class ShowContainer(dict): pass
 
-class ShowContainer:
-    def __init__(self):
-        self.shows = {}
-    def has_key(self, key):
-        return dict.has_key(self.shows, key)
-    def __setitem__(self, showid, value):
-        dict.__setitem__(self.shows, showid, value)
-    def __getitem__(self, showid):
-        if not dict.has_key(self.shows, showid):
-            raise tvdb_shownotfound
-        else:
-            return dict.__getitem__(self.shows, showid)
 class Show:
     def __init__(self):
         self.seasons = {}
