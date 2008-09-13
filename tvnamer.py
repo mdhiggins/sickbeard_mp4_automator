@@ -352,7 +352,7 @@ class test_name_parser(unittest.TestCase):
 
     def test_name_parser_basic(self):
         """
-        Tests most basic filename (simple showname, season 1 ep 21)
+        Tests most basic filename (simple showname)
         """
         name_data = {'showname':'show name'}
 
@@ -391,11 +391,6 @@ class test_name_parser(unittest.TestCase):
 
         self._run_test(name_data)
     #end test_name_parser_exclaim
-
-    def test_name_parser_num_seq(self):
-        name_data = {'showname' : 'Show name'}
-        self._run_test(name_data)
-    #end test_name_parser_num_seq
 
     def _run_test(self, name_data):
         """
