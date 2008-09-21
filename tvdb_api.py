@@ -456,15 +456,16 @@ class Tvdb:
         shows[series_id][season_number][episode_number]
         """
         self.log.debug('Getting all episodes of %s' % (sid))
-        epsSoup = self._getsoupsrc( self.config['url_epInfo']% (sid) )
-        
+        epsSoup = self._getsoupsrc( self.config['url_epInfo'] % (sid) )
+
         for ep in epsSoup.findAll('episode'):
             ep_no = int( ep.find('episodenumber').contents[0] )
             seas_no = int( ep.find('seasonnumber').contents[0] )
 
             for cur_attr in ep.findChildren():
                 if len(cur_attr.contents) > 0:
-                    self._setItem(sid, seas_no, ep_no, cur_attr.name, cur_attr.contents[0])
+                    clean_attr = self._cleanData(cur_attr.contents[0])
+                    self._setItem(sid, seas_no, ep_no, cur_attr.name, clean_attr)
         #end for ep
     #end _geEps
 
