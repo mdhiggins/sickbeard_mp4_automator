@@ -203,7 +203,7 @@ class Show:
         for cur_season in self.seasons.values():
             for cur_ep in cur_season.episodes.values():
                 for cur_key, cur_value in cur_ep.data.items():
-                    cur_key, cur_value = str(cur_key).lower(), str(cur_value).lower()
+                    cur_key, cur_value = unicode(cur_key).lower(), unicode(cur_value).lower()
                     if key != None:
                         if not cur_key.find(key) > -1:
                             # key doesn't match requested search, skip
