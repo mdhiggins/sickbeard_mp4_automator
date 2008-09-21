@@ -374,17 +374,18 @@ class Tvdb:
         return mirrors
     #end _getMirrors
 
-    def _cleanName(self, name):
+    def _cleanData(self, data):
         """
-        Cleans up showname returned by TheTVDB.com
+        Cleans up strings returned by TheTVDB.com
 
         Issues corrected:
         - Returns &amp; instead of &, since &s in filenames
         are bad, replace &amp; with "and"
         """
-        name = name.replace("&amp;", "and")
-        return name
-    #end _cleanName
+        data = data.replace(u"&amp;", u"and")
+        data = data.strip()
+        return data
+    #end _cleanData
 
     def _getSeries(self, series):
         """
@@ -396,7 +397,7 @@ class Tvdb:
         allSeries = []
         for series in seriesSoup.findAll('series'):
             cur_name = series.find('seriesname').contents[0]
-            cur_name = self._cleanName(cur_name)
+            cur_name = self._cleanData(cur_name)
             cur_sid = series.find('id').contents[0]
             self.log.debug('Found series %s (id: %s)' % (cur_name, cur_sid))
             allSeries.append( {'sid':cur_sid, 'name':cur_name} )
