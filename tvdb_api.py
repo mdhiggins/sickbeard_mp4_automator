@@ -316,13 +316,12 @@ class Tvdb:
         Helper to get a URL, turn it into
         a BeautifulStoneSoup instance (for XML parsing)
         """
-        self.log.debug('Retriving URL %s' % (url.replace(" ", "+")))
-
         url = url.replace(" ", "+")
         try:
+            self.log.debug("Getting %s using Cache" % (url))
             src = self.cache.loadUrl(url)
         except IOError, errormsg:
-            raise tvdb_error("Could not connect to server: %s\n" % (errormsg))
+            raise tvdb_error("Could not connect to server: %s" % (errormsg))
         #end try
         soup = self.BeautifulStoneSoup(src)
         return soup
