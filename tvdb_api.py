@@ -535,7 +535,7 @@ class test_tvdb(unittest.TestCase):
 
     def test_seasonnotfound(self):
         """
-        Using CNNNN, as it is cancelled so it's rather unlikely 
+        Using CNNNN, as it is cancelled so it's rather unlikely
         they'll make another 8 seasons..
         """
         self.assertRaises(tvdb_seasonnotfound, lambda:self.t['CNNNN'][10][1])
@@ -546,12 +546,9 @@ class test_tvdb(unittest.TestCase):
         """
         self.assertRaises(tvdb_shownotfound, lambda:self.t['the fake show thingy'])
 
-    def test_episodenamenotfound(self):
+    def test_attributenamenotfound(self):
         """
         Check it raises tvdb_attributenotfound if an episode name is not found.
-        CNNNN is a fake news program, so episodes don't have names, and the
-        show has been moved to "Chaser Constant News Network" so it wont 
-        be updated ever (to have the episode name be the air-date)
         """
         self.assertRaises(tvdb_attributenotfound, lambda:self.t['CNNNN'][1][6]['afakeattributething'])
 
@@ -564,7 +561,7 @@ class test_tvdb(unittest.TestCase):
         self.assertEquals(self.t['Scrubs'].search('my first')[0]['episodename'], 'My First Day')
 
     def test_get_episode_overview(self):
-        self.assertEquals(self.t['Battlestar Galactica (2003)'][1][1]['overview'], 'The Convoy of refugees is attacked exactly thirty three minutes after every FTL jump, leading many to believe there is a traitor in their midst.')
+        self.assertEquals(self.t['Battlestar Galactica (2003)'][1][6]['overview'], '''When a new copy of Doral, a Cylon who had been previously exposed while serving as the Galactica's public-relations officer, sneaks aboard and blows himself up, killing three people, Commander Adama and President Roslin must finally make public the terrifying secret known only to a select few: Cylons now look like humans.''')
 
     def test_doctest(self):
         import doctest
