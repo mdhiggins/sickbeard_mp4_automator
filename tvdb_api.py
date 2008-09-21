@@ -219,6 +219,9 @@ class Show:
         return results
 
 class Season:
+    def __iter__(self):
+        for cd in self.episodes.values():
+            yield cd
     def __init__(self):
         self.episodes = {}
     def has_key(self, key):
