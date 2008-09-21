@@ -561,7 +561,15 @@ class test_tvdb(unittest.TestCase):
         self.assertEquals(self.t['Scrubs'].search('my first')[0]['episodename'], 'My First Day')
 
     def test_get_episode_overview(self):
-        self.assertEquals(self.t['Battlestar Galactica (2003)'][1][6]['overview'], '''When a new copy of Doral, a Cylon who had been previously exposed while serving as the Galactica's public-relations officer, sneaks aboard and blows himself up, killing three people, Commander Adama and President Roslin must finally make public the terrifying secret known only to a select few: Cylons now look like humans.''')
+        """
+        Checks episode overview is retrived correctly.
+        Verifies a known episodes overview begins with the correct text.
+        """
+        self.assertEquals(self.t['Battlestar Galactica (2003)'][1][6]['overview'].startswith(
+                '''When a new copy of Doral, a Cylon who had been previously'''
+            ),
+            True
+        )
 
     def test_doctest(self):
         import doctest
