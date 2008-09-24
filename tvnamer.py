@@ -25,13 +25,13 @@ from tvdb_api import Tvdb
 config = {}
 
 # The format of the renamed files (with and without episode names)
-config['with_ep_name'] = '%(showname)s - [%(seasno)02dx%(epno)02d] - %(epname)s.%(ext)s'
-config['without_ep_name'] = '%(showname)s - [%(seasno)02dx%(epno)02d].%(ext)s'
+config['with_ep_name'] = '%(seriesname)s - [%(seasno)02dx%(epno)02d] - %(epname)s.%(ext)s'
+config['without_ep_name'] = '%(seriesname)s - [%(seasno)02dx%(epno)02d].%(ext)s'
 
 config['valid_filename_chars'] = """0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@£$%^&*()_+=-[]{}"'.,<>`~? """
 config['valid_filename_chars_regex'] = re.escape(config['valid_filename_chars'])
 
-# Regex's to parse filenames with. Must have 3 groups, showname, season number
+# Regex's to parse filenames with. Must have 3 groups, seriesname, season number
 # and episode number. Use (?: optional) non-capturing groups if you need others.
 config['name_parse'] = [
     # foo_[s01]_[e01]
@@ -83,10 +83,10 @@ def processNames(names, verbose=False):
         for r in config['name_parse']:
             match = r.match(filename)
             if match:
-                showname, seasno, epno = match.groups()
+                seriesname, seasno, epno = match.groups()
 
                 #remove ._- characters from name (- removed only if next to end of line)
-                showname = re.sub("[\._]|\-(?=$)", " ", showname).strip()
+                seriesname = re.sub("[\._]|\-(?=$)", " ", seriesname).strip()
 
                 seasno, epno = int(seasno), int(epno)
 
@@ -94,12 +94,12 @@ def processNames(names, verbose=False):
                     print "*"*20
                     print "File:", filename
                     print "Pattern:", r.pattern
-                    print "Showname:", showname
+                    print "Seriesname:", seriesname
                     print "Seas:", seasno
                     print "Ep:", epno
                     print "*"*20
 
-                allEps.append({ 'file_showname':showname,
+                allEps.append({ 'file_seriesname':seriesname,
                                 'seasno':seasno,
                                 'epno':epno,
                                 'filepath':filepath,
@@ -205,26 +205,26 @@ def main():
         print "# Processing %(file_showname)s (season: %(seasno)d, episode %(epno)d)" % (cfile)
         try:
             # Ask for episode name from tvdb_api
-            epname = t[ cfile['file_showname'] ][ cfile['seasno'] ][ cfile['epno'] ]['episodename']
+            epname = t[ cfile['file_seriesname'] ][ cfile['seasno'] ][ cfile['epno'] ]['episodename']
         except tvdb_shownotfound:
             # No such show found.
             # Use the show-name from the files name, and None as the ep name
             sys.stderr.write("! Warning: Show %s not found (in %s)\n" % (
-                cfile['file_showname'],
+                cfile['file_seriesname'],
                 cfile['filepath'] )
             )
 
-            cfile['showname'] = cfile['file_showname']
+            cfile['seriesname'] = cfile['file_seriesname']
             cfile['epname'] = None
         except (tvdb_seasonnotfound, tvdb_episodenotfound, tvdb_attributenotfound):
             # The season, episode or name wasn't found, but the show was.
             # Use the corrected show-name, but no episode name.
             sys.stderr.write("! Warning: Episode name not found for %s (in %s)\n" % (
-                cfile['file_showname'],
+                cfile['file_seriesname'],
                 cfile['filepath'] )
             )
 
-            cfile['showname'] = t[ cfile['file_showname'] ]['showname']
+            cfile['seriesname'] = t[ cfile['file_seriesname'] ]['seriesname']
             cfile['epname'] = None
         except tvdb_error, errormsg:
             # Error communicating with thetvdb.com
@@ -232,7 +232,7 @@ def main():
                 "! Warning: Error contacting www.thetvdb.com:\n%s\n" % (errormsg)
             )
 
-            cfile['showname'] = t[ cfile['file_showname'] ]['showname']
+            cfile['seriesname'] = t[ cfile['file_seriesname'] ]['seriesname']
             cfile['epname'] = None
         except tvdb_userabort, errormsg:
             # User aborted selection (q or ^c)
@@ -240,7 +240,7 @@ def main():
             sys.exit(1)
         else:
             cfile['epname'] = epname
-            cfile['showname'] = t[ cfile['file_showname'] ]['showname'] # get the corrected showname
+            cfile['seriesname'] = t[ cfile['file_seriesname'] ]['seriesname'] # get the corrected seriesname
 
         # Format new filename, strip unwanted characters
         newname = formatName(cfile)
@@ -317,7 +317,7 @@ class test_name_parser(unittest.TestCase):
     def setUp(self):
         """
         Define name formats to test.
-        %(showname)s becomes the showname,
+        %(seriesname)s becomes the seriesname,
         %(seasno)s becomes the season number,
         %(epno)s becomes the episode number.
 
@@ -330,40 +330,40 @@ class test_name_parser(unittest.TestCase):
 
         #scene naming standards: http://tvunderground.org.ru/forum/index.php?showtopic=8488
         self.name_formats = [
-            '%(showname)s.s%(seasno)de%(epno)d.dsr.nf.avi',                 #showname.s01e02.dsr.nf.avi
-            '%(showname)s.S%(seasno)dE%(epno)d.PROPER.dsr.nf.avi',          #showname.S01E02.PROPER.dsr.nf.avi
-            '%(showname)s.s%(seasno)d.e%(epno)d.avi',                       #showname.s01.e02.avi
-            '%(showname)s-s%(seasno)de%(epno)d.avi',                        #showname-s01e02.avi
-            '%(showname)s-s%(seasno)de%(epno)d.the.wrong.ep.name.avi',      #showname-s01e02.the.wrong.ep.name.avi
-            '%(showname)s - [%(seasno)dx%(epno)d].avi',                     #showname - [01x02].avi
-            '%(showname)s - [%(seasno)dx0%(epno)d].avi',                    #showname - [01x002].avi
-            '%(showname)s-[%(seasno)dx%(epno)d].avi',                       #showname-[01x02].avi
-            '%(showname)s [%(seasno)dx%(epno)d].avi',                       #showname [01x02].avi
-            '%(showname)s [%(seasno)dx%(epno)d] the wrong ep name.avi',     #showname [01x02] epname.avi
-            '%(showname)s [%(seasno)dx%(epno)d] - the wrong ep name.avi',   #showname [01x02] - the wrong ep name.avi
-            '%(showname)s - [%(seasno)dx%(epno)d] - the wrong ep name.avi', #showname - [01x02] - the wrong ep name.avi
-            '%(showname)s.%(seasno)dx%(epno)d.The_Wrong_ep_name.avi',       #showname.01x02.epname.avi
-            '%(showname)s.%(seasno)d%(epno)02d.The Wrong_ep.names.avi',     #showname.102.epname.avi
-            '%(showname)s_s%(seasno)de%(epno)d_The_Wrong_ep_na-me.avi',     #showname_s1e02_epname.avi
-            '%(showname)s - s%(seasno)de%(epno)d - dsr.nf.avi'              #showname - s01e02 - dsr.nf.avi
-            '%(showname)s - s%(seasno)de%(epno)d - the wrong ep name.avi'   #showname - s01e02 - the wrong ep name.avi
-            '%(showname)s - s%(seasno)de%(epno)d - the wrong ep name.avi'   #showname - s01e02 - the_wrong_ep_name!.avi
+            '%(seriesname)s.s%(seasno)de%(epno)d.dsr.nf.avi',                 #seriesname.s01e02.dsr.nf.avi
+            '%(seriesname)s.S%(seasno)dE%(epno)d.PROPER.dsr.nf.avi',          #seriesname.S01E02.PROPER.dsr.nf.avi
+            '%(seriesname)s.s%(seasno)d.e%(epno)d.avi',                       #seriesname.s01.e02.avi
+            '%(seriesname)s-s%(seasno)de%(epno)d.avi',                        #seriesname-s01e02.avi
+            '%(seriesname)s-s%(seasno)de%(epno)d.the.wrong.ep.name.avi',      #seriesname-s01e02.the.wrong.ep.name.avi
+            '%(seriesname)s - [%(seasno)dx%(epno)d].avi',                     #seriesname - [01x02].avi
+            '%(seriesname)s - [%(seasno)dx0%(epno)d].avi',                    #seriesname - [01x002].avi
+            '%(seriesname)s-[%(seasno)dx%(epno)d].avi',                       #seriesname-[01x02].avi
+            '%(seriesname)s [%(seasno)dx%(epno)d].avi',                       #seriesname [01x02].avi
+            '%(seriesname)s [%(seasno)dx%(epno)d] the wrong ep name.avi',     #seriesname [01x02] epname.avi
+            '%(seriesname)s [%(seasno)dx%(epno)d] - the wrong ep name.avi',   #seriesname [01x02] - the wrong ep name.avi
+            '%(seriesname)s - [%(seasno)dx%(epno)d] - the wrong ep name.avi', #seriesname - [01x02] - the wrong ep name.avi
+            '%(seriesname)s.%(seasno)dx%(epno)d.The_Wrong_ep_name.avi',       #seriesname.01x02.epname.avi
+            '%(seriesname)s.%(seasno)d%(epno)02d.The Wrong_ep.names.avi',     #seriesname.102.epname.avi
+            '%(seriesname)s_s%(seasno)de%(epno)d_The_Wrong_ep_na-me.avi',     #seriesname_s1e02_epname.avi
+            '%(seriesname)s - s%(seasno)de%(epno)d - dsr.nf.avi'              #seriesname - s01e02 - dsr.nf.avi
+            '%(seriesname)s - s%(seasno)de%(epno)d - the wrong ep name.avi'   #seriesname - s01e02 - the wrong ep name.avi
+            '%(seriesname)s - s%(seasno)de%(epno)d - the wrong ep name.avi'   #seriesname - s01e02 - the_wrong_ep_name!.avi
         ]
 
     def test_name_parser_basic(self):
         """
-        Tests most basic filename (simple showname)
+        Tests most basic filename (simple seriesname)
         """
-        name_data = {'showname':'show name'}
+        name_data = {'seriesname':'series name'}
 
         self._run_test(name_data)
     #end test_name_parser
 
     def test_name_parser_showdashname(self):
         """
-        Tests with dash in showname
+        Tests with dash in seriesname
         """
-        name_data = {'showname':'S-how name'}
+        name_data = {'seriesname':'S-how name'}
 
         self._run_test(name_data)
     #end test_name_parser_showdashname
@@ -372,7 +372,7 @@ class test_name_parser(unittest.TestCase):
         """
         Tests with numeric show name
         """
-        name_data = {'showname':'123'}
+        name_data = {'seriesname':'123'}
 
         self._run_test(name_data)
     #end test_name_parser_shownumeric
@@ -381,13 +381,13 @@ class test_name_parser(unittest.TestCase):
         """
         Tests with numeric show name, with spaces
         """
-        name_data = {'showname':'123 2008'}
+        name_data = {'seriesname':'123 2008'}
 
         self._run_test(name_data)
     #end test_name_parser_shownumeric
 
     def test_name_parser_exclaim(self):
-        name_data = {'showname':'Show name!'}
+        name_data = {'seriesname':'Show name!'}
 
         self._run_test(name_data)
     #end test_name_parser_exclaim
@@ -395,7 +395,7 @@ class test_name_parser(unittest.TestCase):
     def _run_test(self, name_data):
         """
         Runs the tests and checks if the parsed values have
-        the correct showname/season number/episode number.
+        the correct seriesname/season number/episode number.
         Runs from season 0 ep 0 to season 10, ep 10.
         """
         for seas in xrange(1, 11):
@@ -412,7 +412,7 @@ class test_name_parser(unittest.TestCase):
                     try:
                         self.assertEquals( c['epno'], name_data['epno'])
                         self.assertEquals( c['seasno'], name_data['seasno'] )
-                        self.assertEquals( c['file_showname'], name_data['showname'] )
+                        self.assertEquals( c['file_seriesname'], name_data['seriesname'] )
                     except AssertionError, errormsg:
                         # Show output of regex match in traceback (instead of "0 != 10")
                         new_errormsg = str(c) + "\n" + str(errormsg)

@@ -282,6 +282,9 @@ class Tvdb:
 
         self.config['url_getSeries'] = "%(random_mirror)s/api/GetSeries.php?seriesname=%%s" % self.config
         self.config['url_epInfo'] = "%(random_mirror)s/api/%(apikey)s/series/%%s/all/" % self.config
+        
+        self.config['url_seriesInfo'] = "%(random_mirror)s/api/%(apikey)s/series/%%s/" % self.config
+        
     #end __init__
 
     def _initLogger(self):
@@ -455,13 +458,31 @@ class Tvdb:
         XML file into the shows dict in layout:
         shows[series_id][season_number][episode_number]
         """
+        
+        # Parse show information
+        seriesInfoSoup = self._getsoupsrc( self.config['url_seriesInfo'] % (sid) )
+        for curInfo in seriesInfoSoup.findAll("series")[0].findChildren():
+            if len(curInfo.contents) > 0:
+                cur_attr = self._cleanData(curInfo.name)
+                cur_data = self._cleanData(curInfo.contents[0])
+                self._setShowData(sid, cur_attr, cur_data)
+                
+                self.log.debug(
+                    "Got info: %s = %s" % (
+                        cur_attr, cur_data
+                    )
+                )
+        #end for series
+        
         self.log.debug('Getting all episodes of %s' % (sid))
         epsSoup = self._getsoupsrc( self.config['url_epInfo'] % (sid) )
 
         for ep in epsSoup.findAll('episode'):
+            # We need the season and episode numbers to store the other data
             ep_no = int( ep.find('episodenumber').contents[0] )
             seas_no = int( ep.find('seasonnumber').contents[0] )
 
+            # Iterate over the data within each episode
             for cur_attr in ep.findChildren():
                 if len(cur_attr.contents) > 0:
                     clean_attr = self._cleanData(cur_attr.contents[0])
@@ -485,7 +506,6 @@ class Tvdb:
             self.log.debug('Got %s, sid %s' % (sname, sid) )
 
             self.corrections[name] = sid
-            self._setShowData(sid, 'showname', sname)
             self._getEps( sid )
         #end if self.corrections.has_key
         return sid
@@ -493,7 +513,7 @@ class Tvdb:
 
     def __getitem__(self, key):
         """
-        Handles tvdb_instance['showname'] calls.
+        Handles tvdb_instance['seriesname'] calls.
         The dict index should be the show id
         """
         key = key.lower() # make key lower case
@@ -523,15 +543,15 @@ class test_tvdb(unittest.TestCase):
         It should correct the weirdly capitalised 'sCruBs' to 'Scrubs'
         """
         self.assertEquals(self.t['scrubs'][1][4]['episodename'], 'My Old Lady')
-        self.assertEquals(self.t['sCruBs']['showname'], 'Scrubs')
+        self.assertEquals(self.t['sCruBs']['seriesname'], 'Scrubs')
 
     def test_spaces(self):
-        self.assertEquals(self.t['My Name Is Earl']['showname'], 'My Name Is Earl')
+        self.assertEquals(self.t['My Name Is Earl']['seriesname'], 'My Name Is Earl')
         self.assertEquals(self.t['My Name Is Earl'][1][4]['episodename'], 'Faked His Own Death')
 
     def test_numeric(self):
         self.assertEquals(self.t['24'][2][20]['episodename'], 'Day 2: 3:00 A.M.-4:00 A.M.')
-        self.assertEquals(self.t['24']['showname'], '24')
+        self.assertEquals(self.t['24']['seriesname'], '24')
 
     def test_seasonnotfound(self):
         """
@@ -565,10 +585,16 @@ class test_tvdb(unittest.TestCase):
         Checks episode overview is retrived correctly.
         Verifies a known episodes overview begins with the correct text.
         """
-        self.assertEquals(self.t['Battlestar Galactica (2003)'][1][6]['overview'].startswith(
-                '''When a new copy of Doral, a Cylon who had been previously'''
-            ),
+        self.assertEquals(
+            self.t['Battlestar Galactica (2003)'][1][6]['overview'].startswith(
+                '''When a new copy of Doral, a Cylon who had been previously'''),
             True
+        )
+    
+    def test_episode_data(self):
+        self.assertEquals(
+            self.t['lost']['firstaired'],
+            '2004-09-22'
         )
 
     def test_doctest(self):
@@ -587,7 +613,7 @@ def simple_example():
     grabs an episode name interactivly.
     """
     db = Tvdb(interactive=True, debug=True)
-    print db['Lost']['showname']
+    print db['Lost']['seriesname']
     print db['Lost'][1][4]['episodename']
 
 def main():
