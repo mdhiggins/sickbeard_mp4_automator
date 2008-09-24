@@ -137,6 +137,14 @@ class tvdb_attributenotfound(Exception):
 
 class ShowContainer(dict): pass
 
+def is_int(x):
+    try:
+        int(x)
+    except ValueError:
+        return False
+    else:
+        return True
+
 class Show:
     def __init__(self):
         self.seasons = {}
@@ -148,17 +156,24 @@ class Show:
         return dict.has_key(self.seasons, key)
     def __setitem__(self, season_number, value):
         dict.__setitem__(self.seasons, season_number, value)
-    def __getitem__(self, season_numer):
-        if not dict.has_key(self.seasons, season_numer):
+    def __getitem__(self, key):
+        if not dict.has_key(self.seasons, key):
             # Season number doesn't exist
-            if dict.has_key(self.data, season_numer):
+            if dict.has_key(self.data, key):
                 # check if it's a bit of data
-                return  dict.__getitem__(self.data, season_numer)
+                return  dict.__getitem__(self.data, key)
             else:
                 # Nope, it doesn't exist
-                raise tvdb_seasonnotfound
+                # If it's numeric, it's a season number, raise season not found
+                if is_int(key):
+                    raise tvdb_seasonnotfound
+                else:
+                    # If it's not numeric, it must be an attribute name, which
+                    # doesn't exist, so attribute error.
+                    raise tvdb_attributenotfound
+                
         else:
-            return dict.__getitem__(self.seasons, season_numer)
+            return dict.__getitem__(self.seasons, key)
     def search(self, contents = None, key = None):
         """
         Search all episodes. Can search all values, or a specific one.
@@ -571,6 +586,7 @@ class test_tvdb(unittest.TestCase):
         Check it raises tvdb_attributenotfound if an episode name is not found.
         """
         self.assertRaises(tvdb_attributenotfound, lambda:self.t['CNNNN'][1][6]['afakeattributething'])
+        self.assertRaises(tvdb_attributenotfound, lambda:self.t['CNNNN']['afakeattributething'])
 
     def test_searchepname(self):
         """
