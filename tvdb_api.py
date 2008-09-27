@@ -100,50 +100,51 @@ class Cache:
     #end loadUrl
 #end Cache
 
-
-# Custom exceptions
-class tvdb_error(Exception):
-    """
-    An error with www.thetvdb.com (Cannot connect, for example)
-    """
-    pass
-class tvdb_userabort(Exception):
-    """
-    User aborted the interactive selection (via
-    the q command, ^c etc)
-    """
-    pass
-class tvdb_shownotfound(Exception):
-    """
-    Show cannot be found on www.thetvdb.com (non-existant show)
-    """
-    pass
-class tvdb_seasonnotfound(Exception):
-    """
-    Season cannot be found on www.thetvdb.com
-    """
-    pass
-class tvdb_episodenotfound(Exception):
-    """
-    Episode cannot be found on www.thetvdb.com
-    """
-    pass
-class tvdb_attributenotfound(Exception):
-    """
-    Raised if an episode does not have the requested
-    attribute (such as a episode name)
-    """
-    pass
-
-class ShowContainer(dict): pass
-
 def is_int(x):
+    """
+    Takes a string, checks if it is numeric.
+    >>> is_int("2")
+    True
+    >>> is_int("A test")
+    False
+    """
     try:
         int(x)
     except ValueError:
         return False
     else:
         return True
+
+
+# Custom exceptions
+class tvdb_error(Exception):
+    """An error with www.thetvdb.com (Cannot connect, for example)
+    """
+    pass
+class tvdb_userabort(Exception):
+    """User aborted the interactive selection (via
+    the q command, ^c etc)
+    """
+    pass
+class tvdb_shownotfound(Exception):
+    """Show cannot be found on www.thetvdb.com (non-existant show)
+    """
+    pass
+class tvdb_seasonnotfound(Exception):
+    """Season cannot be found on www.thetvdb.com
+    """
+    pass
+class tvdb_episodenotfound(Exception):
+    """Episode cannot be found on www.thetvdb.com
+    """
+    pass
+class tvdb_attributenotfound(Exception):
+    """Raised if an episode does not have the requested
+    attribute (such as a episode name)
+    """
+    pass
+
+class ShowContainer(dict): pass
 
 class Show:
     def __init__(self):
