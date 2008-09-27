@@ -581,6 +581,9 @@ class test_tvdb(unittest.TestCase):
         Hopefully no-one creates a show called "the fake show thingy"..
         """
         self.assertRaises(tvdb_shownotfound, lambda:self.t['the fake show thingy'])
+    
+    def test_episodenotfound(self):
+        self.assertRaises(tvdb_episodenotfound, lambda:self.t['Scrubs'][1][30])
 
     def test_attributenamenotfound(self):
         """
