@@ -235,9 +235,6 @@ class Show:
         return results
 
 class Season:
-    def __iter__(self):
-        for cd in self.episodes.values():
-            yield cd
     def __init__(self):
         self.episodes = {}
     def has_key(self, key):
@@ -249,6 +246,10 @@ class Season:
             raise tvdb_episodenotfound
         else:
             return dict.__getitem__(self.episodes, episode_number)
+    def __iter__(self):
+        for cd in self.episode_number.values():
+            yield cd
+
 class Episode:
     def __init__(self):
         self.data = {}
@@ -259,7 +260,6 @@ class Episode:
             return dict.__getitem__(self.data, key)
     def __setitem__(self, key, value):
         dict.__setitem__(self.data, key, value)
-
 
 class Tvdb:
     """
@@ -621,6 +621,7 @@ class test_tvdb(unittest.TestCase):
 
 
 def run_tests():
+    """Runs unittests verbosely"""
     suite = unittest.TestLoader().loadTestsFromTestCase(test_tvdb)
     unittest.TextTestRunner(verbosity=2).run(suite)
 
@@ -629,9 +630,9 @@ def simple_example():
     Simple example of using tvdb_api - it just
     grabs an episode name interactivly.
     """
-    db = Tvdb(interactive=True, debug=True)
-    print db['Lost']['seriesname']
-    print db['Lost'][1][4]['episodename']
+    tvdb_instance = Tvdb(interactive=True, debug=True)
+    print tvdb_instance['Lost']['seriesname']
+    print tvdb_instance['Lost'][1][4]['episodename']
 
 def main():
     """
