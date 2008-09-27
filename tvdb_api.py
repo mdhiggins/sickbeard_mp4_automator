@@ -493,17 +493,17 @@ class Tvdb:
         self.log.debug('Getting all episodes of %s' % (sid))
         epsSoup = self._getsoupsrc( self.config['url_epInfo'] % (sid) )
 
-        for ep in epsSoup.findAll('episode'):
+        for cur_ep in epsSoup.findAll('episode'):
             # We need the season and episode numbers to store the other data
-            ep_no = int( ep.find('episodenumber').contents[0] )
-            seas_no = int( ep.find('seasonnumber').contents[0] )
+            ep_no = int( cur_ep.find('episodenumber').contents[0] )
+            seas_no = int( cur_ep.find('seasonnumber').contents[0] )
 
             # Iterate over the data within each episode
-            for cur_attr in ep.findChildren():
+            for cur_attr in cur_ep.findChildren():
                 if len(cur_attr.contents) > 0:
                     clean_attr = self._cleanData(cur_attr.contents[0])
                     self._setItem(sid, seas_no, ep_no, cur_attr.name, clean_attr)
-        #end for ep
+        #end for cur_ep
     #end _geEps
 
     def _nameToSid(self, name):
