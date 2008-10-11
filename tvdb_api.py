@@ -144,9 +144,14 @@ class tvdb_attributenotfound(Exception):
     """
     pass
 
-class ShowContainer(dict): pass
+class ShowContainer(dict):
+    """Simple dict that holds a series of Show instancies
+    """
+    pass
 
 class Show:
+    """Holds a dict of seasons, and show data.
+    """
     def __init__(self):
         self.seasons = {}
         self.data = {}
@@ -262,8 +267,7 @@ class Episode:
         dict.__setitem__(self.data, key, value)
 
 class Tvdb:
-    """
-    Create easy-to-use interface to name of season/episode name
+    """Create easy-to-use interface to name of season/episode name
     >>> t = Tvdb()
     >>> t['Scrubs'][1][24]['episodename']
     u'My Last Day'
@@ -299,8 +303,7 @@ class Tvdb:
     #end __init__
 
     def _initLogger(self):
-        """
-        Setups a logger using the logging module, returns a log object
+        """Setups a logger using the logging module, returns a log object
         """
         import os, logging, sys
         logger = logging.getLogger("tvdb")
@@ -319,8 +322,7 @@ class Tvdb:
     #end initLogger
 
     def _getsoupsrc(self, url):
-        """
-        Helper to get a URL, turn it into
+        """Helper to get a URL, turn it into
         a BeautifulStoneSoup instance (for XML parsing)
         """
         url = url.replace(" ", "+")
@@ -335,8 +337,7 @@ class Tvdb:
     #end _getsoupsrc
 
     def _setItem(self, sid, seas, ep, attrib, value):
-        """
-        Creates a new episode, creating Show(), Season() and
+        """Creates a new episode, creating Show(), Season() and
         Episode()s as required. Called by _getShowData to populute
 
         Since the nice-to-use tvdb[1][24]['name] interface
@@ -365,8 +366,7 @@ class Tvdb:
         self.shows[sid].data.__setitem__(key, value)
 
     def _cleanData(self, data):
-        """
-        Cleans up strings returned by TheTVDB.com
+        """Cleans up strings returned by TheTVDB.com
 
         Issues corrected:
         - Returns &amp; instead of &, since &s in filenames
@@ -378,8 +378,7 @@ class Tvdb:
     #end _cleanData
 
     def _getSeries(self, series):
-        """
-        This searches TheTVDB.com for the series name,
+        """This searches TheTVDB.com for the series name,
         and either interactivly selects the correct show,
         or returns the first result.
         """
@@ -440,8 +439,7 @@ class Tvdb:
     #end _getSeries
 
     def _getShowData(self, sid):
-        """
-        Takes a series ID, gets the epInfo URL and parses the TVDB
+        """Takes a series ID, gets the epInfo URL and parses the TVDB
         XML file into the shows dict in layout:
         shows[series_id][season_number][episode_number]
         """
@@ -479,8 +477,7 @@ class Tvdb:
     #end _geEps
 
     def _nameToSid(self, name):
-        """
-        Takes show name, returns the correct series ID (if the show has
+        """Takes show name, returns the correct series ID (if the show has
         already been grabbed), or grabs all episodes and returns
         the correct SID.
         """
@@ -500,8 +497,7 @@ class Tvdb:
     #end _nameToSid
 
     def __getitem__(self, key):
-        """
-        Handles tvdb_instance['seriesname'] calls.
+        """Handles tvdb_instance['seriesname'] calls.
         The dict index should be the show id
         """
         key = key.lower() # make key lower case
@@ -590,6 +586,7 @@ class test_tvdb(unittest.TestCase):
         )
 
     def test_doctest(self):
+        """Check docstring examples works"""
         import doctest
         doctest.testmod()
 #end test_tvdb
