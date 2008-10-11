@@ -288,16 +288,14 @@ class Tvdb:
 
         # The following url_ configs are based of the
         # http://thetvdb.com/wiki/index.php/Programmers_API
-        self.config['url_mirror'] = "http://www.thetvdb.com/api/%(apikey)s/mirrors.xml" % self.config
-        self.mirrors = self._getMirrors()
+        self.config['base_url'] = "http://www.thetvdb.com/api"
 
-        self.config['random_mirror'] = self.random.choice(self.mirrors)
+        self.config['url_getSeries'] = "%(base_url)s/GetSeries.php?seriesname=%%s" % self.config
+        self.config['url_epInfo'] = "%(base_url)s/%(apikey)s/series/%%s/all/" % self.config
 
-        self.config['url_getSeries'] = "%(random_mirror)s/api/GetSeries.php?seriesname=%%s" % self.config
-        self.config['url_epInfo'] = "%(random_mirror)s/api/%(apikey)s/series/%%s/all/" % self.config
-        
-        self.config['url_seriesInfo'] = "%(random_mirror)s/api/%(apikey)s/series/%%s/" % self.config
-        
+        self.config['url_seriesInfo'] = "%(base_url)s/%(apikey)s/series/%%s/" % self.config
+        self.config['url_seriesBanner'] = "%(base_url)s/%(apikey)s/series/%%s/banners.xml" % self.config
+
     #end __init__
 
     def _initLogger(self):
@@ -365,23 +363,6 @@ class Tvdb:
         if not self.shows.has_key(sid):
             self.shows[sid] = Show()
         self.shows[sid].data.__setitem__(key, value)
-
-    def _getMirrors(self):
-        """
-        Gets a list of mirrors from the API
-        """
-        mirrorSoup = self._getsoupsrc( self.config['url_mirror'] )
-        mirrors = []
-        for mirror in mirrorSoup.findAll('mirror'):
-            self.log.debug('Found mirror %s' % (mirror))
-
-            mirrors.append(
-                mirror.find('mirrorpath').contents[0]
-            )
-        #end for mirror
-        self.log.debug('Found total of %s mirrors' % (len(mirrors)))
-        return mirrors
-    #end _getMirrors
 
     def _cleanData(self, data):
         """
