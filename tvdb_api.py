@@ -337,7 +337,7 @@ class Tvdb:
     def _setItem(self, sid, seas, ep, attrib, value):
         """
         Creates a new episode, creating Show(), Season() and
-        Episode()s as required. Called by _getEps to populute
+        Episode()s as required. Called by _getShowData to populute
 
         Since the nice-to-use tvdb[1][24]['name] interface
         makes it impossible to do tvdb[1][24]['name] = "name"
@@ -439,7 +439,7 @@ class Tvdb:
             #end while not valid_input
     #end _getSeries
 
-    def _getEps(self, sid):
+    def _getShowData(self, sid):
         """
         Takes a series ID, gets the epInfo URL and parses the TVDB
         XML file into the shows dict in layout:
@@ -447,6 +447,7 @@ class Tvdb:
         """
         
         # Parse show information
+        self.log.debug('Getting all series data for %s' % (sid))
         seriesInfoSoup = self._getsoupsrc( self.config['url_seriesInfo'] % (sid) )
         for curInfo in seriesInfoSoup.findAll("series")[0].findChildren():
             if len(curInfo.contents) > 0:
@@ -493,7 +494,7 @@ class Tvdb:
             self.log.debug('Got %s, sid %s' % (sname, sid) )
 
             self.corrections[name] = sid
-            self._getEps( sid )
+            self._getShowData( sid )
         #end if self.corrections.has_key
         return sid
     #end _nameToSid
