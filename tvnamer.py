@@ -202,7 +202,7 @@ def main():
     print "#"*20
 
     for cfile in validFiles:
-        print "# Processing %(file_showname)s (season: %(seasno)d, episode %(epno)d)" % (cfile)
+        print "# Processing %(file_seriesname)s (season: %(seasno)d, episode %(epno)d)" % (cfile)
         try:
             # Ask for episode name from tvdb_api
             epname = t[ cfile['file_seriesname'] ][ cfile['seasno'] ][ cfile['epno'] ]['episodename']
