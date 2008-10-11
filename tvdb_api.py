@@ -6,9 +6,7 @@
 #license:Creative Commons GNU GPL v2
 # (http://creativecommons.org/licenses/GPL/2.0/)
 
-"""
-tvdb_api.py
-Simple-to-use Python interface to The TVDB's API (www.thetvdb.com)
+"""Simple-to-use Python interface to The TVDB's API (www.thetvdb.com)
 
 Example usage:
 
@@ -21,8 +19,7 @@ __author__ = "dbr/Ben"
 __version__ = "0.3"
 
 class Cache:
-    """
-    Simple caching URL opener. Acts like:
+    """Simple caching URL opener. Acts like:
     import urllib
     return urllib.urlopen("http://example.com").read()
 
@@ -53,8 +50,7 @@ class Cache:
     #end __init__
 
     def getCachePath(self, url):
-        """
-        Calculates the cache path (/temp_directory/hash_of_URL)
+        """Calculates the cache path (/temp_directory/hash_of_URL)
         """
         cache_name = self.hasher.new(url).hexdigest()
         cache_path = self.os.path.join(self.tmp, cache_name)
@@ -62,8 +58,7 @@ class Cache:
     #end getUrl
 
     def checkCache(self, url):
-        """
-        Takes a URL, checks if a cache exists for it.
+        """Takes a URL, checks if a cache exists for it.
         If so, returns path, if not, returns False
         """
         path = self.getCachePath(url)
@@ -80,8 +75,7 @@ class Cache:
     #end checkCache
 
     def loadUrl(self, url):
-        """
-        Takes a URL, returns the contents of the URL, and does the caching.
+        """Takes a URL, returns the contents of the URL, and does the caching.
         """
         cacheExists = self.checkCache(url)
         if cacheExists:
@@ -101,8 +95,7 @@ class Cache:
 #end Cache
 
 def is_int(x):
-    """
-    Takes a string, checks if it is numeric.
+    """Takes a string, checks if it is numeric.
     >>> is_int("2")
     True
     >>> is_int("A test")
