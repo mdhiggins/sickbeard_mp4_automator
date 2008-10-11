@@ -252,7 +252,7 @@ class Season:
         else:
             return dict.__getitem__(self.episodes, episode_number)
     def __iter__(self):
-        for cd in self.episode_number.values():
+        for cd in self.episodes.values():
             yield cd
 
 class Episode:
