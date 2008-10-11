@@ -305,7 +305,7 @@ class Tvdb:
     def _initLogger(self):
         """Setups a logger using the logging module, returns a log object
         """
-        import os, logging, sys
+        import logging, sys
         logger = logging.getLogger("tvdb")
         formatter = logging.Formatter('%(asctime)s) %(levelname)s %(message)s')
 
