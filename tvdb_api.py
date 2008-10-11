@@ -280,9 +280,6 @@ class Tvdb:
         self.config['apikey'] = "0629B785CE550C8D" # thetvdb.com API key
 
         self.config['debug_enabled'] = debug # show debugging messages
-        self.config['debug_tofile'] = False
-        self.config['debug_filename'] = "tvdb.log"
-        self.config['debug_path'] = '.'
 
         self.config['interactive'] = interactive # prompt for correct series?
 
@@ -308,17 +305,10 @@ class Tvdb:
         Setups a logger using the logging module, returns a log object
         """
         import os, logging, sys
-        logdir = os.path.expanduser( self.config['debug_path'] )
-        logpath = os.path.join(logdir, self.config['debug_filename'])
-
         logger = logging.getLogger("tvdb")
         formatter = logging.Formatter('%(asctime)s) %(levelname)s %(message)s')
 
-        if self.config['debug_tofile']:
-            hdlr = logging.FileHandler(logpath)
-        else:
-            hdlr = logging.StreamHandler(sys.stdout)
-        #end if debug_tofile
+        hdlr = logging.StreamHandler(sys.stdout)
 
         hdlr.setFormatter(formatter)
         logger.addHandler(hdlr)
@@ -326,7 +316,7 @@ class Tvdb:
         if self.config['debug_enabled']:
             logger.setLevel(logging.DEBUG)
         else:
-            logger.setLevel(logging.INFO)
+            logger.setLevel(logging.WARNING)
         return logger
     #end initLogger
 
