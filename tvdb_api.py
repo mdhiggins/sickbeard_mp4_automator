@@ -522,56 +522,63 @@ class test_tvdb(unittest.TestCase):
         self.t = Tvdb()
 
     def test_different_case(self):
-        """
-        Checks the auto-correction of show names is working.
+        """Checks the auto-correction of show names is working.
         It should correct the weirdly capitalised 'sCruBs' to 'Scrubs'
         """
         self.assertEquals(self.t['scrubs'][1][4]['episodename'], 'My Old Lady')
         self.assertEquals(self.t['sCruBs']['seriesname'], 'Scrubs')
 
     def test_spaces(self):
+        """Checks shownames with spaces
+        """
         self.assertEquals(self.t['My Name Is Earl']['seriesname'], 'My Name Is Earl')
         self.assertEquals(self.t['My Name Is Earl'][1][4]['episodename'], 'Faked His Own Death')
 
     def test_numeric(self):
+        """Checks numeric show names
+        """
         self.assertEquals(self.t['24'][2][20]['episodename'], 'Day 2: 3:00 A.M.-4:00 A.M.')
         self.assertEquals(self.t['24']['seriesname'], '24')
 
     def test_seasonnotfound(self):
-        """
-        Using CNNNN, as it is cancelled so it's rather unlikely
-        they'll make another 8 seasons..
+        """Checks exception is thrown when season doesn't exist.
         """
         self.assertRaises(tvdb_seasonnotfound, lambda:self.t['CNNNN'][10][1])
 
     def test_shownotfound(self):
-        """
-        Hopefully no-one creates a show called "the fake show thingy"..
+        """Checks exception is thrown when episode doesn't exist.
         """
         self.assertRaises(tvdb_shownotfound, lambda:self.t['the fake show thingy'])
     
     def test_episodenotfound(self):
+        """Checks exception is raised for non-existant episode
+        """
         self.assertRaises(tvdb_episodenotfound, lambda:self.t['Scrubs'][1][30])
 
     def test_attributenamenotfound(self):
-        """
-        Check it raises tvdb_attributenotfound if an episode name is not found.
+        """Check exception is thrown for if an attribute isn't found.
         """
         self.assertRaises(tvdb_attributenotfound, lambda:self.t['CNNNN'][1][6]['afakeattributething'])
         self.assertRaises(tvdb_attributenotfound, lambda:self.t['CNNNN']['afakeattributething'])
 
-    def test_searchepname(self):
-        """
-        Searches for an episode name
+    def test_search_len(self):
+        """There should be only one result matching
         """
         self.assertEquals(len(self.t['My Name Is Earl'].search('Faked His Own Death')), 1)
-        self.assertEquals(self.t['My Name Is Earl'].search('Faked His Own Death')[0]['episodename'], 'Faked His Own Death')
+
+    def test_search_checkname(self):
+        """Checks you can get the episode name of a search result
+        """
         self.assertEquals(self.t['Scrubs'].search('my first')[0]['episodename'], 'My First Day')
+        self.assertEquals(self.t['My Name Is Earl'].search('Faked His Own Death')[0]['episodename'], 'Faked His Own Death')
+    
+    def test_search_multiresults(self):
+        """Checks search can return multiple results
+        """
+        self.assertEquals(len(self.t['Scrubs'].search('my first')) >= 3, True)
 
     def test_get_episode_overview(self):
-        """
-        Checks episode overview is retrived correctly.
-        Verifies a known episodes overview begins with the correct text.
+        """Checks episode overview is retrived correctly.
         """
         self.assertEquals(
             self.t['Battlestar Galactica (2003)'][1][6]['overview'].startswith(
@@ -580,6 +587,7 @@ class test_tvdb(unittest.TestCase):
         )
     
     def test_episode_data(self):
+        """Checks the firstaired value is retrived"""
         self.assertEquals(
             self.t['lost']['firstaired'],
             '2004-09-22'
