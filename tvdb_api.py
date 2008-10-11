@@ -586,6 +586,17 @@ class test_tvdb(unittest.TestCase):
             True
         )
     
+    def test_show_iter(self):
+        """Checks iterating over a show returns each seasons
+        """
+        self.assertEquals(
+            len(
+                [season for season in self.t['Life on Mars']]
+            ),
+            2
+        )
+            
+    
     def test_episode_data(self):
         """Checks the firstaired value is retrived"""
         self.assertEquals(
