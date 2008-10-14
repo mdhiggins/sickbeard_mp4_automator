@@ -491,9 +491,18 @@ class Tvdb:
                 banners[btype][btype2] = {}
             if not btype2 in banners[btype][btype2]:
                 banners[btype][btype2] = {}
+            if not bid in banners[btype][btype2]:
+                banners[btype][btype2][bid] = {}
             
             for cur_element in cur_banner.findChildren():
-                banners[btype][btype2][bid] = {cur_element.name: cur_element.string}
+                self.log.debug("Banner: %s = %s" % (cur_element.name, cur_element.string))
+                banners[btype][btype2][bid][cur_element.name] = cur_element.string
+            
+            for k, v in banners[btype][btype2][bid].items():
+                if k.endswith("path"):
+                    new_key = "_%s" % (k)
+                    new_url = self.config['url_bannerPath'] % (v)
+                    banners[btype][btype2][bid][new_key] = new_url
 
         self._setShowData(sid, "_banners", banners)
 
