@@ -151,6 +151,11 @@ class Show:
     def __iter__(self):
         for cd in self.seasons.values():
             yield cd
+    def __repr__(self):
+        return "<Show %s (containing %s seasons)>" % (
+            self.data.get(u'seriesname', 'instance'),
+            len(self.seasons)
+        )
     def has_key(self, key):
         return dict.has_key(self.seasons, key)
     def __setitem__(self, season_number, value):
