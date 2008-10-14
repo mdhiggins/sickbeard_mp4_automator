@@ -240,6 +240,13 @@ class Show:
 class Season:
     def __init__(self):
         self.episodes = {}
+    def __iter__(self):
+        for cd in self.episodes.values():
+            yield cd
+    def __repr__(self):
+        return "<Season instance (containing %s episodes)>" % (
+            len(self.episodes)
+        )
     def has_key(self, key):
         return dict.has_key(self.episodes, key)
     def __setitem__(self, episode_number, value):
@@ -249,13 +256,16 @@ class Season:
             raise tvdb_episodenotfound
         else:
             return dict.__getitem__(self.episodes, episode_number)
-    def __iter__(self):
-        for cd in self.episodes.values():
-            yield cd
 
 class Episode:
     def __init__(self):
         self.data = {}
+    def __repr__(self):
+        return "<Episode %02dx%02d - %s>" % (
+            int(self.data.get(u'seasonnumber')),
+            int(self.data.get(u'episodenumber')),
+            self.data.get(u'episodename')
+        )
     def __getitem__(self, key):
         if not dict.has_key(self.data, key):
             raise tvdb_attributenotfound
