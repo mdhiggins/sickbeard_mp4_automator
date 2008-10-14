@@ -564,7 +564,7 @@ class test_tvdb(unittest.TestCase):
         self.assertRaises(tvdb_episodenotfound, lambda:self.t['Scrubs'][1][30])
 
     def test_attributenamenotfound(self):
-        """Check exception is thrown for if an attribute isn't found.
+        """Checks exception is thrown for if an attribute isn't found.
         """
         self.assertRaises(tvdb_attributenotfound, lambda:self.t['CNNNN'][1][6]['afakeattributething'])
         self.assertRaises(tvdb_attributenotfound, lambda:self.t['CNNNN']['afakeattributething'])
@@ -595,7 +595,7 @@ class test_tvdb(unittest.TestCase):
         )
     
     def test_show_iter(self):
-        """Checks iterating over a show returns each seasons
+        """Iterating over a show returns each seasons
         """
         self.assertEquals(
             len(
@@ -603,17 +603,26 @@ class test_tvdb(unittest.TestCase):
             ),
             2
         )
-            
+    
+    def test_season_iter(self):
+        """Iterating over a show returns episodes
+        """
+        self.assertEquals(
+            len(
+                [episode for episode in self.t['Life on Mars'][1]]
+            ),
+            8
+        )
     
     def test_episode_data(self):
-        """Checks the firstaired value is retrived"""
+        """Checking the firstaired value is retrived"""
         self.assertEquals(
             self.t['lost']['firstaired'],
             '2004-09-22'
         )
 
     def test_doctest(self):
-        """Check docstring examples works"""
+        """Checking docstring examples works"""
         import doctest
         doctest.testmod()
 #end test_tvdb
