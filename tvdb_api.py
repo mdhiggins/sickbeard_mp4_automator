@@ -468,6 +468,35 @@ class Tvdb:
                 )
         #end for series
         
+        # Parse banners
+        self.log.debug('Getting season banners for %s' % (sid))
+        bannersSoup = self._getsoupsrc( self.config['url_seriesBanner'] % (sid) )    
+        banners = {}
+        for cur_banner in bannersSoup.findAll('banner'):
+            # bannerpath: append to <mirrorpath>/banners/ to get actual URL
+            # bannertype: can be series, season, poster or fanart
+            # bannertype: text, graphical or blank
+            # language: Nobody knows
+            # Season: season number this relates to (if appropriate)
+            # vignette path: like banner path, but vignetted
+            # thumbnailpath: like banner path, 300px < 20KB
+            # colors : colours selected by the artist. 1st, light accent, 2nd dark accent, 3rd is netural mid tone
+            bid = cur_banner.id.string
+            btype = cur_banner.bannertype.string
+            btype2 = cur_banner.bannertype2.string
+            if not btype in banners:
+                banners[btype] = {}
+            if not btype2 in banners[btype]:
+                banners[btype][btype2] = {}
+            if not btype2 in banners[btype][btype2]:
+                banners[btype][btype2] = {}
+            
+            for cur_element in cur_banner.findChildren():
+                banners[btype][btype2][bid] = {cur_element.name: cur_element.string}
+
+        self._setShowData(sid, "_banners", banners)
+
+        # Parse episode data
         self.log.debug('Getting all episodes of %s' % (sid))
         epsSoup = self._getsoupsrc( self.config['url_epInfo'] % (sid) )
 
