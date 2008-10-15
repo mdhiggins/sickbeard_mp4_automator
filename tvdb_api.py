@@ -489,13 +489,12 @@ class Tvdb:
                 banners[btype] = {}
             if not btype2 in banners[btype]:
                 banners[btype][btype2] = {}
-            if not btype2 in banners[btype][btype2]:
-                banners[btype][btype2] = {}
             if not bid in banners[btype][btype2]:
                 banners[btype][btype2][bid] = {}
             
+            self.log.debug("Banner: %s", bid)
             for cur_element in cur_banner.findChildren():
-                self.log.debug("Banner: %s = %s" % (cur_element.name, cur_element.string))
+                self.log.debug("Banner info: %s = %s" % (cur_element.name, cur_element.string))
                 banners[btype][btype2][bid][cur_element.name] = cur_element.string
             
             for k, v in banners[btype][btype2][bid].items():
