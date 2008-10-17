@@ -20,7 +20,7 @@ def main():
     
     runner = unittest.TextTestRunner()
     if output_xml:
-        runner = xmlrunner.XmlTestRunner(sys.stdout)
+        runner = xmlrunner.XmlTestRunner()
     else:
         runner = unittest.TextTestRunner(verbosity=2)
     
