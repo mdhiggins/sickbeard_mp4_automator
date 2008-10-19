@@ -351,8 +351,7 @@ class test_name_parser(unittest.TestCase):
         ]
 
     def test_name_parser_basic(self):
-        """
-        Tests most basic filename (simple seriesname)
+        """Tests most basic filename (simple seriesname)
         """
         name_data = {'seriesname':'series name'}
 
@@ -360,8 +359,7 @@ class test_name_parser(unittest.TestCase):
     #end test_name_parser
 
     def test_name_parser_showdashname(self):
-        """
-        Tests with dash in seriesname
+        """Tests with dash in seriesname
         """
         name_data = {'seriesname':'S-how name'}
 
@@ -369,8 +367,7 @@ class test_name_parser(unittest.TestCase):
     #end test_name_parser_showdashname
 
     def test_name_parser_shownumeric(self):
-        """
-        Tests with numeric show name
+        """Tests with numeric show name
         """
         name_data = {'seriesname':'123'}
 
@@ -378,8 +375,7 @@ class test_name_parser(unittest.TestCase):
     #end test_name_parser_shownumeric
 
     def test_name_parser_shownumericspaces(self):
-        """
-        Tests with numeric show name, with spaces
+        """Tests with numeric show name, with spaces
         """
         name_data = {'seriesname':'123 2008'}
 
@@ -387,6 +383,8 @@ class test_name_parser(unittest.TestCase):
     #end test_name_parser_shownumeric
 
     def test_name_parser_exclaim(self):
+        """Tests parsing show with explaimation mark
+        """
         name_data = {'seriesname':'Show name!'}
 
         self._run_test(name_data)
