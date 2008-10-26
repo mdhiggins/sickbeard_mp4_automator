@@ -68,8 +68,10 @@ class _TestInfo(object):
         """Print information from a failure or error to the supplied stream."""
         text = escape(str(error[1]))
         stream.write('\n')
+        error_type = str(error[0])
+        error_type = error_type.replace("<","").replace(">","").strip()
         stream.write('    <%s type="%s">%s\n' \
-            % (tagname, str(error[0]), text))
+            % (tagname, error_type, text))
         tb_stream = StringIO()
         traceback.print_tb(error[2], None, tb_stream)
         stream.write(escape(tb_stream.getvalue()))
