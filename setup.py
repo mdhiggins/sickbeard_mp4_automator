@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 setup(
 name = 'tvnamer',
-version='0.2',
+version='0.3',
 
 author='dbr/Ben',
 description='Automatic TV episode namer',
@@ -13,8 +13,13 @@ Automatically names downloaded/recorded TV-episodes, by parsing filenames and re
 Includes tvdb_api - an easy to use API interface to TheTVDB.com
 """,
 
-py_modules = ['tvdb_api'],
-scripts = ['tvnamer.py'],
+py_modules = ['tvdb_api', 'tvnamer'],
+entry_points = {
+    'console_scripts':[
+        'tvnamer = tvnamer:main'
+    ]
+},
+
 install_requires=['BeautifulSoup'],
 
 classifiers=[
