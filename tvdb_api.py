@@ -170,11 +170,11 @@ class Show:
                 # Nope, it doesn't exist
                 # If it's numeric, it's a season number, raise season not found
                 if is_int(key):
-                    raise tvdb_seasonnotfound
+                    raise tvdb_seasonnotfound("Could not find season %s" % (key))
                 else:
                     # If it's not numeric, it must be an attribute name, which
                     # doesn't exist, so attribute error.
-                    raise tvdb_attributenotfound
+                    raise tvdb_attributenotfound("Cannot find attribute %s" % (key))
                 
         else:
             return dict.__getitem__(self.seasons, key)
@@ -268,7 +268,7 @@ class Episode:
         )
     def __getitem__(self, key):
         if not dict.has_key(self.data, key):
-            raise tvdb_attributenotfound
+            raise tvdb_attributenotfound("Cannot find attribute %s" % (key))
         else:
             return dict.__getitem__(self.data, key)
     def __setitem__(self, key, value):
