@@ -267,8 +267,8 @@ class Tvdb:
     >>> t['Scrubs'][1][24]['episodename']
     u'My Last Day'
     """
+    import urllib
     from BeautifulSoup import BeautifulStoneSoup
-    import random
 
     def __init__(self, interactive=False, debug=False, cache = True):
         self.shows = ShowContainer() # Holds all Show classes
