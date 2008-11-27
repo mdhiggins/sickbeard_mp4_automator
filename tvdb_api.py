@@ -555,9 +555,10 @@ class Tvdb:
 
 import unittest
 class test_tvdb(unittest.TestCase):
-    def setUp(self):
-        self.t = Tvdb()
-
+    # Setting up this in def Setup() is slower, and
+    # it doesn't need to be called for eachtest
+    t = Tvdb()
+     
     def test_different_case(self):
         """Checks the auto-correction of show names is working.
         It should correct the weirdly capitalised 'sCruBs' to 'Scrubs'
