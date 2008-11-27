@@ -220,7 +220,7 @@ class Show:
 
         results = []
         for cur_season in self.seasons.values():
-            for cur_ep in cur_season.episodes.values():
+            for cur_ep in cur_season.values():
                 for cur_key, cur_value in cur_ep.items():
                     cur_key, cur_value = unicode(cur_key).lower(), unicode(cur_value).lower()
                     if key != None:
@@ -237,29 +237,18 @@ class Show:
         #end for cur_season
         return results
 
-class Season:
-    def __init__(self):
-        self.episodes = {}
-    def __iter__(self):
-        for cd in self.episodes.values():
-            yield cd
+class Season(dict):
     def __repr__(self):
         return "<Season instance (containing %s episodes)>" % (
-            len(self.episodes)
+            len(self.keys())
         )
-    def has_key(self, key):
-        return dict.has_key(self.episodes, key)
-    def __setitem__(self, episode_number, value):
-        dict.__setitem__(self.episodes, episode_number, value)
     def __getitem__(self, episode_number):
-        if not dict.has_key(self.episodes, episode_number):
+        if not dict.has_key(self, episode_number):
             raise tvdb_episodenotfound
         else:
-            return dict.__getitem__(self.episodes, episode_number)
+            return dict.__getitem__(self, episode_number)
 
 class Episode(dict):
-    # def __init__(self):
-    #     self.data = {}
     def __repr__(self):
         return "<Episode %02dx%02d - %s>" % (
             int(self.get(u'seasonnumber')),
