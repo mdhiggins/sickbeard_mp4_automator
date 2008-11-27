@@ -327,8 +327,12 @@ class Tvdb:
         """
         url = url.replace(" ", "+")
         try:
-            self.log.debug("Getting %s using Cache" % (url))
-            src = self.cache.loadUrl(url)
+            if self.config['cache_enabled']:
+                self.log.debug("Getting %s using Cache" % (url))
+                src = self.cache.loadUrl(url)
+            else:
+                self.log.debug("Getting %s with no caching" % (url))
+                src = self.urllib.urlopen(url).read()
         except IOError, errormsg:
             raise tvdb_error("Could not connect to server: %s" % (errormsg))
         #end try
@@ -668,7 +672,7 @@ def simple_example():
     Simple example of using tvdb_api - it just
     grabs an episode name interactivly.
     """
-    tvdb_instance = Tvdb(interactive=True, debug=True)
+    tvdb_instance = Tvdb(interactive=True, debug=True, cache=False)
     print tvdb_instance['Lost']['seriesname']
     print tvdb_instance['Lost'][1][4]['episodename']
 
