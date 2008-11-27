@@ -221,7 +221,7 @@ class Show:
         results = []
         for cur_season in self.seasons.values():
             for cur_ep in cur_season.episodes.values():
-                for cur_key, cur_value in cur_ep.data.items():
+                for cur_key, cur_value in cur_ep.items():
                     cur_key, cur_value = unicode(cur_key).lower(), unicode(cur_value).lower()
                     if key != None:
                         if not cur_key.find(key) > -1:
@@ -257,22 +257,20 @@ class Season:
         else:
             return dict.__getitem__(self.episodes, episode_number)
 
-class Episode:
-    def __init__(self):
-        self.data = {}
+class Episode(dict):
+    # def __init__(self):
+    #     self.data = {}
     def __repr__(self):
         return "<Episode %02dx%02d - %s>" % (
-            int(self.data.get(u'seasonnumber')),
-            int(self.data.get(u'episodenumber')),
-            self.data.get(u'episodename')
+            int(self.get(u'seasonnumber')),
+            int(self.get(u'episodenumber')),
+            self.get(u'episodename')
         )
     def __getitem__(self, key):
-        if not dict.has_key(self.data, key):
+        try:
+            return dict.__getitem__(self, key)
+        except KeyError:
             raise tvdb_attributenotfound("Cannot find attribute %s" % (key))
-        else:
-            return dict.__getitem__(self.data, key)
-    def __setitem__(self, key, value):
-        dict.__setitem__(self.data, key, value)
 
 class Tvdb:
     """Create easy-to-use interface to name of season/episode name
@@ -283,7 +281,7 @@ class Tvdb:
     from BeautifulSoup import BeautifulStoneSoup
     import random
 
-    def __init__(self, interactive=False, debug=False):
+    def __init__(self, interactive=False, debug=False, cache = True):
         self.shows = ShowContainer() # Holds all Show classes
         self.corrections = {} # Holds show-name to show_id mapping
 
@@ -294,8 +292,12 @@ class Tvdb:
         self.config['debug_enabled'] = debug # show debugging messages
 
         self.config['interactive'] = interactive # prompt for correct series?
+        
+        self.config['cache_enabled'] = cache
 
-        self.cache = Cache(prefix="tvdb_api") # Caches retreived URLs in tmp dir
+        if self.config['cache_enabled']:
+            self.cache = Cache(prefix="tvdb_api") # Caches retreived URLs in tmp dir
+        
         self.log = self._initLogger() # Setups the logger (self.log.debug() etc)
 
         # The following url_ configs are based of the
