@@ -16,7 +16,7 @@ Example usage:
 u'Cabin Fever'
 """
 __author__ = "dbr/Ben"
-__version__ = "0.4"
+__version__ = "0.5"
 
 class Cache:
     """Simple caching URL opener. Acts like:
