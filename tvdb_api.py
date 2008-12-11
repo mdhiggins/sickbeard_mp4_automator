@@ -94,11 +94,11 @@ class Cache:
     #end loadUrl
 #end Cache
 
-def is_int(x):
+def can_int(x):
     """Takes a string, checks if it is numeric.
-    >>> is_int("2")
+    >>> can_int("2")
     True
-    >>> is_int("A test")
+    >>> can_int("A test")
     False
     """
     try:
@@ -169,7 +169,7 @@ class Show:
             else:
                 # Nope, it doesn't exist
                 # If it's numeric, it's a season number, raise season not found
-                if is_int(key):
+                if can_int(key):
                     raise tvdb_seasonnotfound("Could not find season %s" % (key))
                 else:
                     # If it's not numeric, it must be an attribute name, which
