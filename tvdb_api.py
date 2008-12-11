@@ -195,13 +195,13 @@ class Show:
         with a bit of data containg "my first day":
 
         >>> t['Scrubs'].search("my first day") #doctest: +ELLIPSIS
-        [<__main__.Episode instance at 0x...>]
+        [<Episode 01x01 - My First Day>]
         >>>
 
         Search for "My Name Is Earl" named "Faked His Own Death":
 
         >>> t['My Name Is Earl'].search('Faked His Own Death', key = 'name') #doctest: +ELLIPSIS
-        [<__main__.Episode instance at 0x...>]
+        [<Episode 01x04 - Faked His Own Death>]
         >>>
 
         Using search results
