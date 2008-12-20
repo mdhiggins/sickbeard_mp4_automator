@@ -615,6 +615,13 @@ class test_tvdb(unittest.TestCase):
             True
         )
     
+    def test_search_no_params_error(self):
+        """Checks not supplying search info rasies TypeError"""
+        self.assertRaises(
+            TypeError,
+            lambda: self.t['Scrubs'].search()
+        )
+    
     def test_show_iter(self):
         """Iterating over a show returns each seasons
         """
