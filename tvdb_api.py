@@ -34,9 +34,9 @@ class Cache:
     import tempfile
     import urllib
     try:
-        import sha1 as hasher
+        from hashlib import sha1 as hashlib
     except ImportError:
-        import md5 as hasher
+        import sha1 as hasher
 
     def __init__(self, max_age=21600, prefix="tvdb_api"):
         self.prefix = prefix
