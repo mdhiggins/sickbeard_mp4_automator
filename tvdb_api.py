@@ -142,28 +142,23 @@ class ShowContainer(dict):
     """
     pass
 
-class Show:
+class Show(dict):
     """Holds a dict of seasons, and show data.
     """
     def __init__(self):
-        self.seasons = {}
         self.data = {}
     def __iter__(self):
-        for cd in self.seasons.values():
+        for cd in self.values():
             yield cd
     def __repr__(self):
         return "<Show %s (containing %s seasons)>" % (
             self.data.get(u'seriesname', 'instance'),
-            len(self.seasons)
+            len(self)
         )
-    def has_key(self, key):
-        return dict.has_key(self.seasons, key)
-    def __setitem__(self, season_number, value):
-        dict.__setitem__(self.seasons, season_number, value)
     def __getitem__(self, key):
-        if not dict.has_key(self.seasons, key):
+        if key not in self:
             # Season number doesn't exist
-            if dict.has_key(self.data, key):
+            if key in self.data:
                 # check if it's a bit of data
                 return  dict.__getitem__(self.data, key)
             else:
@@ -177,7 +172,7 @@ class Show:
                     raise tvdb_attributenotfound("Cannot find attribute %s" % (key))
                 
         else:
-            return dict.__getitem__(self.seasons, key)
+            return dict.__getitem__(self, key)
     def search(self, contents = None, key = None):
         """
         Search all episodes. Can search all values, or a specific one.
@@ -219,7 +214,7 @@ class Show:
             raise TypeError("must supply atleast one type of search")
 
         results = []
-        for cur_season in self.seasons.values():
+        for cur_season in self.values():
             for cur_ep in cur_season.values():
                 for cur_key, cur_value in cur_ep.items():
                     cur_key, cur_value = unicode(cur_key).lower(), unicode(cur_value).lower()
