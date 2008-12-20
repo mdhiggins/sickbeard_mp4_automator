@@ -211,7 +211,7 @@ class Show(dict):
         >>>
         """
         if key == contents == None:
-            raise TypeError("must supply atleast one type of search")
+            raise TypeError("must supply at least one type of search")
 
         results = []
         for cur_season in self.values():
