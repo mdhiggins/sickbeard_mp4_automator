@@ -643,12 +643,33 @@ class test_tvdb(unittest.TestCase):
         )
     
     def test_episode_data(self):
-        """Checking the firstaired value is retrived"""
+        """Check the firstaired value is retrived
+        """
         self.assertEquals(
             self.t['lost']['firstaired'],
             '2004-09-22'
         )
 
+    def test_repr_show(self):
+        """Check repr() of Season
+        """
+        self.assertEquals(
+            repr(self.t['CNNNN']),
+            "<Show Chaser Non-Stop News Network (CNNNN) (containing 2 seasons)>"
+        )
+    def test_repr_season(self):
+        """Check repr() of Season
+        """
+        self.assertEquals(
+            repr(self.t['CNNNN'][1]),
+            "<Season instance (containing 9 episodes)>"
+        )
+    def test_repr_episode(self):
+        self.assertEquals(
+            repr(self.t['CNNNN'][1][1]),
+            "<Episode 01x01 - September 19, 2002 (20:30 - 21:00)>"
+        )
+    
     def test_doctest(self):
         """Check docstring examples works"""
         import doctest
