@@ -238,7 +238,7 @@ class Season(dict):
             len(self.keys())
         )
     def __getitem__(self, episode_number):
-        if not dict.has_key(self, episode_number):
+        if episode_number not in self:
             raise tvdb_episodenotfound
         else:
             return dict.__getitem__(self, episode_number)
@@ -350,17 +350,17 @@ class Tvdb:
         calls __getitem__ on tvdb[1], there is no way to check if
         tvdb.__dict__ should have a key "1" before we auto-create it
         """
-        if not self.shows.has_key(sid):
+        if sid not in self.shows:
             self.shows[sid] = Show()
-        if not self.shows[sid].has_key(seas):
+        if seas not in self.shows[sid]: 
             self.shows[sid][seas] = Season()
-        if not self.shows[sid][seas].has_key(ep):
+        if ep not in self.shows[sid][seas]:
             self.shows[sid][seas][ep] = Episode()
         self.shows[sid][seas][ep][attrib] = value
     #end _set_item
 
     def _setShowData(self, sid, key, value):
-        if not self.shows.has_key(sid):
+        if sid not in self.shows:
             self.shows[sid] = Show()
         self.shows[sid].data.__setitem__(key, value)
 
@@ -517,7 +517,7 @@ class Tvdb:
         already been grabbed), or grabs all episodes and returns
         the correct SID.
         """
-        if self.corrections.has_key(name):
+        if name in self.corrections:
             self.log.debug('Correcting %s to %s' % (name, self.corrections[name]) )
             sid = self.corrections[name]
         else:
@@ -528,7 +528,7 @@ class Tvdb:
 
             self.corrections[name] = sid
             self._getShowData( sid )
-        #end if self.corrections.has_key
+        #end if name in self.corrections
         return sid
     #end _nameToSid
 
