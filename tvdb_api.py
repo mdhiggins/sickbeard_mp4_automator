@@ -34,9 +34,9 @@ class Cache:
     import tempfile
     import urllib
     try:
-        from hashlib import sha1 as hashlib
+        from hashlib import sha1 as hasher
     except ImportError:
-        import sha1 as hasher
+        from sha import sha as hasher
 
     def __init__(self, max_age=21600, prefix="tvdb_api"):
         self.prefix = prefix
@@ -52,7 +52,7 @@ class Cache:
     def getCachePath(self, url):
         """Calculates the cache path (/temp_directory/hash_of_URL)
         """
-        cache_name = self.hasher.new(url).hexdigest()
+        cache_name = self.hasher(url).hexdigest()
         cache_path = self.os.path.join(self.tmp, cache_name)
         return cache_path
     #end getUrl
