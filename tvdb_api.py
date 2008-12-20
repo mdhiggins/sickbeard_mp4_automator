@@ -156,23 +156,23 @@ class Show(dict):
             len(self)
         )
     def __getitem__(self, key):
-        if key not in self:
-            # Season number doesn't exist
-            if key in self.data:
-                # check if it's a bit of data
-                return  dict.__getitem__(self.data, key)
-            else:
-                # Nope, it doesn't exist
-                # If it's numeric, it's a season number, raise season not found
-                if can_int(key):
-                    raise tvdb_seasonnotfound("Could not find season %s" % (key))
-                else:
-                    # If it's not numeric, it must be an attribute name, which
-                    # doesn't exist, so attribute error.
-                    raise tvdb_attributenotfound("Cannot find attribute %s" % (key))
-                
-        else:
+        if key in self:
+            # Key is an episode, return it
             return dict.__getitem__(self, key)
+        
+        if key in self.data:
+            # Non-numeric request is for show-data
+            return dict.__getitem__(self.data, key)
+
+        # Data wasn't found, raise appropriate error
+        if can_int(key):
+            # Episode number x was not found
+            raise tvdb_seasonnotfound("Could not find season %s" % (key))
+        else:
+            # If it's not numeric, it must be an attribute name, which
+            # doesn't exist, so attribute error.
+            raise tvdb_attributenotfound("Cannot find attribute %s" % (key))
+
     def search(self, contents = None, key = None):
         """
         Search all episodes. Can search all values, or a specific one.
