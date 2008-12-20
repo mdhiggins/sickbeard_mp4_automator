@@ -464,14 +464,6 @@ class Tvdb:
         bannersSoup = self._getsoupsrc( self.config['url_seriesBanner'] % (sid) )    
         banners = {}
         for cur_banner in bannersSoup.findAll('banner'):
-            # bannerpath: append to <mirrorpath>/banners/ to get actual URL
-            # bannertype: can be series, season, poster or fanart
-            # bannertype: text, graphical or blank
-            # language: Nobody knows
-            # Season: season number this relates to (if appropriate)
-            # vignette path: like banner path, but vignetted
-            # thumbnailpath: like banner path, 300px < 20KB
-            # colors : colours selected by the artist. 1st, light accent, 2nd dark accent, 3rd is netural mid tone
             bid = cur_banner.id.string
             btype = cur_banner.bannertype.string
             btype2 = cur_banner.bannertype2.string
