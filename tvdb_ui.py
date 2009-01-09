@@ -1,7 +1,7 @@
 """Stores included user interfaces for Tvdb
 """
 
-from tvdb_api import tvdb_userabort
+from tvdb_exceptions import tvdb_userabort, tvdb_shownotfound
 
 class BaseUI:
     """Default non-interactive UI, which auto-selects first results
