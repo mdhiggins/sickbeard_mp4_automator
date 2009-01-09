@@ -4,7 +4,7 @@
 from tvdb_api import tvdb_userabort
 
 class BaseUI:
-    """Non-interactive UI, which auto-selects first results
+    """Default non-interactive UI, which auto-selects first results
     """
     def __init__(self, log):
         self.log = log

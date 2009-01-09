@@ -18,6 +18,8 @@ u'Cabin Fever'
 __author__ = "dbr/Ben"
 __version__ = "0.5"
 
+from tvdb_ui import BaseUI, ConsoleUI
+
 class Cache:
     """Simple caching URL opener. Acts like:
     import urllib
@@ -413,11 +415,9 @@ class Tvdb:
         
         if not self.config['interactive']:
             self.log.debug('Auto-selecting first search result using BaseUI')
-            from tvdb_ui import BaseUI
             return BaseUI().selectSeries(allSeries)
         else:
             self.log.debug('Interactivily selecting show using ConsoleUI')
-            from tvdb_ui import ConsoleUI
             return ConsoleUI().selectSeries(allSeries)
             
     #end _getSeries
