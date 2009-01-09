@@ -51,12 +51,12 @@ class ConsoleUI(BaseUI):
                 ans = raw_input()
             except KeyboardInterrupt:
                 raise tvdb_userabort("User aborted (^c keyboard interupt)")
+            except EOFError:
+                raise tvdb_userabort("User aborted (EOF received)")
 
             self.log.debug('Got choice of: %s' % (ans))
             try:
                 selected_id = int(ans) - 1 # The human entered 1 as first result, not zero
-                self.log.debug('Trying to return ID: %d' % (selected_id))
-                return allSeries[ selected_id ]
             except ValueError: # Input was not number
                 if ans == "q":
                     self.log.debug('Got quit command (q)')
