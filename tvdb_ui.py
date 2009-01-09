@@ -1,3 +1,11 @@
+#!/usr/bin/env python
+#encoding:utf-8
+#author:dbr/Ben
+#project:tvdb_api
+#repository:http://github.com/dbr/tvdb_api
+#license:Creative Commons GNU GPL v2
+# (http://creativecommons.org/licenses/GPL/2.0/)
+
 """Stores included user interfaces for Tvdb.
 
 A callback is a class. It's __init__ function takes one argument, log Tvdb's
