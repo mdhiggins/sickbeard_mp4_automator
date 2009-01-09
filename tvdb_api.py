@@ -265,7 +265,21 @@ class Tvdb:
     import urllib
     from BeautifulSoup import BeautifulStoneSoup
 
-    def __init__(self, interactive=False, debug=False, cache = True):
+    def __init__(self, interactive=False, debug=False, cache = True, banners = False):
+        """interactive = True uses built-in console UI is used to select
+        the correct show. When False, the first search result is used.
+        
+        debug = True shows verbose debugging information
+        
+        cache = True cacheds retrived XML are persisted to to disc
+        (under the TEMP_DIR/tvdb_api), they are
+        
+        banners = True retrives the banners for a show. These are accessed 
+        via the _banners key of a Show(), for example:
+        
+        >>> Tvdb(banners=True)['scrubs']['_banners'].keys()
+        [u'fanart', u'poster', u'series', u'season']
+        """
         self.shows = ShowContainer() # Holds all Show classes
         self.corrections = {} # Holds show-name to show_id mapping
 
@@ -278,6 +292,8 @@ class Tvdb:
         self.config['interactive'] = interactive # prompt for correct series?
         
         self.config['cache_enabled'] = cache
+        
+        self.config['banners_enabled'] = banners
 
         if self.config['cache_enabled']:
             self.cache = Cache(prefix="tvdb_api") # Caches retreived URLs in tmp dir
@@ -460,32 +476,33 @@ class Tvdb:
         #end for series
         
         # Parse banners
-        self.log.debug('Getting season banners for %s' % (sid))
-        bannersSoup = self._getsoupsrc( self.config['url_seriesBanner'] % (sid) )    
-        banners = {}
-        for cur_banner in bannersSoup.findAll('banner'):
-            bid = cur_banner.id.string
-            btype = cur_banner.bannertype.string
-            btype2 = cur_banner.bannertype2.string
-            if not btype in banners:
-                banners[btype] = {}
-            if not btype2 in banners[btype]:
-                banners[btype][btype2] = {}
-            if not bid in banners[btype][btype2]:
-                banners[btype][btype2][bid] = {}
+        if self.config['banners_enabled']:
+            self.log.debug('Getting season banners for %s' % (sid))
+            bannersSoup = self._getsoupsrc( self.config['url_seriesBanner'] % (sid) )    
+            banners = {}
+            for cur_banner in bannersSoup.findAll('banner'):
+                bid = cur_banner.id.string
+                btype = cur_banner.bannertype.string
+                btype2 = cur_banner.bannertype2.string
+                if not btype in banners:
+                    banners[btype] = {}
+                if not btype2 in banners[btype]:
+                    banners[btype][btype2] = {}
+                if not bid in banners[btype][btype2]:
+                    banners[btype][btype2][bid] = {}
             
-            self.log.debug("Banner: %s", bid)
-            for cur_element in cur_banner.findChildren():
-                self.log.debug("Banner info: %s = %s" % (cur_element.name, cur_element.string))
-                banners[btype][btype2][bid][cur_element.name] = cur_element.string
+                self.log.debug("Banner: %s", bid)
+                for cur_element in cur_banner.findChildren():
+                    self.log.debug("Banner info: %s = %s" % (cur_element.name, cur_element.string))
+                    banners[btype][btype2][bid][cur_element.name] = cur_element.string
             
-            for k, v in banners[btype][btype2][bid].items():
-                if k.endswith("path"):
-                    new_key = "_%s" % (k)
-                    new_url = self.config['url_bannerPath'] % (v)
-                    banners[btype][btype2][bid][new_key] = new_url
+                for k, v in banners[btype][btype2][bid].items():
+                    if k.endswith("path"):
+                        new_key = "_%s" % (k)
+                        new_url = self.config['url_bannerPath'] % (v)
+                        banners[btype][btype2][bid][new_key] = new_url
 
-        self._setShowData(sid, "_banners", banners)
+            self._setShowData(sid, "_banners", banners)
 
         # Parse episode data
         self.log.debug('Getting all episodes of %s' % (sid))
