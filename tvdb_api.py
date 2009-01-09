@@ -546,9 +546,12 @@ class Tvdb:
 
 import unittest
 class test_tvdb(unittest.TestCase):
-    # Setting up this in def Setup() is slower, and
-    # it doesn't need to be called for eachtest
-    t = Tvdb()
+    # Used to store the cached instance of Tvdb()
+    t = None
+    
+    def setUp(self):
+        if self.t is None:
+            self.__class__.t = Tvdb()
      
     def test_different_case(self):
         """Checks the auto-correction of show names is working.
