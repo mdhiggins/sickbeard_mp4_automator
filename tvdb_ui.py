@@ -1,4 +1,18 @@
-"""Stores included user interfaces for Tvdb
+"""Stores included user interfaces for Tvdb.
+
+A callback is a class. It's __init__ function takes one argument, log Tvdb's
+log (which uses the logging module). You can call log.info() log.warning() etc
+
+The method "selectSeries" is passed a list of dicts, each dict contains the
+the keys "name" (human readable show name), and "sid" (the shows ID as on
+thetvdb.com). For example:
+
+[{'name': u'Lost', 'sid': u'73739'},
+ {'name': u'Lost Universe', 'sid': u'73181'}]
+
+The selectSeries must return the approriate dict, or it can raise
+tvdb_userabort (if the selection is aborted), tvdb_shownotfound (if the show
+cannot be found).
 """
 
 from tvdb_exceptions import tvdb_userabort, tvdb_shownotfound
