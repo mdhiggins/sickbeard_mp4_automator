@@ -125,9 +125,7 @@ class Show(dict):
     """
     def __init__(self):
         self.data = {}
-    def __iter__(self):
-        for cd in self.values():
-            yield cd
+    
     def __repr__(self):
         return "<Show %s (containing %s seasons)>" % (
             self.data.get(u'seriesname', 'instance'),
