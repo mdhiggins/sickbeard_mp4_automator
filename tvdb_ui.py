@@ -68,6 +68,14 @@ class ConsoleUI(BaseUI):
                     print "# q - abort tvnamer"
                 else:
                     self.log.debug('Unknown keypress %s' % (ans))
+            else:
+                self.log.debug('Trying to return ID: %d' % (selected_id))
+                try:
+                    return allSeries[ selected_id ]
+                except IndexError:
+                    self.log.debug('Invalid show number entered!')
+                    print "Invalid number (%s) selected!"
+                    self._displaySeries(allSeries)
             #end try
         #end while not valid_input
         
