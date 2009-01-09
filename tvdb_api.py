@@ -631,7 +631,7 @@ class test_tvdb(unittest.TestCase):
         """
         self.assertEquals(
             self.t['Battlestar Galactica (2003)'][1][6]['overview'].startswith(
-                '''When a new copy of Doral, a Cylon who had been previously'''),
+                'When a new copy of Doral, a Cylon who had been previously'),
             True
         )
     
@@ -719,8 +719,10 @@ def main():
     from optparse import OptionParser
 
     parser = OptionParser(usage="%prog [options]")
-    parser.add_option(  "-t", "--tests", action="store_true", default=False, dest="dotests",
-                        help="Run unittests (mostly useful for development)")
+    parser.add_option(
+        "-t", "--tests", action="store_true", default=False, dest="dotests",
+        help="Run unittests (mostly useful for development)"
+    )
 
     opts, args = parser.parse_args()
 
