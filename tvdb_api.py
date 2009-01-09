@@ -391,10 +391,10 @@ class Tvdb:
         
         if not self.config['interactive']:
             self.log.debug('Auto-selecting first search result using BaseUI')
-            return BaseUI().selectSeries(allSeries)
+            return BaseUI(self.log).selectSeries(allSeries)
         else:
             self.log.debug('Interactivily selecting show using ConsoleUI')
-            return ConsoleUI().selectSeries(allSeries)
+            return ConsoleUI(self.log).selectSeries(allSeries)
             
     #end _getSeries
 
