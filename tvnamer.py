@@ -155,6 +155,113 @@ def renameFile(oldfile, newfile, force=False):
         return True
     #end if new_exists
 
+def processFile(t, opts, cfile):
+    try:
+        # Ask for episode name from tvdb_api
+        epname = t[ cfile['file_seriesname'] ][ cfile['seasno'] ][ cfile['epno'] ]['episodename']
+    except tvdb_shownotfound:
+        # No such show found.
+        # Use the show-name from the files name, and None as the ep name
+        sys.stderr.write("! Warning: Show %s not found (in %s)\n" % (
+            cfile['file_seriesname'],
+            cfile['filepath'] )
+        )
+
+        cfile['seriesname'] = cfile['file_seriesname']
+        cfile['epname'] = None
+    except (tvdb_seasonnotfound, tvdb_episodenotfound, tvdb_attributenotfound):
+        # The season, episode or name wasn't found, but the show was.
+        # Use the corrected show-name, but no episode name.
+        sys.stderr.write("! Warning: Episode name not found for %s (in %s)\n" % (
+            cfile['file_seriesname'],
+            cfile['filepath'] )
+        )
+
+        cfile['seriesname'] = t[ cfile['file_seriesname'] ]['seriesname']
+        cfile['epname'] = None
+    except tvdb_error, errormsg:
+        # Error communicating with thetvdb.com
+        sys.stderr.write(
+            "! Warning: Error contacting www.thetvdb.com:\n%s\n" % (errormsg)
+        )
+
+        cfile['seriesname'] = t[ cfile['file_seriesname'] ]['seriesname']
+        cfile['epname'] = None
+    except tvdb_userabort, errormsg:
+        # User aborted selection (q or ^c)
+        print "\n", errormsg
+        sys.exit(1)
+    else:
+        cfile['epname'] = epname
+        cfile['seriesname'] = t[ cfile['file_seriesname'] ]['seriesname'] # get the corrected seriesname
+
+    # Format new filename, strip unwanted characters
+    newname = formatName(cfile)
+    newname = cleanName(newname)
+
+    # Append new filename (with extension) to path
+    oldfile = os.path.join(
+        cfile['filepath'],
+        cfile['filename'] + "." + cfile['ext']
+    )
+    # Join path to new file name
+    newfile = os.path.join(
+        cfile['filepath'],
+        newname
+    )
+
+    # Show new/old filename
+    print "#"*20
+    print "Old name: %s" % ( cfile['filename'] + "." + cfile['ext'] )
+    print "New name: %s" % ( newname )
+
+    # Either always rename, or prompt user
+    if opts.always or (not opts.interactive):
+        rename_result = renameFile(oldfile, newfile, force=opts.force)
+        if rename_result:
+            print "..auto-renaming"
+        else:
+            print "..not renamed"
+        #end if rename_result
+
+        return # next filename!
+    #end if always
+
+    ans = None
+    while ans not in ['y', 'n', 'a', 'q', '']:
+        print "Rename?"
+        print "([y]/n/a/q)",
+        try:
+            ans = raw_input().strip()
+        except KeyboardInterrupt, errormsg:
+            print "\n", errormsg
+            sys.exit(1)
+        #end try
+    #end while
+
+    if len(ans) == 0:
+        print "Renaming (default)"
+        rename_result = renameFile(oldfile, newfile, force=opts.force)
+    elif ans[0] == "a":
+        opts.always = True
+        rename_result = renameFile(oldfile, newfile, force=opts.force)
+    elif ans[0] == "q":
+        print "Aborting"
+        sys.exit(1)
+    elif ans[0] == "y":
+        rename_result = renameFile(oldfile, newfile, force=opts.force)
+    elif ans[0] == "n":
+        print "Skipping"
+        return
+    else:
+        print "Invalid input, skipping"
+    #end if ans
+    if rename_result:
+        print "..renamed"
+    else:
+        print "..not renamed"
+    #end if rename_result
+#end processFile
 
 def main():
     parser = OptionParser(usage="%prog [options] <file or directories>")
@@ -203,112 +310,7 @@ def main():
 
     for cfile in validFiles:
         print "# Processing %(file_seriesname)s (season: %(seasno)d, episode %(epno)d)" % (cfile)
-        try:
-            # Ask for episode name from tvdb_api
-            epname = t[ cfile['file_seriesname'] ][ cfile['seasno'] ][ cfile['epno'] ]['episodename']
-        except tvdb_shownotfound:
-            # No such show found.
-            # Use the show-name from the files name, and None as the ep name
-            sys.stderr.write("! Warning: Show %s not found (in %s)\n" % (
-                cfile['file_seriesname'],
-                cfile['filepath'] )
-            )
-
-            cfile['seriesname'] = cfile['file_seriesname']
-            cfile['epname'] = None
-        except (tvdb_seasonnotfound, tvdb_episodenotfound, tvdb_attributenotfound):
-            # The season, episode or name wasn't found, but the show was.
-            # Use the corrected show-name, but no episode name.
-            sys.stderr.write("! Warning: Episode name not found for %s (in %s)\n" % (
-                cfile['file_seriesname'],
-                cfile['filepath'] )
-            )
-
-            cfile['seriesname'] = t[ cfile['file_seriesname'] ]['seriesname']
-            cfile['epname'] = None
-        except tvdb_error, errormsg:
-            # Error communicating with thetvdb.com
-            sys.stderr.write(
-                "! Warning: Error contacting www.thetvdb.com:\n%s\n" % (errormsg)
-            )
-
-            cfile['seriesname'] = t[ cfile['file_seriesname'] ]['seriesname']
-            cfile['epname'] = None
-        except tvdb_userabort, errormsg:
-            # User aborted selection (q or ^c)
-            print "\n", errormsg
-            sys.exit(1)
-        else:
-            cfile['epname'] = epname
-            cfile['seriesname'] = t[ cfile['file_seriesname'] ]['seriesname'] # get the corrected seriesname
-
-        # Format new filename, strip unwanted characters
-        newname = formatName(cfile)
-        newname = cleanName(newname)
-
-        # Append new filename (with extension) to path
-        oldfile = os.path.join(
-            cfile['filepath'],
-            cfile['filename'] + "." + cfile['ext']
-        )
-        # Join path to new file name
-        newfile = os.path.join(
-            cfile['filepath'],
-            newname
-        )
-
-        # Show new/old filename
-        print "#"*20
-        print "Old name: %s" % ( cfile['filename'] + "." + cfile['ext'] )
-        print "New name: %s" % ( newname )
-
-        # Either always rename, or prompt user
-        if opts.always or (not opts.interactive):
-            rename_result = renameFile(oldfile, newfile, force=opts.force)
-            if rename_result:
-                print "..auto-renaming"
-            else:
-                print "..not renamed"
-            #end if rename_result
-
-            continue # next filename!
-        #end if always
-
-        ans = None
-        while ans not in ['y', 'n', 'a', 'q', '']:
-            print "Rename?"
-            print "([y]/n/a/q)",
-            try:
-                ans = raw_input().strip()
-            except KeyboardInterrupt, errormsg:
-                print "\n", errormsg
-                sys.exit(1)
-            #end try
-        #end while
-
-        if len(ans) == 0:
-            print "Renaming (default)"
-            rename_result = renameFile(oldfile, newfile, force=opts.force)
-        elif ans[0] == "a":
-            opts.always = True
-            rename_result = renameFile(oldfile, newfile, force=opts.force)
-        elif ans[0] == "q":
-            print "Aborting"
-            sys.exit(1)
-        elif ans[0] == "y":
-            rename_result = renameFile(oldfile, newfile, force=opts.force)
-        elif ans[0] == "n":
-            print "Skipping"
-            continue
-        else:
-            print "Invalid input, skipping"
-        #end if ans
-        if rename_result:
-            print "..renamed"
-        else:
-            print "..not renamed"
-        #end if rename_result
-    #end for cfile
+        processFile(t, opts, cfile)
     print "# Done"
 #end main
 
