@@ -24,12 +24,26 @@ from tvdb_api import Tvdb
 
 config = {}
 
+### Start user config
+
 # The format of the renamed files (with and without episode names)
 config['with_ep_name'] = '%(seriesname)s - [%(seasno)02dx%(epno)02d] - %(epname)s.%(ext)s'
 config['without_ep_name'] = '%(seriesname)s - [%(seasno)02dx%(epno)02d].%(ext)s'
 
+# Whitelist of valid filename characters
 config['valid_filename_chars'] = """0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@£$%^&*()_+=-[]{}"'.,<>`~? """
+
+# Force the stripping of invalid Windows characters, even if the current 
+# platform is not detected as Windows
+config['force_windows_compliant_filenames'] = False
+
+### End user config
+
 config['valid_filename_chars_regex'] = re.escape(config['valid_filename_chars'])
+
+if sys.platform == "win32" or config['force_windows_compliant_filenames']:
+    # " * : < > ? | \ are all invalid on Windows
+    config['valid_filename_chars'] = config['valid_filename_chars'].replace("\"*:<>?|\\","")
 
 # Regex's to parse filenames with. Must have 3 groups, seriesname, season number
 # and episode number. Use (?: optional) non-capturing groups if you need others.
