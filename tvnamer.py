@@ -61,7 +61,7 @@ config['name_parse'] = [
 ]
 
 
-def findFiles(args, recursive = False):
+def findFiles(args, recursive = False, verbose = False):
     """
     Takes a list of files/folders, grabs files inside them. Does not recurse
     more than one level (if a folder is supplied, it will list files within),
@@ -76,8 +76,9 @@ def findFiles(args, recursive = False):
                     allfiles.append(newpath)
                 else:
                     if recursive:
+                        if verbose: print "Recursivly scanning %s" % (newpath)
                         allfiles.extend(
-                            findFiles([newpath], recursive = recursive)
+                            findFiles([newpath], recursive = recursive, verbose = verbose)
                         )
                     #end if recursive
                 #end if isfile
@@ -314,7 +315,7 @@ def main():
         parser.error("No filenames or directories supplied")
     #end if len(args)
 
-    allFiles = findFiles(args, opts.recursive)
+    allFiles = findFiles(args, opts.recursive, verbose = opts.debug)
     validFiles = processNames(allFiles, verbose = opts.debug)
 
     if len(validFiles) == 0:
