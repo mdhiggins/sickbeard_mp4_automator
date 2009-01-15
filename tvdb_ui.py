@@ -53,6 +53,13 @@ class ConsoleUI(BaseUI):
             )
     
     def selectSeries(self, allSeries):
+        self._displaySeries(allSeries)
+        
+        if len(allSeries) == 1:
+            # Single result, return it!
+            print "Automatically selecting only result"
+            return allSeries[0]
+        
         while True: # return breaks this loop
             try:
                 print "Enter choice (first number, ? for help):"
