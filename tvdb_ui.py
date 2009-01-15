@@ -46,7 +46,7 @@ class ConsoleUI(BaseUI):
         for i in range(len(allSeries[:6])): # list first 6 search results
             i_show = i + 1 # Start at more human readable number 1 (not 0)
             self.log.debug('Showing allSeries[%s] = %s)' % (i_show, allSeries[i]))
-            print "%s -> %s (tvdb id: %s)" % (
+            print "%s -> %s # http://thetvdb.com/?tab=series&id=%s" % (
                 i_show,
                 allSeries[i]['name'].encode("UTF-8","ignore"),
                 allSeries[i]['sid'].encode("UTF-8","ignore")
