@@ -47,10 +47,11 @@ config['name_parse'] = [
 ]
 
 
-def findFiles(args):
+def findFiles(args, recursive = False):
     """
     Takes a list of files/folders, grabs files inside them. Does not recurse
-    more than one level (if a folder is supplied, it will list files within)
+    more than one level (if a folder is supplied, it will list files within),
+    unless recurse is True, in which case it will recursivly find all files.
     """
     allfiles = []
     for cfile in args:
@@ -59,6 +60,12 @@ def findFiles(args):
                 newpath = os.path.join(cfile, sf)
                 if os.path.isfile(newpath):
                     allfiles.append(newpath)
+                else:
+                    if recursive:
+                        allfiles.extend(
+                            findFiles([newpath], recursive = recursive)
+                        )
+                    #end if recursive
                 #end if isfile
             #end for sf
         elif os.path.isfile(cfile):
@@ -272,6 +279,8 @@ def main():
                         help="selects first search result, requires no human intervention once launched", default=False)
     parser.add_option(  "-i", "--interactive", action="store_true", dest="interactive", default=True,
                         help="interactivly select correct show from search results [default]")
+    parser.add_option(  "-r", "--recursive", action="store_true", dest="recursive", default=True,
+                        help="recursivly search supplied directories for files to rename")
     parser.add_option(  "-a", "--always", action="store_true", default=False, dest="always",
                         help="always renames files (but still lets user select correct show). Can be changed during runtime with the 'a' prompt-option")
     parser.add_option(  "-f", "--force", action="store_true", default=False, dest="force",
@@ -291,7 +300,7 @@ def main():
         parser.error("No filenames or directories supplied")
     #end if len(args)
 
-    allFiles = findFiles(args)
+    allFiles = findFiles(args, opts.recursive)
     validFiles = processNames(allFiles, verbose = opts.debug)
 
     if len(validFiles) == 0:
