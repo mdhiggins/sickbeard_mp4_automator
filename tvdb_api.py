@@ -506,7 +506,7 @@ class test_tvdb(unittest.TestCase):
     
     def setUp(self):
         if self.t is None:
-            self.__class__.t = Tvdb(cache = False)
+            self.__class__.t = Tvdb(cache = False, banners = True)
      
     def test_different_case(self):
         """Checks the auto-correction of show names is working.
