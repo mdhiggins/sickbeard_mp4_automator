@@ -623,9 +623,19 @@ class test_tvdb(unittest.TestCase):
             "<Season instance (containing 9 episodes)>"
         )
     def test_repr_episode(self):
+        """Check repr() of Episode
+        """
         self.assertEquals(
             repr(self.t['CNNNN'][1][1]),
             "<Episode 01x01 - September 19, 2002 (20:30 - 21:00)>"
+        )
+    
+    def test_have_banners(self):
+        """Check banners at least one banner is found
+        """
+        self.assertEquals(
+            len(self.t['scrubs']['_banners']) > 0,
+            True
         )
     
     def test_doctest(self):
