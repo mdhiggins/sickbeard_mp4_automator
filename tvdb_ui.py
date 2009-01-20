@@ -24,7 +24,7 @@ cannot be found).
 """
 
 __author__ = "dbr/Ben"
-__version__ = "0.5.1"
+__version__ = "0.6dev"
 
 from tvdb_exceptions import tvdb_userabort, tvdb_shownotfound
 

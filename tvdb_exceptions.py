@@ -1,5 +1,16 @@
+#!/usr/bin/env python
+#encoding:utf-8
+#author:dbr/Ben
+#project:tvdb_api
+#repository:http://github.com/dbr/tvdb_api
+#license:Creative Commons GNU GPL v2
+# (http://creativecommons.org/licenses/GPL/2.0/)
+
 """Custom exceptions used or raised by tvdb_api
 """
+
+__author__ = "dbr/Ben"
+__version__ = "0.6dev"
 
 __all__ = ["tvdb_error", "tvdb_userabort", "tvdb_shownotfound",
 "tvdb_seasonnotfound", "tvdb_episodenotfound", "tvdb_attributenotfound"]
