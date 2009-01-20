@@ -23,6 +23,9 @@ tvdb_userabort (if the selection is aborted), tvdb_shownotfound (if the show
 cannot be found).
 """
 
+__author__ = "dbr/Ben"
+__version__ = "0.5"
+
 from tvdb_exceptions import tvdb_userabort, tvdb_shownotfound
 
 class BaseUI:
