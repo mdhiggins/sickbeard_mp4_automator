@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 setup(
 name = 'tvnamer',
-version='0.5',
+version='0.5.1',
 
 author='dbr/Ben',
 description='Automatic TV episode namer',
