@@ -13,7 +13,7 @@ Automatically names downloaded/recorded TV-episodes, by parsing filenames and re
 Includes tvdb_api - an easy to use API interface to TheTVDB.com
 """,
 
-py_modules = ['tvdb_api', 'tvnamer', 'tvdb_ui'],
+py_modules = ['tvdb_api', 'tvnamer', 'tvdb_ui', 'tvdb_exceptions'],
 entry_points = {
     'console_scripts':[
         'tvnamer = tvnamer:main'
