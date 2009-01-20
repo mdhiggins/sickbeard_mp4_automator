@@ -506,7 +506,7 @@ class test_tvdb(unittest.TestCase):
     
     def setUp(self):
         if self.t is None:
-            self.__class__.t = Tvdb(cache = False, banners = True)
+            self.__class__.t = Tvdb(cache = False, banners = False)
      
     def test_different_case(self):
         """Checks the auto-correction of show names is working.
@@ -637,6 +637,20 @@ class test_tvdb(unittest.TestCase):
             len(self.t['scrubs']['_banners']) > 0,
             True
         )
+    
+    def test_banner_url(self):
+        """Checks banner URLs start with http://
+        """
+        orig_banners_enabled = self.t.config['banners_enabled']
+        self.t.config['banners_enabled'] = True
+        for banner_type, banner_data in self.t['scrubs']['_banners'].items():
+            for res, res_data in banner_data.items():
+                for bid, banner_info in res_data.items():
+                    self.assertEquals(
+                        banner_info['_bannerpath'].startswith("http://"),
+                        True
+                    )
+        self.t.config['banners_enabled'] = orig_banners_enabled
     
     def test_doctest(self):
         """Check docstring examples works"""
