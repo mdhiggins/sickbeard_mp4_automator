@@ -1,8 +1,22 @@
 #!/usr/bin/env python
+#encoding:utf-8
+#author:dbr/Ben
+#project:tvdb_api
+#repository:http://github.com/dbr/tvdb_api
+#license:Creative Commons GNU GPL v2
+# (http://creativecommons.org/licenses/GPL/2.0/)
+
 """Unittests for tvdb_api
 """
 
+import sys
 import unittest
+
+sys.path.append("..")
+
+import tvdb_api
+from tvdb_exceptions import (tvdb_error, tvdb_userabort, tvdb_shownotfound,
+    tvdb_seasonnotfound, tvdb_episodenotfound, tvdb_attributenotfound)
 
 class test_tvdb(unittest.TestCase):
     # Used to store the cached instance of Tvdb()
@@ -10,7 +24,7 @@ class test_tvdb(unittest.TestCase):
     
     def setUp(self):
         if self.t is None:
-            self.__class__.t = Tvdb(cache = False, banners = False)
+            self.__class__.t = tvdb_api.Tvdb(cache = False, banners = False)
      
     def test_different_case(self):
         """Checks the auto-correction of show names is working.
@@ -159,5 +173,9 @@ class test_tvdb(unittest.TestCase):
     def test_doctest(self):
         """Check docstring examples works"""
         import doctest
-        doctest.testmod()
+        doctest.testmod(tvdb_api)
 #end test_tvdb
+
+if __name__ == '__main__':
+    runner = unittest.TextTestRunner(verbosity = 2)
+    unittest.main(testRunner = runner)
