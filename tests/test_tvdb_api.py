@@ -18,7 +18,7 @@ import tvdb_api
 from tvdb_exceptions import (tvdb_error, tvdb_userabort, tvdb_shownotfound,
     tvdb_seasonnotfound, tvdb_episodenotfound, tvdb_attributenotfound)
 
-class test_tvdb(unittest.TestCase):
+class test_tvdb_basic(unittest.TestCase):
     # Used to store the cached instance of Tvdb()
     t = None
     
@@ -45,6 +45,35 @@ class test_tvdb(unittest.TestCase):
         self.assertEquals(self.t['24'][2][20]['episodename'], 'Day 2: 3:00 A.M.-4:00 A.M.')
         self.assertEquals(self.t['24']['seriesname'], '24')
 
+    def test_show_iter(self):
+        """Iterating over a show returns each seasons
+        """
+        self.assertEquals(
+            len(
+                [season for season in self.t['Life on Mars']]
+            ),
+            2
+        )
+    
+    def test_season_iter(self):
+        """Iterating over a show returns episodes
+        """
+        self.assertEquals(
+            len(
+                [episode for episode in self.t['Life on Mars'][1]]
+            ),
+            8
+        )
+
+
+class test_tvdb_errors(unittest.TestCase):
+    # Used to store the cached instance of Tvdb()
+    t = None
+    
+    def setUp(self):
+        if self.t is None:
+            self.__class__.t = tvdb_api.Tvdb(cache = False, banners = False)
+
     def test_seasonnotfound(self):
         """Checks exception is thrown when season doesn't exist.
         """
@@ -65,6 +94,14 @@ class test_tvdb(unittest.TestCase):
         """
         self.assertRaises(tvdb_attributenotfound, lambda:self.t['CNNNN'][1][6]['afakeattributething'])
         self.assertRaises(tvdb_attributenotfound, lambda:self.t['CNNNN']['afakeattributething'])
+
+class test_tvdb_search(unittest.TestCase):
+    # Used to store the cached instance of Tvdb()
+    t = None
+    
+    def setUp(self):
+        if self.t is None:
+            self.__class__.t = tvdb_api.Tvdb(cache = False, banners = False)
 
     def test_search_len(self):
         """There should be only one result matching
@@ -97,27 +134,15 @@ class test_tvdb(unittest.TestCase):
             TypeError,
             lambda: self.t['Scrubs'].search()
         )
+
+class test_tvdb_data(unittest.TestCase):
+    # Used to store the cached instance of Tvdb()
+    t = None
     
-    def test_show_iter(self):
-        """Iterating over a show returns each seasons
-        """
-        self.assertEquals(
-            len(
-                [season for season in self.t['Life on Mars']]
-            ),
-            2
-        )
-    
-    def test_season_iter(self):
-        """Iterating over a show returns episodes
-        """
-        self.assertEquals(
-            len(
-                [episode for episode in self.t['Life on Mars'][1]]
-            ),
-            8
-        )
-    
+    def setUp(self):
+        if self.t is None:
+            self.__class__.t = tvdb_api.Tvdb(cache = False, banners = False)
+
     def test_episode_data(self):
         """Check the firstaired value is retrived
         """
@@ -125,6 +150,14 @@ class test_tvdb(unittest.TestCase):
             self.t['lost']['firstaired'],
             '2004-09-22'
         )
+
+class test_tvdb_misc(unittest.TestCase):
+    # Used to store the cached instance of Tvdb()
+    t = None
+    
+    def setUp(self):
+        if self.t is None:
+            self.__class__.t = tvdb_api.Tvdb(cache = False, banners = False)
 
     def test_repr_show(self):
         """Check repr() of Season
@@ -147,7 +180,16 @@ class test_tvdb(unittest.TestCase):
             repr(self.t['CNNNN'][1][1]),
             "<Episode 01x01 - September 19, 2002 (20:30 - 21:00)>"
         )
+
+
+class test_tvdb_banners(unittest.TestCase):
+    # Used to store the cached instance of Tvdb()
+    t = None
     
+    def setUp(self):
+        if self.t is None:
+            self.__class__.t = tvdb_api.Tvdb(cache = False, banners = True)
+
     def test_have_banners(self):
         """Check banners at least one banner is found
         """
@@ -155,12 +197,10 @@ class test_tvdb(unittest.TestCase):
             len(self.t['scrubs']['_banners']) > 0,
             True
         )
-    
+
     def test_banner_url(self):
         """Checks banner URLs start with http://
         """
-        orig_banners_enabled = self.t.config['banners_enabled']
-        self.t.config['banners_enabled'] = True
         for banner_type, banner_data in self.t['scrubs']['_banners'].items():
             for res, res_data in banner_data.items():
                 for bid, banner_info in res_data.items():
@@ -168,7 +208,15 @@ class test_tvdb(unittest.TestCase):
                         banner_info['_bannerpath'].startswith("http://"),
                         True
                     )
-        self.t.config['banners_enabled'] = orig_banners_enabled
+
+
+class test_tvdb_doctest(unittest.TestCase):
+    # Used to store the cached instance of Tvdb()
+    t = None
+    
+    def setUp(self):
+        if self.t is None:
+            self.__class__.t = tvdb_api.Tvdb(cache = False, banners = False)
     
     def test_doctest(self):
         """Check docstring examples works"""
