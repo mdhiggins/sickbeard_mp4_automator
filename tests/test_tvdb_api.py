@@ -135,6 +135,12 @@ class test_tvdb_search(unittest.TestCase):
             lambda: self.t['Scrubs'].search()
         )
 
+    def test_search_season(self):
+        self.assertEquals(
+            len(self.t['Scrubs'][1].search("First")),
+            1
+        )
+
 class test_tvdb_data(unittest.TestCase):
     # Used to store the cached instance of Tvdb()
     t = None
