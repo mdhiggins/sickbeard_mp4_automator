@@ -242,7 +242,7 @@ class Tvdb:
     from BeautifulSoup import BeautifulStoneSoup
 
     def __init__(self, interactive = False,
-                select_first = True
+                select_first = True,
                 debug = False,
                 cache = True,
                 banners = False,
