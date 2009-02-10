@@ -81,6 +81,10 @@ class ConsoleUI(BaseUI):
             print "Automatically selecting only result"
             return allSeries[0]
         
+        if self.config['select_first'] is True:
+            print "Automatically returning first search result"
+            return allSeries[0]
+        
         while True: # return breaks this loop
             try:
                 print "Enter choice (first number, ? for help):"

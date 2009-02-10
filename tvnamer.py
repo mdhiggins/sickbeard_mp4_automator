@@ -294,6 +294,8 @@ def main():
                         help="selects first search result, requires no human intervention once launched", default=False)
     parser.add_option(  "-i", "--interactive", action="store_true", dest="interactive", default=True,
                         help="interactivly select correct show from search results [default]")
+    parser.add_option(  "-s", "--selectfirst", action="store_true", dest="selectfirst", default = False,
+                        help = "automatically select first series search result (instead of showing the select-series interface)")
     parser.add_option(  "-r", "--recursive", action="store_true", dest="recursive", default=True,
                         help="recursivly search supplied directories for files to rename")
     parser.add_option(  "-a", "--always", action="store_true", default=False, dest="always",
