@@ -21,6 +21,23 @@ thetvdb.com). For example:
 The selectSeries must return the approriate dict, or it can raise
 tvdb_userabort (if the selection is aborted), tvdb_shownotfound (if the show
 cannot be found).
+
+A simple example callback, which returns a random series:
+
+>>> import random
+>>> from tvdb_ui import BaseUI
+>>> class RandomUI(BaseUI):
+...    def selectSeries(self, allSeries):
+...            import random
+...            return random.choice(allSeries)
+
+Then to use it..
+
+>>> from tvdb_api import Tvdb
+>>> t = Tvdb(custom_ui = RandomUI)
+>>> random_matching_series = t['Lost']
+>>> >>> type(random_matching_series)
+<class 'tvdb_api.Show'>
 """
 
 __author__ = "dbr/Ben"
@@ -31,7 +48,8 @@ from tvdb_exceptions import tvdb_userabort, tvdb_shownotfound
 class BaseUI:
     """Default non-interactive UI, which auto-selects first results
     """
-    def __init__(self, log):
+    def __init__(self, config, log):
+        self.config = config
         self.log = log
 
     def selectSeries(self, allSeries):

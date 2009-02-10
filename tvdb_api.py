@@ -241,7 +241,7 @@ class Tvdb:
     import urllib
     from BeautifulSoup import BeautifulStoneSoup
 
-    def __init__(self, interactive=False, debug=False, cache = True, banners = False):
+    def __init__(self, interactive=False, debug=False, cache = True, banners = False, custom_ui = None):
         """interactive = True uses built-in console UI is used to select
         the correct show. When False, the first search result is used.
         
@@ -255,6 +255,8 @@ class Tvdb:
         
         >>> Tvdb(banners=True)['scrubs']['_banners'].keys()
         [u'fanart', u'poster', u'series', u'season']
+        
+        custom_ui = A callable subclass of tvdb_ui.BaseUI (overrides interactive)
         """
         self.shows = ShowContainer() # Holds all Show classes
         self.corrections = {} # Holds show-name to show_id mapping
@@ -264,6 +266,8 @@ class Tvdb:
         self.config['apikey'] = "0629B785CE550C8D" # thetvdb.com API key
 
         self.config['debug_enabled'] = debug # show debugging messages
+
+        self.config['custom_ui'] = custom_ui
 
         self.config['interactive'] = interactive # prompt for correct series?
         
@@ -387,12 +391,22 @@ class Tvdb:
             self.log.debug('Series result returned zero')
             raise tvdb_shownotfound("Show-name search returned zero results (cannot find show on TVDB)")
         
-        if not self.config['interactive']:
-            self.log.debug('Auto-selecting first search result using BaseUI')
-            return BaseUI(self.log).selectSeries(allSeries)
+        if self.config['custom_ui'] is not None:
+            self.log.debug("Using custom UI %s" % (repr(self.config['custom_ui'])))
+            cui = self.config['custom_ui'](
+                config = self.config,
+                log = self.log
+            )
+            return cui.selectSeries(allSeries)
         else:
-            self.log.debug('Interactivily selecting show using ConsoleUI')
-            return ConsoleUI(self.log).selectSeries(allSeries)
+            if not self.config['interactive']:
+                self.log.debug('Auto-selecting first search result using BaseUI')
+                return BaseUI(self.log).selectSeries(allSeries)
+            else:
+                self.log.debug('Interactivily selecting show using ConsoleUI')
+                return ConsoleUI(self.log).selectSeries(allSeries)
+            #end if config['interactive]
+        #end if custom_ui != None
             
     #end _getSeries
 
