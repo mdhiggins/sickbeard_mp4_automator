@@ -241,22 +241,37 @@ class Tvdb:
     import urllib
     from BeautifulSoup import BeautifulStoneSoup
 
-    def __init__(self, interactive=False, debug=False, cache = True, banners = False, custom_ui = None):
-        """interactive = True uses built-in console UI is used to select
-        the correct show. When False, the first search result is used.
+    def __init__(self, interactive = False,
+                select_first = True
+                debug = False,
+                cache = True,
+                banners = False,
+                custom_ui = None):
+        """interactive:
+        When True, uses built-in console UI is used to select
+        the correct show.
+        When False, the first search result is used.
         
-        debug = True shows verbose debugging information
+        select_first (True/False):
+        Automatically selects the first series search result (rather
+        than showing the user a list of more than one series).
+        Is overridden by interactive = False, or specifying a custom_ui
         
-        cache = True cacheds retrived XML are persisted to to disc
-        (under the TEMP_DIR/tvdb_api), they are
+        debug (True/False):
+         shows verbose debugging information
         
-        banners = True retrives the banners for a show. These are accessed 
+        cache (True/False):
+        Retrived XML are persisted to to disc (under the TEMP_DIR/tvdb_api)
+        
+        banners (True/False):
+        Retrives the banners for a show. These are accessed 
         via the _banners key of a Show(), for example:
         
         >>> Tvdb(banners=True)['scrubs']['_banners'].keys()
         [u'fanart', u'poster', u'series', u'season']
         
-        custom_ui = A callable subclass of tvdb_ui.BaseUI (overrides interactive)
+        custom_ui (tvdb_ui.BaseUI subclass):
+        A callable subclass of tvdb_ui.BaseUI (overrides interactive)
         """
         self.shows = ShowContainer() # Holds all Show classes
         self.corrections = {} # Holds show-name to show_id mapping
@@ -270,6 +285,8 @@ class Tvdb:
         self.config['custom_ui'] = custom_ui
 
         self.config['interactive'] = interactive # prompt for correct series?
+        
+        self.config['select_first'] = select_first
         
         self.config['cache_enabled'] = cache
         
