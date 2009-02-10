@@ -410,20 +410,18 @@ class Tvdb:
         
         if self.config['custom_ui'] is not None:
             self.log.debug("Using custom UI %s" % (repr(self.config['custom_ui'])))
-            cui = self.config['custom_ui'](
-                config = self.config,
-                log = self.log
-            )
-            return cui.selectSeries(allSeries)
+            ui = self.config['custom_ui'](config = self.config, log = self.log)
         else:
             if not self.config['interactive']:
                 self.log.debug('Auto-selecting first search result using BaseUI')
-                return BaseUI(self.log).selectSeries(allSeries)
+                ui = BaseUI(config = self.config, log = self.log)
             else:
                 self.log.debug('Interactivily selecting show using ConsoleUI')
-                return ConsoleUI(self.log).selectSeries(allSeries)
+                ui = ConsoleUI(config = self.config, log = self.log)
             #end if config['interactive]
         #end if custom_ui != None
+        
+        return ui.selectSeries(allSeries)
             
     #end _getSeries
 
