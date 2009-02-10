@@ -336,7 +336,7 @@ class Tvdb:
         url = url.replace(" ", "+")
         try:
             if self.config['cache_enabled']:
-                self.log.debug("Getting %s using Cache" % (url))
+                self.log.debug("Getting %s using Cache (cache location %s)" % (url, self.cache.tmp))
                 src = self.cache.loadUrl(url)
             else:
                 self.log.debug("Getting %s with no caching" % (url))
