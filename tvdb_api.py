@@ -18,6 +18,8 @@ u'Cabin Fever'
 __author__ = "dbr/Ben"
 __version__ = "0.6dev"
 
+from elementtree import ElementTree
+
 from tvdb_ui import BaseUI, ConsoleUI
 from tvdb_exceptions import (tvdb_error, tvdb_userabort, tvdb_shownotfound,
     tvdb_seasonnotfound, tvdb_episodenotfound, tvdb_attributenotfound)
@@ -347,6 +349,23 @@ class Tvdb:
         soup = self.BeautifulStoneSoup(src)
         return soup
     #end _getsoupsrc
+
+    def _getetsrc(self, url):
+        url = url.replace(" ", "+")
+        try:
+            if self.config['cache_enabled']:
+                self.log.debug("Getting %s using Cache (cache location %s)" % (url, self.cache.tmp))
+                src = self.cache.loadUrl(url)
+            else:
+                self.log.debug("Getting %s with no caching" % (url))
+                src = self.urllib.urlopen(url).read()
+        except IOError, errormsg:
+            raise tvdb_error("Could not connect to server: %s" % (errormsg))
+        #end try
+        et = ElementTree.fromstring(src)
+        return et
+#end _getetsrc
+
 
     def _setItem(self, sid, seas, ep, attrib, value):
         """Creates a new episode, creating Show(), Season() and
