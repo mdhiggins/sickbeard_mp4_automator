@@ -452,18 +452,14 @@ class Tvdb:
         
         # Parse show information
         self.log.debug('Getting all series data for %s' % (sid))
-        seriesInfoSoup = self._getsoupsrc( self.config['url_seriesInfo'] % (sid) )
-        for curInfo in seriesInfoSoup.findAll("series")[0].findChildren():
-            if len(curInfo.contents) > 0:
-                cur_attr = self._cleanData(curInfo.name)
-                cur_data = self._cleanData(curInfo.contents[0])
-                self._setShowData(sid, cur_attr, cur_data)
-                
-                self.log.debug(
-                    "Got info: %s = %s" % (
-                        cur_attr, cur_data
-                    )
-                )
+        seriesInfoEt = self._getetsrc(self.config['url_seriesInfo'] % (sid))
+        for curInfo in seriesInfoEt.findall("Series")[0]:
+            tag = curInfo.tag
+            value = curInfo.text
+            self._setShowData(sid, tag, value)
+            self.log.debug(
+                "Got info: %s = %s" % (tag, value)
+            )
         #end for series
         
         # Parse banners
