@@ -65,6 +65,16 @@ class test_tvdb_basic(unittest.TestCase):
             8
         )
 
+    def test_get_episode_overview(self):
+        """Checks episode overview is retrived correctly.
+        """
+        self.assertEquals(
+            self.t['Battlestar Galactica (2003)'][1][6]['overview'].startswith(
+                'When a new copy of Doral, a Cylon who had been previously'),
+            True
+        )
+
+
 
 class test_tvdb_errors(unittest.TestCase):
     # Used to store the cached instance of Tvdb()
@@ -119,15 +129,6 @@ class test_tvdb_search(unittest.TestCase):
         """
         self.assertEquals(len(self.t['Scrubs'].search('my first')) >= 3, True)
 
-    def test_get_episode_overview(self):
-        """Checks episode overview is retrived correctly.
-        """
-        self.assertEquals(
-            self.t['Battlestar Galactica (2003)'][1][6]['overview'].startswith(
-                'When a new copy of Doral, a Cylon who had been previously'),
-            True
-        )
-    
     def test_search_no_params_error(self):
         """Checks not supplying search info rasies TypeError"""
         self.assertRaises(
@@ -136,9 +137,17 @@ class test_tvdb_search(unittest.TestCase):
         )
 
     def test_search_season(self):
+        """Checks the searching of a single season"""
         self.assertEquals(
             len(self.t['Scrubs'][1].search("First")),
-            1
+            3
+        )
+    
+    def test_search_show(self):
+        """Checks the searching of an entire show"""
+        self.assertEquals(
+            len(t['life on mars'].search('the', key='episodename')),
+            10
         )
 
 class test_tvdb_data(unittest.TestCase):
