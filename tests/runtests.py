@@ -20,8 +20,6 @@ def main():
     
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)
-    print result
-    print dir(result)
     if result.wasSuccessful():
         return 0
     else:
