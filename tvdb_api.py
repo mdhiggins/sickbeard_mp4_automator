@@ -226,8 +226,6 @@ class Tvdb:
     >>> t['Scrubs'][1][24]['episodename']
     u'My Last Day'
     """
-    import urllib
-
     def __init__(self, interactive = False,
                 select_first = True,
                 debug = False,
