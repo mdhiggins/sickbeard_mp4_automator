@@ -4,6 +4,7 @@ Modified from http://code.activestate.com/recipes/491261/
 """
 
 import os
+import time
 import httplib
 import urllib2
 import StringIO
@@ -17,10 +18,28 @@ def calculate_cache_path(cache_location, url):
     body = os.path.join(cache_location, thumb + ".body")
     return header, body
 
-def existsInCache(cache_location, url):
+def check_cache_time(path, max_age):
+    """Checks if a file has been created/modified in the last max_age seconds.
+    False means the file is too old (or doesn't exist), True means it is
+    upto-date and valid"""
+    if not os.path.isfile(path):
+        return False
+    cache_modified_time = os.stat(path).st_mtime
+    time_now = time.time()
+    if cache_modified_time < time_now - max_age:
+        # Cache is old
+        return False
+    else:
+        return True
+
+def exists_in_cache(cache_location, url, max_age):
     """Returns if header AND body cache file exist"""
     hpath, bpath = calculate_cache_path(cache_location, url)
-    return os.path.exists(hpath) and os.path.exists(bpath)
+    if os.path.exists(hpath) and os.path.exists(bpath):
+        return check_cache_time(hpath, max_age) and check_cache_time(bpath, max_age)
+    else:
+        # File does not exist
+        return False
 
 def store_in_cache(cache_location, url, response):
     """Tries to store response in cache"""
@@ -43,22 +62,27 @@ class CacheHandler(urllib2.BaseHandler):
     If a subsequent GET request is made for the same URL, the stored
     response is returned, saving time, resources and bandwith
     """
-    def __init__(self, cache_location):
+    def __init__(self, cache_location, max_age = 21600):
         """The location of the cache directory"""
+        self.max_age = max_age
         self.cache_location = cache_location
         if not os.path.exists(self.cache_location):
             os.mkdir(self.cache_location)
 
     def default_open(self, request):
-        if ((request.get_method() == "GET") and
-            (existsInCache(self.cache_location, request.get_full_url()))):
+        if request.get_method() is not "GET":
+            return None # let the next handler try to handle the request
+        
+        if exists_in_cache(
+            self.cache_location, request.get_full_url(), self.max_age
+        ):
             return CachedResponse(
                 self.cache_location,
                 request.get_full_url(),
                 set_cache_header=True
             )
         else:
-            return None # let the next handler try to handle the request
+            return None
 
     def http_response(self, request, response):
         if request.get_method() == "GET":
@@ -72,6 +96,7 @@ class CacheHandler(urllib2.BaseHandler):
             else:
                 set_cache_header = True
             #end if x-cahce in response
+
             return CachedResponse(
                 self.cache_location,
                 request.get_full_url(),
