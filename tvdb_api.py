@@ -124,8 +124,6 @@ def can_int(x):
         return True
 
 
-# Custom exceptions
-
 class ShowContainer(dict):
     """Simple dict that holds a series of Show instancies
     """
