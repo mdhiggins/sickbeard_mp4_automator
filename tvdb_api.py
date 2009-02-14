@@ -157,16 +157,22 @@ class Show(dict):
             # doesn't exist, so attribute error.
             raise tvdb_attributenotfound("Cannot find attribute %s" % (key))
 
-    def search(self, contents = None, key = None):
+    def search(self, term = None, key = None):
         """
-        Search all episodes. Can search all values, or a specific one.
+        Search all episodes in show. Can search all data, or a specific key (for
+        example, episodename)
+        
         Always returns an array (can be empty). First index is first
         found episode, and so on.
+        
         Each array index is an Episode() instance, so doing
-        search_results[0]['episodename'] will retrive the episode name.
+        search_results[0]['episodename'] will retrive the episode name of the
+        first match.
+        
+        Search terms are convered to lower case unicode strings.
 
         Examples
-        These examples assume  t is an instance of Tvdb():
+        These examples assume t is an instance of Tvdb():
         >>> t = Tvdb()
         >>>
 
@@ -179,8 +185,14 @@ class Show(dict):
 
         Search for "My Name Is Earl" named "Faked His Own Death":
 
-        >>> t['My Name Is Earl'].search('Faked His Own Death', key = 'name') #doctest: +ELLIPSIS
+        >>> t['My Name Is Earl'].search('Faked His Own Death', key = 'episodename') #doctest: +ELLIPSIS
         [<Episode 01x04 - Faked His Own Death>]
+        >>>
+        
+        To search Scrubs for all episodes with "mentor" in the episode name:
+        
+        >>> t['scrubs'].search('mentor', key = 'episodename')
+        [<Episode 01x02 - My Mentor>, <Episode 03x15 - My Tormented Mentor>]
         >>>
 
         Using search results
@@ -194,25 +206,11 @@ class Show(dict):
         My First Kill
         >>>
         """
-        if key == contents == None:
-            raise TypeError("must supply at least one type of search")
-
         results = []
         for cur_season in self.values():
-            for cur_ep in cur_season.values():
-                for cur_key, cur_value in cur_ep.items():
-                    cur_key, cur_value = unicode(cur_key).lower(), unicode(cur_value).lower()
-                    if key != None:
-                        if not cur_key.find(key) > -1:
-                            # key doesn't match requested search, skip
-                            continue
-                    #end if key != None
-                    if cur_value.find( str(contents).lower() ) > -1:
-                        results.append(cur_ep)
-                        continue
-                    #end if cur_value.find()
-                #end for cur_key, cur_value
-            #end for cur_ep
+            searchresult = cur_season.search(term = term, key = key)
+            if len(searchresult) != 0:
+                results.extend(searchresult)
         #end for cur_season
         return results
 
@@ -226,19 +224,74 @@ class Season(dict):
             raise tvdb_episodenotfound
         else:
             return dict.__getitem__(self, episode_number)
+    
+    def search(self, term = None, key = None):
+        """Search a all episodes in season, returns a list of matching Episode 
+        instances.
+        
+        >>> t = Tvdb()
+        >>> t['scrubs'][1].search('first day')
+        [<Episode 01x01 - My First Day>]
+        >>>
+        
+        See Episode.search documentation for further information on search
+        """
+        results = []
+        for ep in self.values():
+            searchresult = ep.search(term = term, key = key)
+            if searchresult is not None:
+                results.append(
+                    searchresult
+                )
+        return results
 
 class Episode(dict):
     def __repr__(self):
-        return "<Episode %02dx%02d - %s>" % (
-            int(self.get(u'seasonnumber')),
-            int(self.get(u'episodenumber')),
-            self.get(u'episodename')
-        )
+        seasno = int(self.get(u'seasonnumber', 0))
+        epno = int(self.get(u'episodenumber', 0))
+        epname = self.get(u'episodename')
+        if epname is not None:
+            return "<Episode %02dx%02d - %s>" % (seasno, epno, epname)
+        else:
+            return "<Episode %02dx%02d>" % (seasno, epno)
     def __getitem__(self, key):
         try:
             return dict.__getitem__(self, key)
         except KeyError:
             raise tvdb_attributenotfound("Cannot find attribute %s" % (key))
+    def search(self, term = None, key = None):
+        """Search episodes data for term, if it matches, return the Episode.
+        The key parameter can be used to limit the search to a specific element.
+        for example, episodename
+        
+        Simple example:
+        
+        >>> e = Episode()
+        >>> e['episodename'] = "An Example"
+        >>> e.search("examp")
+        <Episode 00x00 - An Example>
+        >>>
+        
+        Limiting by key:
+        
+        >>> e.search("examp", key = "episodename")
+        <Episode 00x00 - An Example>
+        >>>
+        """
+        if term == None:
+            raise TypeError("must supply string to search for (contents)")
+        
+        term = unicode(term).lower()
+        for cur_key, cur_value in self.items():
+            cur_key, cur_value = unicode(cur_key).lower(), unicode(cur_value).lower()
+            if key is not None and cur_key != key:
+                # Do not search this key
+                continue
+            if cur_value.find( unicode(term).lower() ) > -1:
+                return self
+            #end if cur_value.find()
+        #end for cur_key, cur_value
+        
 
 class Tvdb:
     """Create easy-to-use interface to name of season/episode name
