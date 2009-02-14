@@ -402,7 +402,7 @@ class Tvdb:
             value = self._cleanData(sn.text)
             cur_sid = series.find('id').text
             self.log.debug('Found series %s (id: %s)' % (value, cur_sid))
-            allSeries.append( {'sid':cur_sid, 'name':tag} )
+            allSeries.append( {'sid':cur_sid, 'name':value} )
         #end for series
 
         if len(allSeries) == 0:
