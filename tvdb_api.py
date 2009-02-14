@@ -18,7 +18,10 @@ u'Cabin Fever'
 __author__ = "dbr/Ben"
 __version__ = "0.6dev"
 
-from elementtree import ElementTree
+try:
+    import xml.etree.cElementTree as ElementTree
+except ImportError:
+    from elementtree import ElementTree
 
 from tvdb_ui import BaseUI, ConsoleUI
 from tvdb_exceptions import (tvdb_error, tvdb_userabort, tvdb_shownotfound,
