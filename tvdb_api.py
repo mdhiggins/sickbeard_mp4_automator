@@ -18,96 +18,22 @@ u'Cabin Fever'
 __author__ = "dbr/Ben"
 __version__ = "0.6dev"
 
+import os
+import sys
+import urllib2
+import tempfile
+import logging
+
 try:
     import xml.etree.cElementTree as ElementTree
 except ImportError:
     from elementtree import ElementTree
 
+from cache import CacheHandler
+
 from tvdb_ui import BaseUI, ConsoleUI
 from tvdb_exceptions import (tvdb_error, tvdb_userabort, tvdb_shownotfound,
     tvdb_seasonnotfound, tvdb_episodenotfound, tvdb_attributenotfound)
-
-class Cache:
-    """Simple caching URL opener. Acts like:
-    import urllib
-    return urllib.urlopen("http://example.com").read()
-
-    Caches complete files to temp directory,
-
-    >>> ca = Cache()
-    >>> ca.loadUrl("http://example.com") #doctest: +ELLIPSIS
-    '<HTML>...'
-    """
-    import os
-    import sys
-    import time
-    import tempfile
-    import urllib
-    try:
-        from hashlib import sha1 as hasher
-    except ImportError:
-        from sha import sha as hasher
-
-    def __init__(self, max_age=21600, prefix="tvdb_api"):
-        self.prefix = prefix
-        self.max_age = max_age
-
-        tmp = self.tempfile.gettempdir()
-        tmppath = self.os.path.join(tmp, prefix)
-        if not self.os.path.isdir(tmppath):
-            self.os.mkdir(tmppath)
-        self.tmp = tmppath
-    #end __init__
-
-    def getCachePath(self, url):
-        """Calculates the cache path (/temp_directory/hash_of_URL)
-        """
-        cache_name = self.hasher(url).hexdigest()
-        cache_path = self.os.path.join(self.tmp, cache_name)
-        return cache_path
-    #end getUrl
-
-    def checkCache(self, url):
-        """Takes a URL, checks if a cache exists for it.
-        If so, returns path, if not, returns False
-        """
-        path = self.getCachePath(url)
-        if self.os.path.isfile(path):
-            cache_modified_time = self.os.stat(path).st_mtime
-            time_now = self.time.time()
-            if cache_modified_time < time_now - self.max_age:
-                # Cache is old
-                return False
-            else:
-                return path
-        else:
-            return False
-    #end checkCache
-
-    def loadUrl(self, url):
-        """Takes a URL, returns the contents of the URL, and does the caching.
-        """
-        cacheExists = self.checkCache(url)
-        if cacheExists:
-            cache_file = open(cacheExists)
-            dat = cache_file.read()
-            cache_file.close()
-            return dat
-        else:
-            path = self.getCachePath(url)
-            dat = self.urllib.urlopen(url).read()
-            try:
-                target_socket = open(path, "w+")
-                target_socket.write(dat)
-                target_socket.close()
-            except IOError, errormsg:
-                sys.stderr.write(
-                    "WARNING: Cannot write to cache file (%s): %s\n" % (path, errormsg)
-                )
-            return dat
-        #end if cacheExists
-    #end loadUrl
-#end Cache
 
 def can_int(x):
     """Takes a string, checks if it is numeric.
@@ -301,7 +227,6 @@ class Tvdb:
     u'My Last Day'
     """
     import urllib
-    from BeautifulSoup import BeautifulStoneSoup
 
     def __init__(self, interactive = False,
                 select_first = True,
@@ -322,8 +247,10 @@ class Tvdb:
         debug (True/False):
          shows verbose debugging information
         
-        cache (True/False):
-        Retrived XML are persisted to to disc (under the TEMP_DIR/tvdb_api)
+        cache (True/False/str/unicode):
+        Retrived XML are persisted to to disc. If true, stores in tvdb_api
+        folder under your systems TEMP_DIR, if set to str/unicode instance it
+        will use this as the cache location. If False, disables caching.
         
         banners (True/False):
         Retrives the banners for a show. These are accessed 
@@ -350,13 +277,24 @@ class Tvdb:
         
         self.config['select_first'] = select_first
         
-        self.config['cache_enabled'] = cache
+        if cache is True:
+            self.config['cache_enabled'] = True
+            self.config['cache_location'] = self._getTempDir()
+        elif isinstance(cache, str) or isinstance(cache, unicode):
+            self.config['cache_enabled'] = True
+            self.config['cache_location'] = cache
+        else:
+            self.config['cache_enabled'] = False
+        
+        if self.config['cache_enabled']:
+            self.urlopener = urllib2.build_opener(
+                CacheHandler(self.config['cache_location'])
+            )
+        else:
+            self.urlopener = urllib2.build_opener()            
         
         self.config['banners_enabled'] = banners
 
-        if self.config['cache_enabled']:
-            self.cache = Cache(prefix="tvdb_api") # Caches retreived URLs in tmp dir
-        
         self.log = self._initLogger() # Setups the logger (self.log.debug() etc)
 
         # The following url_ configs are based of the
@@ -375,7 +313,6 @@ class Tvdb:
     def _initLogger(self):
         """Setups a logger using the logging module, returns a log object
         """
-        import logging, sys
         logger = logging.getLogger("tvdb")
         formatter = logging.Formatter('%(asctime)s) %(levelname)s %(message)s')
 
@@ -391,40 +328,26 @@ class Tvdb:
         return logger
     #end initLogger
 
-    def _getsoupsrc(self, url):
-        """Helper to get a URL, turn it into
-        a BeautifulStoneSoup instance (for XML parsing)
-        """
-        url = url.replace(" ", "+")
-        try:
-            if self.config['cache_enabled']:
-                self.log.debug("Getting %s using Cache (cache location %s)" % (url, self.cache.tmp))
-                src = self.cache.loadUrl(url)
-            else:
-                self.log.debug("Getting %s with no caching" % (url))
-                src = self.urllib.urlopen(url).read()
-        except IOError, errormsg:
-            raise tvdb_error("Could not connect to server: %s" % (errormsg))
-        #end try
-        soup = self.BeautifulStoneSoup(src)
-        return soup
-    #end _getsoupsrc
+    def _getTempDir(self):
+        return os.path.join(tempfile.gettempdir(), "tvdb_api")
 
     def _getetsrc(self, url):
         url = url.replace(" ", "+")
         try:
-            if self.config['cache_enabled']:
-                self.log.debug("Getting %s using Cache (cache location %s)" % (url, self.cache.tmp))
-                src = self.cache.loadUrl(url)
-            else:
-                self.log.debug("Getting %s with no caching" % (url))
-                src = self.urllib.urlopen(url).read()
+            self.log.debug("Retreiving ElementTree source for URL %s" % (url))
+            resp = self.urlopener.open(url)
+            if 'x-cache' in resp.headers:
+                self.log.debug("URL %s was cached in %s" % (
+                    url,
+                    resp.headers['x-cache'])
+                )
+            src = resp.read()
         except IOError, errormsg:
             raise tvdb_error("Could not connect to server: %s" % (errormsg))
         #end try
         et = ElementTree.fromstring(src)
         return et
-#end _getetsrc
+    #end _getetsrc
 
 
     def _setItem(self, sid, seas, ep, attrib, value):
@@ -526,12 +449,15 @@ class Tvdb:
         # Parse banners
         if self.config['banners_enabled']:
             self.log.debug('Getting season banners for %s' % (sid))
-            bannersSoup = self._getsoupsrc( self.config['url_seriesBanner'] % (sid) )    
+            bannersEt = self._getetsrc( self.config['url_seriesBanner'] % (sid) )    
             banners = {}
-            for cur_banner in bannersSoup.findAll('banner'):
-                bid = cur_banner.id.string
-                btype = cur_banner.bannertype.string
-                btype2 = cur_banner.bannertype2.string
+            for cur_banner in bannersEt.findall('Banner'):
+                bid = cur_banner.find('id').text
+                btype = cur_banner.find('BannerType')
+                btype2 = cur_banner.find('BannerType2')
+                if btype is None or btype2 is None:
+                    continue
+                btype, btype2 = btype.text, btype2.text
                 if not btype in banners:
                     banners[btype] = {}
                 if not btype2 in banners[btype]:
@@ -540,9 +466,11 @@ class Tvdb:
                     banners[btype][btype2][bid] = {}
             
                 self.log.debug("Banner: %s", bid)
-                for cur_element in cur_banner.findChildren():
-                    self.log.debug("Banner info: %s = %s" % (cur_element.name, cur_element.string))
-                    banners[btype][btype2][bid][cur_element.name] = cur_element.string
+                for cur_element in cur_banner.getchildren():
+                    tag = cur_element.tag
+                    value = cur_element.text
+                    self.log.debug("Banner info: %s = %s" % (tag, value))
+                    banners[btype][btype2][bid][tag] = value
             
                 for k, v in banners[btype][btype2][bid].items():
                     if k.endswith("path"):
@@ -554,18 +482,17 @@ class Tvdb:
 
         # Parse episode data
         self.log.debug('Getting all episodes of %s' % (sid))
-        epsSoup = self._getsoupsrc( self.config['url_epInfo'] % (sid) )
+        epsEt = self._getetsrc( self.config['url_epInfo'] % (sid) )
 
-        for cur_ep in epsSoup.findAll('episode'):
-            # We need the season and episode numbers to store the other data
-            ep_no = int( cur_ep.find('episodenumber').contents[0] )
-            seas_no = int( cur_ep.find('seasonnumber').contents[0] )
-
-            # Iterate over the data within each episode
-            for cur_attr in cur_ep.findChildren():
-                if len(cur_attr.contents) > 0:
-                    clean_attr = self._cleanData(cur_attr.contents[0])
-                    self._setItem(sid, seas_no, ep_no, cur_attr.name, clean_attr)
+        for cur_ep in epsEt.findall("Episode"):
+            seas_no = int(cur_ep.find('SeasonNumber').text)
+            ep_no = int(cur_ep.find('EpisodeNumber').text)
+            for cur_item in cur_ep.getchildren():
+                tag = cur_item.tag.lower()
+                value = cur_item.text
+                if value is not None:
+                    value = self._cleanData(value)
+                    self._setItem(sid, seas_no, ep_no, tag, value)
         #end for cur_ep
     #end _geEps
 
