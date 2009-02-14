@@ -36,6 +36,7 @@ class Cache:
     '<HTML>...'
     """
     import os
+    import sys
     import time
     import tempfile
     import urllib
@@ -92,9 +93,14 @@ class Cache:
         else:
             path = self.getCachePath(url)
             dat = self.urllib.urlopen(url).read()
-            target_socket = open(path, "w+")
-            target_socket.write(dat)
-            target_socket.close()
+            try:
+                target_socket = open(path, "w+")
+                target_socket.write(dat)
+                target_socket.close()
+            except IOError, errormsg:
+                sys.stderr.write(
+                    "WARNING: Cannot write to cache file (%s): %s\n" % (path, errormsg)
+                )
             return dat
         #end if cacheExists
     #end loadUrl
@@ -413,14 +419,15 @@ class Tvdb:
         and either interactivly selects the correct show,
         or returns the first result.
         """
-        seriesSoup = self._getsoupsrc( self.config['url_getSeries'] % (series) )
+        seriesEt = self._getetsrc(self.config['url_getSeries'] % (series))
         allSeries = []
-        for series in seriesSoup.findAll('series'):
-            cur_name = series.find('seriesname').contents[0]
-            cur_name = self._cleanData(cur_name)
-            cur_sid = series.find('id').contents[0]
-            self.log.debug('Found series %s (id: %s)' % (cur_name, cur_sid))
-            allSeries.append( {'sid':cur_sid, 'name':cur_name} )
+        for series in seriesEt:
+            sn = series.find('SeriesName')
+            tag = sn.tag.lower()
+            value = self._cleanData(sn.text)
+            cur_sid = series.find('id').text
+            self.log.debug('Found series %s (id: %s)' % (value, cur_sid))
+            allSeries.append( {'sid':cur_sid, 'name':tag} )
         #end for series
 
         if len(allSeries) == 0:
@@ -454,7 +461,7 @@ class Tvdb:
         self.log.debug('Getting all series data for %s' % (sid))
         seriesInfoEt = self._getetsrc(self.config['url_seriesInfo'] % (sid))
         for curInfo in seriesInfoEt.findall("Series")[0]:
-            tag = curInfo.tag
+            tag = curInfo.tag.lower()
             value = curInfo.text
             self._setShowData(sid, tag, value)
             self.log.debug(
