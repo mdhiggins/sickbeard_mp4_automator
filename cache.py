@@ -90,7 +90,7 @@ class CachedResponse(StringIO.StringIO):
         self.cache_location = cache_location
         hpath, bpath = calculate_cache_path(cache_location, url)
 
-        StringIO.StringIO.__init__(self, file(bpath).read)
+        StringIO.StringIO.__init__(self, file(bpath).read())
 
         self.url     = url
         self.code    = 200
