@@ -467,13 +467,18 @@ class Tvdb:
                 for cur_element in cur_banner.getchildren():
                     tag = cur_element.tag
                     value = cur_element.text
+                    if tag is None or value is None:
+                        continue
+                    tag, value = tag.lower(), value.lower()
                     self.log.debug("Banner info: %s = %s" % (tag, value))
                     banners[btype][btype2][bid][tag] = value
             
                 for k, v in banners[btype][btype2][bid].items():
                     if k.endswith("path"):
                         new_key = "_%s" % (k)
+                        self.log.debug("Transforming %s to %s" % (k, new_key))
                         new_url = self.config['url_bannerPath'] % (v)
+                        self.log.debug("New banner URL: %s" % (new_url))
                         banners[btype][btype2][bid][new_key] = new_url
 
             self._setShowData(sid, "_banners", banners)
