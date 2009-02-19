@@ -426,6 +426,62 @@ class Tvdb:
             
     #end _getSeries
 
+    def _parseBanners(self, sid):
+        """Parses banners XML, from
+        http://www.thetvdb.com/api/[APIKEY]/series/[SERIES ID]/banners.xml
+        
+        Banners are retrieved using t['show name]['_banners'], for example:
+        
+        >>> t = Tvdb(banners = True)
+        >>> t['scrubs']['_banners'].keys()
+        ['fanart', 'poster', 'series', 'season']
+        >>> t['scrubs']['_banners']['poster']['680x1000']['35308']['_bannerpath']
+        ['language', 'bannerpath', 'bannertype', 'bannertype2', '_bannerpath', 'id']
+        'http://www.thetvdb.com/banners/posters/76156-2.jpg'
+        >>>
+        
+        Any key starting with an underscore has been processed (not the raw
+        data from the XML)
+        
+        This interface will be improved!
+        """
+        self.log.debug('Getting season banners for %s' % (sid))
+        bannersEt = self._getetsrc( self.config['url_seriesBanner'] % (sid) )    
+        banners = {}
+        for cur_banner in bannersEt.findall('Banner'):
+            bid = cur_banner.find('id').text
+            btype = cur_banner.find('BannerType')
+            btype2 = cur_banner.find('BannerType2')
+            if btype is None or btype2 is None:
+                continue
+            btype, btype2 = btype.text, btype2.text
+            if not btype in banners:
+                banners[btype] = {}
+            if not btype2 in banners[btype]:
+                banners[btype][btype2] = {}
+            if not bid in banners[btype][btype2]:
+                banners[btype][btype2][bid] = {}
+        
+            self.log.debug("Banner: %s", bid)
+            for cur_element in cur_banner.getchildren():
+                tag = cur_element.tag.lower()
+                value = cur_element.text
+                if tag is None or value is None:
+                    continue
+                tag, value = tag.lower(), value.lower()
+                self.log.debug("Banner info: %s = %s" % (tag, value))
+                banners[btype][btype2][bid][tag] = value
+        
+            for k, v in banners[btype][btype2][bid].items():
+                if k.endswith("path"):
+                    new_key = "_%s" % (k)
+                    self.log.debug("Transforming %s to %s" % (k, new_key))
+                    new_url = self.config['url_bannerPath'] % (v)
+                    self.log.debug("New banner URL: %s" % (new_url))
+                    banners[btype][btype2][bid][new_key] = new_url
+
+        self._setShowData(sid, "_banners", banners)
+
     def _getShowData(self, sid):
         """Takes a series ID, gets the epInfo URL and parses the TVDB
         XML file into the shows dict in layout:
@@ -446,42 +502,7 @@ class Tvdb:
         
         # Parse banners
         if self.config['banners_enabled']:
-            self.log.debug('Getting season banners for %s' % (sid))
-            bannersEt = self._getetsrc( self.config['url_seriesBanner'] % (sid) )    
-            banners = {}
-            for cur_banner in bannersEt.findall('Banner'):
-                bid = cur_banner.find('id').text
-                btype = cur_banner.find('BannerType')
-                btype2 = cur_banner.find('BannerType2')
-                if btype is None or btype2 is None:
-                    continue
-                btype, btype2 = btype.text, btype2.text
-                if not btype in banners:
-                    banners[btype] = {}
-                if not btype2 in banners[btype]:
-                    banners[btype][btype2] = {}
-                if not bid in banners[btype][btype2]:
-                    banners[btype][btype2][bid] = {}
-            
-                self.log.debug("Banner: %s", bid)
-                for cur_element in cur_banner.getchildren():
-                    tag = cur_element.tag
-                    value = cur_element.text
-                    if tag is None or value is None:
-                        continue
-                    tag, value = tag.lower(), value.lower()
-                    self.log.debug("Banner info: %s = %s" % (tag, value))
-                    banners[btype][btype2][bid][tag] = value
-            
-                for k, v in banners[btype][btype2][bid].items():
-                    if k.endswith("path"):
-                        new_key = "_%s" % (k)
-                        self.log.debug("Transforming %s to %s" % (k, new_key))
-                        new_url = self.config['url_bannerPath'] % (v)
-                        self.log.debug("New banner URL: %s" % (new_url))
-                        banners[btype][btype2][bid][new_key] = new_url
-
-            self._setShowData(sid, "_banners", banners)
+            self._parseBanners(sid)
 
         # Parse episode data
         self.log.debug('Getting all episodes of %s' % (sid))
