@@ -9,7 +9,7 @@ url='http://github.com/dbr/tvdb_api/tree/master',
 license='GPLv2',
 
 long_description="""\
-Automatically names downloaded/recorded TV-episodes, by parsing filenames and retriving shownames from www.thetvdb.com
+Automatically names downloaded/recorded TV-episodes, by parsing filenames and retrieving show-names from www.thetvdb.com
 Includes tvdb_api - an easy to use API interface to TheTVDB.com
 """,
 
