@@ -529,9 +529,9 @@ class Tvdb:
         return self.shows[sid]
     #end __getitem__
 
-    def __str__(self):
+    def __repr__(self):
         return str(self.shows)
-    #end __str__
+    #end __repr__
 #end Tvdb
 
 def simple_example():
