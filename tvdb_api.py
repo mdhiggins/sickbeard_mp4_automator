@@ -51,7 +51,7 @@ def can_int(x):
 
 
 class ShowContainer(dict):
-    """Simple dict that holds a series of Show instancies
+    """Simple dict that holds a series of Show instances
     """
     pass
 
@@ -246,12 +246,12 @@ class Tvdb:
          shows verbose debugging information
         
         cache (True/False/str/unicode):
-        Retrived XML are persisted to to disc. If true, stores in tvdb_api
+        Retrieved XML are persisted to to disc. If true, stores in tvdb_api
         folder under your systems TEMP_DIR, if set to str/unicode instance it
         will use this as the cache location. If False, disables caching.
         
         banners (True/False):
-        Retrives the banners for a show. These are accessed 
+        Retrieves the banners for a show. These are accessed 
         via the _banners key of a Show(), for example:
         
         >>> Tvdb(banners=True)['scrubs']['_banners'].keys()
@@ -391,7 +391,7 @@ class Tvdb:
 
     def _getSeries(self, series):
         """This searches TheTVDB.com for the series name,
-        and either interactivly selects the correct show,
+        and either interactively selects the correct show,
         or returns the first result.
         """
         seriesEt = self._getetsrc(self.config['url_getSeries'] % (series))
@@ -436,7 +436,6 @@ class Tvdb:
         >>> t['scrubs']['_banners'].keys()
         ['fanart', 'poster', 'series', 'season']
         >>> t['scrubs']['_banners']['poster']['680x1000']['35308']['_bannerpath']
-        ['language', 'bannerpath', 'bannertype', 'bannertype2', '_bannerpath', 'id']
         'http://www.thetvdb.com/banners/posters/76156-2.jpg'
         >>>
         
@@ -557,14 +556,14 @@ class Tvdb:
 
 def simple_example():
     """Simple example of using tvdb_api - it just
-    grabs an episode name interactivly.
+    grabs an episode name interactively.
     """
     tvdb_instance = Tvdb(interactive=True, debug=True, cache=False)
     print tvdb_instance['Lost']['seriesname']
     print tvdb_instance['Lost'][1][4]['episodename']
 
 def main():
-    """Runs simple example of tvdb_api functionailty
+    """Runs simple example of tvdb_api functionality
     """
     simple_example()
 
