@@ -1,7 +1,18 @@
+#!/usr/bin/env python
+#encoding:utf-8
+#author:dbr/Ben
+#project:tvdb_api
+#repository:http://github.com/dbr/tvdb_api
+#license:Creative Commons GNU GPL v2
+# (http://creativecommons.org/licenses/GPL/2.0/)
+
 """
 urllib2 caching handler
 Modified from http://code.activestate.com/recipes/491261/
 """
+
+__author__ = "dbr/Ben"
+__version__ = "0.6dev"
 
 import os
 import time
