@@ -224,6 +224,14 @@ class test_tvdb_banners(unittest.TestCase):
                         True
                     )
 
+    def test_episode_image(self):
+        """Checks episode 'filename' image is fully qualified URL
+        """
+        self.assertEquals(
+            self.t['scrubs']['1']['1']['filename'].startswith("http://"),
+            True
+        )
+
 
 class test_tvdb_doctest(unittest.TestCase):
     # Used to store the cached instance of Tvdb()
@@ -231,7 +239,7 @@ class test_tvdb_doctest(unittest.TestCase):
     
     def setUp(self):
         if self.t is None:
-            self.__class__.t = tvdb_api.Tvdb(cache = False, banners = False)
+            self.__class__.t = tvdb_api.Tvdb(cache = True, banners = False)
     
     def test_doctest(self):
         """Check docstring examples works"""
