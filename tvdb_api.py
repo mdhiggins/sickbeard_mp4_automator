@@ -493,6 +493,9 @@ class Tvdb:
         for curInfo in seriesInfoEt.findall("Series")[0]:
             tag = curInfo.tag.lower()
             value = curInfo.text
+            if tag == 'filename':
+                value = self.config['url_bannerPath'] % (value)
+            
             self._setShowData(sid, tag, value)
             self.log.debug(
                 "Got info: %s = %s" % (tag, value)
