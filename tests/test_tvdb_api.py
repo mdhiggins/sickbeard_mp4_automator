@@ -66,7 +66,7 @@ class test_tvdb_basic(unittest.TestCase):
         )
 
     def test_get_episode_overview(self):
-        """Checks episode overview is retrived correctly.
+        """Checks episode overview is retrieved correctly.
         """
         self.assertEquals(
             self.t['Battlestar Galactica (2003)'][1][6]['overview'].startswith(
@@ -95,7 +95,7 @@ class test_tvdb_errors(unittest.TestCase):
         self.assertRaises(tvdb_shownotfound, lambda:self.t['the fake show thingy'])
     
     def test_episodenotfound(self):
-        """Checks exception is raised for non-existant episode
+        """Checks exception is raised for non-existent episode
         """
         self.assertRaises(tvdb_episodenotfound, lambda:self.t['Scrubs'][1][30])
 
@@ -130,7 +130,7 @@ class test_tvdb_search(unittest.TestCase):
         self.assertEquals(len(self.t['Scrubs'].search('my first')) >= 3, True)
 
     def test_search_no_params_error(self):
-        """Checks not supplying search info rasies TypeError"""
+        """Checks not supplying search info raises TypeError"""
         self.assertRaises(
             TypeError,
             lambda: self.t['Scrubs'].search()
@@ -159,7 +159,7 @@ class test_tvdb_data(unittest.TestCase):
             self.__class__.t = tvdb_api.Tvdb(cache = False, banners = False)
 
     def test_episode_data(self):
-        """Check the firstaired value is retrived
+        """Check the firstaired value is retrieved
         """
         self.assertEquals(
             self.t['lost']['firstaired'],

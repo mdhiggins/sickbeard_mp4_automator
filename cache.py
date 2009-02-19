@@ -71,7 +71,7 @@ class CacheHandler(urllib2.BaseHandler):
     """Stores responses in a persistant on-disk cache.
 
     If a subsequent GET request is made for the same URL, the stored
-    response is returned, saving time, resources and bandwith
+    response is returned, saving time, resources and bandwidth
     """
     def __init__(self, cache_location, max_age = 21600):
         """The location of the cache directory"""
@@ -119,7 +119,7 @@ class CacheHandler(urllib2.BaseHandler):
 class CachedResponse(StringIO.StringIO):
     """An urllib2.response-like object for cached responses.
 
-    To determine wheter a response is cached or coming directly from
+    To determine if a response is cached or coming directly from
     the network, check the x-cache header rather than the object type.
     """
     def __init__(self, cache_location, url, set_cache_header=True):

@@ -57,7 +57,7 @@ class BaseUI:
         
 
 class ConsoleUI(BaseUI):
-    """Interactivly allows the user to select a show from a console based UI
+    """Interactively allows the user to select a show from a console based UI
     """
     
     def _displaySeries(self, allSeries):
