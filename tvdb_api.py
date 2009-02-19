@@ -255,7 +255,7 @@ class Tvdb:
         via the _banners key of a Show(), for example:
         
         >>> Tvdb(banners=True)['scrubs']['_banners'].keys()
-        [u'fanart', u'poster', u'series', u'season']
+        ['fanart', 'poster', 'series', 'season']
         
         custom_ui (tvdb_ui.BaseUI subclass):
         A callable subclass of tvdb_ui.BaseUI (overrides interactive)
