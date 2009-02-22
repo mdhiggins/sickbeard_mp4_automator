@@ -78,11 +78,11 @@ class Show(dict):
         # Data wasn't found, raise appropriate error
         if can_int(key):
             # Episode number x was not found
-            raise tvdb_seasonnotfound("Could not find season %s" % (key))
+            raise tvdb_seasonnotfound("Could not find season %s" % (repr(key)))
         else:
             # If it's not numeric, it must be an attribute name, which
             # doesn't exist, so attribute error.
-            raise tvdb_attributenotfound("Cannot find attribute %s" % (key))
+            raise tvdb_attributenotfound("Cannot find attribute %s" % (repr(key)))
 
     def search(self, term = None, key = None):
         """
@@ -148,7 +148,7 @@ class Season(dict):
         )
     def __getitem__(self, episode_number):
         if episode_number not in self:
-            raise tvdb_episodenotfound
+            raise tvdb_episodenotfound("Could not find episode %s" % (repr(episode_number)))
         else:
             return dict.__getitem__(self, episode_number)
     
@@ -185,7 +185,7 @@ class Episode(dict):
         try:
             return dict.__getitem__(self, key)
         except KeyError:
-            raise tvdb_attributenotfound("Cannot find attribute %s" % (key))
+            raise tvdb_attributenotfound("Cannot find attribute %s" % (repr(key)))
     def search(self, term = None, key = None):
         """Search episodes data for term, if it matches, return the Episode.
         The key parameter can be used to limit the search to a specific element.
