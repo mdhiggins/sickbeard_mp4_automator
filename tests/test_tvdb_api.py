@@ -228,7 +228,7 @@ class test_tvdb_banners(unittest.TestCase):
         """Checks episode 'filename' image is fully qualified URL
         """
         self.assertEquals(
-            self.t['scrubs']['1']['1']['filename'].startswith("http://"),
+            self.t['scrubs'][1][1]['filename'].startswith("http://"),
             True
         )
 
