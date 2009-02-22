@@ -514,13 +514,17 @@ class Tvdb:
             for cur_item in cur_ep.getchildren():
                 tag = cur_item.tag.lower()
                 value = cur_item.text
-                if tag == 'filename':
-                    self.log.debug("Correcting filename %s to %s" % (curInfo.text, value))
-                    value = self.config['url_bannerPath'] % (value)
+                if value is None:
+                    value = ""
+                else:
+                    if tag == 'filename':
+                        self.log.debug("Correcting filename %s to %s" % (
+                            curInfo.text, value
+                        ))
+                        value = self.config['url_bannerPath'] % (value)
                 
-                if value is not None:
-                    value = self._cleanData(value)
-                    self._setItem(sid, seas_no, ep_no, tag, value)
+                value = self._cleanData(value)
+                self._setItem(sid, seas_no, ep_no, tag, value)
                 self.log.debug(
                     "Got episode info: %s = %s" % (tag, value)
                 )
