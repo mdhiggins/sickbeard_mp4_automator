@@ -24,7 +24,7 @@ class test_tvdb_basic(unittest.TestCase):
     
     def setUp(self):
         if self.t is None:
-            self.__class__.t = tvdb_api.Tvdb(cache = False, banners = False)
+            self.__class__.t = tvdb_api.Tvdb(cache = True, banners = False)
      
     def test_different_case(self):
         """Checks the auto-correction of show names is working.
@@ -82,7 +82,7 @@ class test_tvdb_errors(unittest.TestCase):
     
     def setUp(self):
         if self.t is None:
-            self.__class__.t = tvdb_api.Tvdb(cache = False, banners = False)
+            self.__class__.t = tvdb_api.Tvdb(cache = True, banners = False)
 
     def test_seasonnotfound(self):
         """Checks exception is thrown when season doesn't exist.
@@ -111,7 +111,7 @@ class test_tvdb_search(unittest.TestCase):
     
     def setUp(self):
         if self.t is None:
-            self.__class__.t = tvdb_api.Tvdb(cache = False, banners = False)
+            self.__class__.t = tvdb_api.Tvdb(cache = True, banners = False)
 
     def test_search_len(self):
         """There should be only one result matching
@@ -156,7 +156,7 @@ class test_tvdb_data(unittest.TestCase):
     
     def setUp(self):
         if self.t is None:
-            self.__class__.t = tvdb_api.Tvdb(cache = False, banners = False)
+            self.__class__.t = tvdb_api.Tvdb(cache = True, banners = False)
 
     def test_episode_data(self):
         """Check the firstaired value is retrieved
@@ -172,7 +172,7 @@ class test_tvdb_misc(unittest.TestCase):
     
     def setUp(self):
         if self.t is None:
-            self.__class__.t = tvdb_api.Tvdb(cache = False, banners = False)
+            self.__class__.t = tvdb_api.Tvdb(cache = True, banners = False)
 
     def test_repr_show(self):
         """Check repr() of Season
@@ -203,7 +203,7 @@ class test_tvdb_banners(unittest.TestCase):
     
     def setUp(self):
         if self.t is None:
-            self.__class__.t = tvdb_api.Tvdb(cache = False, banners = True)
+            self.__class__.t = tvdb_api.Tvdb(cache = True, banners = True)
 
     def test_have_banners(self):
         """Check banners at least one banner is found
