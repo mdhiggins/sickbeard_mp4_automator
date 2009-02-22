@@ -493,11 +493,15 @@ class Tvdb:
         for curInfo in seriesInfoEt.findall("Series")[0]:
             tag = curInfo.tag.lower()
             value = curInfo.text
+            
+            if value is not None:
+                if tag in ['banner', 'fanart', 'poster']:
+                    value = self.config['url_bannerPath'] % (value)
+                else:
+                    value = self._cleanData(value)
 
             self._setShowData(sid, tag, value)
-            self.log.debug(
-                "Got info: %s = %s" % (tag, value)
-            )
+            self.log.debug("Got info: %s = %s" % (tag, value))
         #end for series
         
         # Parse banners
@@ -514,20 +518,16 @@ class Tvdb:
             for cur_item in cur_ep.getchildren():
                 tag = cur_item.tag.lower()
                 value = cur_item.text
-                if value is None:
-                    value = ""
-                else:
-                    if tag == 'filename':
+                if value is not None:
+                    if tag =='filename':
                         self.log.debug("Correcting filename %s to %s" % (
                             curInfo.text, value
                         ))
                         value = self.config['url_bannerPath'] % (value)
-                
-                value = self._cleanData(value)
+                    else:
+                        value = self._cleanData(value)
                 self._setItem(sid, seas_no, ep_no, tag, value)
-                self.log.debug(
-                    "Got episode info: %s = %s" % (tag, value)
-                )
+                self.log.debug("Got episode info: %s = %s" % (tag, value))
         #end for cur_ep
     #end _geEps
 

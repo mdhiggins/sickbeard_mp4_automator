@@ -231,6 +231,15 @@ class test_tvdb_banners(unittest.TestCase):
             self.t['scrubs'][1][1]['filename'].startswith("http://"),
             True
         )
+    
+    def test_show_artwork(self):
+        """Checks various image URLs within season data are fully qualified
+        """
+        for key in ['banner', 'fanart', 'poster']:
+            self.assertEquals(
+                self.t['scrubs'][key].startswith("http://"),
+                True
+            )
 
 
 class test_tvdb_doctest(unittest.TestCase):
