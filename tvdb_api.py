@@ -334,10 +334,10 @@ class Tvdb:
         try:
             self.log.debug("Retreiving ElementTree source for URL %s" % (url))
             resp = self.urlopener.open(url)
-            if 'x-cache' in resp.headers:
+            if 'x-local-cache' in resp.headers:
                 self.log.debug("URL %s was cached in %s" % (
                     url,
-                    resp.headers['x-cache'])
+                    resp.headers['x-local-cache'])
                 )
             src = resp.read()
         except IOError, errormsg:

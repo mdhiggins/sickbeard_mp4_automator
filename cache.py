@@ -65,7 +65,10 @@ def store_in_cache(cache_location, url, response):
         outf.write(response.read())
         outf.close()
     except IOError:
+        return True
         pass
+    else:
+        return False
 
 class CacheHandler(urllib2.BaseHandler):
     """Stores responses in a persistant on-disk cache.
@@ -96,14 +99,15 @@ class CacheHandler(urllib2.BaseHandler):
             return None
 
     def http_response(self, request, response):
-        if request.get_method() == "GET":
-            if 'x-cache' not in response.info():
-                store_in_cache(
+        if (request.get_method() == "GET"
+            and str(response.code).startswith("2")
+           ):
+            if 'x-local-cache' not in response.info():
+                set_cache_header = store_in_cache(
                     self.cache_location,
                     request.get_full_url(),
                     response
                 )
-                set_cache_header = False
             else:
                 set_cache_header = True
             #end if x-cahce in response
@@ -120,7 +124,7 @@ class CachedResponse(StringIO.StringIO):
     """An urllib2.response-like object for cached responses.
 
     To determine if a response is cached or coming directly from
-    the network, check the x-cache header rather than the object type.
+    the network, check the x-local-cache header rather than the object type.
     """
     def __init__(self, cache_location, url, set_cache_header=True):
         self.cache_location = cache_location
@@ -133,10 +137,13 @@ class CachedResponse(StringIO.StringIO):
         self.msg     = "OK"
         headerbuf = file(hpath).read()
         if set_cache_header:
-            headerbuf += "x-cache: %s\r\n" % (bpath)
+            headerbuf += "x-local-cache: %s\r\n" % (bpath)
         self.headers = httplib.HTTPMessage(StringIO.StringIO(headerbuf))
 
     def info(self):
         return self.headers
     def geturl(self):
         return self.url
+if __name__ == "__main__":
+        opener = urllib2.build_opener(CacheHandler("/tmp/"))
+        print opener.open("http://google.com")
