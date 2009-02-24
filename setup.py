@@ -20,8 +20,6 @@ entry_points = {
     ]
 },
 
-install_requires=['BeautifulSoup'],
-
 classifiers=[
     "Environment :: Console",
     "Intended Audience :: End Users/Desktop",
