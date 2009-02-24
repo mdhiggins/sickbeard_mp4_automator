@@ -86,7 +86,7 @@ class CacheHandler(urllib2.BaseHandler):
     def default_open(self, request):
         if request.get_method() is not "GET":
             return None # let the next handler try to handle the request
-        
+
         if exists_in_cache(
             self.cache_location, request.get_full_url(), self.max_age
         ):

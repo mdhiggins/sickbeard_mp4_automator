@@ -54,12 +54,12 @@ class BaseUI:
 
     def selectSeries(self, allSeries):
         return allSeries[0]
-        
+
 
 class ConsoleUI(BaseUI):
     """Interactively allows the user to select a show from a console based UI
     """
-    
+
     def _displaySeries(self, allSeries):
         """Helper function, lists series with corresponding ID
         """
@@ -72,19 +72,19 @@ class ConsoleUI(BaseUI):
                 allSeries[i]['name'].encode("UTF-8","ignore"),
                 allSeries[i]['sid'].encode("UTF-8","ignore")
             )
-    
+
     def selectSeries(self, allSeries):
         self._displaySeries(allSeries)
-        
+
         if len(allSeries) == 1:
             # Single result, return it!
             print "Automatically selecting only result"
             return allSeries[0]
-        
+
         if self.config['select_first'] is True:
             print "Automatically returning first search result"
             return allSeries[0]
-        
+
         while True: # return breaks this loop
             try:
                 print "Enter choice (first number, ? for help):"
@@ -118,4 +118,4 @@ class ConsoleUI(BaseUI):
                     self._displaySeries(allSeries)
             #end try
         #end while not valid_input
-        
+
