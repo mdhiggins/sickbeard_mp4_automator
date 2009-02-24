@@ -11,8 +11,8 @@
 Example usage:
 
 >>> from tvdb_api import Tvdb
->>> db = Tvdb()
->>> db['Lost'][4][11]['episodename']
+>>> t = Tvdb()
+>>> t['Lost'][4][11]['episodename']
 u'Cabin Fever'
 """
 __author__ = "dbr/Ben"
