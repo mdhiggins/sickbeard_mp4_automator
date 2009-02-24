@@ -60,7 +60,7 @@ class Show(dict):
     """
     def __init__(self):
         self.data = {}
-    
+
     def __repr__(self):
         return "<Show %s (containing %s seasons)>" % (
             self.data.get(u'seriesname', 'instance'),
@@ -70,7 +70,7 @@ class Show(dict):
         if key in self:
             # Key is an episode, return it
             return dict.__getitem__(self, key)
-        
+
         if key in self.data:
             # Non-numeric request is for show-data
             return dict.__getitem__(self.data, key)
@@ -88,14 +88,14 @@ class Show(dict):
         """
         Search all episodes in show. Can search all data, or a specific key (for
         example, episodename)
-        
+
         Always returns an array (can be empty). First index is first
         found episode, and so on.
-        
+
         Each array index is an Episode() instance, so doing
         search_results[0]['episodename'] will retrive the episode name of the
         first match.
-        
+
         Search terms are convered to lower case unicode strings.
 
         Examples
@@ -115,9 +115,9 @@ class Show(dict):
         >>> t['My Name Is Earl'].search('Faked His Own Death', key = 'episodename') #doctest: +ELLIPSIS
         [<Episode 01x04 - Faked His Own Death>]
         >>>
-        
+
         To search Scrubs for all episodes with "mentor" in the episode name:
-        
+
         >>> t['scrubs'].search('mentor', key = 'episodename')
         [<Episode 01x02 - My Mentor>, <Episode 03x15 - My Tormented Mentor>]
         >>>
@@ -151,16 +151,16 @@ class Season(dict):
             raise tvdb_episodenotfound("Could not find episode %s" % (repr(episode_number)))
         else:
             return dict.__getitem__(self, episode_number)
-    
+
     def search(self, term = None, key = None):
-        """Search a all episodes in season, returns a list of matching Episode 
+        """Search a all episodes in season, returns a list of matching Episode
         instances.
-        
+
         >>> t = Tvdb()
         >>> t['scrubs'][1].search('first day')
         [<Episode 01x01 - My First Day>]
         >>>
-        
+
         See Episode.search documentation for further information on search
         """
         results = []
@@ -190,24 +190,24 @@ class Episode(dict):
         """Search episodes data for term, if it matches, return the Episode.
         The key parameter can be used to limit the search to a specific element.
         for example, episodename
-        
+
         Simple example:
-        
+
         >>> e = Episode()
         >>> e['episodename'] = "An Example"
         >>> e.search("examp")
         <Episode 00x00 - An Example>
         >>>
-        
+
         Limiting by key:
-        
+
         >>> e.search("examp", key = "episodename")
         <Episode 00x00 - An Example>
         >>>
         """
         if term == None:
             raise TypeError("must supply string to search for (contents)")
-        
+
         term = unicode(term).lower()
         for cur_key, cur_value in self.items():
             cur_key, cur_value = unicode(cur_key).lower(), unicode(cur_value).lower()
@@ -218,7 +218,7 @@ class Episode(dict):
                 return self
             #end if cur_value.find()
         #end for cur_key, cur_value
-        
+
 
 class Tvdb:
     """Create easy-to-use interface to name of season/episode name
@@ -236,27 +236,27 @@ class Tvdb:
         When True, uses built-in console UI is used to select
         the correct show.
         When False, the first search result is used.
-        
+
         select_first (True/False):
         Automatically selects the first series search result (rather
         than showing the user a list of more than one series).
         Is overridden by interactive = False, or specifying a custom_ui
-        
+
         debug (True/False):
          shows verbose debugging information
-        
+
         cache (True/False/str/unicode):
         Retrieved XML are persisted to to disc. If true, stores in tvdb_api
         folder under your systems TEMP_DIR, if set to str/unicode instance it
         will use this as the cache location. If False, disables caching.
-        
+
         banners (True/False):
-        Retrieves the banners for a show. These are accessed 
+        Retrieves the banners for a show. These are accessed
         via the _banners key of a Show(), for example:
-        
+
         >>> Tvdb(banners=True)['scrubs']['_banners'].keys()
         ['fanart', 'poster', 'series', 'season']
-        
+
         custom_ui (tvdb_ui.BaseUI subclass):
         A callable subclass of tvdb_ui.BaseUI (overrides interactive)
         """
@@ -272,9 +272,9 @@ class Tvdb:
         self.config['custom_ui'] = custom_ui
 
         self.config['interactive'] = interactive # prompt for correct series?
-        
+
         self.config['select_first'] = select_first
-        
+
         if cache is True:
             self.config['cache_enabled'] = True
             self.config['cache_location'] = self._getTempDir()
@@ -283,14 +283,14 @@ class Tvdb:
             self.config['cache_location'] = cache
         else:
             self.config['cache_enabled'] = False
-        
+
         if self.config['cache_enabled']:
             self.urlopener = urllib2.build_opener(
                 CacheHandler(self.config['cache_location'])
             )
         else:
-            self.urlopener = urllib2.build_opener()            
-        
+            self.urlopener = urllib2.build_opener()
+
         self.config['banners_enabled'] = banners
 
         self.log = self._initLogger() # Setups the logger (self.log.debug() etc)
@@ -365,7 +365,7 @@ class Tvdb:
         """
         if sid not in self.shows:
             self.shows[sid] = Show()
-        if seas not in self.shows[sid]: 
+        if seas not in self.shows[sid]:
             self.shows[sid][seas] = Season()
         if ep not in self.shows[sid][seas]:
             self.shows[sid][seas][ep] = Episode()
@@ -408,7 +408,7 @@ class Tvdb:
         if len(allSeries) == 0:
             self.log.debug('Series result returned zero')
             raise tvdb_shownotfound("Show-name search returned zero results (cannot find show on TVDB)")
-        
+
         if self.config['custom_ui'] is not None:
             self.log.debug("Using custom UI %s" % (repr(self.config['custom_ui'])))
             ui = self.config['custom_ui'](config = self.config, log = self.log)
@@ -421,31 +421,31 @@ class Tvdb:
                 ui = ConsoleUI(config = self.config, log = self.log)
             #end if config['interactive]
         #end if custom_ui != None
-        
+
         return ui.selectSeries(allSeries)
-            
+
     #end _getSeries
 
     def _parseBanners(self, sid):
         """Parses banners XML, from
         http://www.thetvdb.com/api/[APIKEY]/series/[SERIES ID]/banners.xml
-        
+
         Banners are retrieved using t['show name]['_banners'], for example:
-        
+
         >>> t = Tvdb(banners = True)
         >>> t['scrubs']['_banners'].keys()
         ['fanart', 'poster', 'series', 'season']
         >>> t['scrubs']['_banners']['poster']['680x1000']['35308']['_bannerpath']
         'http://www.thetvdb.com/banners/posters/76156-2.jpg'
         >>>
-        
+
         Any key starting with an underscore has been processed (not the raw
         data from the XML)
-        
+
         This interface will be improved!
         """
         self.log.debug('Getting season banners for %s' % (sid))
-        bannersEt = self._getetsrc( self.config['url_seriesBanner'] % (sid) )    
+        bannersEt = self._getetsrc( self.config['url_seriesBanner'] % (sid) )
         banners = {}
         for cur_banner in bannersEt.findall('Banner'):
             bid = cur_banner.find('id').text
@@ -460,7 +460,7 @@ class Tvdb:
                 banners[btype][btype2] = {}
             if not bid in banners[btype][btype2]:
                 banners[btype][btype2][bid] = {}
-        
+
             self.log.debug("Banner: %s", bid)
             for cur_element in cur_banner.getchildren():
                 tag = cur_element.tag.lower()
@@ -470,7 +470,7 @@ class Tvdb:
                 tag, value = tag.lower(), value.lower()
                 self.log.debug("Banner info: %s = %s" % (tag, value))
                 banners[btype][btype2][bid][tag] = value
-        
+
             for k, v in banners[btype][btype2][bid].items():
                 if k.endswith("path"):
                     new_key = "_%s" % (k)
@@ -486,14 +486,14 @@ class Tvdb:
         XML file into the shows dict in layout:
         shows[series_id][season_number][episode_number]
         """
-        
+
         # Parse show information
         self.log.debug('Getting all series data for %s' % (sid))
         seriesInfoEt = self._getetsrc(self.config['url_seriesInfo'] % (sid))
         for curInfo in seriesInfoEt.findall("Series")[0]:
             tag = curInfo.tag.lower()
             value = curInfo.text
-            
+
             if value is not None:
                 if tag in ['banner', 'fanart', 'poster']:
                     value = self.config['url_bannerPath'] % (value)
@@ -503,7 +503,7 @@ class Tvdb:
             self._setShowData(sid, tag, value)
             self.log.debug("Got info: %s = %s" % (tag, value))
         #end for series
-        
+
         # Parse banners
         if self.config['banners_enabled']:
             self._parseBanners(sid)
