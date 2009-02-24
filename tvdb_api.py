@@ -35,11 +35,11 @@ from tvdb_ui import BaseUI, ConsoleUI
 from tvdb_exceptions import (tvdb_error, tvdb_userabort, tvdb_shownotfound,
     tvdb_seasonnotfound, tvdb_episodenotfound, tvdb_attributenotfound)
 
-def can_int(x):
+def _can_int(x):
     """Takes a string, checks if it is numeric.
-    >>> can_int("2")
+    >>> _can_int("2")
     True
-    >>> can_int("A test")
+    >>> _can_int("A test")
     False
     """
     try:
@@ -76,7 +76,7 @@ class Show(dict):
             return dict.__getitem__(self.data, key)
 
         # Data wasn't found, raise appropriate error
-        if can_int(key):
+        if _can_int(key):
             # Episode number x was not found
             raise tvdb_seasonnotfound("Could not find season %s" % (repr(key)))
         else:
