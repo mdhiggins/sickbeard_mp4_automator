@@ -193,7 +193,7 @@ class test_tvdb_misc(unittest.TestCase):
         """
         self.assertEquals(
             repr(self.t['CNNNN'][1][1]),
-            "<Episode 01x01 - September 19, 2002 (20:30 - 21:00)>"
+            "<Episode 01x01 - Terror Alert>"
         )
 
 
