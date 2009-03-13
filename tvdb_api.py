@@ -44,6 +44,7 @@ class Show(dict):
     """Holds a dict of seasons, and show data.
     """
     def __init__(self):
+        dict.__init__(self)
         self.data = {}
 
     def __repr__(self):
@@ -385,7 +386,6 @@ class Tvdb:
         allSeries = []
         for series in seriesEt:
             sn = series.find('SeriesName')
-            tag = sn.tag.lower()
             value = self._cleanData(sn.text)
             cur_sid = series.find('id').text
             self.log.debug('Found series %s (id: %s)' % (value, cur_sid))
@@ -506,7 +506,7 @@ class Tvdb:
                 tag = cur_item.tag.lower()
                 value = cur_item.text
                 if value is not None:
-                    if tag =='filename':
+                    if tag == 'filename':
                         self.log.debug("Correcting filename %s to %s" % (
                             value, value
                         ))
