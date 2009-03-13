@@ -508,7 +508,7 @@ class Tvdb:
                 if value is not None:
                     if tag =='filename':
                         self.log.debug("Correcting filename %s to %s" % (
-                            curInfo.text, value
+                            value, value
                         ))
                         value = self.config['url_bannerPath'] % (value)
                     else:
