@@ -27,7 +27,7 @@ import logging
 try:
     import xml.etree.cElementTree as ElementTree
 except ImportError:
-    from elementtree import ElementTree
+    import xml.etree.ElementTree as ElementTree
 
 from cache import CacheHandler
 
