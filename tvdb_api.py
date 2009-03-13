@@ -358,9 +358,11 @@ class Tvdb:
     #end _set_item
 
     def _setShowData(self, sid, key, value):
+        """Sets self.shows[sid] to a new Show instance, or sets the data
+        """
         if sid not in self.shows:
             self.shows[sid] = Show()
-        self.shows[sid].data.__setitem__(key, value)
+        self.shows[sid].data[key] = value
 
     def _cleanData(self, data):
         """Cleans up strings returned by TheTVDB.com
