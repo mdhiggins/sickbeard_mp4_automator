@@ -318,7 +318,7 @@ class Tvdb:
         self.config['url_actorsInfo'] = "%(base_url)s/api/%(apikey)s/series/%%s/actors.xml" % self.config
 
         self.config['url_seriesBanner'] = "%(base_url)s/api/%(apikey)s/series/%%s/banners.xml" % self.config
-        self.config['url_bannerPrefix'] = "%(base_url)s/banners/%%s" % self.config
+        self.config['url_artworkPrefix'] = "%(base_url)s/banners/%%s" % self.config
 
     #end __init__
 
@@ -490,7 +490,7 @@ class Tvdb:
                 if k.endswith("path"):
                     new_key = "_%s" % (k)
                     self.log.debug("Transforming %s to %s" % (k, new_key))
-                    new_url = self.config['url_bannerPrefix'] % (v)
+                    new_url = self.config['url_artworkPrefix'] % (v)
                     self.log.debug("New banner URL: %s" % (new_url))
                     banners[btype][btype2][bid][new_key] = new_url
 
@@ -520,6 +520,10 @@ class Tvdb:
             for curInfo in curActorItem:
                 tag = curInfo.tag.lower()
                 value = curInfo.text
+                if tag == "image":
+                    value = self.config['url_artworkPrefix'] % (value)
+                else:
+                    value = self._cleanData(value)
                 curActor[tag] = value
             cur_actors.append(curActor)
         self._setShowData(sid, '_actors', cur_actors)
@@ -539,7 +543,7 @@ class Tvdb:
 
             if value is not None:
                 if tag in ['banner', 'fanart', 'poster']:
-                    value = self.config['url_bannerPrefix'] % (value)
+                    value = self.config['url_artworkPrefix'] % (value)
                 else:
                     value = self._cleanData(value)
 
@@ -567,7 +571,7 @@ class Tvdb:
                 value = cur_item.text
                 if value is not None:
                     if tag == 'filename':
-                        value = self.config['url_bannerPrefix'] % (value)
+                        value = self.config['url_artworkPrefix'] % (value)
                     else:
                         value = self._cleanData(value)
                 self._setItem(sid, seas_no, ep_no, tag, value)
