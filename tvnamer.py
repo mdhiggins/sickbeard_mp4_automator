@@ -43,7 +43,7 @@ config['valid_filename_chars_regex'] = re.escape(config['valid_filename_chars'])
 
 if sys.platform == "win32" or config['force_windows_compliant_filenames']:
     # " * : < > ? | \ are all invalid on Windows
-    config['valid_filename_chars'] = config['valid_filename_chars'].replace("\"*:<>?|\\","")
+    config['valid_filename_chars'] = "".join([x for x in config['valid_filename_chars'] if x not in "\"*:<>?|\\"])
 
 # Regex's to parse filenames with. Must have 3 groups, seriesname, season number
 # and episode number. Use (?: optional) non-capturing groups if you need others.
