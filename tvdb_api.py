@@ -514,7 +514,6 @@ class Tvdb:
                     else:
                         value = self._cleanData(value)
                 self._setItem(sid, seas_no, ep_no, tag, value)
-                self.log.debug("Got episode info: %s = %s" % (tag, value))
         #end for cur_ep
     #end _geEps
 
