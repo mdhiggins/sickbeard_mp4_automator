@@ -273,6 +273,14 @@ class test_tvdb_actors(unittest.TestCase):
             "Zach Braff"
         )
 
+    def test_actor_image_corrected(self):
+        """Check image URL is fully qualified
+        """
+        for actor in self.t['scrubs']['_actors']:
+            self.assertTrue(
+                actor['image'].startswith("http://")
+            )
+
 class test_tvdb_doctest(unittest.TestCase):
     # Used to store the cached instance of Tvdb()
     t = None

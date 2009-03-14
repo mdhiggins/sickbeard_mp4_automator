@@ -502,11 +502,20 @@ class Tvdb:
         
         Actors are retrieved using t['show name]['_actors'], for example:
 
-        >>> actors = Tvdb(actors=True)['scrubs']['_actors']
+        >>> t = Tvdb(actors = True)
+        >>> actors = t['scrubs']['_actors']
         >>> type(actors)
         <class 'tvdb_api.Actors'>
         >>> type(actors[0])
         <class 'tvdb_api.Actor'>
+        >>> actors[0]
+        <Actor "Zach Braff">
+        >>> sorted(actors[0].keys())
+        ['id', 'image', 'name', 'role', 'sortorder']
+        >>> actors[0]['name']
+        'Zach Braff'
+        >>> actors[0]['image']
+        'http://www.thetvdb.com/banners/actors/43640.jpg'
 
         Any key starting with an underscore has been processed (not the raw
         data from the XML)
