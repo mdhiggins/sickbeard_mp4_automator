@@ -290,7 +290,7 @@ class Tvdb:
 
         self.config['url_seriesInfo'] = "%(base_url)s/api/%(apikey)s/series/%%s/" % self.config
         self.config['url_seriesBanner'] = "%(base_url)s/api/%(apikey)s/series/%%s/banners.xml" % self.config
-        self.config['url_bannerPath'] = "%(base_url)s/banners/%%s" % self.config
+        self.config['url_bannerPrefix'] = "%(base_url)s/banners/%%s" % self.config
 
     #end __init__
 
@@ -462,7 +462,7 @@ class Tvdb:
                 if k.endswith("path"):
                     new_key = "_%s" % (k)
                     self.log.debug("Transforming %s to %s" % (k, new_key))
-                    new_url = self.config['url_bannerPath'] % (v)
+                    new_url = self.config['url_bannerPrefix'] % (v)
                     self.log.debug("New banner URL: %s" % (new_url))
                     banners[btype][btype2][bid][new_key] = new_url
 
@@ -483,7 +483,7 @@ class Tvdb:
 
             if value is not None:
                 if tag in ['banner', 'fanart', 'poster']:
-                    value = self.config['url_bannerPath'] % (value)
+                    value = self.config['url_bannerPrefix'] % (value)
                 else:
                     value = self._cleanData(value)
 
@@ -510,7 +510,7 @@ class Tvdb:
                         self.log.debug("Correcting filename %s to %s" % (
                             value, value
                         ))
-                        value = self.config['url_bannerPath'] % (value)
+                        value = self.config['url_bannerPrefix'] % (value)
                     else:
                         value = self._cleanData(value)
                 self._setItem(sid, seas_no, ep_no, tag, value)
