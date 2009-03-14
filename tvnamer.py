@@ -184,9 +184,10 @@ def processFile(t, opts, cfile):
     except tvdb_shownotfound:
         # No such show found.
         # Use the show-name from the files name, and None as the ep name
-        sys.stderr.write("! Warning: Show %s not found (in %s)\n" % (
+        sys.stderr.write("! Warning: Show \"%s\" not found (for file %s.%s)\n" % (
             cfile['file_seriesname'],
-            cfile['filepath'] )
+            cfile['filename'],
+            cfile['ext'])
         )
 
         cfile['seriesname'] = cfile['file_seriesname']
