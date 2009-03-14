@@ -205,6 +205,22 @@ class Episode(dict):
             #end if cur_value.find()
         #end for cur_key, cur_value
 
+class Actor(dict):
+    """Represents a single actor. Should contain..
+    
+    id,
+    image,
+    name,
+    role,
+    sortorder
+    """
+    def __repr__(self):
+        return "<Actor \"%s\">" % (self.get("name"))
+
+class Actors(list):
+    """Holds all Actor instances for a show
+    """
+    pass
 
 class Tvdb:
     """Create easy-to-use interface to name of season/episode name
