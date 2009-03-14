@@ -241,6 +241,37 @@ class test_tvdb_banners(unittest.TestCase):
                 True
             )
 
+class test_tvdb_actors(unittest.TestCase):
+    t = None
+    def setUp(self):
+        if self.t is None:
+            self.__class__.t = tvdb_api.Tvdb(cache = True, actors = True)
+
+    def test_actors_is_correct_datatype(self):
+        """Check show/_actors key exists and is correct type"""
+        self.assertTrue(
+            isinstance(
+                self.t['scrubs']['_actors'],
+                tvdb_api.Actors
+            )
+        )
+    
+    def test_actors_has_actor(self):
+        """Check show has at least one Actor
+        """
+        self.assertTrue(
+            isinstance(
+                self.t['scrubs']['_actors'][0],
+                tvdb_api.Actor
+            )
+        )
+    
+    def test_actor_has_name(self):
+        """Check first actor has a name"""
+        self.assertEquals(
+            self.t['scrubs']['_actors'][0]['name'],
+            "Zach Braff"
+        )
 
 class test_tvdb_doctest(unittest.TestCase):
     # Used to store the cached instance of Tvdb()
