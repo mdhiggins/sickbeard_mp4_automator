@@ -265,8 +265,8 @@ class Tvdb:
         via the _actors key of a Show(), for example:
         
         >>> t = Tvdb(actors=True)
-        >>> t['scrubs]['_actors'][0]['name']
-        Zach Braff
+        >>> t['scrubs']['_actors'][0]['name']
+        'Zach Braff'
 
         custom_ui (tvdb_ui.BaseUI subclass):
         A callable subclass of tvdb_ui.BaseUI (overrides interactive)
