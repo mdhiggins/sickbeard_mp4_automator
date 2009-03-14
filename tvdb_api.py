@@ -266,7 +266,7 @@ class Tvdb:
         
         >>> t = Tvdb(actors=True)
         >>> t['scrubs']['_actors'][0]['name']
-        'Zach Braff'
+        u'Zach Braff'
 
         custom_ui (tvdb_ui.BaseUI subclass):
         A callable subclass of tvdb_ui.BaseUI (overrides interactive)
@@ -513,7 +513,7 @@ class Tvdb:
         >>> sorted(actors[0].keys())
         ['id', 'image', 'name', 'role', 'sortorder']
         >>> actors[0]['name']
-        'Zach Braff'
+        u'Zach Braff'
         >>> actors[0]['image']
         'http://www.thetvdb.com/banners/actors/43640.jpg'
 
