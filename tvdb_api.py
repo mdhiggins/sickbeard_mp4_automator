@@ -567,9 +567,6 @@ class Tvdb:
                 value = cur_item.text
                 if value is not None:
                     if tag == 'filename':
-                        # self.log.debug("Correcting filename %s to %s" % (
-                        #     value, value
-                        # ))
                         value = self.config['url_bannerPrefix'] % (value)
                     else:
                         value = self._cleanData(value)
