@@ -315,7 +315,7 @@ class Tvdb:
         self.config['url_epInfo'] = "%(base_url)s/api/%(apikey)s/series/%%s/all/" % self.config
 
         self.config['url_seriesInfo'] = "%(base_url)s/api/%(apikey)s/series/%%s/" % self.config
-        self.config['url_actorsInfo'] = "%(base_url)s/api/%(apikey)s/series/actors.xml" % self.config
+        self.config['url_actorsInfo'] = "%(base_url)s/api/%(apikey)s/series/%%s/actors.xml" % self.config
 
         self.config['url_seriesBanner'] = "%(base_url)s/api/%(apikey)s/series/%%s/banners.xml" % self.config
         self.config['url_bannerPrefix'] = "%(base_url)s/banners/%%s" % self.config
@@ -496,6 +496,34 @@ class Tvdb:
 
         self._setShowData(sid, "_banners", banners)
 
+    def _parseActors(self, sid):
+        """Parsers actors XML, from
+        http://www.thetvdb.com/api/[APIKEY]/series/[SERIES ID]/actors.xml
+        
+        Actors are retrieved using t['show name]['_actors'], for example:
+
+        >>> actors = Tvdb(actors=True)['scrubs']['_actors']
+        >>> type(actors)
+        <class 'tvdb_api.Actors'>
+        >>> type(actors[0])
+        <class 'tvdb_api.Actor'>
+
+        Any key starting with an underscore has been processed (not the raw
+        data from the XML)
+        """
+        self.log.debug("Getting actors for %s" % (sid))
+        actorsEt = self._getetsrc(self.config['url_actorsInfo'] % (sid))
+        
+        cur_actors = Actors()
+        for curActorItem in actorsEt.findall("Actor"):
+            curActor = Actor()
+            for curInfo in curActorItem:
+                tag = curInfo.tag.lower()
+                value = curInfo.text
+                curActor[tag] = value
+            cur_actors.append(curActor)
+        self._setShowData(sid, '_actors', cur_actors)
+
     def _getShowData(self, sid):
         """Takes a series ID, gets the epInfo URL and parses the TVDB
         XML file into the shows dict in layout:
@@ -522,6 +550,10 @@ class Tvdb:
         # Parse banners
         if self.config['banners_enabled']:
             self._parseBanners(sid)
+
+        # Parse actors
+        if self.config['actors_enabled']:
+            self._parseActors(sid)
 
         # Parse episode data
         self.log.debug('Getting all episodes of %s' % (sid))
