@@ -264,8 +264,9 @@ class Tvdb:
         Retrieves a list of the actors for a show. These are accessed
         via the _actors key of a Show(), for example:
         
-        >>> Tvdb(actors=True)['scrubs']['_actors'].keys()
-        ['id', 'image', 'name', 'role', 'sortorder']
+        >>> t = Tvdb(actors=True)
+        >>> t['scrubs]['_actors'][0]['name']
+        Zach Braff
 
         custom_ui (tvdb_ui.BaseUI subclass):
         A callable subclass of tvdb_ui.BaseUI (overrides interactive)
@@ -534,6 +535,9 @@ class Tvdb:
                 value = cur_item.text
                 if value is not None:
                     if tag == 'filename':
+                        # self.log.debug("Correcting filename %s to %s" % (
+                        #     value, value
+                        # ))
                         value = self.config['url_bannerPrefix'] % (value)
                     else:
                         value = self._cleanData(value)
