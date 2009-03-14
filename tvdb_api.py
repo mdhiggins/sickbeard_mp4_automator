@@ -233,6 +233,7 @@ class Tvdb:
                 debug = False,
                 cache = True,
                 banners = False,
+                actors = False,
                 custom_ui = None):
         """interactive:
         When True, uses built-in console UI is used to select
@@ -258,6 +259,13 @@ class Tvdb:
 
         >>> Tvdb(banners=True)['scrubs']['_banners'].keys()
         ['fanart', 'poster', 'series', 'season']
+        
+        actors (True/False):
+        Retrieves a list of the actors for a show. These are accessed
+        via the _actors key of a Show(), for example:
+        
+        >>> Tvdb(actors=True)['scrubs']['_actors'].keys()
+        ['id', 'image', 'name', 'role', 'sortorder']
 
         custom_ui (tvdb_ui.BaseUI subclass):
         A callable subclass of tvdb_ui.BaseUI (overrides interactive)
@@ -294,6 +302,7 @@ class Tvdb:
             self.urlopener = urllib2.build_opener()
 
         self.config['banners_enabled'] = banners
+        self.config['actors_enabled'] = actors
 
         self.log = self._initLogger() # Setups the logger (self.log.debug() etc)
 
