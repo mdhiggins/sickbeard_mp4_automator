@@ -529,10 +529,11 @@ class Tvdb:
             for curInfo in curActorItem:
                 tag = curInfo.tag.lower()
                 value = curInfo.text
-                if tag == "image":
-                    value = self.config['url_artworkPrefix'] % (value)
-                else:
-                    value = self._cleanData(value)
+                if value is not None:
+                    if tag == "image":
+                        value = self.config['url_artworkPrefix'] % (value)
+                    else:
+                        value = self._cleanData(value)
                 curActor[tag] = value
             cur_actors.append(curActor)
         self._setShowData(sid, '_actors', cur_actors)
