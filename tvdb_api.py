@@ -235,41 +235,41 @@ class Tvdb:
                 banners = False,
                 actors = False,
                 custom_ui = None):
-        """interactive:
-        When True, uses built-in console UI is used to select
-        the correct show.
-        When False, the first search result is used.
+        """interactive (True/False):
+            When True, uses built-in console UI is used to select
+            the correct show.
+            When False, the first search result is used.
 
         select_first (True/False):
-        Automatically selects the first series search result (rather
-        than showing the user a list of more than one series).
-        Is overridden by interactive = False, or specifying a custom_ui
+            Automatically selects the first series search result (rather
+            than showing the user a list of more than one series).
+            Is overridden by interactive = False, or specifying a custom_ui
 
         debug (True/False):
-         shows verbose debugging information
+             shows verbose debugging information
 
         cache (True/False/str/unicode):
-        Retrieved XML are persisted to to disc. If true, stores in tvdb_api
-        folder under your systems TEMP_DIR, if set to str/unicode instance it
-        will use this as the cache location. If False, disables caching.
+            Retrieved XML are persisted to to disc. If true, stores in tvdb_api
+            folder under your systems TEMP_DIR, if set to str/unicode instance it
+            will use this as the cache location. If False, disables caching.
 
         banners (True/False):
-        Retrieves the banners for a show. These are accessed
-        via the _banners key of a Show(), for example:
+            Retrieves the banners for a show. These are accessed
+            via the _banners key of a Show(), for example:
 
-        >>> Tvdb(banners=True)['scrubs']['_banners'].keys()
-        ['fanart', 'poster', 'series', 'season']
+            >>> Tvdb(banners=True)['scrubs']['_banners'].keys()
+            ['fanart', 'poster', 'series', 'season']
         
         actors (True/False):
-        Retrieves a list of the actors for a show. These are accessed
-        via the _actors key of a Show(), for example:
+            Retrieves a list of the actors for a show. These are accessed
+            via the _actors key of a Show(), for example:
         
-        >>> t = Tvdb(actors=True)
-        >>> t['scrubs']['_actors'][0]['name']
-        u'Zach Braff'
+            >>> t = Tvdb(actors=True)
+            >>> t['scrubs']['_actors'][0]['name']
+            u'Zach Braff'
 
         custom_ui (tvdb_ui.BaseUI subclass):
-        A callable subclass of tvdb_ui.BaseUI (overrides interactive)
+            A callable subclass of tvdb_ui.BaseUI (overrides interactive)
         """
         self.shows = ShowContainer() # Holds all Show classes
         self.corrections = {} # Holds show-name to show_id mapping
