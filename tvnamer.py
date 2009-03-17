@@ -321,7 +321,7 @@ def main():
     print "# Starting tvnamer"
     print "# Processing %d files" % ( len(validFiles) )
 
-    t = Tvdb(debug = opts.debug, interactive = opts.interactive)
+    t = Tvdb(debug = opts.debug, interactive = opts.interactive, select_first = opts.selectfirst)
 
     print "# ..got tvdb mirrors"
     print "# Starting to process files"
