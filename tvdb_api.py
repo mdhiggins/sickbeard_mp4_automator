@@ -20,6 +20,7 @@ __version__ = "0.6dev"
 
 import os
 import sys
+import urllib
 import urllib2
 import tempfile
 import logging
@@ -361,7 +362,6 @@ class Tvdb:
         return os.path.join(tempfile.gettempdir(), "tvdb_api")
 
     def _getetsrc(self, url):
-        url = url.replace(" ", "+")
         try:
             self.log.debug("Retreiving ElementTree source for URL %s" % (url))
             resp = self.urlopener.open(url)
@@ -415,9 +415,9 @@ class Tvdb:
 
         Issues corrected:
         - Returns &amp; instead of &, since &s in filenames
-        are bad, replace &amp; with "and"
+        are bad, replace &amp; with "&"
         """
-        data = data.replace(u"&amp;", u"and")
+        data = data.replace(u"&amp;", u"&")
         data = data.strip()
         return data
     #end _cleanData
@@ -427,6 +427,7 @@ class Tvdb:
         and either interactively selects the correct show,
         or returns the first result.
         """
+        series = urllib.quote(series)
         seriesEt = self._getetsrc(self.config['url_getSeries'] % (series))
         allSeries = []
         for series in seriesEt:
