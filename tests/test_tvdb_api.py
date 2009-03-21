@@ -212,23 +212,32 @@ class test_tvdb_misc(unittest.TestCase):
         
 class test_tvdb_languages(unittest.TestCase):
     def test_episode_name_french(self):
-        """Check episode name is correct French (language="fr")
+        """Check episode data is in French (language="fr")
         """
         t = tvdb_api.Tvdb(cache = True, language = "fr")
         self.assertEquals(
             t['scrubs'][1][1]['episodename'],
             "Mon premier jour"
         )
+        self.assertTrue(
+            t['scrubs']['overview'].startswith(
+                u"J.D. est un jeune m\xe9decin qui d\xe9bute"
+            )
+        )
 
     def test_episode_name_spanish(self):
-        """Check episode name is correct Spanish (language="es")
+        """Check episode data is in Spanish (language="es")
         """
         t = tvdb_api.Tvdb(cache = True, language = "es")
         self.assertEquals(
             t['scrubs'][1][1]['episodename'],
             "Mi Primer Dia"
         )
-        
+        self.assertTrue(
+            t['scrubs']['overview'].startswith(
+                u'Scrubs es una divertida comedia'
+            )
+        )
         
 
 class test_tvdb_banners(unittest.TestCase):
