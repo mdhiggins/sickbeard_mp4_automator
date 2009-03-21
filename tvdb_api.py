@@ -289,7 +289,7 @@ class Tvdb:
         if cache is True:
             self.config['cache_enabled'] = True
             self.config['cache_location'] = self._getTempDir()
-        elif isinstance(cache, str) or isinstance(cache, unicode):
+        elif isinstance(cache, basestring):
             self.config['cache_enabled'] = True
             self.config['cache_location'] = cache
         else:
