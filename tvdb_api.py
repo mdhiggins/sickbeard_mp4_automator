@@ -234,7 +234,8 @@ class Tvdb:
                 cache = True,
                 banners = False,
                 actors = False,
-                custom_ui = None):
+                custom_ui = None,
+                language = None):
         """interactive (True/False):
             When True, uses built-in console UI is used to select
             the correct show.
@@ -307,12 +308,28 @@ class Tvdb:
 
         self.log = self._initLogger() # Setups the logger (self.log.debug() etc)
 
+        # List of language from http://www.thetvdb.com/api/0629B785CE550C8D/languages.xml
+        # Hard-coded here as it is realtively static, and saves another HTTP request, as
+        # recommended on http://thetvdb.com/wiki/index.php/API:languages.xml
+        self.config['valid_languages'] = [
+            "da", "fi", "nl", "de", "it", "es", "fr","pl", "hu","el","tr",
+            "ru","he","ja","pt","zh","cs","sl", "hr","ko","en","sv","no"]
+
+        if language is None:
+            self.config['language'] = "en"
+        elif language not in self.config['valid_languages']:
+            raise ValueError("Invalid language %s, options are: %s" % (
+                language, self.config['valid_languages']
+            ))
+        else:
+            self.config['language'] = language
+
         # The following url_ configs are based of the
         # http://thetvdb.com/wiki/index.php/Programmers_API
         self.config['base_url'] = "http://www.thetvdb.com"
 
         self.config['url_getSeries'] = "%(base_url)s/api/GetSeries.php?seriesname=%%s" % self.config
-        self.config['url_epInfo'] = "%(base_url)s/api/%(apikey)s/series/%%s/all/" % self.config
+        self.config['url_epInfo'] = "%(base_url)s/api/%(apikey)s/series/%%s/all/%(language)s.xml" % self.config
 
         self.config['url_seriesInfo'] = "%(base_url)s/api/%(apikey)s/series/%%s/" % self.config
         self.config['url_actorsInfo'] = "%(base_url)s/api/%(apikey)s/series/%%s/actors.xml" % self.config
