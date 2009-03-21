@@ -195,7 +195,41 @@ class test_tvdb_misc(unittest.TestCase):
             repr(self.t['CNNNN'][1][1]),
             "<Episode 01x01 - Terror Alert>"
         )
+    def test_have_all_languages(self):
+        """Check valid_languages is up-to-date (compared to languages.xml)
+        """
+        et = self.t._getetsrc(
+            "http://www.thetvdb.com/api/%s/languages.xml" % (
+                self.t.config['apikey']
+            )
+        )
+        languages = [x.find("abbreviation").text for x in et.findall("Language")]
+        
+        self.assertEquals(
+            sorted(languages),
+            sorted(self.t.config['valid_languages'])
+        )
+        
+class test_tvdb_languages(unittest.TestCase):
+    def test_episode_name_french(self):
+        """Check episode name is correct French (language="fr")
+        """
+        t = tvdb_api.Tvdb(cache = True, language = "fr")
+        self.assertEquals(
+            t['scrubs'][1][1]['episodename'],
+            "Mon premier jour"
+        )
 
+    def test_episode_name_spanish(self):
+        """Check episode name is correct Spanish (language="es")
+        """
+        t = tvdb_api.Tvdb(cache = True, language = "es")
+        self.assertEquals(
+            t['scrubs'][1][1]['episodename'],
+            "Mi Primer Dia"
+        )
+        
+        
 
 class test_tvdb_banners(unittest.TestCase):
     # Used to store the cached instance of Tvdb()
