@@ -428,6 +428,7 @@ class Tvdb:
         or returns the first result.
         """
         series = urllib.quote(series)
+        self.log.debug("Searching for show %s" % series)
         seriesEt = self._getetsrc(self.config['url_getSeries'] % (series))
         allSeries = []
         for series in seriesEt:
