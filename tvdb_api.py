@@ -80,10 +80,10 @@ class Show(dict):
         found episode, and so on.
 
         Each array index is an Episode() instance, so doing
-        search_results[0]['episodename'] will retrive the episode name of the
+        search_results[0]['episodename'] will retrieve the episode name of the
         first match.
 
-        Search terms are convered to lower case unicode strings.
+        Search terms are converted to lower case unicode strings.
 
         Examples
         These examples assume t is an instance of Tvdb():
@@ -91,7 +91,7 @@ class Show(dict):
         >>>
 
         Search for all episodes of Scrubs episodes
-        with a bit of data containg "my first day":
+        with a bit of data containing "my first day":
 
         >>> t['Scrubs'].search("my first day")
         [<Episode 01x01 - My First Day>]
@@ -363,7 +363,7 @@ class Tvdb:
 
     def _getetsrc(self, url):
         try:
-            self.log.debug("Retreiving ElementTree source for URL %s" % (url))
+            self.log.debug("Retrieving ElementTree source for URL %s" % (url))
             resp = self.urlopener.open(url)
             if 'x-local-cache' in resp.headers:
                 self.log.debug("URL %s was cached in %s" % (
@@ -654,7 +654,6 @@ def main():
     """Runs simple example of tvdb_api functionality
     """
     simple_example()
-
 
 if __name__ == '__main__':
     main()
