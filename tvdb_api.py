@@ -93,13 +93,13 @@ class Show(dict):
         Search for all episodes of Scrubs episodes
         with a bit of data containg "my first day":
 
-        >>> t['Scrubs'].search("my first day") #doctest: +ELLIPSIS
+        >>> t['Scrubs'].search("my first day")
         [<Episode 01x01 - My First Day>]
         >>>
 
         Search for "My Name Is Earl" named "Faked His Own Death":
 
-        >>> t['My Name Is Earl'].search('Faked His Own Death', key = 'episodename') #doctest: +ELLIPSIS
+        >>> t['My Name Is Earl'].search('Faked His Own Death', key = 'episodename')
         [<Episode 01x04 - Faked His Own Death>]
         >>>
 
