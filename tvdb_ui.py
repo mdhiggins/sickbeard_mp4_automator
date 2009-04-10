@@ -36,7 +36,7 @@ Then to use it..
 >>> from tvdb_api import Tvdb
 >>> t = Tvdb(custom_ui = RandomUI)
 >>> random_matching_series = t['Lost']
->>> >>> type(random_matching_series)
+>>> type(random_matching_series)
 <class 'tvdb_api.Show'>
 """
 
