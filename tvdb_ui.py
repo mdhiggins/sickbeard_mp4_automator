@@ -8,8 +8,11 @@
 
 """Stores included user interfaces for Tvdb.
 
-A callback is a class. It's __init__ function takes one argument, log Tvdb's
-log (which uses the logging module). You can call log.info() log.warning() etc
+A callback is a class. It's __init__ function takes two arguments:
+
+- config, which is the Tvdb config dict, setup in tvdb_api.py
+- log, which is Tvdb's logger instance (which uses the logging module). You can
+call log.info() log.warning() etc
 
 The method "selectSeries" is passed a list of dicts, each dict contains the
 the keys "name" (human readable show name), and "sid" (the shows ID as on
