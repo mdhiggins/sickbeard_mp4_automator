@@ -619,10 +619,10 @@ class Tvdb:
             self.log.debug('Getting show %s' % (name))
             selected_series = self._getSeries( name )
             sname, sid = selected_series['name'], selected_series['sid']
-            self.log.debug('Got %s, sid %s' % (sname, sid) )
+            self.log.debug('Got %s, sid %s' % (sname, sid))
 
             self.corrections[name] = sid
-            self._getShowData( sid )
+            self._getShowData(sid)
         #end if name in self.corrections
         return sid
     #end _nameToSid
