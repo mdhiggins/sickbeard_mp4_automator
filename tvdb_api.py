@@ -312,9 +312,13 @@ class Tvdb:
         # List of language from http://www.thetvdb.com/api/0629B785CE550C8D/languages.xml
         # Hard-coded here as it is realtively static, and saves another HTTP request, as
         # recommended on http://thetvdb.com/wiki/index.php/API:languages.xml
+        # The "all" language is a special case, from http://thetvdb.com/wiki/index.php/API:GetSeries
+        # "This may also be set to all, which will search ALL translations for <seriesname>"
         self.config['valid_languages'] = [
             "da", "fi", "nl", "de", "it", "es", "fr","pl", "hu","el","tr",
-            "ru","he","ja","pt","zh","cs","sl", "hr","ko","en","sv","no"]
+            "ru","he","ja","pt","zh","cs","sl", "hr","ko","en","sv","no",
+            "all"
+        ]
 
         if language is None:
             self.config['language'] = "en"

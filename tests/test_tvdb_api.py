@@ -205,6 +205,9 @@ class test_tvdb_misc(unittest.TestCase):
         )
         languages = [x.find("abbreviation").text for x in et.findall("Language")]
         
+        # Special case, searches for show in all languages
+        languages.append("all")
+        
         self.assertEquals(
             sorted(languages),
             sorted(self.t.config['valid_languages'])
