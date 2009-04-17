@@ -39,8 +39,6 @@ config['force_windows_compliant_filenames'] = False
 
 ### End user config
 
-config['valid_filename_chars_regex'] = re.escape(config['valid_filename_chars'])
-
 if sys.platform == "win32" or config['force_windows_compliant_filenames']:
     # " * : < > ? | \ are all invalid on Windows
     config['valid_filename_chars'] = "".join([x for x in config['valid_filename_chars'] if x not in "\"*:<>?|\\"])
@@ -49,15 +47,15 @@ if sys.platform == "win32" or config['force_windows_compliant_filenames']:
 # and episode number. Use (?: optional) non-capturing groups if you need others.
 config['name_parse'] = [
     # foo_[s01]_[e01]
-    re.compile('''^([%s]+?)[ \._\-]\[[Ss]([0-9]+?)\]_\[[Ee]([0-9]+?)\]?[^\\/]*$'''% (config['valid_filename_chars_regex'])),
+    re.compile('''^(.+?)[ \._\-]\[[Ss]([0-9]+?)\]_\[[Ee]([0-9]+?)\]?[^\\/]*$'''),
     # foo.1x09*
-    re.compile('''^([%s]+?)[ \._\-]\[?([0-9]+)x([0-9]+)[^\\/]*$''' % (config['valid_filename_chars_regex'])),
+    re.compile('''^(.+?)[ \._\-]\[?([0-9]+)x([0-9]+)[^\\/]*$'''),
     # foo.s01.e01, foo.s01_e01
-    re.compile('''^([%s]+?)[ \._\-][Ss]([0-9]+)[\.\- ]?[Ee]([0-9]+)[^\\/]*$''' % (config['valid_filename_chars_regex'])),
+    re.compile('''^(.+?)[ \._\-][Ss]([0-9]+)[\.\- ]?[Ee]([0-9]+)[^\\/]*$'''),
     # foo.103*
-    re.compile('''^([%s]+)[ \._\-]([0-9]{1})([0-9]{2})[\._ -][^\\/]*$''' % (config['valid_filename_chars_regex'])),
+    re.compile('''^(.+)[ \._\-]([0-9]{1})([0-9]{2})[\._ -][^\\/]*$'''),
     # foo.0103*
-    re.compile('''^([%s]+)[ \._\-]([0-9]{2})([0-9]{2,3})[\._ -][^\\/]*$''' % (config['valid_filename_chars_regex'])),
+    re.compile('''^(.+)[ \._\-]([0-9]{2})([0-9]{2,3})[\._ -][^\\/]*$'''),
 ]
 
 
