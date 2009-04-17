@@ -236,7 +236,8 @@ class Tvdb:
                 banners = False,
                 actors = False,
                 custom_ui = None,
-                language = None):
+                language = None,
+                search_all_languages = False):
         """interactive (True/False):
             When True, uses built-in console UI is used to select
             the correct show.
@@ -287,6 +288,8 @@ class Tvdb:
         self.config['interactive'] = interactive # prompt for correct series?
 
         self.config['select_first'] = select_first
+        
+        self.config['search_all_languages'] = search_all_languages
 
         if cache is True:
             self.config['cache_enabled'] = True
@@ -330,7 +333,11 @@ class Tvdb:
         # http://thetvdb.com/wiki/index.php/Programmers_API
         self.config['base_url'] = "http://www.thetvdb.com"
 
-        self.config['url_getSeries'] = "%(base_url)s/api/GetSeries.php?seriesname=%%s&language=%(language)s" % self.config
+        if self.config['search_all_languages']:
+            self.config['url_getSeries'] = "%(base_url)s/api/GetSeries.php?seriesname=%%s&language=all" % self.config
+        else:
+            self.config['url_getSeries'] = "%(base_url)s/api/GetSeries.php?seriesname=%%s&language=%(language)s" % self.config
+
         self.config['url_epInfo'] = "%(base_url)s/api/%(apikey)s/series/%%s/all/%(language)s.xml" % self.config
 
         self.config['url_seriesInfo'] = "%(base_url)s/api/%(apikey)s/series/%%s/%(language)s.xml" % self.config
