@@ -241,15 +241,37 @@ class test_tvdb_languages(unittest.TestCase):
         
 
 class test_tvdb_unicode(unittest.TestCase):
-    """Checks searching for shows with unicode
-    """
-    def test_show1(self):
+    def test_search_in_chinese(self):
+        """Check searching for show with language=zh returns Chinese seriesname
+        """
         t = tvdb_api.Tvdb(cache = True, language = "zh")
+        show = t[u'T\xecnh Ng\u01b0\u1eddi Hi\u1ec7n \u0110\u1ea1i']
         self.assertEquals(
             type(
-                t[u'T\xecnh Ng\u01b0\u1eddi Hi\u1ec7n \u0110\u1ea1i']
+                show
             ),
             tvdb_api.Show
+        )
+        
+        self.assertEquals(
+            show['seriesname'],
+            u'T\xecnh Ng\u01b0\u1eddi Hi\u1ec7n \u0110\u1ea1i'
+        )
+
+    def test_search_in_all_languages(self):
+        """Check search_all_languages returns Chinese show, with language=en"""
+        t = tvdb_api.Tvdb(cache = True, search_all_languages = True, language="en")
+        show = t[u'T\xecnh Ng\u01b0\u1eddi Hi\u1ec7n \u0110\u1ea1i']
+        self.assertEquals(
+            type(
+                show
+            ),
+            tvdb_api.Show
+        )
+        
+        self.assertEquals(
+            show['seriesname'],
+            u'Virtues Of Harmony II'
         )
 
 class test_tvdb_banners(unittest.TestCase):
