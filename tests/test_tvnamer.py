@@ -92,6 +92,13 @@ class test_name_parser(unittest.TestCase):
 
         self._run_test(name_data)
     #end test_name_parser_exclaim
+    
+    def test_name_parser_unicode(self):
+        """Tests parsing show containing unicode characters"""
+        name_data = {'seriesname':u'T\xecnh Ng\u01b0\u1eddi Hi\u1ec7n \u0110\u1ea1i'.encode("utf-8")}
+        
+        self._run_test(name_data)
+    #end test_name_parser_unicode
 
     def _run_test(self, name_data):
         """
