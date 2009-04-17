@@ -329,7 +329,7 @@ class Tvdb:
         # http://thetvdb.com/wiki/index.php/Programmers_API
         self.config['base_url'] = "http://www.thetvdb.com"
 
-        self.config['url_getSeries'] = "%(base_url)s/api/GetSeries.php?seriesname=%%s" % self.config
+        self.config['url_getSeries'] = "%(base_url)s/api/GetSeries.php?seriesname=%%s&language=%(language)s" % self.config
         self.config['url_epInfo'] = "%(base_url)s/api/%(apikey)s/series/%%s/all/%(language)s.xml" % self.config
 
         self.config['url_seriesInfo'] = "%(base_url)s/api/%(apikey)s/series/%%s/%(language)s.xml" % self.config
