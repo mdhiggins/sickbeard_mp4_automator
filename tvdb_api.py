@@ -273,6 +273,18 @@ class Tvdb:
 
         custom_ui (tvdb_ui.BaseUI subclass):
             A callable subclass of tvdb_ui.BaseUI (overrides interactive)
+        
+        language (2 character language abbreviation):
+            The language of the returned data. Is also the language search
+            uses. Default is "en" (English). For full list, run..
+            
+            >>> Tvdb().config['valid_languages'] #doctest: +ELLIPSIS
+            ['da', 'fi', 'nl', ...]
+        
+        search_all_languages (True/False):
+            By default, Tvdb will only search in the language specified using
+            the language option. When this is True, it will search for the
+            show in and language
         """
         self.shows = ShowContainer() # Holds all Show classes
         self.corrections = {} # Holds show-name to show_id mapping
