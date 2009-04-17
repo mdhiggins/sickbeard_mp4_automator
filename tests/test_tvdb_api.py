@@ -240,6 +240,18 @@ class test_tvdb_languages(unittest.TestCase):
         )
         
 
+class test_tvdb_unicode(unittest.TestCase):
+    """Checks searching for shows with unicode
+    """
+    def test_show1(self):
+        t = tvdb_api.Tvdb(cache = True, language = "es")
+        self.assertEquals(
+            type(
+                t[u'T\xecnh Ng\u01b0\u1eddi Hi\u1ec7n \u0110\u1ea1i']
+            ),
+            tvdb_api.Season
+        )
+
 class test_tvdb_banners(unittest.TestCase):
     # Used to store the cached instance of Tvdb()
     t = None
