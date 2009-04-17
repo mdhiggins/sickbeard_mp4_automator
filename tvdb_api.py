@@ -427,7 +427,7 @@ class Tvdb:
         and either interactively selects the correct show,
         or returns the first result.
         """
-        series = urllib.quote(series)
+        series = urllib.quote(series.encode("utf-8"))
         self.log.debug("Searching for show %s" % series)
         seriesEt = self._getetsrc(self.config['url_getSeries'] % (series))
         allSeries = []
