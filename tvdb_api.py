@@ -662,18 +662,13 @@ class Tvdb:
     #end __repr__
 #end Tvdb
 
-def simple_example():
+def main():
     """Simple example of using tvdb_api - it just
     grabs an episode name interactively.
     """
     tvdb_instance = Tvdb(interactive=True, debug=True, cache=False)
     print tvdb_instance['Lost']['seriesname']
     print tvdb_instance['Lost'][1][4]['episodename']
-
-def main():
-    """Runs simple example of tvdb_api functionality
-    """
-    simple_example()
 
 if __name__ == '__main__':
     main()
