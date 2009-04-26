@@ -30,7 +30,7 @@ classifiers=[
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Topic :: Multimedia",
-    "Topic :: Utilities"
+    "Topic :: Utilities",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 )
