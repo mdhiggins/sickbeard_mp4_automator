@@ -1,3 +1,5 @@
+require 'fileutils'
+
 task :default => [:clean]
 
 task :clean do
@@ -59,12 +61,18 @@ task :topypi => :test do
   puts "Build sdist and send tvdb_api v#{tvdb_api_version} and tvnamer v#{tvnamer_version} to PyPi?"
   if $stdin.gets.chomp == "y"
     puts "Sending source-dist (sdist) to PyPi"
+    
+    FileUtils.mv("setup_tvdb_api.py", "setup.py")
     if system("python setup.py sdist register upload")
       print "tvdb_api uploaded!"
     end
-    if system("python setup_tvnamer.py sdist register uploaded")
+    FileUtils.mv("setup.py", "setup_tvdb_api.py")
+    
+    FileUtils.mv("setup_tvnamer.py", "setup.py")
+    if system("python setup.py sdist register upload")
       puts "tvnamer uploaded!"
     end
+    FileUtils.mv("setup.py", "setup_tvnamer.py")
   else
     puts "Cancelled"
   end
