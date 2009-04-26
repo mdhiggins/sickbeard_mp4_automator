@@ -230,7 +230,7 @@ class Tvdb:
     u'My Last Day'
     """
     def __init__(self, interactive = False,
-                select_first = True,
+                select_first = False,
                 debug = False,
                 cache = True,
                 banners = False,
