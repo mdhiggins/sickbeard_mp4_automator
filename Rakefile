@@ -4,13 +4,11 @@ task :default => [:clean]
 
 task :clean do
   [".", "tests"].each do |cd|
-    puts "Doing #{cd}"
+    puts "Cleaning directory #{cd}"
     Dir.new(cd).each do |t|
-      puts "Checking #{t}"
       if t =~ /.*\.pyc$/
-        puts "WOOO #{t}"
-        File.join(cd t)
-        File.delete(File.join(cd t))
+        puts "Removing #{File.join(cd, t)}"
+        File.delete(File.join(cd, t))
       end
     end
   end
