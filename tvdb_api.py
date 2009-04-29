@@ -208,7 +208,7 @@ class Episode(dict):
 
 class Actor(dict):
     """Represents a single actor. Should contain..
-    
+
     id,
     image,
     name,
@@ -262,25 +262,25 @@ class Tvdb:
 
             >>> Tvdb(banners=True)['scrubs']['_banners'].keys()
             ['fanart', 'poster', 'series', 'season']
-        
+
         actors (True/False):
             Retrieves a list of the actors for a show. These are accessed
             via the _actors key of a Show(), for example:
-        
+
             >>> t = Tvdb(actors=True)
             >>> t['scrubs']['_actors'][0]['name']
             u'Zach Braff'
 
         custom_ui (tvdb_ui.BaseUI subclass):
             A callable subclass of tvdb_ui.BaseUI (overrides interactive)
-        
+
         language (2 character language abbreviation):
             The language of the returned data. Is also the language search
             uses. Default is "en" (English). For full list, run..
-            
+
             >>> Tvdb().config['valid_languages'] #doctest: +ELLIPSIS
             ['da', 'fi', 'nl', ...]
-        
+
         search_all_languages (True/False):
             By default, Tvdb will only search in the language specified using
             the language option. When this is True, it will search for the
@@ -300,7 +300,7 @@ class Tvdb:
         self.config['interactive'] = interactive # prompt for correct series?
 
         self.config['select_first'] = select_first
-        
+
         self.config['search_all_languages'] = search_all_languages
 
         if cache is True:
@@ -538,7 +538,7 @@ class Tvdb:
     def _parseActors(self, sid):
         """Parsers actors XML, from
         http://www.thetvdb.com/api/[APIKEY]/series/[SERIES ID]/actors.xml
-        
+
         Actors are retrieved using t['show name]['_actors'], for example:
 
         >>> t = Tvdb(actors = True)
@@ -561,7 +561,7 @@ class Tvdb:
         """
         self.log.debug("Getting actors for %s" % (sid))
         actorsEt = self._getetsrc(self.config['url_actorsInfo'] % (sid))
-        
+
         cur_actors = Actors()
         for curActorItem in actorsEt.findall("Actor"):
             curActor = Actor()
