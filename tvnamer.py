@@ -88,14 +88,9 @@ def findFiles(args, recursive = False, verbose = False):
     return allfiles
 #end findFiles
 
-def processNames(names, verbose=False):
-    """
-    Takes list of names, runs them though the config['name_parse'] regexs
-    """
-    allEps = []
-    for f in names:
-        filepath, filename = os.path.split( f )
-        filename, ext = os.path.splitext( filename )
+def processSingleName(name, verbose=False):
+        filepath, filename = os.path.split(name)
+        filename, ext = os.path.splitext(filename)
 
         # Remove leading . from extension
         ext = ext.replace(".", "", 1)
@@ -119,19 +114,28 @@ def processNames(names, verbose=False):
                     print "Ep:", epno
                     print "*"*20
 
-                allEps.append({ 'file_seriesname':seriesname,
-                                'seasno':seasno,
-                                'epno':epno,
-                                'filepath':filepath,
-                                'filename':filename,
-                                'ext':ext
-                             })
-                break # Matched - to the next file!
+                return{'file_seriesname':seriesname,
+                       'seasno':seasno,
+                       'epno':epno,
+                       'filepath':filepath,
+                       'filename':filename,
+                       'ext':ext
+                }
         else:
             print "Invalid name: %s" % (f)
         #end for r
     #end for f
+    
 
+def processNames(names, verbose=False):
+    """
+    Takes list of names, runs them though the config['name_parse'] regexs
+    """
+    allEps = []
+    for f in names:
+        allEps.append(
+            processSingleName(f)
+        )
     return allEps
 #end processNames
 
