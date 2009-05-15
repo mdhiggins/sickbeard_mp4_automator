@@ -122,7 +122,7 @@ def processSingleName(name, verbose=False):
                        'ext':ext
                 }
         else:
-            print "Invalid name: %s" % (f)
+            print "Invalid name: %s" % (name)
         #end for r
     #end for f
     
