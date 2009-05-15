@@ -651,6 +651,12 @@ class Tvdb:
         """Handles tvdb_instance['seriesname'] calls.
         The dict index should be the show id
         """
+        if isinstance(key, int):
+            # Item is integer, treat as show id
+            if key not in self.shows:
+                self._getShowData(key)
+            return self.shows[key]
+        
         key = key.lower() # make key lower case
         sid = self._nameToSid(key)
         self.log.debug('Got series id %s' % (sid))
