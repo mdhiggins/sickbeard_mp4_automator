@@ -45,7 +45,7 @@ def tvnamerifiy(location):
     for f in os.listdir(location):
         fullpath = os.path.join(location, f)
         proc = Popen(
-            [tvn, "-b", fullpath],
+            [sys.executable, tvn, "-b", fullpath],
             stdout = PIPE
         )
         stdout, stderr = proc.communicate()
