@@ -2,21 +2,23 @@
 
 `tvdb_api` is an easy to use interface to [thetvdb.com][tvdb]
 
-`tvnamer` is a utility which uses `tvdb_api`, which renames files from `some.show.s01e03.blah.abc.avi` to `Some Show - [01x03] - The Episode Name.avi` (getting episode names using `tvdb_api`)
+`tvnamer` is a utility which uses `tvdb_api` to rename files from `some.show.s01e03.blah.abc.avi` to `Some Show - [01x03] - The Episode Name.avi` (getting the episode name from `tvdb_api`)
 
 ## To install
 
-To get `tvnamer` (and `tvdb_api` as a requirement)
+You can easily install `tvnamer` via `easy_install`
 
     easy_install tvnamer
 
-This installs `tvnamer` as a command-line tool
+This installs the `tvnamer` command-line tool (and the `tvdb_api` module as a requirement)
 
-Or to only get `tvdb_api`
+You may need to use sudo, depending on your setup:
+
+    sudo easy_install tvnamer
+
+If you wish to only install the `tvdb_api` Python module,
 
     easy_install tvdb_api
-
-This installs `tvdb_api` as a python module
 
 # `tvnamer`
 
@@ -45,19 +47,36 @@ For example:
     Rename?
     ([y]/n/a/q)
 
-Entering `y+[return]` (or just enter, to select the default option, denoted by the surrounding `[]`) and the file will be renamed to "Scrubs - [01x01] - My First Day.avi"
+Enter `y` then press `return` and the file will be renamed to "Scrubs - [01x01] - My First Day.avi". you can also simply press return to select the default option, denoted by the surrounding `[]`
 
-You can also rename all multiple files, or an entire directory by doing:
+If there are multiple shows with the same (or similar) names, you will be asked to select the correct one - "Lost" is a good example of this:
 
-    tvnamer file1.avi file2.avi etc
-    
-    tvnamer .
-    
-    tvnamer /path/to/my/folder/
+    $ python tvnamer.py lost.s01e01.avi 
+    ####################
+    # Starting tvnamer
+    # Processing 1 files
+    # ..got tvdb mirrors
+    # Starting to process files
+    ####################
+    # Processing lost (season: 1, episode 1)
+    TVDB Search Results:
+    1 -> Lost # http://thetvdb.com/?tab=series&id=73739
+    2 -> Lost in Space # http://thetvdb.com/?tab=series&id=72923
+    [...]
+    Enter choice (first number, ? for help):
 
-Instead of entering `y` at the prompt, if you enter `a` (always) tvnamer will rename the rest of the files automatically. The suggested use of this is check the first few episodes are named correctly, then use `a` to rename the rest.
+To select the first result, enter `1` then `return`, to select the second enter `2` and so on. The link after `#` goes to the relevant [thetvdb.com][tvdb] page, which will contain information and images to help you select the correct series.
 
-Note, tvnamer will only descend one level into directories unless the `-r`/`--recursive` flag is specified, so by default if you have the following directory structure:
+You can rename multiple files, or an entire directory by using the files or directories as arguments:
+
+    $ tvnamer file1.avi file2.avi etc
+    $ tvnamer .
+    $ tvnamer /path/to/my/folder/
+    $ tvnamer ./folder/1/ ./folder/2/
+
+You can skip a specific file by entering `n` (no). If you enter `a` (always) `tvnamer` will rename the remaining files automatically. The suggested use of this is check the first few episodes are named correctly, then use `a` to rename the rest.
+
+Note, tvnamer will only descend one level into directories unless the `-r` (or `--recursive`) flag is specified. For example, if you have the following directory structure:
 
     dir1/
         file1.avi
@@ -65,7 +84,7 @@ Note, tvnamer will only descend one level into directories unless the `-r`/`--re
             file2.avi
             file3.avi
 
-..then running `tvnamer dir1/` will only rename `file1.avi` and ignore `dir2/`
+..then running `tvnamer dir1/` will only rename `file1.avi`, ignoring `dir2/` and its contents.
 
 If you wish to rename all files (file1, file2 and file3), you would run:
 
@@ -81,9 +100,11 @@ There are various flags you can use with `tvnamer`, run..
 
 The most interesting are most likely `--batch`, `--selectfirst` and `--always`:
 
-`--batch` will not prompt you for anything. It automatically selects the first series search result, and automatically rename all files. Use carefully!
+`--selectfirst` will select the first series the search found, but will not automatically rename any episodes.
 
-Similarly `--selectfirst` will select the first series the search found, but not automatically rename the episodes. `--always` will let you choose the correct series, but then automatically rename all files.
+`--always` will ask you select the correct series, then automatically rename all files.
+
+`--batch` will not prompt you for anything. It automatically selects the first series search result, and automatically rename all files. Use carefully!
 
 # `tvdb_api`
 
@@ -98,7 +119,7 @@ Similarly `--selectfirst` will select the first series the search found, but not
 
 Most of the documentation is in docstrings. The examples are tested (using doctest) so will always be up to date and working.
 
-See the `Tvdb.__init__` docstring (and others) for various initialisation arguments, including support for non-English searches, custom "Select Series" interfaces and enabling the retrieval of banners and extended actor information.
+The docstring for `Tvdb.__init__` lists all initialisation arguments, including support for non-English searches, custom "Select Series" interfaces and enabling the retrieval of banners and extended actor information.
 
 ### Exceptions
 
@@ -136,11 +157,14 @@ Although each element is also accessible via `t['scrubs']` for ease-of-use:
     >>> t['scrubs']['rating']
     u'9.1'
 
-This is the recommended way of retrieving "one-off" data (for example, if you are only interested in "seriesname"). If you wish to iterate over all data, or check if a particular show has a key, use the `data` attribute
+This is the recommended way of retrieving "one-off" data (for example, if you are only interested in "seriesname"). If you wish to iterate over all data, or check if a particular show has a specific piece of data, use the `data` attribute,
+
+    >>> 'rating' in t['scrubs'].data
+    True
 
 ### Banners and actors
 
-Since banners and actors are separate XML, retrieving them by default is unnecessary. If you wish to retrieve banners (and other fanart), use the banners Tvdb initialisation argument:
+Since banners and actors are separate XML files, retrieving them by default is undesirable. If you wish to retrieve banners (and other fanart), use the `banners` Tvdb initialisation argument:
 
     >>> t = Tvdb(banners = True)
 
@@ -168,4 +192,4 @@ Remember a simple list of actors is accessible via the default Show data:
     >>> t['scrubs']['actors']
     u'|Zach Braff|Donald Faison|Sarah Chalke|Christa Miller Lawrence|Aloma Wright|Robert Maschio|Sam Lloyd|Neil Flynn|Ken Jenkins|Judy Reyes|John C. McGinley|'
 
-[tvdb]: www.thetvdb.com
+[tvdb]: http://www.thetvdb.com
