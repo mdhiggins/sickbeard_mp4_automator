@@ -22,7 +22,7 @@ import StringIO
 from hashlib import md5
 
 def calculate_cache_path(cache_location, url):
-    """Checks if cache_location/hash_of_url.headers an .body exist
+    """Checks if [cache_location]/[hash_of_url].headers and .body exist
     """
     thumb = md5(url).hexdigest()
     header = os.path.join(cache_location, thumb + ".headers")
@@ -30,9 +30,9 @@ def calculate_cache_path(cache_location, url):
     return header, body
 
 def check_cache_time(path, max_age):
-    """Checks if a file has been created/modified in the last max_age seconds.
+    """Checks if a file has been created/modified in the [last max_age] seconds.
     False means the file is too old (or doesn't exist), True means it is
-    upto-date and valid"""
+    up-to-date and valid"""
     if not os.path.isfile(path):
         return False
     cache_modified_time = os.stat(path).st_mtime
@@ -44,16 +44,19 @@ def check_cache_time(path, max_age):
         return True
 
 def exists_in_cache(cache_location, url, max_age):
-    """Returns if header AND body cache file exist"""
+    """Returns if header AND body cache file exist (and are up-to-date)"""
     hpath, bpath = calculate_cache_path(cache_location, url)
     if os.path.exists(hpath) and os.path.exists(bpath):
-        return check_cache_time(hpath, max_age) and check_cache_time(bpath, max_age)
+        return(
+            check_cache_time(hpath, max_age)
+            and check_cache_time(bpath, max_age)
+        )
     else:
         # File does not exist
         return False
 
 def store_in_cache(cache_location, url, response):
-    """Tries to store response in cache"""
+    """Tries to store response in cache."""
     hpath, bpath = calculate_cache_path(cache_location, url)
     try:
         outf = open(hpath, "w")
@@ -66,7 +69,6 @@ def store_in_cache(cache_location, url, response):
         outf.close()
     except IOError:
         return True
-        pass
     else:
         return False
 
@@ -84,6 +86,8 @@ class CacheHandler(urllib2.BaseHandler):
             os.mkdir(self.cache_location)
 
     def default_open(self, request):
+        """Handles GET requests, if the response is cached it returns it
+        """
         if request.get_method() is not "GET":
             return None # let the next handler try to handle the request
 
@@ -93,16 +97,20 @@ class CacheHandler(urllib2.BaseHandler):
             return CachedResponse(
                 self.cache_location,
                 request.get_full_url(),
-                set_cache_header=True
+                set_cache_header = True
             )
         else:
             return None
 
     def http_response(self, request, response):
+        """Gets a HTTP response, if it was a GET request and the status code
+        starts with 2 (200 OK etc) it caches it and returns a CachedResponse
+        """
         if (request.get_method() == "GET"
             and str(response.code).startswith("2")
-           ):
+        ):
             if 'x-local-cache' not in response.info():
+                # Response is not cached
                 set_cache_header = store_in_cache(
                     self.cache_location,
                     request.get_full_url(),
@@ -110,12 +118,12 @@ class CacheHandler(urllib2.BaseHandler):
                 )
             else:
                 set_cache_header = True
-            #end if x-cahce in response
+            #end if x-cache in response
 
             return CachedResponse(
                 self.cache_location,
                 request.get_full_url(),
-                set_cache_header=set_cache_header
+                set_cache_header = set_cache_header
             )
         else:
             return response
@@ -141,9 +149,19 @@ class CachedResponse(StringIO.StringIO):
         self.headers = httplib.HTTPMessage(StringIO.StringIO(headerbuf))
 
     def info(self):
+        """Returns headers
+        """
         return self.headers
+
     def geturl(self):
+        """Returns original URL
+        """
         return self.url
+
+
 if __name__ == "__main__":
+    def main():
+        """Quick test/example of CacheHandler"""
         opener = urllib2.build_opener(CacheHandler("/tmp/"))
         print opener.open("http://google.com")
+    main()
