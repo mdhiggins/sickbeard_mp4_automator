@@ -63,7 +63,7 @@ def findFiles(args, recursive = False, verbose = False):
     """
     Takes a list of files/folders, grabs files inside them. Does not recurse
     more than one level (if a folder is supplied, it will list files within),
-    unless recurse is True, in which case it will recursivly find all files.
+    unless recurse is True, in which case it will recursively find all files.
     """
     allfiles = []
     for cfile in args:
@@ -74,7 +74,8 @@ def findFiles(args, recursive = False, verbose = False):
                     allfiles.append(newpath)
                 else:
                     if recursive:
-                        if verbose: print "Recursivly scanning %s" % (newpath)
+                        if verbose:
+                            print "Recursively scanning %s" % (newpath)
                         allfiles.extend(
                             findFiles([newpath], recursive = recursive, verbose = verbose)
                         )
