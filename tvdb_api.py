@@ -405,9 +405,13 @@ class Tvdb:
     #end initLogger
 
     def _getTempDir(self):
+        """Returns the [system temp dir]/tvdb_api
+        """
         return os.path.join(tempfile.gettempdir(), "tvdb_api")
 
     def _getetsrc(self, url):
+        """Loads a URL sing caching, returns an ElementTree of the source
+        """
         try:
             self.log.debug("Retrieving ElementTree source for URL %s" % (url))
             resp = self.urlopener.open(url)
@@ -459,8 +463,8 @@ class Tvdb:
         """Cleans up strings returned by TheTVDB.com
 
         Issues corrected:
-        - Returns &amp; instead of &, since &s in filenames
-        are bad, replace &amp; with "&"
+        - Replaces &amp; with &
+        - Trailing whitespace
         """
         data = data.replace(u"&amp;", u"&")
         data = data.strip()
@@ -469,8 +473,9 @@ class Tvdb:
 
     def _getSeries(self, series):
         """This searches TheTVDB.com for the series name,
-        and either interactively selects the correct show,
-        or returns the first result.
+        If a custom_ui UI is configured, it uses this to select the correct
+        series. If not, and interactive == True, ConsoleUI is used, if not
+        BaseUI is used to select the first result.
         """
         series = urllib.quote(series.encode("utf-8"))
         self.log.debug("Searching for show %s" % series)
@@ -521,7 +526,7 @@ class Tvdb:
         Any key starting with an underscore has been processed (not the raw
         data from the XML)
 
-        This interface will be improved!
+        This interface will be improved in future versions.
         """
         self.log.debug('Getting season banners for %s' % (sid))
         bannersEt = self._getetsrc( self.config['url_seriesBanner'] % (sid) )
