@@ -24,7 +24,7 @@ If you wish to only install the `tvdb_api` Python module,
 
 ## Basic usage
 
-From the command line, simply run..
+From the command line, simply run:
 
     tvnamer the.file.s01e01.avi
 
@@ -47,7 +47,7 @@ For example:
     Rename?
     ([y]/n/a/q)
 
-Enter `y` then press `return` and the file will be renamed to "Scrubs - [01x01] - My First Day.avi". you can also simply press return to select the default option, denoted by the surrounding `[]`
+Enter `y` then press `return` and the file will be renamed to "Scrubs - [01x01] - My First Day.avi". You can also simply press `return` to select the default option, denoted by the surrounding `[]`
 
 If there are multiple shows with the same (or similar) names, you will be asked to select the correct one - "Lost" is a good example of this:
 
@@ -123,10 +123,10 @@ The docstring for `Tvdb.__init__` lists all initialisation arguments, including 
 
 ### Exceptions
 
-There are several exceptions you may catch, these can import from `tvdb_api`:
+There are several exceptions you may catch, these can be imported from `tvdb_api`:
 
 - `tvdb_error` - this is raised when there is an error communicating with [www.thetvdb.com][tvdb] (a network error most commonly)
-- tvdb_userabort - raised when a user aborts the Select Series dialog (by `ctrl+c`, or entering `q`)
+- `tvdb_userabort` - raised when a user aborts the Select Series dialog (by `ctrl+c`, or entering `q`)
 - `tvdb_shownotfound` - raised when `t['show name']` cannot find anything
 - `tvdb_seasonnotfound` - raised when the requested series (`t['show name][99]`) does not exist
 - `tvdb_episodenotfound` - raised when the requested episode (`t['show name][1][99]`) does not exist.
