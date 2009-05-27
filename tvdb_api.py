@@ -218,6 +218,13 @@ class Episode(dict):
             #end if cur_value.find()
         #end for cur_key, cur_value
 
+
+class Actors(list):
+    """Holds all Actor instances for a show
+    """
+    pass
+
+
 class Actor(dict):
     """Represents a single actor. Should contain..
 
@@ -230,10 +237,6 @@ class Actor(dict):
     def __repr__(self):
         return "<Actor \"%s\">" % (self.get("name"))
 
-class Actors(list):
-    """Holds all Actor instances for a show
-    """
-    pass
 
 class Tvdb:
     """Create easy-to-use interface to name of season/episode name
@@ -284,7 +287,7 @@ class Tvdb:
             u'Zach Braff'
 
         custom_ui (tvdb_ui.BaseUI subclass):
-            A callable subclass of tvdb_ui.BaseUI (overrides interactive)
+            A callable subclass of tvdb_ui.BaseUI (overrides interactive option)
 
         language (2 character language abbreviation):
             The language of the returned data. Is also the language search
