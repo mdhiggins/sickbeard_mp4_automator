@@ -1,7 +1,7 @@
 from setuptools import setup
 setup(
 name = 'tvnamer',
-version='0.7',
+version='1.0',
 
 author='dbr/Ben',
 description='Automatic TV episode namer',
@@ -20,7 +20,7 @@ entry_points = {
     ]
 },
 
-install_requires = ['tvdb_api==0.7'],
+install_requires = ['tvdb_api==1.0'],
 
 classifiers=[
     "Environment :: Console",

@@ -13,7 +13,7 @@ Uses data from www.thetvdb.com via tvdb_api
 """
 
 __author__ = "dbr/Ben"
-__version__ = "0.7"
+__version__ = "1.0"
 
 import os, sys, re
 from optparse import OptionParser
