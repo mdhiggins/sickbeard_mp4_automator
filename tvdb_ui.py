@@ -6,22 +6,22 @@
 #license:Creative Commons GNU GPL v2
 # (http://creativecommons.org/licenses/GPL/2.0/)
 
-"""Stores included user interfaces for Tvdb.
+"""Contains included user interfaces for Tvdb show selection.
 
-A callback is a class. It's __init__ function takes two arguments:
+A UI is a callback. A class, it's __init__ function takes two arguments:
 
 - config, which is the Tvdb config dict, setup in tvdb_api.py
 - log, which is Tvdb's logger instance (which uses the logging module). You can
 call log.info() log.warning() etc
 
-The method "selectSeries" is passed a list of dicts, each dict contains the
-the keys "name" (human readable show name), and "sid" (the shows ID as on
-thetvdb.com). For example:
+It must have a method "selectSeries", this is passed a list of dicts, each dict
+contains the the keys "name" (human readable show name), and "sid" (the shows
+ID as on thetvdb.com). For example:
 
 [{'name': u'Lost', 'sid': u'73739'},
  {'name': u'Lost Universe', 'sid': u'73181'}]
 
-The selectSeries must return the approriate dict, or it can raise
+The "selectSeries" method must return the appropriate dict, or it can raise
 tvdb_userabort (if the selection is aborted), tvdb_shownotfound (if the show
 cannot be found).
 
