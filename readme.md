@@ -119,7 +119,7 @@ The most interesting are most likely `--batch`, `--selectfirst` and `--always`:
 
 Most of the documentation is in docstrings. The examples are tested (using doctest) so will always be up to date and working.
 
-The docstring for `Tvdb.__init__` lists all initialisation arguments, including support for non-English searches, custom "Select Series" interfaces and enabling the retrieval of banners and extended actor information.
+The docstring for `Tvdb.__init__` lists all initialisation arguments, including support for non-English searches, custom "Select Series" interfaces and enabling the retrieval of banners and extended actor information. You can also override the default API key using `apikey`, recommended if you're using `tvdb_api` in a larger script or application
 
 ### Exceptions
 
