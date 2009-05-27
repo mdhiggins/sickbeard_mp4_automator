@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 setup(
 name = 'tvdb_api',
 version='0.7',

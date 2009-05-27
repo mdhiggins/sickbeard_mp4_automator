@@ -46,7 +46,7 @@ Then to use it..
 __author__ = "dbr/Ben"
 __version__ = "0.7"
 
-from tvdb_exceptions import tvdb_userabort, tvdb_shownotfound
+from tvdb_exceptions import tvdb_userabort
 
 class BaseUI:
     """Default non-interactive UI, which auto-selects first results
