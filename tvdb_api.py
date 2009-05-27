@@ -244,7 +244,8 @@ class Tvdb:
     >>> t['Scrubs'][1][24]['episodename']
     u'My Last Day'
     """
-    def __init__(self, interactive = False,
+    def __init__(self,
+                interactive = False,
                 select_first = False,
                 debug = False,
                 cache = True,
@@ -252,10 +253,10 @@ class Tvdb:
                 actors = False,
                 custom_ui = None,
                 language = None,
-                search_all_languages = False):
+                search_all_languages = False,
+                apikey = None):
         """interactive (True/False):
-            When True, uses built-in console UI is used to select
-            the correct show.
+            When True, uses built-in console UI is used to select the correct show.
             When False, the first search result is used.
 
         select_first (True/False):
@@ -300,13 +301,23 @@ class Tvdb:
             By default, Tvdb will only search in the language specified using
             the language option. When this is True, it will search for the
             show in and language
+        
+        apikey (str/unicode):
+            Override the default thetvdb.com API key. By default it will use
+            tvdb_api's own key (fine for small scripts), but you can use your
+            own key if desired - this is recommended if you are embedding
+            tvdb_api in a larger application)
+            See http://thetvdb.com/?tab=apiregister to get your own key
         """
         self.shows = ShowContainer() # Holds all Show classes
         self.corrections = {} # Holds show-name to show_id mapping
 
         self.config = {}
 
-        self.config['apikey'] = "0629B785CE550C8D" # thetvdb.com API key
+        if apikey is not None:
+            self.config['apikey'] = apikey
+        else:
+            self.config['apikey'] = "0629B785CE550C8D" # tvdb_api's API key
 
         self.config['debug_enabled'] = debug # show debugging messages
 
