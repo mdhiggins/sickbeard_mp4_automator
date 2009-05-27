@@ -89,43 +89,41 @@ def findFiles(args, recursive = False, verbose = False):
 #end findFiles
 
 def processSingleName(name, verbose=False):
-        filepath, filename = os.path.split(name)
-        filename, ext = os.path.splitext(filename)
+    filepath, filename = os.path.split(name)
+    filename, ext = os.path.splitext(filename)
 
-        # Remove leading . from extension
-        ext = ext.replace(".", "", 1)
+    # Remove leading . from extension
+    ext = ext.replace(".", "", 1)
 
-        for r in config['name_parse']:
-            match = r.match(filename)
-            if match:
-                seriesname, seasno, epno = match.groups()
+    for r in config['name_parse']:
+        match = r.match(filename)
+        if match:
+            seriesname, seasno, epno = match.groups()
 
-                #remove ._- characters from name (- removed only if next to end of line)
-                seriesname = re.sub("[\._]|\-(?=$)", " ", seriesname).strip()
+            #remove ._- characters from name (- removed only if next to end of line)
+            seriesname = re.sub("[\._]|\-(?=$)", " ", seriesname).strip()
 
-                seasno, epno = int(seasno), int(epno)
+            seasno, epno = int(seasno), int(epno)
 
-                if verbose:
-                    print "*"*20
-                    print "File:", filename
-                    print "Pattern:", r.pattern
-                    print "Seriesname:", seriesname
-                    print "Seas:", seasno
-                    print "Ep:", epno
-                    print "*"*20
+            if verbose:
+                print "*"*20
+                print "File:", filename
+                print "Pattern:", r.pattern
+                print "Seriesname:", seriesname
+                print "Seas:", seasno
+                print "Ep:", epno
+                print "*"*20
 
-                return{'file_seriesname':seriesname,
-                       'seasno':seasno,
-                       'epno':epno,
-                       'filepath':filepath,
-                       'filename':filename,
-                       'ext':ext
-                }
-        else:
-            print "Invalid name: %s" % (name)
-        #end for r
-    #end for f
-    
+            return{'file_seriesname':seriesname,
+                   'seasno':seasno,
+                   'epno':epno,
+                   'filepath':filepath,
+                   'filename':filename,
+                   'ext':ext
+            }
+    else:
+        print "Invalid name: %s" % (name)
+    #end for r
 
 def processNames(names, verbose=False):
     """
@@ -134,7 +132,7 @@ def processNames(names, verbose=False):
     allEps = []
     for f in names:
         allEps.append(
-            processSingleName(f)
+            processSingleName(f, verbose=verbose)
         )
     return allEps
 #end processNames
