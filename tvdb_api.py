@@ -41,6 +41,7 @@ class ShowContainer(dict):
     """
     pass
 
+
 class Show(dict):
     """Holds a dict of seasons, and show data.
     """
@@ -53,6 +54,7 @@ class Show(dict):
             self.data.get(u'seriesname', 'instance'),
             len(self)
         )
+
     def __getitem__(self, key):
         if key in self:
             # Key is an episode, return it
@@ -76,28 +78,30 @@ class Show(dict):
         Search all episodes in show. Can search all data, or a specific key (for
         example, episodename)
 
-        Always returns an array (can be empty). First index is first
-        found episode, and so on.
+        Always returns an array (can be empty). First index contains the first
+        match, and so on.
 
         Each array index is an Episode() instance, so doing
         search_results[0]['episodename'] will retrieve the episode name of the
         first match.
 
-        Search terms are converted to lower case unicode strings.
+        Search terms are converted to lower case (unicode) strings.
 
-        Examples
+        # Examples
+        
         These examples assume t is an instance of Tvdb():
+        
         >>> t = Tvdb()
         >>>
 
-        Search for all episodes of Scrubs episodes
-        with a bit of data containing "my first day":
+        To search for all episodes of Scrubs with a bit of data
+        containing "my first day":
 
         >>> t['Scrubs'].search("my first day")
         [<Episode 01x01 - My First Day>]
         >>>
 
-        Search for "My Name Is Earl" named "Faked His Own Death":
+        Search for "My Name Is Earl" episode named "Faked His Own Death":
 
         >>> t['My Name Is Earl'].search('Faked His Own Death', key = 'episodename')
         [<Episode 01x04 - Faked His Own Death>]
@@ -109,7 +113,7 @@ class Show(dict):
         [<Episode 01x02 - My Mentor>, <Episode 03x15 - My Tormented Mentor>]
         >>>
 
-        Using search results
+        # Using search results
 
         >>> results = t['Scrubs'].search("my first")
         >>> print results[0]['episodename']
@@ -128,11 +132,13 @@ class Show(dict):
         #end for cur_season
         return results
 
+
 class Season(dict):
     def __repr__(self):
         return "<Season instance (containing %s episodes)>" % (
             len(self.keys())
         )
+
     def __getitem__(self, episode_number):
         if episode_number not in self:
             raise tvdb_episodenotfound("Could not find episode %s" % (repr(episode_number)))
@@ -140,15 +146,15 @@ class Season(dict):
             return dict.__getitem__(self, episode_number)
 
     def search(self, term = None, key = None):
-        """Search a all episodes in season, returns a list of matching Episode
+        """Search all episodes in season, returns a list of matching Episode
         instances.
 
         >>> t = Tvdb()
-        >>> t['scrubs'][1].search('first day')
+        >>> t['scrubs'][1].search('first')
         [<Episode 01x01 - My First Day>]
         >>>
 
-        See Episode.search documentation for further information on search
+        See Show.search documentation for further information on search
         """
         results = []
         for ep in self.values():
@@ -159,6 +165,7 @@ class Season(dict):
                 )
         return results
 
+
 class Episode(dict):
     def __repr__(self):
         seasno = int(self.get(u'seasonnumber', 0))
@@ -168,15 +175,20 @@ class Episode(dict):
             return "<Episode %02dx%02d - %s>" % (seasno, epno, epname)
         else:
             return "<Episode %02dx%02d>" % (seasno, epno)
+
     def __getitem__(self, key):
         try:
             return dict.__getitem__(self, key)
         except KeyError:
-            raise tvdb_attributenotfound("Cannot find attribute %s" % (repr(key)))
+            raise tvdb_attributenotfound("Cannot find attribute %s" % (repr(key))):
+
     def search(self, term = None, key = None):
-        """Search episodes data for term, if it matches, return the Episode.
-        The key parameter can be used to limit the search to a specific element.
-        for example, episodename
+        """Search episode data for term, if it matches, return the Episode (self).
+        The key parameter can be used to limit the search to a specific element,
+        for example, episodename.
+        
+        This primarily for use use by Show.search and Season.search. See
+        Show.search for further information on search
 
         Simple example:
 
@@ -397,7 +409,6 @@ class Tvdb:
         et = ElementTree.fromstring(src)
         return et
     #end _getetsrc
-
 
     def _setItem(self, sid, seas, ep, attrib, value):
         """Creates a new episode, creating Show(), Season() and
