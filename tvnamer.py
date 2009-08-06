@@ -132,9 +132,9 @@ def processNames(names, verbose=False):
     """
     allEps = []
     for f in names:
-        allEps.append(
-            processSingleName(f, verbose=verbose)
-        )
+        cur = processSingleName(f, verbose=verbose)
+        if cur is not None:
+            allEps.append(cur)
     return allEps
 #end processNames
 
