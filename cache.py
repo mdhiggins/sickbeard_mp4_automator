@@ -158,10 +158,25 @@ class CachedResponse(StringIO.StringIO):
         """
         return self.url
 
+    def recache(self):
+        new_request = urllib2.urlopen(self.url)
+        set_cache_header = store_in_cache(
+            self.cache_location,
+            new_request.url,
+            new_request
+        )
+        CachedResponse.__init__(self, self.cache_location, self.url, True)
+
 
 if __name__ == "__main__":
     def main():
         """Quick test/example of CacheHandler"""
         opener = urllib2.build_opener(CacheHandler("/tmp/"))
-        print opener.open("http://google.com")
+        response = opener.open("http://google.com")
+        print response.headers
+        print "Response:", response.read()
+
+        response.recache()
+        print response.headers
+        print "After recache:", response.read()
     main()
