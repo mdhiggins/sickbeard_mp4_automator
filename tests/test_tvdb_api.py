@@ -146,8 +146,8 @@ class test_tvdb_search(unittest.TestCase):
     def test_search_show(self):
         """Checks the searching of an entire show"""
         self.assertEquals(
-            len(self.t['life on mars'].search('the', key='episodename')),
-            10
+            len(self.t['CNNNN'].search('CNNNN', key='episodename')),
+            2
         )
 
 class test_tvdb_data(unittest.TestCase):
