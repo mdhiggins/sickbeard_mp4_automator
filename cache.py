@@ -12,7 +12,7 @@ Modified from http://code.activestate.com/recipes/491261/
 """
 
 __author__ = "dbr/Ben"
-__version__ = "1.0"
+__version__ = "1.1"
 
 import os
 import time
