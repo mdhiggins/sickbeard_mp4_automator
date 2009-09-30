@@ -354,9 +354,12 @@ class test_tvdb_actors(unittest.TestCase):
         """Check image URL is fully qualified
         """
         for actor in self.t['scrubs']['_actors']:
-            self.assertTrue(
-                actor['image'].startswith("http://")
-            )
+            if actor['image'] is not None:
+                # Actor's image can be None, it displays as the placeholder
+                # image on thetvdb.com
+                self.assertTrue(
+                    actor['image'].startswith("http://")
+                )
 
 class test_tvdb_doctest(unittest.TestCase):
     # Used to store the cached instance of Tvdb()
