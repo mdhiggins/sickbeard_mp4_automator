@@ -102,11 +102,16 @@ def get_index(datastream):
     # Read atoms until we catch an error
     while(datastream):
         try:
+            skip = 8
             atom_size, atom_type = read_atom(datastream)
+            if atom_size == 1:
+                atom_size = struct.unpack(">Q", datastream.read(8))[0]
+                skip = 16
         except:
             break
-        index.append((atom_type, datastream.tell() - 8, atom_size))
-        datastream.seek(atom_size - 8, os.SEEK_CUR)
+        
+        index.append((atom_type, datastream.tell() - skip, atom_size))
+        datastream.seek(atom_size - skip, os.SEEK_CUR)
     
     # Make sure the atoms we need exist
     top_level_atoms = set([item[0] for item in index])
