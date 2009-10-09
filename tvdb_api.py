@@ -421,7 +421,7 @@ class Tvdb:
                 if recache:
                     self.log.debug("Attempting to recache %s" % url)
                     resp.recache()
-        except IOError, errormsg:
+        except urllib2.URLError, errormsg:
             raise tvdb_error("Could not connect to server: %s" % (errormsg))
         #end try
 
