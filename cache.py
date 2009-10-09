@@ -30,10 +30,9 @@ def locked_function(origfunc):
         # print "Is cached locked? %s" % cache_lock.locked()
         cache_lock.acquire()
         try:
-            retval = origfunc(*args, **kwargs)
+            return origfunc(*args, **kwargs)
         finally:
             cache_lock.release()
-            return retval
     return wrapped
 
 def calculate_cache_path(cache_location, url):
