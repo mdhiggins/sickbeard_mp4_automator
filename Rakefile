@@ -96,10 +96,12 @@ task :test do
     raise "Test failed!"
   end
 
-  puts "Doctesting *.py"
-  Dir.glob("*.py").each do |filename|
+  puts "Doctesting *.py (excluding setup_*.py files)"
+  Dir.glob("*.py").select{|e| ! e.match(/setup_.*/)}.each do |filename|
+    if filename =~ /^setup.*/
+      skip
+    end
     puts "Doctesting #{filename}"
-    puts "python", "-m", "doctest", filename
     if not system("python", "-m", "doctest", filename)
       raise "Failed doctest"
     end
