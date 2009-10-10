@@ -150,7 +150,7 @@ class Season(dict):
         instances.
 
         >>> t = Tvdb()
-        >>> t['scrubs'][1].search('first')
+        >>> t['scrubs'][1].search('first day')
         [<Episode 01x01 - My First Day>]
         >>>
 

@@ -145,7 +145,7 @@ All data exposed by [thetvdb.com][tvdb] is accessible via the `Show` class. A Sh
 For example, to find out what network Scrubs is aired:
 
     >>> t['scrubs']['network']
-    u'NBC|ABC'
+    u'NBC'
 
 The data is stored in an attribute named `data`, within the Show instance:
 
@@ -166,6 +166,7 @@ This is the recommended way of retrieving "one-off" data (for example, if you ar
 
 Since banners and actors are separate XML files, retrieving them by default is undesirable. If you wish to retrieve banners (and other fanart), use the `banners` Tvdb initialisation argument:
 
+    >>> from tvdb_api import Tvdb
     >>> t = Tvdb(banners = True)
 
 Then access the data using a `Show`'s `_banner` key:
@@ -180,16 +181,15 @@ Extended actor data is accessible similarly:
     >>> t = Tvdb(actors = True)
     >>> actors = t['scrubs']['_actors']
     >>> actors[0]
-    >>> actors[0]
     <Actor "Zach Braff">
     >>> actors[0].keys()
-    ['image', 'sortorder', 'role', 'id', 'name']
+    ['sortorder', 'image', 'role', 'id', 'name']
     >>> actors[0]['role']
     u'Dr. John Michael "J.D." Dorian'
 
 Remember a simple list of actors is accessible via the default Show data:
 
     >>> t['scrubs']['actors']
-    u'|Zach Braff|Donald Faison|Sarah Chalke|Christa Miller Lawrence|Aloma Wright|Robert Maschio|Sam Lloyd|Neil Flynn|Ken Jenkins|Judy Reyes|John C. McGinley|'
+    u'|Zach Braff|Donald Faison|Sarah Chalke|Christa Miller Lawrence|Aloma Wright|Robert Maschio|Sam Lloyd|Neil Flynn|Ken Jenkins|Judy Reyes|John C. McGinley|Eliza Coupe|Dave Franco|'
 
 [tvdb]: http://www.thetvdb.com
