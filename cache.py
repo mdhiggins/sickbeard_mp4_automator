@@ -111,7 +111,7 @@ class CacheHandler(urllib2.BaseHandler):
                 else:
                     # Our target dir is already a file, or different error,
                     # relay the error!
-                    raise OSError(e)
+                    raise
 
     def default_open(self, request):
         """Handles GET requests, if the response is cached it returns it
