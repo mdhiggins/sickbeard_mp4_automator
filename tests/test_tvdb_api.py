@@ -15,6 +15,7 @@ import unittest
 sys.path.append("..")
 
 import tvdb_api
+import tvdb_ui
 from tvdb_exceptions import (tvdb_error, tvdb_userabort, tvdb_shownotfound,
     tvdb_seasonnotfound, tvdb_episodenotfound, tvdb_attributenotfound)
 
@@ -238,7 +239,34 @@ class test_tvdb_languages(unittest.TestCase):
                 u'Scrubs es una divertida comedia'
             )
         )
-        
+
+    def test_multilanguage_selection(self):
+        """Check selected language is used
+        """
+        class SelectEnglishUI(tvdb_ui.BaseUI):
+            def selectSeries(self, allSeries):
+                return [x for x in allSeries if x['language'] == "en"][0]
+
+        class SelectItalianUI(tvdb_ui.BaseUI):
+            def selectSeries(self, allSeries):
+                return [x for x in allSeries if x['language'] == "it"][0]
+
+        t_en = tvdb_api.Tvdb(
+            cache=True,
+            custom_ui = SelectEnglishUI,
+            language = "en")
+        t_it = tvdb_api.Tvdb(
+            cache=True,
+            custom_ui = SelectItalianUI,
+            language = "it")
+
+        self.assertEquals(
+            t_en['dexter'][1][2]['episodename'], "Crocodile"
+        )
+        self.assertEquals(
+            t_it['dexter'][1][2]['episodename'], "Lacrime di coccodrillo"
+        )
+
 
 class test_tvdb_unicode(unittest.TestCase):
     def test_search_in_chinese(self):
