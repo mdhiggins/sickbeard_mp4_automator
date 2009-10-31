@@ -67,13 +67,14 @@ class ConsoleUI(BaseUI):
         """Helper function, lists series with corresponding ID
         """
         print "TVDB Search Results:"
-        for i in range(len(allSeries[:6])): # list first 6 search results
+        for i, cshow in enumerate(allSeries[:6]):
             i_show = i + 1 # Start at more human readable number 1 (not 0)
             self.log.debug('Showing allSeries[%s] = %s)' % (i_show, allSeries[i]))
-            print "%s -> %s # http://thetvdb.com/?tab=series&id=%s" % (
+            print "%s -> %s [%s] # http://thetvdb.com/?tab=series&id=%s" % (
                 i_show,
-                allSeries[i]['name'].encode("UTF-8","ignore"),
-                allSeries[i]['sid'].encode("UTF-8","ignore")
+                cshow['seriesname'].encode("UTF-8", "ignore"),
+                cshow['language'].encode("UTF-8", "ignore"),
+                cshow['id'].encode("UTF-8", "ignore")
             )
 
     def selectSeries(self, allSeries):

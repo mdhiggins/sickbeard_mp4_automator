@@ -506,11 +506,9 @@ class Tvdb:
         seriesEt = self._getetsrc(self.config['url_getSeries'] % (series))
         allSeries = []
         for series in seriesEt:
-            sn = series.find('SeriesName')
-            value = self._cleanData(sn.text)
-            cur_sid = series.find('id').text
-            self.log.debug('Found series %s (id: %s)' % (value, cur_sid))
-            allSeries.append( {'sid':cur_sid, 'name':value} )
+            result = dict((k.tag.lower(), k.text) for k in series.getchildren())
+            self.log.debug('Found series %(seriesname)s' % result)
+            allSeries.append(result)
         #end for series
 
         if len(allSeries) == 0:
@@ -692,7 +690,7 @@ class Tvdb:
         else:
             self.log.debug('Getting show %s' % (name))
             selected_series = self._getSeries( name )
-            sname, sid = selected_series['name'], selected_series['sid']
+            sname, sid = selected_series['seriesname'], selected_series['id']
             self.log.debug('Got %s, sid %s' % (sname, sid))
 
             self.corrections[name] = sid
