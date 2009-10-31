@@ -247,9 +247,7 @@ class test_tvdb_unicode(unittest.TestCase):
         t = tvdb_api.Tvdb(cache = True, language = "zh")
         show = t[u'T\xecnh Ng\u01b0\u1eddi Hi\u1ec7n \u0110\u1ea1i']
         self.assertEquals(
-            type(
-                show
-            ),
+            type(show),
             tvdb_api.Show
         )
         
