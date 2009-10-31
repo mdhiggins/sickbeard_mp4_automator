@@ -376,9 +376,9 @@ class Tvdb:
         else:
             self.config['url_getSeries'] = "%(base_url)s/api/GetSeries.php?seriesname=%%s&language=%(language)s" % self.config
 
-        self.config['url_epInfo'] = "%(base_url)s/api/%(apikey)s/series/%%s/all/%(language)s.xml" % self.config
+        self.config['url_epInfo'] = "%(base_url)s/api/%(apikey)s/series/%%s/all/%%s.xml" % self.config
 
-        self.config['url_seriesInfo'] = "%(base_url)s/api/%(apikey)s/series/%%s/%(language)s.xml" % self.config
+        self.config['url_seriesInfo'] = "%(base_url)s/api/%(apikey)s/series/%%s/%%s.xml" % self.config
         self.config['url_actorsInfo'] = "%(base_url)s/api/%(apikey)s/series/%%s/actors.xml" % self.config
 
         self.config['url_seriesBanner'] = "%(base_url)s/api/%(apikey)s/series/%%s/banners.xml" % self.config
@@ -454,7 +454,7 @@ class Tvdb:
 
     def _setItem(self, sid, seas, ep, attrib, value):
         """Creates a new episode, creating Show(), Season() and
-        Episode()s as required. Called by _getShowData to populute
+        Episode()s as required. Called by _getShowData to populate show
 
         Since the nice-to-use tvdb[1][24]['name] interface
         makes it impossible to do tvdb[1][24]['name] = "name"
@@ -629,7 +629,7 @@ class Tvdb:
             cur_actors.append(curActor)
         self._setShowData(sid, '_actors', cur_actors)
 
-    def _getShowData(self, sid):
+    def _getShowData(self, sid, language):
         """Takes a series ID, gets the epInfo URL and parses the TVDB
         XML file into the shows dict in layout:
         shows[series_id][season_number][episode_number]
@@ -637,7 +637,7 @@ class Tvdb:
 
         # Parse show information
         self.log.debug('Getting all series data for %s' % (sid))
-        seriesInfoEt = self._getetsrc(self.config['url_seriesInfo'] % (sid))
+        seriesInfoEt = self._getetsrc(self.config['url_seriesInfo'] % (sid, language))
         for curInfo in seriesInfoEt.findall("Series")[0]:
             tag = curInfo.tag.lower()
             value = curInfo.text
@@ -662,7 +662,7 @@ class Tvdb:
 
         # Parse episode data
         self.log.debug('Getting all episodes of %s' % (sid))
-        epsEt = self._getetsrc( self.config['url_epInfo'] % (sid) )
+        epsEt = self._getetsrc( self.config['url_epInfo'] % (sid, language) )
 
         for cur_ep in epsEt.findall("Episode"):
             seas_no = int(cur_ep.find('SeasonNumber').text)
@@ -691,10 +691,10 @@ class Tvdb:
             self.log.debug('Getting show %s' % (name))
             selected_series = self._getSeries( name )
             sname, sid = selected_series['seriesname'], selected_series['id']
-            self.log.debug('Got %s, sid %s' % (sname, sid))
+            self.log.debug('Got %(seriesname)s, id %(id)s' % selected_series)
 
             self.corrections[name] = sid
-            self._getShowData(sid)
+            self._getShowData(selected_series['id'], selected_series['language'])
         #end if name in self.corrections
         return sid
     #end _nameToSid
@@ -706,7 +706,7 @@ class Tvdb:
         if isinstance(key, (int, long)):
             # Item is integer, treat as show id
             if key not in self.shows:
-                self._getShowData(key)
+                self._getShowData(key, self.config['language'])
             return self.shows[key]
         
         key = key.lower() # make key lower case
