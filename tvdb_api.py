@@ -359,13 +359,14 @@ class Tvdb:
         ]
 
         if language is None:
-            self.config['language'] = "en"
-        elif language not in self.config['valid_languages']:
-            raise ValueError("Invalid language %s, options are: %s" % (
-                language, self.config['valid_languages']
-            ))
+            self.config['language'] = None
         else:
-            self.config['language'] = language
+            if language not in self.config['valid_languages']:
+                raise ValueError("Invalid language %s, options are: %s" % (
+                    language, self.config['valid_languages']
+                ))
+            else:
+                self.config['language'] = language
 
         # The following url_ configs are based of the
         # http://thetvdb.com/wiki/index.php/Programmers_API
@@ -635,9 +636,23 @@ class Tvdb:
         shows[series_id][season_number][episode_number]
         """
 
+        if self.config['language'] is None:
+            self.log.debug('Config language is none, using show langauge')
+            getShowInLanguage = language
+        else:
+            self.log.debug(
+                'Configured language %s override show language of %s' % (
+                    self.config['language'],
+                    language
+                )
+            )
+            getShowInLanguage = self.config['language']
+
         # Parse show information
         self.log.debug('Getting all series data for %s' % (sid))
-        seriesInfoEt = self._getetsrc(self.config['url_seriesInfo'] % (sid, language))
+        seriesInfoEt = self._getetsrc(
+            self.config['url_seriesInfo'] % (sid, getShowInLanguage)
+        )
         for curInfo in seriesInfoEt.findall("Series")[0]:
             tag = curInfo.tag.lower()
             value = curInfo.text
