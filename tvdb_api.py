@@ -524,7 +524,7 @@ class Tvdb:
                 self.log.debug('Auto-selecting first search result using BaseUI')
                 ui = BaseUI(config = self.config, log = self.log)
             else:
-                self.log.debug('Interactivily selecting show using ConsoleUI')
+                self.log.debug('Interactively selecting show using ConsoleUI')
                 ui = ConsoleUI(config = self.config, log = self.log)
             #end if config['interactive]
         #end if custom_ui != None
@@ -568,14 +568,12 @@ class Tvdb:
             if not bid in banners[btype][btype2]:
                 banners[btype][btype2][bid] = {}
 
-            self.log.debug("Banner: %s", bid)
             for cur_element in cur_banner.getchildren():
                 tag = cur_element.tag.lower()
                 value = cur_element.text
                 if tag is None or value is None:
                     continue
                 tag, value = tag.lower(), value.lower()
-                self.log.debug("Banner info: %s = %s" % (tag, value))
                 banners[btype][btype2][bid][tag] = value
 
             for k, v in banners[btype][btype2][bid].items():
@@ -583,7 +581,6 @@ class Tvdb:
                     new_key = "_%s" % (k)
                     self.log.debug("Transforming %s to %s" % (k, new_key))
                     new_url = self.config['url_artworkPrefix'] % (v)
-                    self.log.debug("New banner URL: %s" % (new_url))
                     banners[btype][btype2][bid][new_key] = new_url
 
         self._setShowData(sid, "_banners", banners)
@@ -637,7 +634,7 @@ class Tvdb:
         """
 
         if self.config['language'] is None:
-            self.log.debug('Config language is none, using show langauge')
+            self.log.debug('Config language is none, using show language')
             getShowInLanguage = language
         else:
             self.log.debug(
@@ -664,7 +661,6 @@ class Tvdb:
                     value = self._cleanData(value)
 
             self._setShowData(sid, tag, value)
-            self.log.debug("Got info: %s = %s" % (tag, value))
         #end for series
 
         # Parse banners

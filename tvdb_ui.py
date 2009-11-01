@@ -69,7 +69,7 @@ class ConsoleUI(BaseUI):
         print "TVDB Search Results:"
         for i, cshow in enumerate(allSeries[:6]):
             i_show = i + 1 # Start at more human readable number 1 (not 0)
-            self.log.debug('Showing allSeries[%s] = %s)' % (i_show, allSeries[i]))
+            self.log.debug('Showing allSeries[%s], series %s)' % (i_show, allSeries[i]['seriesname']))
             print "%s -> %s [%s] # http://thetvdb.com/?tab=series&id=%s" % (
                 i_show,
                 cshow['seriesname'].encode("UTF-8", "ignore"),
