@@ -285,13 +285,12 @@ class test_tvdb_unicode(unittest.TestCase):
         )
 
     def test_search_in_all_languages(self):
-        """Check search_all_languages returns Chinese show, with language=en"""
+        """Check search_all_languages returns Chinese show, with language=en
+        """
         t = tvdb_api.Tvdb(cache = True, search_all_languages = True, language="en")
         show = t[u'T\xecnh Ng\u01b0\u1eddi Hi\u1ec7n \u0110\u1ea1i']
         self.assertEquals(
-            type(
-                show
-            ),
+            type(show),
             tvdb_api.Show
         )
         
