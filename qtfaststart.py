@@ -242,7 +242,7 @@ if __name__ == "__main__":
     options, args = parser.parse_args()
     
     if len(args) < 1:
-        print "Must supply an input file!"
+        parser.print_help()
         raise SystemExit(1)
     
     if options.debug:
