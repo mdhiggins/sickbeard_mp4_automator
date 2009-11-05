@@ -30,10 +30,14 @@ the infile is overwritten.
 
 History
 -------
+    * 2009-11-05: Added --sample option. Version bump to 1.3
+    
     * 2009-03-13: Update to be more library-friendly by using logging module,
                   rename fast_start => process, version bump to 1.2
+                  
     * 2008-10-04: Bug fixes, support multiple atoms of the same type, 
                   version bump to 1.1
+                  
     * 2008-09-02: Initial release
 
 License
