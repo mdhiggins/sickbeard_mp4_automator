@@ -100,6 +100,8 @@ def get_index(datastream):
     """
     index = []
     
+    log.debug("Getting index of top level atoms...")
+    
     # Read atoms until we catch an error
     while(datastream):
         try:
@@ -108,6 +110,7 @@ def get_index(datastream):
             if atom_size == 1:
                 atom_size = struct.unpack(">Q", datastream.read(8))[0]
                 skip = 16
+            log.debug("%s: %s" % (atom_type, atom_size))
         except:
             break
         
