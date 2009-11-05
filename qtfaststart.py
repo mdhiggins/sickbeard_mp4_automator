@@ -119,7 +119,7 @@ def get_index(datastream):
     
     # Make sure the atoms we need exist
     top_level_atoms = set([item[0] for item in index])
-    for key in ["ftyp", "moov", "mdat"]:
+    for key in ["moov", "mdat"]:
         if key not in top_level_atoms:
             log.error("%s atom not found, is this a valid MOV/MP4 file?" % key)
             raise FastStartException()
