@@ -33,6 +33,7 @@
     
     History
     -------
+     * 2009-11-05: Add --sample option. Version bump to 1.3.
      * 2009-03-13: Update to be more library-friendly by using logging module,
                    rename fast_start => process, version bump to 1.2
      * 2008-10-04: Bug fixes, support multiple atoms of the same type, 
@@ -67,7 +68,7 @@ import tempfile
 from optparse import OptionParser
 from StringIO import StringIO
 
-VERSION = "1.2"
+VERSION = "1.3"
 CHUNK_SIZE = 8192
 
 log = logging.getLogger("qtfaststart")
@@ -152,10 +153,15 @@ def find_atoms(size, datastream):
             # Ignore this atom, seek to the end of it.
             datastream.seek(atom_size - 8, os.SEEK_CUR)
 
-def process(infilename, outfilename):
+def process(infilename, outfilename, limit = 0):
     """
         Convert a Quicktime/MP4 file for streaming by moving the metadata to
         the front of the file. This method writes a new file.
+        
+        If limit is set to something other than zero it will be used as the
+        number of bytes to write of the atoms following the moov atom. This
+        is very useful to create a small sample of a file with full headers,
+        which can then be used in bug reports and such.
     """
     datastream = open(infilename, "rb")
     
@@ -214,6 +220,7 @@ def process(infilename, outfilename):
     outfile.write(moov.read())
     
     # Write the rest
+    written = 0
     atoms = [item for item in index if item[0] not in ["ftyp", "moov"]]
     for atom, pos, size in atoms:
         datastream.seek(pos)
@@ -221,9 +228,17 @@ def process(infilename, outfilename):
         # Write in chunks to not use too much memory
         for x in range(size / CHUNK_SIZE):
             outfile.write(datastream.read(CHUNK_SIZE))
+            written += CHUNK_SIZE
+            if limit and written >= limit:
+                # A limit was set and we've just passed it, stop writing!
+                break
             
         if size % CHUNK_SIZE:
             outfile.write(datastream.read(size % CHUNK_SIZE))
+            written += (size % CHUNK_SIZE)
+            if limit and written >= limit:
+                # A limit was set and we've just passed it, stop writing!
+                break
 
 if __name__ == "__main__":
     logging.basicConfig(level = logging.INFO, stream = sys.stdout,
@@ -238,6 +253,9 @@ if __name__ == "__main__":
     parser.add_option("-l", "--list", dest="list", default=False,
                       action="store_true",
                       help="List top level atoms")
+    parser.add_option("-s", "--sample", dest="sample", default=False,
+                      action="store_true",
+                      help="Create a small sample of the input file")
     
     options, args = parser.parse_args()
     
@@ -258,13 +276,22 @@ if __name__ == "__main__":
     
     if len(args) == 1:
         # Replace the original file!
+        if options.sample:
+            print "Please pass an output filename when used with --sample!"
+            raise SystemExit(1)
+            
         tmp, outfile = tempfile.mkstemp()
         os.close(tmp)
     else:
         outfile = args[1]
     
+    limit = 0
+    if options.sample:
+        # Create a small sample (4 MiB)
+        limit = 4 * (1024 ** 2)
+    
     try:
-        process(args[0], outfile)
+        process(args[0], outfile, limit = limit)
     except FastStartException:
         # A log message was printed, so exit with an error code
         raise SystemExit(1)
