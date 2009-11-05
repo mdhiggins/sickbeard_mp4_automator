@@ -232,12 +232,12 @@ if __name__ == "__main__":
     parser = OptionParser(usage="%prog [options] infile [outfile]",
                           version="%prog " + VERSION)
     
-    parser.add_option("-l", "--list", dest="list", default=False,
-                      action="store_true",
-                      help="List top level atoms")
     parser.add_option("-d", "--debug", dest="debug", default=False,
                       action="store_true",
                       help="Enable debug output")
+    parser.add_option("-l", "--list", dest="list", default=False,
+                      action="store_true",
+                      help="List top level atoms")
     
     options, args = parser.parse_args()
     
