@@ -264,7 +264,7 @@ if __name__ == "__main__":
         raise SystemExit(1)
     
     if options.debug:
-        logging.setLevel(logging.DEBUG)
+        logging.getLogger().setLevel(logging.DEBUG)
     
     if options.list:
         index = get_index(open(args[0], "rb"))
