@@ -44,7 +44,7 @@ Then to use it..
 """
 
 __author__ = "dbr/Ben"
-__version__ = "1.3"
+__version__ = "1.4"
 
 from tvdb_exceptions import tvdb_userabort
 

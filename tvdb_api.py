@@ -16,7 +16,7 @@ Example usage:
 u'Cabin Fever'
 """
 __author__ = "dbr/Ben"
-__version__ = "1.3"
+__version__ = "1.4"
 
 import os
 import sys
