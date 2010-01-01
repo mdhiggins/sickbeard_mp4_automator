@@ -52,25 +52,14 @@ task :topypi => :test do
   tvdb_api_version = cur_file.scan(/__version__ = "(.*)"/)
   tvdb_api_version = tvdb_api_version[0][0].to_f
 
-  cur_file = File.open("tvnamer.py").read()
-  tvnamer_version = cur_file.scan(/__version__ = "(.*)"/)
-  tvnamer_version = tvnamer_version[0][0].to_f
-
-  puts "Build sdist and send tvdb_api v#{tvdb_api_version} and tvnamer v#{tvnamer_version} to PyPi?"
+  puts "Build sdist and send tvdb_api v#{tvdb_api_version} to PyPi?"
   if $stdin.gets.chomp == "y"
     puts "Sending source-dist (sdist) to PyPi"
 
-    FileUtils.mv("setup_tvdb_api.py", "setup.py")
     if system("python setup.py sdist register upload")
       print "tvdb_api uploaded!"
     end
-    FileUtils.mv("setup.py", "setup_tvdb_api.py")
 
-    FileUtils.mv("setup_tvnamer.py", "setup.py")
-    if system("python setup.py sdist register upload")
-      puts "tvnamer uploaded!"
-    end
-    FileUtils.mv("setup.py", "setup_tvnamer.py")
   else
     puts "Cancelled"
   end
@@ -96,9 +85,9 @@ task :test do
     raise "Test failed!"
   end
 
-  puts "Doctesting *.py (excluding setup_*.py files)"
-  Dir.glob("*.py").select{|e| ! e.match(/setup_.*/)}.each do |filename|
-    if filename =~ /^setup.*/
+  puts "Doctesting *.py (excluding setup.py)"
+  Dir.glob("*.py").select{|e| ! e.match(/setup.py/)}.each do |filename|
+    if filename =~ /^setup\.py/
       skip
     end
     puts "Doctesting #{filename}"
