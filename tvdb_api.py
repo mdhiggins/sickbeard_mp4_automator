@@ -358,6 +358,15 @@ class Tvdb:
             "ru","he","ja","pt","zh","cs","sl", "hr","ko","en","sv","no"
         ]
 
+        # thetvdb.com should be based around numeric language codes,
+        # but to link to a series like http://thetvdb.com/?tab=series&id=79349&lid=16
+        # requires the language ID, thus this mapping is required (mainly
+        # for usage in tvdb_ui - internally tvdb_api will use the language abbreviations)
+        self.config['langabbv_to_id'] = {'el': 20, 'en': 7, 'zh': 27,
+        'it': 15, 'cs': 28, 'es': 16, 'ru': 22, 'nl': 13, 'pt': 26, 'no': 9,
+        'tr': 21, 'pl': 18, 'fr': 17, 'hr': 31, 'de': 14, 'da': 10, 'fi': 11,
+        'hu': 19, 'ja': 25, 'he': 24, 'ko': 32, 'sv': 8, 'sl': 30}
+
         if language is None:
             self.config['language'] = None
         else:
@@ -508,6 +517,7 @@ class Tvdb:
         allSeries = []
         for series in seriesEt:
             result = dict((k.tag.lower(), k.text) for k in series.getchildren())
+            result['lid'] = self.config['langabbv_to_id'][result['language']]
             self.log.debug('Found series %(seriesname)s' % result)
             allSeries.append(result)
         #end for series
