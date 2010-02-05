@@ -23,6 +23,7 @@ import sys
 import urllib
 import urllib2
 import tempfile
+import warnings
 import logging
 
 try:
@@ -35,6 +36,11 @@ from cache import CacheHandler
 from tvdb_ui import BaseUI, ConsoleUI
 from tvdb_exceptions import (tvdb_error, tvdb_userabort, tvdb_shownotfound,
     tvdb_seasonnotfound, tvdb_episodenotfound, tvdb_attributenotfound)
+
+
+def log():
+    return logging.getLogger("tvdb_api")
+
 
 class ShowContainer(dict):
     """Simple dict that holds a series of Show instances
@@ -264,8 +270,11 @@ class Tvdb:
             than showing the user a list of more than one series).
             Is overridden by interactive = False, or specifying a custom_ui
 
-        debug (True/False):
-             shows verbose debugging information
+        debug (True/False) DEPRECATED:
+             Replaced with proper use of logging module. To show debug messages:
+
+                 >>> import logging
+                 >>> logging.basicConfig(level = logging.DEBUG)
 
         cache (True/False/str/unicode):
             Retrieved XML are persisted to to disc. If true, stores in tvdb_api
@@ -348,7 +357,12 @@ class Tvdb:
         self.config['banners_enabled'] = banners
         self.config['actors_enabled'] = actors
 
-        self.log = self._initLogger() # Setups the logger (self.log.debug() etc)
+        if self.config['debug_enabled']:
+            warnings.warn("The debug argument to tvdb_api.__init__ will be removed in the next version. "
+            "To enable debug messages, use the following code before importing: "
+            "import logging; logging.basicConfig(level=logging.DEBUG)")
+            logging.basicConfig(level=logging.DEBUG)
+
 
         # List of language from http://www.thetvdb.com/api/0629B785CE550C8D/languages.xml
         # Hard-coded here as it is realtively static, and saves another HTTP request, as
@@ -396,24 +410,6 @@ class Tvdb:
 
     #end __init__
 
-    def _initLogger(self):
-        """Setups a logger using the logging module, returns a log object
-        """
-        logger = logging.getLogger("tvdb")
-        formatter = logging.Formatter('%(asctime)s) %(levelname)s %(message)s')
-
-        hdlr = logging.StreamHandler(sys.stdout)
-
-        hdlr.setFormatter(formatter)
-        logger.addHandler(hdlr)
-
-        if self.config['debug_enabled']:
-            logger.setLevel(logging.DEBUG)
-        else:
-            logger.setLevel(logging.WARNING)
-        return logger
-    #end initLogger
-
     def _getTempDir(self):
         """Returns the [system temp dir]/tvdb_api
         """
@@ -421,15 +417,15 @@ class Tvdb:
 
     def _loadUrl(self, url, recache = False):
         try:
-            self.log.debug("Retrieving URL %s" % url)
+            log().debug("Retrieving URL %s" % url)
             resp = self.urlopener.open(url)
             if 'x-local-cache' in resp.headers:
-                self.log.debug("URL %s was cached in %s" % (
+                log().debug("URL %s was cached in %s" % (
                     url,
                     resp.headers['x-local-cache'])
                 )
                 if recache:
-                    self.log.debug("Attempting to recache %s" % url)
+                    log().debug("Attempting to recache %s" % url)
                     resp.recache()
         except urllib2.URLError, errormsg:
             raise tvdb_error("Could not connect to server: %s" % (errormsg))
@@ -512,30 +508,30 @@ class Tvdb:
         BaseUI is used to select the first result.
         """
         series = urllib.quote(series.encode("utf-8"))
-        self.log.debug("Searching for show %s" % series)
+        log().debug("Searching for show %s" % series)
         seriesEt = self._getetsrc(self.config['url_getSeries'] % (series))
         allSeries = []
         for series in seriesEt:
             result = dict((k.tag.lower(), k.text) for k in series.getchildren())
             result['lid'] = self.config['langabbv_to_id'][result['language']]
-            self.log.debug('Found series %(seriesname)s' % result)
+            log().debug('Found series %(seriesname)s' % result)
             allSeries.append(result)
         #end for series
 
         if len(allSeries) == 0:
-            self.log.debug('Series result returned zero')
+            log().debug('Series result returned zero')
             raise tvdb_shownotfound("Show-name search returned zero results (cannot find show on TVDB)")
 
         if self.config['custom_ui'] is not None:
-            self.log.debug("Using custom UI %s" % (repr(self.config['custom_ui'])))
-            ui = self.config['custom_ui'](config = self.config, log = self.log)
+            log().debug("Using custom UI %s" % (repr(self.config['custom_ui'])))
+            ui = self.config['custom_ui'](config = self.config)
         else:
             if not self.config['interactive']:
-                self.log.debug('Auto-selecting first search result using BaseUI')
-                ui = BaseUI(config = self.config, log = self.log)
+                log().debug('Auto-selecting first search result using BaseUI')
+                ui = BaseUI(config = self.config)
             else:
-                self.log.debug('Interactively selecting show using ConsoleUI')
-                ui = ConsoleUI(config = self.config, log = self.log)
+                log().debug('Interactively selecting show using ConsoleUI')
+                ui = ConsoleUI(config = self.config)
             #end if config['interactive]
         #end if custom_ui != None
 
@@ -561,7 +557,7 @@ class Tvdb:
 
         This interface will be improved in future versions.
         """
-        self.log.debug('Getting season banners for %s' % (sid))
+        log().debug('Getting season banners for %s' % (sid))
         bannersEt = self._getetsrc( self.config['url_seriesBanner'] % (sid) )
         banners = {}
         for cur_banner in bannersEt.findall('Banner'):
@@ -589,7 +585,7 @@ class Tvdb:
             for k, v in banners[btype][btype2][bid].items():
                 if k.endswith("path"):
                     new_key = "_%s" % (k)
-                    self.log.debug("Transforming %s to %s" % (k, new_key))
+                    log().debug("Transforming %s to %s" % (k, new_key))
                     new_url = self.config['url_artworkPrefix'] % (v)
                     banners[btype][btype2][bid][new_key] = new_url
 
@@ -619,7 +615,7 @@ class Tvdb:
         Any key starting with an underscore has been processed (not the raw
         data from the XML)
         """
-        self.log.debug("Getting actors for %s" % (sid))
+        log().debug("Getting actors for %s" % (sid))
         actorsEt = self._getetsrc(self.config['url_actorsInfo'] % (sid))
 
         cur_actors = Actors()
@@ -644,10 +640,10 @@ class Tvdb:
         """
 
         if self.config['language'] is None:
-            self.log.debug('Config language is none, using show language')
+            log().debug('Config language is none, using show language')
             getShowInLanguage = language
         else:
-            self.log.debug(
+            log().debug(
                 'Configured language %s override show language of %s' % (
                     self.config['language'],
                     language
@@ -656,7 +652,7 @@ class Tvdb:
             getShowInLanguage = self.config['language']
 
         # Parse show information
-        self.log.debug('Getting all series data for %s' % (sid))
+        log().debug('Getting all series data for %s' % (sid))
         seriesInfoEt = self._getetsrc(
             self.config['url_seriesInfo'] % (sid, getShowInLanguage)
         )
@@ -682,7 +678,7 @@ class Tvdb:
             self._parseActors(sid)
 
         # Parse episode data
-        self.log.debug('Getting all episodes of %s' % (sid))
+        log().debug('Getting all episodes of %s' % (sid))
         epsEt = self._getetsrc( self.config['url_epInfo'] % (sid, language) )
 
         for cur_ep in epsEt.findall("Episode"):
@@ -706,13 +702,13 @@ class Tvdb:
         the correct SID.
         """
         if name in self.corrections:
-            self.log.debug('Correcting %s to %s' % (name, self.corrections[name]) )
+            log().debug('Correcting %s to %s' % (name, self.corrections[name]) )
             sid = self.corrections[name]
         else:
-            self.log.debug('Getting show %s' % (name))
+            log().debug('Getting show %s' % (name))
             selected_series = self._getSeries( name )
             sname, sid = selected_series['seriesname'], selected_series['id']
-            self.log.debug('Got %(seriesname)s, id %(id)s' % selected_series)
+            log().debug('Got %(seriesname)s, id %(id)s' % selected_series)
 
             self.corrections[name] = sid
             self._getShowData(selected_series['id'], selected_series['language'])
@@ -732,7 +728,7 @@ class Tvdb:
         
         key = key.lower() # make key lower case
         sid = self._nameToSid(key)
-        self.log.debug('Got series id %s' % (sid))
+        log().debug('Got series id %s' % (sid))
         return self.shows[sid]
     #end __getitem__
 
@@ -745,7 +741,10 @@ def main():
     """Simple example of using tvdb_api - it just
     grabs an episode name interactively.
     """
-    tvdb_instance = Tvdb(interactive=True, debug=True, cache=False)
+    import logging
+    logging.basicConfig(level=logging.DEBUG)
+
+    tvdb_instance = Tvdb(interactive=True, cache=False)
     print tvdb_instance['Lost']['seriesname']
     print tvdb_instance['Lost'][1][4]['episodename']
 
