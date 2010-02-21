@@ -30,6 +30,8 @@ the infile is overwritten.
 
 History
 -------
+    * 2010-02-21: Add support for final mdat atom with zero size, patch by
+      Dmitry Simakov <basilio AT j-vista DOT ru>, version bump to 1.4.
     * 2009-11-05: Added --sample option. Version bump to 1.3
     * 2009-03-13: Update to be more library-friendly by using logging module,
       rename fast_start => process, version bump to 1.2

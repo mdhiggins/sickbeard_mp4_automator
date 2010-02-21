@@ -33,6 +33,9 @@
     
     History
     -------
+     * 2010-02-21: Add support for final mdat atom with zero size, patch by
+                   Dmitry Simakov <basilio AT j-vista DOT ru>, version bump
+                   to 1.4.
      * 2009-11-05: Add --sample option. Version bump to 1.3.
      * 2009-03-13: Update to be more library-friendly by using logging module,
                    rename fast_start => process, version bump to 1.2
@@ -68,7 +71,7 @@ import tempfile
 from optparse import OptionParser
 from StringIO import StringIO
 
-VERSION = "1.3"
+VERSION = "1.4"
 CHUNK_SIZE = 8192
 
 log = logging.getLogger("qtfaststart")
@@ -115,6 +118,13 @@ def get_index(datastream):
             break
         
         index.append((atom_type, datastream.tell() - skip, atom_size))
+        
+        if atom_size == 0:
+            # Some files may end in mdat with no size set, which generally
+            # means to seek to the end of the file. We can just stop indexing
+            # as no more entries will be found!
+            break
+        
         datastream.seek(atom_size - skip, os.SEEK_CUR)
     
     # Make sure the atoms we need exist
