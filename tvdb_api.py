@@ -37,6 +37,7 @@ from tvdb_ui import BaseUI, ConsoleUI
 from tvdb_exceptions import (tvdb_error, tvdb_userabort, tvdb_shownotfound,
     tvdb_seasonnotfound, tvdb_episodenotfound, tvdb_attributenotfound)
 
+lastTimeout = None
 
 def log():
     return logging.getLogger("tvdb_api")
@@ -260,7 +261,8 @@ class Tvdb:
                 custom_ui = None,
                 language = None,
                 search_all_languages = False,
-                apikey = None):
+                apikey = None,
+                forceConnect=False):
         """interactive (True/False):
             When True, uses built-in console UI is used to select the correct show.
             When False, the first search result is used.
@@ -317,7 +319,20 @@ class Tvdb:
             own key if desired - this is recommended if you are embedding
             tvdb_api in a larger application)
             See http://thetvdb.com/?tab=apiregister to get your own key
+
+        forceConnect (bool):
+            If true it will always try to connect to theTVDB.com even if we
+            recently timed out. By default it will wait one minute before
+            trying again, and any requests within that one minute window will
+            return an exception immediately. 
         """
+        
+        global lastTimeout
+        
+        # if we're given a lastTimeout that is less than 1 min just give up
+        if not forceConnect and lastTimeout != None and datetime.datetime.now() - lastTimeout < datetime.timedelta(minutes=1):
+            raise tvdb_error("We recently timed out, so giving up early this time")
+        
         self.shows = ShowContainer() # Holds all Show classes
         self.corrections = {} # Holds show-name to show_id mapping
 
@@ -416,6 +431,7 @@ class Tvdb:
         return os.path.join(tempfile.gettempdir(), "tvdb_api")
 
     def _loadUrl(self, url, recache = False):
+        global lastTimeout
         try:
             log().debug("Retrieving URL %s" % url)
             resp = self.urlopener.open(url)
@@ -428,6 +444,8 @@ class Tvdb:
                     log().debug("Attempting to recache %s" % url)
                     resp.recache()
         except urllib2.URLError, errormsg:
+            if not str(errormsg).startswith('HTTP Error'):
+                lastTimeout = datetime.datetime.now()
             raise tvdb_error("Could not connect to server: %s" % (errormsg))
         #end try
 
