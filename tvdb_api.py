@@ -25,6 +25,7 @@ import urllib2
 import tempfile
 import warnings
 import logging
+import datetime
 
 try:
     import xml.etree.cElementTree as ElementTree
@@ -443,7 +444,7 @@ class Tvdb:
                 if recache:
                     log().debug("Attempting to recache %s" % url)
                     resp.recache()
-        except urllib2.URLError, errormsg:
+        except (IOError, urllib2.URLError), errormsg:
             if not str(errormsg).startswith('HTTP Error'):
                 lastTimeout = datetime.datetime.now()
             raise tvdb_error("Could not connect to server: %s" % (errormsg))
