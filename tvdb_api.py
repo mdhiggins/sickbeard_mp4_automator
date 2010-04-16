@@ -532,6 +532,7 @@ class Tvdb:
         allSeries = []
         for series in seriesEt:
             result = dict((k.tag.lower(), k.text) for k in series.getchildren())
+            result['id'] = int(result['id'])
             result['lid'] = self.config['langabbv_to_id'][result['language']]
             log().debug('Found series %(seriesname)s' % result)
             allSeries.append(result)
