@@ -81,6 +81,9 @@ class Show(dict):
             # doesn't exist, so attribute error.
             raise tvdb_attributenotfound("Cannot find attribute %s" % (repr(key)))
 
+    def airedOn(self, date):
+        return self.search(str(date), 'firstaired')
+
     def search(self, term = None, key = None):
         """
         Search all episodes in show. Can search all data, or a specific key (for
