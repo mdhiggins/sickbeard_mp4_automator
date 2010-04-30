@@ -10,6 +10,7 @@
 """
 
 import sys
+import datetime
 import unittest
 
 sys.path.append("..")
@@ -150,6 +151,12 @@ class test_tvdb_search(unittest.TestCase):
             len(self.t['CNNNN'].search('CNNNN', key='episodename')),
             2
         )
+
+    def test_aired_on(self):
+        """Tests airedOn show method"""
+        sr = self.t['Scrubs'].airedOn(datetime.date(2001, 10, 2))
+        self.assertEquals(len(sr), 1)
+        self.assertEquals(sr[0]['episodename'], u'My First Day')
 
 class test_tvdb_data(unittest.TestCase):
     # Used to store the cached instance of Tvdb()
