@@ -32,6 +32,12 @@ try:
 except ImportError:
     import xml.etree.ElementTree as ElementTree
 
+try:
+    import gzip,StringIO
+except:
+    gzip = None
+
+
 from cache import CacheHandler
 
 from tvdb_ui import BaseUI, ConsoleUI
@@ -455,7 +461,20 @@ class Tvdb:
                 lastTimeout = datetime.datetime.now()
             raise tvdb_error("Could not connect to server: %s" % (errormsg))
         #end try
-
+        
+        # handle gzipped content:
+        if 'gzip' in resp.headers.get("Content-Encoding", ''):
+            if gzip:
+                stream = StringIO.StringIO(resp.read())
+                gz = gzip.GzipFile(fileobj=stream)
+                try:
+                    return gz.read()
+                except:
+                    pass
+            
+            raise tvdb_error("Got Gzip data, but couldn't handle it") 
+            
+        
         return resp.read()
 
     def _getetsrc(self, url):
