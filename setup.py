@@ -1,7 +1,7 @@
 from setuptools import setup
 setup(
 name = 'tvdb_api',
-version='1.4',
+version='1.5',
 
 author='dbr/Ben',
 description='Interface to thetvdb.com',
