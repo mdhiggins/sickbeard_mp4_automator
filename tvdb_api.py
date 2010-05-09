@@ -592,7 +592,7 @@ class Tvdb:
         >>> t['scrubs']['_banners'].keys()
         ['fanart', 'poster', 'series', 'season']
         >>> t['scrubs']['_banners']['poster']['680x1000']['35308']['_bannerpath']
-        'http://www.thetvdb.com/banners/posters/76156-2.jpg'
+        u'http://www.thetvdb.com/banners/posters/76156-2.jpg'
         >>>
 
         Any key starting with an underscore has been processed (not the raw
@@ -653,7 +653,7 @@ class Tvdb:
         >>> actors[0]['name']
         u'Zach Braff'
         >>> actors[0]['image']
-        'http://www.thetvdb.com/banners/actors/43640.jpg'
+        u'http://www.thetvdb.com/banners/actors/43640.jpg'
 
         Any key starting with an underscore has been processed (not the raw
         data from the XML)

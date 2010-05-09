@@ -58,7 +58,7 @@ All data exposed by [thetvdb.com][tvdb] is accessible via the `Show` class. A Sh
 For example, to find out what network Scrubs is aired:
 
     >>> t['scrubs']['network']
-    u'NBC'
+    u'ABC'
 
 The data is stored in an attribute named `data`, within the Show instance:
 
@@ -103,7 +103,7 @@ Extended actor data is accessible similarly:
 Remember a simple list of actors is accessible via the default Show data:
 
     >>> t['scrubs']['actors']
-    u'|Zach Braff|Donald Faison|Sarah Chalke|Christa Miller Lawrence|Aloma Wright|Robert Maschio|Sam Lloyd|Neil Flynn|Ken Jenkins|Judy Reyes|John C. McGinley|Eliza Coupe|Dave Franco|'
+    u'|Zach Braff|Donald Faison|Sarah Chalke|Christa Miller Lawrence|Aloma Wright|Robert Maschio|Sam Lloyd|Neil Flynn|Ken Jenkins|Judy Reyes|John C. McGinley|Travis Schuldt|Johnny Kastl|Heather Graham|Michael Mosley|Kerry Bish\xe9|Dave Franco|Eliza Coupe|'
 
 [tvdb]: http://www.thetvdb.com
 [tvnamer]: http://github.com/dbr/tvnamer
