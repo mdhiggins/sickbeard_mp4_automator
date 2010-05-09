@@ -22,6 +22,7 @@ import os
 import sys
 import urllib
 import urllib2
+import StringIO
 import tempfile
 import warnings
 import logging
@@ -33,8 +34,8 @@ except ImportError:
     import xml.etree.ElementTree as ElementTree
 
 try:
-    import gzip,StringIO
-except:
+    import gzip
+except ImportError:
     gzip = None
 
 
@@ -462,23 +463,20 @@ class Tvdb:
             raise tvdb_error("Could not connect to server: %s" % (errormsg))
         #end try
         
-        # handle gzipped content:
+        # handle gzipped content,
+        # http://dbr.lighthouseapp.com/projects/13342/tickets/72-gzipped-data-patch
         if 'gzip' in resp.headers.get("Content-Encoding", ''):
             if gzip:
                 stream = StringIO.StringIO(resp.read())
                 gz = gzip.GzipFile(fileobj=stream)
-                try:
-                    return gz.read()
-                except:
-                    pass
+                return gz.read()
             
-            raise tvdb_error("Got Gzip data, but couldn't handle it") 
-            
+            raise tvdb_error("Received gzip data from thetvdb.com, but could not correctly handle it")
         
         return resp.read()
 
     def _getetsrc(self, url):
-        """Loads a URL sing caching, returns an ElementTree of the source
+        """Loads a URL using caching, returns an ElementTree of the source
         """
         src = self._loadUrl(url)
         try:
