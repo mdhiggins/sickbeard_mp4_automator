@@ -195,10 +195,18 @@ def process(infilename, outfilename, limit = 0):
         elif atom == "free" and pos < mdat_pos:
             # This free atom is before the mdat!
             free_size += size
+            log.info("Removing free atom at %d (%d bytes)" % (pos, size))
+    
+    # Offset to shift positions
+    offset = moov_size - free_size
     
     if moov_pos < mdat_pos:
-        log.error("This file appears to already be setup for streaming!")
-        raise FastStartException()
+        # moov appears to be in the proper place, don't shift by moov size
+        offset -= moov_size
+        if not free_size:
+            # No free atoms and moov is correct, we are done!
+            log.error("This file appears to already be setup for streaming!")
+            raise FastStartException()
 
     # Read and fix moov
     datastream.seek(moov_pos)
@@ -223,7 +231,7 @@ def process(infilename, outfilename, limit = 0):
         # Patch and write entries
         moov.seek(-csize * entry_count, os.SEEK_CUR)
         moov.write(struct.pack(">" + ctype * entry_count,
-                               *[entry + moov_size - free_size for entry in entries]))
+                               *[entry + offset for entry in entries]))
 
     log.info("Writing output...")
     outfile = open(outfilename, "wb")
