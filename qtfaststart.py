@@ -181,6 +181,9 @@ def process(infilename, outfilename, limit = 0):
     # Get the top level atom index
     index = get_index(datastream)
     
+    mdat_pos = 999999
+    free_size = 0
+    
     # Make sure moov occurs AFTER mdat, otherwise no need to run!
     for atom, pos, size in index:
         # The atoms are guaranteed to exist from get_index above!
@@ -189,6 +192,9 @@ def process(infilename, outfilename, limit = 0):
             moov_size = size
         elif atom == "mdat":
             mdat_pos = pos
+        elif atom == "free" and pos < mdat_pos:
+            # This free atom is before the mdat!
+            free_size += size
     
     if moov_pos < mdat_pos:
         log.error("This file appears to already be setup for streaming!")
@@ -217,7 +223,7 @@ def process(infilename, outfilename, limit = 0):
         # Patch and write entries
         moov.seek(-csize * entry_count, os.SEEK_CUR)
         moov.write(struct.pack(">" + ctype * entry_count,
-                               *[entry + moov_size for entry in entries]))
+                               *[entry + moov_size - free_size for entry in entries]))
 
     log.info("Writing output...")
     outfile = open(outfilename, "wb")
@@ -234,7 +240,7 @@ def process(infilename, outfilename, limit = 0):
     
     # Write the rest
     written = 0
-    atoms = [item for item in index if item[0] not in ["ftyp", "moov"]]
+    atoms = [item for item in index if item[0] not in ["ftyp", "moov", "free"]]
     for atom, pos, size in atoms:
         datastream.seek(pos)
         
