@@ -54,7 +54,7 @@ class test_tvdb_basic(unittest.TestCase):
             len(
                 [season for season in self.t['Life on Mars']]
             ),
-            3
+            2
         )
     
     def test_season_iter(self):
