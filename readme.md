@@ -63,12 +63,12 @@ For example, to find out what network Scrubs is aired:
 The data is stored in an attribute named `data`, within the Show instance:
 
     >>> t['scrubs'].data.keys()
-    ['networkid', 'rating', 'airs_dayofweek', 'contentrating', 'seriesname', 'id', 'airs_time', 'network', 'fanart', 'lastupdated', 'actors', 'overview', 'status', 'added', 'poster', 'imdb_id', 'genre', 'banner', 'seriesid', 'language', 'zap2it_id', 'addedby', 'firstaired', 'runtime']
+    ['networkid', 'rating', 'airs_dayofweek', 'contentrating', 'seriesname', 'id', 'airs_time', 'network', 'fanart', 'lastupdated', 'actors', 'ratingcount', 'status', 'added', 'poster', 'imdb_id', 'genre', 'banner', 'seriesid', 'language', 'zap2it_id', 'addedby', 'firstaired', 'runtime', 'overview']
 
 Although each element is also accessible via `t['scrubs']` for ease-of-use:
 
     >>> t['scrubs']['rating']
-    u'9.1'
+    u'9.0'
 
 This is the recommended way of retrieving "one-off" data (for example, if you are only interested in "seriesname"). If you wish to iterate over all data, or check if a particular show has a specific piece of data, use the `data` attribute,
 
@@ -103,7 +103,7 @@ Extended actor data is accessible similarly:
 Remember a simple list of actors is accessible via the default Show data:
 
     >>> t['scrubs']['actors']
-    u'|Zach Braff|Donald Faison|Sarah Chalke|Christa Miller Lawrence|Aloma Wright|Robert Maschio|Sam Lloyd|Neil Flynn|Ken Jenkins|Judy Reyes|John C. McGinley|Travis Schuldt|Johnny Kastl|Heather Graham|Michael Mosley|Kerry Bish\xe9|Dave Franco|Eliza Coupe|'
+    u'|Zach Braff|Donald Faison|Sarah Chalke|Christa Miller|Aloma Wright|Robert Maschio|Sam Lloyd|Neil Flynn|Ken Jenkins|Judy Reyes|John C. McGinley|Travis Schuldt|Johnny Kastl|Heather Graham|Michael Mosley|Kerry Bish\xe9|Dave Franco|Eliza Coupe|'
 
 [tvdb]: http://www.thetvdb.com
 [tvnamer]: http://github.com/dbr/tvnamer
