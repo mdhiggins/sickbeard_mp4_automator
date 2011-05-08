@@ -23,9 +23,9 @@ Probing the media file will return a :class:`MediaInfo` object, containing
 various information about the file format, media streams, codecs and properties::
 
     >>> info = c.probe('test1.ogg')
-    >>> info.format
+    >>> info.format.format
     'ogg'
-    >>> info.duration
+    >>> info.format.duration
     33.00
     >>> info.video.codec
     'theora'
