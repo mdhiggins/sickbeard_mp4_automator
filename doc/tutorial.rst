@@ -27,15 +27,17 @@ various information about the file format, media streams, codecs and properties:
     'ogg'
     >>> info.format.duration
     33.00
+    >>> len(info.streams)
+    2
     >>> info.video.codec
     'theora'
-    >>> info.video.width
+    >>> info.video.video_width
     720
-    >>> info.video.height
+    >>> info.video.video_height
     400
     >>> info.audio.codec
     'vorbis'
-    >>> info.audio.channels
+    >>> info.audio.audio_channels
     2
 
 A full list of properties can be found in :class:`MediaFormatInfo` and
@@ -68,7 +70,7 @@ The full list of options can be found in :class:`Converter` documentation.
 
 To prepare the conversion process::
 
-    >>> conv = c.convert('test.ogg', '/tmp/output.ogg', options)
+    >>> conv = c.convert('test1.ogg', '/tmp/output.ogg', options)
 
 This won't start the conversion, it will just prepare everything and return a
 generator. To run the conversion process, iterate the generator until it's finished.
