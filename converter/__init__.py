@@ -9,8 +9,10 @@ from formats import format_list
 
 from ffmpeg import FFMpeg, FFMpegError, FFMpegConvertError
 
+
 class ConverterError(Exception):
     pass
+
 
 class Converter(object):
     """
@@ -24,7 +26,8 @@ class Converter(object):
         Initialize a new Converter object.
         """
 
-        self.ffmpeg = FFMpeg(ffmpeg_path=ffmpeg_path, ffprobe_path=ffprobe_path)
+        self.ffmpeg = FFMpeg(ffmpeg_path=ffmpeg_path,
+            ffprobe_path=ffprobe_path)
         self.video_codecs = {}
         self.audio_codecs = {}
         self.formats = {}
@@ -57,7 +60,7 @@ class Converter(object):
 
         f = opt['format']
         if f not in self.formats:
-            raise ConverterError('Requested unknown container format: ' + str(f))
+            raise ConverterError('Requested unknown format: ' + str(f))
 
         format_options = self.formats[f]().parse_options(opt)
         if format_options is None:
@@ -67,10 +70,10 @@ class Converter(object):
             raise ConverterError('Neither audio nor video streams requested')
 
         if 'audio' not in opt or twopass == 1:
-            opt['audio'] = { 'codec': None }
+            opt['audio'] = {'codec': None}
 
         if 'video' not in opt:
-            opt['video'] = { 'codec': None }
+            opt['video'] = {'codec': None}
 
         if 'audio' in opt:
             x = opt['audio']
@@ -187,4 +190,3 @@ class Converter(object):
         converter.FFMpeg.thumbnail() for details.
         """
         return self.ffmpeg.thumbnail(fname, time, outfile, size)
-

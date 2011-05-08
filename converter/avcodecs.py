@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+
 class BaseCodec(object):
     """
     Base audio/video codec class.
@@ -78,7 +79,7 @@ class AudioCodec(BaseCodec):
 
         safe = self._codec_specific_parse_options(safe)
 
-        optlist = [ '-acodec', self.ffmpeg_codec_name ]
+        optlist = ['-acodec', self.ffmpeg_codec_name]
         if 'channels' in safe:
             optlist.extend(['-ac', str(safe['channels'])])
         if 'bitrate' in safe:
@@ -162,12 +163,12 @@ class VideoCodec(BaseCodec):
 
         if mode == 'crop':
             # source is taller, need to crop top/bottom
-            if target_aspect > aspect: # target is taller
+            if target_aspect > aspect:  # target is taller
                 h0 = int(w / aspect)
                 assert h0 > h, (sw, sh, w, h)
                 dh = (h0 - h) / 2
                 return (w, h0, 'crop=0:%d:%d:%d' % (dh, w, h))
-            else: # source is wider, need to crop left/right
+            else:  # source is wider, need to crop left/right
                 w0 = int(h * aspect)
                 assert w0 > w, (sw, sh, w, h)
                 dw = (w0 - w) / 2
@@ -180,14 +181,13 @@ class VideoCodec(BaseCodec):
                 assert h1 < h, (sw, sh, w, h)
                 dh = (h - h1) / 2
                 return (w, h1, 'pad=%d:%d:0:%d' % (w, h, dh))
-            else: # target is wider, need to pad left/right
+            else:  # target is wider, need to pad left/right
                 w1 = int(h * aspect)
                 assert w1 < w, (sw, sh, w, h)
                 dw = (w - w1) / 2
                 return (w1, h, 'pad=%d:%d:%d:0' % (w, h, dw))
 
         assert False, mode
-
 
     def parse_options(self, opt):
         super(VideoCodec, self).parse_options(opt)
@@ -232,7 +232,7 @@ class VideoCodec(BaseCodec):
 
         mode = 'stretch'
         if 'mode' in safe:
-            if safe['mode'] in [ 'stretch', 'crop', 'pad' ]:
+            if safe['mode'] in ['stretch', 'crop', 'pad']:
                 mode = safe['mode']
 
         w, h, filters = self._aspect_corrections(sw, sh, w, h, mode)
@@ -250,7 +250,7 @@ class VideoCodec(BaseCodec):
         h = safe['height']
         filters = safe['aspect_filters']
 
-        optlist = [ '-vcodec', self.ffmpeg_codec_name ]
+        optlist = ['-vcodec', self.ffmpeg_codec_name]
         if 'fps' in safe:
             optlist.extend(['-r', str(safe['fps'])])
         if 'bitrate' in safe:
@@ -272,7 +272,7 @@ class AudioNullCodec(BaseCodec):
     codec_name = None
 
     def parse_options(self, opt):
-        return [ '-an' ]
+        return ['-an']
 
 
 class VideoNullCodec(BaseCodec):
@@ -283,7 +283,7 @@ class VideoNullCodec(BaseCodec):
     codec_name = None
 
     def parse_options(self, opt):
-        return [ '-vn' ]
+        return ['-vn']
 
 
 class AudioCopyCodec(BaseCodec):
@@ -293,7 +293,7 @@ class AudioCopyCodec(BaseCodec):
     codec_name = 'copy'
 
     def parse_options(self, opt):
-            return [ '-acodec', 'copy' ]
+            return ['-acodec', 'copy']
 
 
 class VideoCopyCodec(BaseCodec):
@@ -303,7 +303,7 @@ class VideoCopyCodec(BaseCodec):
     codec_name = 'copy'
 
     def parse_options(self, opt):
-            return [ '-vcodec', 'copy' ]
+            return ['-vcodec', 'copy']
 
 
 class VorbisCodec(AudioCodec):
@@ -312,6 +312,7 @@ class VorbisCodec(AudioCodec):
     """
     codec_name = 'vorbis'
     ffmpeg_codec_name = 'libvorbis'
+
 
 class TheoraCodec(VideoCodec):
     """
@@ -327,7 +328,7 @@ class AacCodec(AudioCodec):
     """
     codec_name = 'aac'
     ffmpeg_codec_name = 'aac'
-    aac_experimental_enable = [ '-strict', 'experimental' ]
+    aac_experimental_enable = ['-strict', 'experimental']
 
     def _codec_specific_produce_ffmpeg_list(self, safe):
         return self.aac_experimental_enable
@@ -340,7 +341,11 @@ class H264Codec(VideoCodec):
     codec_name = 'h264'
     ffmpeg_codec_name = 'libx264'
 
-    x264_voodoo_recipe_ipod = "-flags +loop -cmp +chroma -partitions +parti4x4+partp8x8+partb8x8 -subq 5 -trellis 1 -refs 1 -coder 0 -me_range 16 -g 300 -keyint_min 25 -sc_threshold 40 -i_qfactor 0.71 -rc_eq 'blurCplx^(1-qComp)' -qcomp 0.6 -qmin 10 -qmax 51 -qdiff 4 -level 30"
+    x264_voodoo_recipe_ipod = ("-flags +loop -cmp +chroma " +
+        "-partitions +parti4x4+partp8x8+partb8x8 -subq 5 -trellis 1 " +
+        "-refs 1 -coder 0 -me_range 16 -g 300 -keyint_min 25 " +
+        "-sc_threshold 40 -i_qfactor 0.71 -rc_eq 'blurCplx^(1-qComp)' " +
+        "-qcomp 0.6 -qmin 10 -qmax 51 -qdiff 4 -level 30")
 
     def _codec_specific_produce_ffmpeg_list(self, safe):
         return self.x264_voodoo_recipe_ipod.split(' ')
@@ -444,4 +449,3 @@ video_codec_list = [
     DivxCodec, Vp8Codec, H263Codec, FlvCodec, Mpeg1Codec,
     Mpeg2Codec
 ]
-

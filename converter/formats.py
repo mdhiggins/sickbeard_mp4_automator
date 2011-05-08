@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+
 class BaseFormat(object):
     """
     Base format class.
@@ -13,7 +14,7 @@ class BaseFormat(object):
     def parse_options(self, opt):
         if 'format' not in opt or opt.get('format') != self.format_name:
             raise ValueError('invalid Format format')
-        return [ '-f', self.ffmpeg_format_name ]
+        return ['-f', self.ffmpeg_format_name]
 
 
 class OggFormat(BaseFormat):

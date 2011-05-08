@@ -10,8 +10,10 @@ try:
 except:
     Popen = None
 
+
 class FFMpegError(Exception):
     pass
+
 
 class FFMpegConvertError(Exception):
     pass
@@ -50,7 +52,8 @@ class MediaFormatInfo(object):
             self.size = float(val)
 
     def __repr__(self):
-        return 'MediaFormatInfo(format=%s, duration=%.2f)' % (self.format, self.duration)
+        return 'MediaFormatInfo(format=%s, duration=%.2f)' % (self.format,
+            self.duration)
 
 
 class MediaStreamInfo(object):
@@ -117,13 +120,15 @@ class MediaStreamInfo(object):
             self.audio_samplerate = float(val)
 
     def __repr__(self):
-        data = ''
+        d = ''
         if self.type == 'audio':
-            data = 'type=%s, codec=%s, channels=%d, samplerate=%.0f' % (self.type,
-                self.codec, self.audio_channels, self.audio_samplerate)
+            d = 'type=%s, codec=%s, channels=%d, rate=%.0f' % (self.type,
+                self.codec, self.audio_channels,
+                self.audio_samplerate)
         elif self.type == 'video':
-            data = 'type=%s, codec=%s, width=%d, height=%d, fps=%.1f' % (self.type,
-                self.codec, self.video_width, self.video_height, self.video_fps)
+            d = 'type=%s, codec=%s, width=%d, height=%d, fps=%.1f' % (
+                self.type, self.codec, self.video_width, self.video_height,
+                self.video_fps)
         return 'MediaStreamInfo(%s)' % data
 
 
@@ -170,7 +175,8 @@ class MediaInfo(object):
                     self.format.parse_ffprobe(k, v)
 
     def __repr__(self):
-        return 'MediaInfo(format=%s, streams=%s)' % (repr(self.format), repr(self.streams))
+        return 'MediaInfo(format=%s, streams=%s)' % (repr(self.format),
+            repr(self.streams))
 
     @property
     def video(self):
@@ -201,7 +207,7 @@ class FFMpeg(object):
     >>> f = FFMpeg()
     """
 
-    def __init__(self, ffmpeg_path = None, ffprobe_path = None):
+    def __init__(self, ffmpeg_path=None, ffprobe_path=None):
         """
         Initialize a new FFMpeg wrapper object. Optional parameters specify
         the paths to ffmpeg and ffprobe utilities.
@@ -234,7 +240,6 @@ class FFMpeg(object):
 
         if not os.path.exists(self.ffprobe_path):
             raise FFMpegError("ffprobe binary not found: " + self.ffprobe_path)
-
 
     @staticmethod
     def _spawn(cmds):
@@ -276,7 +281,7 @@ class FFMpeg(object):
         info = MediaInfo()
 
         fd, _ = self._spawn([self.ffprobe_path,
-            '-show_format', '-show_streams', fname ])
+            '-show_format', '-show_streams', fname])
         raw = fd.read()
 
         info.parse_ffprobe(raw)
@@ -296,7 +301,8 @@ class FFMpeg(object):
         of currently processed part of the file (ie. at which second in the
         content is the conversion process currently).
 
-        >>> conv = f.convert('test.ogg', '/tmp/output.mp3', [ '-acodec libmp3lame', '-vn' ])
+        >>> conv = f.convert('test.ogg', '/tmp/output.mp3',
+        ...    ['-acodec libmp3lame', '-vn'])
         >>> for timecode in conv:
         ...    pass # can be used to inform the user about conversion progress
 
@@ -304,9 +310,9 @@ class FFMpeg(object):
         if not os.path.exists(infile):
             raise FFMpegError("Input file doesn't exist: " + infile)
 
-        cmds = [ self.ffmpeg_path, '-i', infile ]
+        cmds = [self.ffmpeg_path, '-i', infile]
         cmds.extend(opts)
-        cmds.extend([ '-y', outfile ])
+        cmds.extend(['-y', outfile])
 
         def on_sigalrm(*args):
             signal.signal(signal.SIGALRM, signal.SIG_DFL)
@@ -369,10 +375,10 @@ class FFMpeg(object):
         if not os.path.exists(fname):
             raise IOError('No such file: ' + fname)
 
-        cmds = [ self.ffmpeg_path,
+        cmds = [self.ffmpeg_path,
             '-ss', str(time),
             '-i', fname,
-            '-y', '-an', '-f', 'image2', '-sameq', '-vframes', '1' ]
+            '-y', '-an', '-f', 'image2', '-sameq', '-vframes', '1']
 
         if size:
             cmds.extend(['-s', str(size)])
