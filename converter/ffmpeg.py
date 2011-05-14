@@ -129,7 +129,7 @@ class MediaStreamInfo(object):
             d = 'type=%s, codec=%s, width=%d, height=%d, fps=%.1f' % (
                 self.type, self.codec, self.video_width, self.video_height,
                 self.video_fps)
-        return 'MediaStreamInfo(%s)' % data
+        return 'MediaStreamInfo(%s)' % d
 
 
 class MediaInfo(object):

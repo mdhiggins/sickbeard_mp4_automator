@@ -61,6 +61,9 @@ class TestFFMpeg(unittest.TestCase):
         self.assertEqual(2, a.audio_channels)
         self.assertEqual(48000, a.audio_samplerate)
 
+        self.assertEqual(repr(info),
+            'MediaInfo(format=MediaFormatInfo(format=ogg, duration=33.00), streams=[MediaStreamInfo(type=video, codec=theora, width=720, height=400, fps=25.0), MediaStreamInfo(type=audio, codec=vorbis, channels=2, rate=48000)])')
+
     def test_ffmpeg_convert(self):
         f = ffmpeg.FFMpeg()
 
