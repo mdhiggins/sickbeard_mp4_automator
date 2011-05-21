@@ -86,13 +86,27 @@ class MediaStreamInfo(object):
         self.audio_channels = None
         self.audio_samplerate = None
 
+    @staticmethod
+    def parse_float(val, default=0.0):
+        try:
+            return float(val)
+        except:
+            return default
+
+    @staticmethod
+    def parse_int(val, default=0):
+        try:
+            return int(val)
+        except:
+            return default
+
     def parse_ffprobe(self, key, val):
         """
         Parse raw ffprobe output (key=value).
         """
 
         if key == 'index':
-            self.index = int(val)
+            self.index = self.parse_int(val)
         elif key == 'codec_type':
             self.type = val
         elif key == 'codec_name':
@@ -100,24 +114,24 @@ class MediaStreamInfo(object):
         elif key == 'codec_long_name':
             self.codec_desc = val
         elif key == 'duration':
-            self.duration = float(val)
+            self.duration = self.parse_float(val)
         elif key == 'width':
-            self.video_width = int(val)
+            self.video_width = self.parse_int(val)
         elif key == 'height':
-            self.video_height = int(val)
+            self.video_height = self.parse_int(val)
         elif key == 'avg_frame_rate':
             if '/' in val:
                 n, d = val.split('/')
-                n = float(n)
-                d = float(d)
+                n = self.parse_float(n)
+                d = self.parse_float(d)
                 if n > 0.0 and d > 0.0:
                     self.video_fps = float(n) / float(d)
             elif '.' in val:
-                self.video_fps = float(val)
+                self.video_fps = self.parse_float(val)
         elif key == 'channels':
-            self.audio_channels = int(val)
+            self.audio_channels = self.parse_int(val)
         elif key == 'sample_rate':
-            self.audio_samplerate = float(val)
+            self.audio_samplerate = self.parse_float(val)
 
     def __repr__(self):
         d = ''
