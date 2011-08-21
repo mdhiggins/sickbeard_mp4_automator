@@ -6,7 +6,7 @@ version='1.5',
 author='dbr/Ben',
 description='Interface to thetvdb.com',
 url='http://github.com/dbr/tvdb_api/tree/master',
-license='GPLv2',
+license='unlicense',
 
 long_description="""\
 An easy to use API interface to TheTVDB.com
@@ -25,7 +25,7 @@ py_modules = ['tvdb_api', 'tvdb_ui', 'tvdb_exceptions', 'cache'],
 
 classifiers=[
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: GNU General Public License (GPL)",
+    "License :: Unlicense",
     "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
