@@ -81,7 +81,7 @@ end
 
 task :test do
   puts "Nosetest'ing"
-  if not system("nosetests -v")
+  if not system("nosetests -v --with-doctest")
     raise "Test failed!"
   end
 
