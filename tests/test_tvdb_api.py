@@ -16,8 +16,8 @@ sys.path.append("..")
 
 import tvdb_api
 import tvdb_ui
-from tvdb_exceptions import (tvdb_error, tvdb_userabort, tvdb_shownotfound,
-    tvdb_seasonnotfound, tvdb_episodenotfound, tvdb_attributenotfound)
+from tvdb_exceptions import (tvdb_shownotfound, tvdb_seasonnotfound,
+tvdb_episodenotfound, tvdb_attributenotfound)
 
 class test_tvdb_basic(unittest.TestCase):
     # Used to store the cached instance of Tvdb()
@@ -75,6 +75,27 @@ class test_tvdb_basic(unittest.TestCase):
             True
         )
 
+    def test_get_parent(self):
+        """Check accessing series from episode instance
+        """
+        show = self.t['Battlestar Galactica (2003)']
+        season = show[1]
+        episode = show[1][1]
+
+        self.assertEquals(
+            season.show,
+            show
+        )
+
+        self.assertEquals(
+            episode.season,
+            season
+        )
+
+        self.assertEquals(
+            episode.season.show,
+            show
+        )
 
 
 class test_tvdb_errors(unittest.TestCase):

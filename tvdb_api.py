@@ -18,7 +18,6 @@ __author__ = "dbr/Ben"
 __version__ = "1.5"
 
 import os
-import sys
 import urllib
 import urllib2
 import StringIO
@@ -154,6 +153,11 @@ class Show(dict):
 
 
 class Season(dict):
+    def __init__(self, show = None):
+        """The show attribute points to the parent show
+        """
+        self.show = show
+
     def __repr__(self):
         return "<Season instance (containing %s episodes)>" % (
             len(self.keys())
@@ -187,6 +191,11 @@ class Season(dict):
 
 
 class Episode(dict):
+    def __init__(self, season = None):
+        """The season attribute points to the parent season
+        """
+        self.season = season
+
     def __repr__(self):
         seasno = int(self.get(u'seasonnumber', 0))
         epno = int(self.get(u'episodenumber', 0))
@@ -517,9 +526,9 @@ class Tvdb:
         if sid not in self.shows:
             self.shows[sid] = Show()
         if seas not in self.shows[sid]:
-            self.shows[sid][seas] = Season()
+            self.shows[sid][seas] = Season(show = self.shows[sid])
         if ep not in self.shows[sid][seas]:
-            self.shows[sid][seas][ep] = Episode()
+            self.shows[sid][seas][ep] = Episode(season = self.shows[sid][seas])
         self.shows[sid][seas][ep][attrib] = value
     #end _set_item
 
