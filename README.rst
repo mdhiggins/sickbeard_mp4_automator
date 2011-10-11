@@ -21,6 +21,24 @@ Features
     * Preserves the order of other atoms
     * Can replace the original file (if given no output file)
 
+Installing from PyPi
+--------------------
+
+To install from PyPi, you may use easy_install or pip::
+
+    easy_install qtfaststart
+
+Installing from source
+----------------------
+
+Download a copy of the source, ``cd`` into the top-level
+``qtfaststart`` directory, and run:
+
+    python setup.py install
+
+If you are installing to your system Python (instead of a virtualenv), you
+may need root access (via ``sudo`` or ``su``).
+
 Usage
 -----
 See `qt-faststart.py --help` for more info! If outfile is not present then
@@ -30,6 +48,8 @@ the infile is overwritten.
 
 History
 -------
+    * 2011-10-11: Packaged and published to PyPi by Greg Taylor
+      <gtaylor AT duointeractive DOT com>, version bump to 1.5.
     * 2010-02-21: Add support for final mdat atom with zero size, patch by
       Dmitry Simakov <basilio AT j-vista DOT ru>, version bump to 1.4.
     * 2009-11-05: Added --sample option. Version bump to 1.3
