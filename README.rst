@@ -32,7 +32,7 @@ Installing from source
 ----------------------
 
 Download a copy of the source, ``cd`` into the top-level
-``qtfaststart`` directory, and run:
+``qtfaststart`` directory, and run::
 
     python setup.py install
 
@@ -41,7 +41,7 @@ may need root access (via ``sudo`` or ``su``).
 
 Usage
 -----
-See `qt-faststart.py --help` for more info! If outfile is not present then
+See ``qt-faststart.py --help`` for more info! If outfile is not present then
 the infile is overwritten.
 
     $ qtfaststart.py infile [outfile]
