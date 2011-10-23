@@ -285,6 +285,7 @@ class Tvdb:
                 search_all_languages = False,
                 apikey = None,
                 forceConnect=False):
+
         """interactive (True/False):
             When True, uses built-in console UI is used to select the correct show.
             When False, the first search result is used.
@@ -300,10 +301,13 @@ class Tvdb:
                  >>> import logging
                  >>> logging.basicConfig(level = logging.DEBUG)
 
-        cache (True/False/str/unicode):
-            Retrieved XML are persisted to to disc. If true, stores in tvdb_api
-            folder under your systems TEMP_DIR, if set to str/unicode instance it
-            will use this as the cache location. If False, disables caching.
+        cache (True/False/str/unicode/urllib2 opener):
+            Retrieved XML are persisted to to disc. If true, stores in
+            tvdb_api folder under your systems TEMP_DIR, if set to
+            str/unicode instance it will use this as the cache
+            location. If False, disables caching.  Can also be passed
+            an arbitrary Python object, which is used as a urllib2
+            opener, which should be created by urllib2.build_opener
 
         banners (True/False):
             Retrieves the banners for a show. These are accessed
@@ -375,21 +379,33 @@ class Tvdb:
 
         self.config['search_all_languages'] = search_all_languages
 
+
         if cache is True:
             self.config['cache_enabled'] = True
             self.config['cache_location'] = self._getTempDir()
-        elif isinstance(cache, basestring):
-            self.config['cache_enabled'] = True
-            self.config['cache_location'] = cache
-        else:
-            self.config['cache_enabled'] = False
-
-        if self.config['cache_enabled']:
             self.urlopener = urllib2.build_opener(
                 CacheHandler(self.config['cache_location'])
             )
+
+        elif cache is False:
+            self.config['cache_enabled'] = False
+            self.urlopener = urllib2.build_opener() # default opener with no caching
+
+        elif isinstance(cache, basestring):
+            self.config['cache_enabled'] = True
+            self.config['cache_location'] = cache
+            self.urlopener = urllib2.build_opener(
+                CacheHandler(self.config['cache_location'])
+            )
+
+        elif isinstance(cache, urllib2.OpenerDirector):
+            # If passed something from urllib2.build_opener, use that
+            log().debug("Using %r as urlopener" % cache)
+            self.config['cache_enabled'] = True
+            self.urlopener = cache
+
         else:
-            self.urlopener = urllib2.build_opener()
+            raise ValueError("Invalid value for Cache %r (type was %s)" % (cache, type(cache)))
 
         self.config['banners_enabled'] = banners
         self.config['actors_enabled'] = actors

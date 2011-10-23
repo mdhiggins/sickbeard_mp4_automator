@@ -8,11 +8,13 @@
 """Unittests for tvdb_api
 """
 
+import os
 import sys
 import datetime
 import unittest
 
-sys.path.append("..")
+# Force parent directory onto path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import tvdb_api
 import tvdb_ui
@@ -425,7 +427,48 @@ class test_tvdb_doctest(unittest.TestCase):
         """Check docstring examples works"""
         import doctest
         doctest.testmod(tvdb_api)
-#end test_tvdb
+
+
+class test_tvdb_custom_caching(unittest.TestCase):
+    def test_true_false_string(self):
+        """Tests setting cache to True/False/string
+
+        Basic tests, only checking for errors
+        """
+
+        tvdb_api.Tvdb(cache = True)
+        tvdb_api.Tvdb(cache = False)
+        tvdb_api.Tvdb(cache = "/tmp")
+
+    def test_invalid_cache_option(self):
+        """Tests setting cache to invalid value
+        """
+
+        try:
+            tvdb_api.Tvdb(cache = 2.3)
+        except ValueError:
+            pass
+        else:
+            self.fail("Expected ValueError from setting cache to float")
+
+    def test_custom_urlopener(self):
+        class UsedCustomOpener(Exception):
+            pass
+
+        import urllib2
+        class TestOpener(urllib2.BaseHandler):
+            def default_open(self, request):
+                print request.get_method()
+                raise UsedCustomOpener("Something")
+
+        custom_opener = urllib2.build_opener(TestOpener())
+        t = tvdb_api.Tvdb(cache = custom_opener)
+        try:
+            t['scrubs']
+        except UsedCustomOpener:
+            pass
+        else:
+            self.fail("Did not use custom opener")
 
 if __name__ == '__main__':
     runner = unittest.TextTestRunner(verbosity = 2)
