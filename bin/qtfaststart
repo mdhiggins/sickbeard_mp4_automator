@@ -13,6 +13,9 @@ import shutil
 import sys
 import tempfile
 
+# Add parent directory to sys.path so that running from dev environment works
+sys.path.append(os.path.dirname(os.path.dirname((os.path.abspath(__file__)))))
+
 from optparse import OptionParser
 from qtfaststart import VERSION
 from qtfaststart import processor

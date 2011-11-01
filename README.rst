@@ -41,13 +41,18 @@ may need root access (via ``sudo`` or ``su``).
 
 Usage
 -----
-See ``qt-faststart.py --help`` for more info! If outfile is not present then
+See ``qtfaststart --help`` for more info! If outfile is not present then
 the infile is overwritten.
 
-    $ qtfaststart.py infile [outfile]
+    $ qtfaststart infile [outfile]
+
+To run without installing you can use::
+
+    $ bin/qtfaststart infile [outfile]
 
 History
 -------
+    * 2011-11-01: Fix long-standing os.SEEK_CUR bug, version bump to 1.6
     * 2011-10-11: Packaged and published to PyPi by Greg Taylor
       <gtaylor AT duointeractive DOT com>, version bump to 1.5.
     * 2010-02-21: Add support for final mdat atom with zero size, patch by
@@ -61,7 +66,7 @@ History
 
 License
 -------
-Copyright (C) 2008 - 2009  Daniel G. Taylor <dan@programmer-art.org>
+Copyright (C) 2008 - 2011  Daniel G. Taylor <dan@programmer-art.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

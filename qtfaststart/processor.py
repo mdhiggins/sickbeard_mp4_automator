@@ -15,6 +15,10 @@ CHUNK_SIZE = 8192
 
 log = logging.getLogger("qtfaststart")
 
+# Older versions of Python require this to be defined
+if not hasattr(os, 'SEEK_CUR'):
+    os.SEEK_CUR = 1
+
 def read_atom(datastream):
     """
         Read an atom and return a tuple of (size, type) where size is the size
