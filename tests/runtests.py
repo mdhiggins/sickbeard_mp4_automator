@@ -9,11 +9,9 @@ import sys
 import unittest
 
 import test_tvdb_api
-import test_tvnamer
 
 def main():
     suite = unittest.TestSuite([
-        unittest.TestLoader().loadTestsFromModule(test_tvnamer),
         unittest.TestLoader().loadTestsFromModule(test_tvdb_api)
     ])
     
