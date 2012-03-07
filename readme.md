@@ -1,10 +1,10 @@
-# `tvdb_api` and `tvnamer`
+# `tvdb_api`
 
 `tvdb_api` is an easy to use interface to [thetvdb.com][tvdb]
 
-`tvnamer` has moved to a separate repository: [github.com/dbr/tvnamer][tvnamer]
+`tvnamer` has moved to a separate repository: [github.com/dbr/tvnamer][tvnamer] - it is a utility which uses `tvdb_api` to rename files from `some.show.s01e03.blah.abc.avi` to `Some Show - [01x03] - The Episode Name.avi` (which works by getting the episode name from `tvdb_api`)
 
-`tvnamer` is a utility which uses `tvdb_api` to rename files from `some.show.s01e03.blah.abc.avi` to `Some Show - [01x03] - The Episode Name.avi` (which works by getting the episode name from `tvdb_api`)
+[![Build Status](https://secure.travis-ci.org/dbr/tvdb_api.png?branch=master)](http://travis-ci.org/dbr/tvdb_api)
 
 ## To install
 
