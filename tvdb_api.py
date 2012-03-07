@@ -15,7 +15,7 @@ Example usage:
 u'Cabin Fever'
 """
 __author__ = "dbr/Ben"
-__version__ = "1.5"
+__version__ = "1.6"
 
 import os
 import urllib
