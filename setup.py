@@ -21,7 +21,7 @@ Basic usage is:
 u'Stole a Badge'
 """,
 
-py_modules = ['tvdb_api', 'tvdb_ui', 'tvdb_exceptions', 'cache'],
+py_modules = ['tvdb_api', 'tvdb_ui', 'tvdb_exceptions', 'tvdb_cache'],
 
 classifiers=[
     "Intended Audience :: Developers",
