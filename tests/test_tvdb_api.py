@@ -171,7 +171,7 @@ class test_tvdb_search(unittest.TestCase):
         """Checks the searching of an entire show"""
         self.assertEquals(
             len(self.t['CNNNN'].search('CNNNN', key='episodename')),
-            2
+            3
         )
 
     def test_aired_on(self):
@@ -209,7 +209,7 @@ class test_tvdb_misc(unittest.TestCase):
         """
         self.assertEquals(
             repr(self.t['CNNNN']),
-            "<Show Chaser Non-Stop News Network (CNNNN) (containing 2 seasons)>"
+            "<Show Chaser Non-Stop News Network (CNNNN) (containing 3 seasons)>"
         )
     def test_repr_season(self):
         """Check repr() of Season
