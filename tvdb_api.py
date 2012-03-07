@@ -37,7 +37,7 @@ except ImportError:
     gzip = None
 
 
-from cache import CacheHandler
+from tvdb_cache import CacheHandler
 
 from tvdb_ui import BaseUI, ConsoleUI
 from tvdb_exceptions import (tvdb_error, tvdb_userabort, tvdb_shownotfound,
