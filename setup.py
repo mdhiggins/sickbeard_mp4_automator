@@ -25,7 +25,6 @@ py_modules = ['tvdb_api', 'tvdb_ui', 'tvdb_exceptions', 'cache'],
 
 classifiers=[
     "Intended Audience :: Developers",
-    "License :: Unlicense",
     "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
