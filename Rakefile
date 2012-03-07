@@ -57,7 +57,7 @@ task :topypi => :test do
     puts "Sending source-dist (sdist) to PyPi"
 
     if system("python setup.py sdist register upload")
-      print "tvdb_api uploaded!"
+      puts "tvdb_api uploaded!"
     end
 
   else
