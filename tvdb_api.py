@@ -129,7 +129,7 @@ class Show(dict):
         To search Scrubs for all episodes with "mentor" in the episode name:
 
         >>> t['scrubs'].search('mentor', key = 'episodename')
-        [<Episode 00x38 - Will You Ever Be My Mentor>, <Episode 01x02 - My Mentor>, <Episode 03x15 - My Tormented Mentor>]
+        [<Episode 01x02 - My Mentor>, <Episode 03x15 - My Tormented Mentor>]
         >>>
 
         # Using search results
