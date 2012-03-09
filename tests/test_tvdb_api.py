@@ -470,6 +470,19 @@ class test_tvdb_custom_caching(unittest.TestCase):
         else:
             self.fail("Did not use custom opener")
 
+class test_tvdb_by_id(unittest.TestCase):
+    t = None
+    def setUp(self):
+        if self.t is None:
+            self.__class__.t = tvdb_api.Tvdb(cache = True, actors = True)
+
+    def test_actors_is_correct_datatype(self):
+        """Check show/_actors key exists and is correct type"""
+        self.assertEquals(
+            self.t[76156]['seriesname'],
+            'Scrubs'
+            )
+
 if __name__ == '__main__':
     runner = unittest.TextTestRunner(verbosity = 2)
     unittest.main(testRunner = runner)
