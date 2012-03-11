@@ -342,7 +342,7 @@ class FFMpeg(object):
         yielded = False
         buf = ''
         total_output = ''
-        pat = re.compile(r'time=([0-9.]+) ')
+        pat = re.compile(r'time=([0-9.:]+) ')
         while True:
             signal.alarm(10)
             ret = fd.read(10)
@@ -358,7 +358,14 @@ class FFMpeg(object):
 
                 tmp = pat.findall(line)
                 if len(tmp) == 1:
-                    timecode = float(tmp[0])
+                    timespec = tmp[0]
+                    if ':' in timespec:
+                        parts = timespec.split(':')
+                        timecode = 0
+                        for part in timespec.split(':'):
+                            timecode = 60 * timecode + float(part)
+                    else:
+                        timecode = float(tmp[0])
                     yielded = True
                     yield timecode
 
