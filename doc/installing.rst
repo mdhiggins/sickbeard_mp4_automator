@@ -2,7 +2,7 @@ Installation and Requirements
 =============================
 
 Video Converter requires a working Python installation, and a fairly recent
-version of ffmpeg libraries and utilities.
+version of ffmpeg libraries and utilities (ffmpeg and ffprobe).
 
 Video Converter installation
 ----------------------------
