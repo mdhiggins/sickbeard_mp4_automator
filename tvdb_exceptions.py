@@ -9,7 +9,7 @@
 """
 
 __author__ = "dbr/Ben"
-__version__ = "1.6.3"
+__version__ = "1.6.4"
 
 __all__ = ["tvdb_error", "tvdb_userabort", "tvdb_shownotfound",
 "tvdb_seasonnotfound", "tvdb_episodenotfound", "tvdb_attributenotfound"]
