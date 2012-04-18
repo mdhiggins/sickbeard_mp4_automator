@@ -25,6 +25,7 @@ import tempfile
 import warnings
 import logging
 import datetime
+import zipfile
 
 try:
     import xml.etree.cElementTree as ElementTree
@@ -284,7 +285,8 @@ class Tvdb:
                 language = None,
                 search_all_languages = False,
                 apikey = None,
-                forceConnect=False):
+                forceConnect=False,
+                useZip=False):
 
         """interactive (True/False):
             When True, uses built-in console UI is used to select the correct show.
@@ -350,7 +352,12 @@ class Tvdb:
             If true it will always try to connect to theTVDB.com even if we
             recently timed out. By default it will wait one minute before
             trying again, and any requests within that one minute window will
-            return an exception immediately. 
+            return an exception immediately.
+
+        useZip (bool):
+            Download the zip archive where possibale, instead of the xml.
+            This is only used when all episodes are pulled.
+            And only the main language xml is used, the actor and banner xml are lost.
         """
         
         global lastTimeout
@@ -378,6 +385,8 @@ class Tvdb:
         self.config['select_first'] = select_first
 
         self.config['search_all_languages'] = search_all_languages
+
+        self.config['useZip'] = useZip
 
 
         if cache is True:
@@ -454,6 +463,7 @@ class Tvdb:
             self.config['url_getSeries'] = u"%(base_url)s/api/GetSeries.php?seriesname=%%s&language=%(language)s" % self.config
 
         self.config['url_epInfo'] = u"%(base_url)s/api/%(apikey)s/series/%%s/all/%%s.xml" % self.config
+        self.config['url_epInfo_zip'] = u"%(base_url)s/api/%(apikey)s/series/%%s/all/%%s.zip" % self.config
 
         self.config['url_seriesInfo'] = u"%(base_url)s/api/%(apikey)s/series/%%s/%%s.xml" % self.config
         self.config['url_actorsInfo'] = u"%(base_url)s/api/%(apikey)s/series/%%s/actors.xml" % self.config
@@ -468,7 +478,7 @@ class Tvdb:
         """
         return os.path.join(tempfile.gettempdir(), "tvdb_api")
 
-    def _loadUrl(self, url, recache = False):
+    def _loadUrl(self, url, recache = False, language=None):
         global lastTimeout
         try:
             log().debug("Retrieving URL %s" % url)
@@ -494,21 +504,30 @@ class Tvdb:
                 stream = StringIO.StringIO(resp.read())
                 gz = gzip.GzipFile(fileobj=stream)
                 return gz.read()
-            
+
             raise tvdb_error("Received gzip data from thetvdb.com, but could not correctly handle it")
-        
+
+        if 'application/zip' in resp.headers.get("Content-Type", ''):
+            log().debug("We recived a zip file unpacking now ...")
+            zipdata = StringIO.StringIO()
+            zipdata.write(resp.read())
+            myzipfile = zipfile.ZipFile(zipdata)
+            foofile = myzipfile.open('%s.xml' % language)
+
+            return foofile.read()
+
         return resp.read()
 
-    def _getetsrc(self, url):
+    def _getetsrc(self, url, language=None):
         """Loads a URL using caching, returns an ElementTree of the source
         """
-        src = self._loadUrl(url)
+        src = self._loadUrl(url, language=language)
         try:
             # TVDB doesn't sanitize \r (CR) from user input in some fields,
             # remove it to avoid errors. Change from SickBeard, from will14m
             return ElementTree.fromstring(src.rstrip("\r"))
         except SyntaxError:
-            src = self._loadUrl(url, recache=True)
+            src = self._loadUrl(url, recache=True, language=language)
             try:
                 return ElementTree.fromstring(src.rstrip("\r"))
             except SyntaxError, exceptionmsg:
@@ -750,7 +769,13 @@ class Tvdb:
 
         # Parse episode data
         log().debug('Getting all episodes of %s' % (sid))
-        epsEt = self._getetsrc( self.config['url_epInfo'] % (sid, language) )
+
+        if self.config['useZip']:
+            url = self.config['url_epInfo_zip'] % (sid, language)
+        else:
+            url = self.config['url_epInfo'] % (sid, language)
+
+        epsEt = self._getetsrc( url, language=language)
 
         for cur_ep in epsEt.findall("Episode"):
             seas_no = int(cur_ep.find('SeasonNumber').text)
