@@ -483,6 +483,28 @@ class test_tvdb_by_id(unittest.TestCase):
             'Scrubs'
             )
 
+
+class test_tvdb_zip(unittest.TestCase):
+    # Used to store the cached instance of Tvdb()
+    t = None
+
+    def setUp(self):
+        if self.t is None:
+            self.__class__.t = tvdb_api.Tvdb(cache = True, useZip = True)
+
+    def test_get_series_from_zip(self):
+        """
+        """
+        self.assertEquals(self.t['scrubs'][1][4]['episodename'], 'My Old Lady')
+        self.assertEquals(self.t['sCruBs']['seriesname'], 'Scrubs')
+
+    def test_spaces_from_zip(self):
+        """Checks shownames with spaces
+        """
+        self.assertEquals(self.t['My Name Is Earl']['seriesname'], 'My Name Is Earl')
+        self.assertEquals(self.t['My Name Is Earl'][1][4]['episodename'], 'Faked His Own Death')
+
+
 if __name__ == '__main__':
     runner = unittest.TextTestRunner(verbosity = 2)
     unittest.main(testRunner = runner)

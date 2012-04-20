@@ -508,6 +508,7 @@ class Tvdb:
             raise tvdb_error("Received gzip data from thetvdb.com, but could not correctly handle it")
 
         if 'application/zip' in resp.headers.get("Content-Type", ''):
+            # TODO: The zip contains actors.xml and banners.xml, which are currently ignored [GH-20]
             log().debug("We recived a zip file unpacking now ...")
             zipdata = StringIO.StringIO()
             zipdata.write(resp.read())
