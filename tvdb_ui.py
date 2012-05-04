@@ -79,12 +79,18 @@ class ConsoleUI(BaseUI):
         for i, cshow in enumerate(allSeries[:6]):
             i_show = i + 1 # Start at more human readable number 1 (not 0)
             log().debug('Showing allSeries[%s], series %s)' % (i_show, allSeries[i]['seriesname']))
-            print "%s -> %s [%s] # http://thetvdb.com/?tab=series&id=%s&lid=%s" % (
+            if i == 0:
+                extra = " (default)"
+            else:
+                extra = ""
+
+            print "%s -> %s [%s] # http://thetvdb.com/?tab=series&id=%s&lid=%s%s" % (
                 i_show,
                 cshow['seriesname'].encode("UTF-8", "ignore"),
                 cshow['language'].encode("UTF-8", "ignore"),
                 str(cshow['id']),
-                cshow['lid']
+                cshow['lid'],
+                extra
             )
 
     def selectSeries(self, allSeries):
@@ -101,7 +107,7 @@ class ConsoleUI(BaseUI):
 
         while True: # return breaks this loop
             try:
-                print "Enter choice (first number, ? for help):"
+                print "Enter choice (first number, return for default, ? for help):"
                 ans = raw_input()
             except KeyboardInterrupt:
                 raise tvdb_userabort("User aborted (^c keyboard interupt)")
@@ -112,6 +118,10 @@ class ConsoleUI(BaseUI):
             try:
                 selected_id = int(ans) - 1 # The human entered 1 as first result, not zero
             except ValueError: # Input was not number
+                if len(ans.strip()) == 0:
+                    # Default option
+                    log().debug('Default option, returning first series')
+                    return allSeries[0]
                 if ans == "q":
                     log().debug('Got quit command (q)')
                     raise tvdb_userabort("User aborted ('q' quit command)")
@@ -120,12 +130,13 @@ class ConsoleUI(BaseUI):
                     print "# Enter the number that corresponds to the correct show."
                     print "# ? - this help"
                     print "# q - abort tvnamer"
+                    print "# Press return with no input to select first result"
                 else:
                     log().debug('Unknown keypress %s' % (ans))
             else:
                 log().debug('Trying to return ID: %d' % (selected_id))
                 try:
-                    return allSeries[ selected_id ]
+                    return allSeries[selected_id]
                 except IndexError:
                     log().debug('Invalid show number entered!')
                     print "Invalid number (%s) selected!"
