@@ -17,7 +17,7 @@ u'Cabin Fever'
 __author__ = "dbr/Ben"
 __version__ = "1.6.4"
 
-import os
+import os, time
 import urllib
 import urllib2
 import StringIO
@@ -53,7 +53,26 @@ def log():
 class ShowContainer(dict):
     """Simple dict that holds a series of Show instances
     """
-    pass
+
+    _stack = []
+    _lastgc = time.time()
+
+    def __setitem__(self, key, value):
+        self._stack.append(key)
+
+        #keep only the 100th latest results
+        if time.time() - self._lastgc > 20:
+            tbd = self._stack[:-100]
+            i = 0
+            for o in tbd:
+                del self[o]
+                del self._stack[i]
+                i += 1
+
+            _lastgc = time.time()
+            del tbd
+                    
+        super(ShowContainer, self).__setitem__(key, value)
 
 
 class Show(dict):
