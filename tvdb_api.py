@@ -54,8 +54,9 @@ class ShowContainer(dict):
     """Simple dict that holds a series of Show instances
     """
 
-    _stack = []
-    _lastgc = time.time()
+    def __init__(self):
+        self._stack = []
+        self._lastgc = time.time()
 
     def __setitem__(self, key, value):
         self._stack.append(key)
