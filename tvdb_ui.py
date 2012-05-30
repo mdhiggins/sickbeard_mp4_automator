@@ -43,7 +43,7 @@ Then to use it..
 """
 
 __author__ = "dbr/Ben"
-__version__ = "1.6.4"
+__version__ = "1.7.1"
 
 import logging
 import warnings
