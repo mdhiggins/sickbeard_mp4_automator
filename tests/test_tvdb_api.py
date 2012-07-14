@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import tvdb_api
 import tvdb_ui
-from tvdb_exceptions import (tvdb_shownotfound, tvdb_seasonnotfound,
+from tvdb_api import (tvdb_shownotfound, tvdb_seasonnotfound,
 tvdb_episodenotfound, tvdb_attributenotfound)
 
 class test_tvdb_basic(unittest.TestCase):
