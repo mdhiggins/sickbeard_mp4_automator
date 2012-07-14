@@ -72,11 +72,16 @@ class ConsoleUI(BaseUI):
     """Interactively allows the user to select a show from a console based UI
     """
 
-    def _displaySeries(self, allSeries):
+    def _displaySeries(self, allSeries, limit = 6):
         """Helper function, lists series with corresponding ID
         """
+        if limit is not None:
+            toshow = allSeries[:limit]
+        else:
+            toshow = allSeries
+
         print "TVDB Search Results:"
-        for i, cshow in enumerate(allSeries[:6]):
+        for i, cshow in enumerate(toshow):
             i_show = i + 1 # Start at more human readable number 1 (not 0)
             log().debug('Showing allSeries[%s], series %s)' % (i_show, allSeries[i]['seriesname']))
             if i == 0:
@@ -107,7 +112,7 @@ class ConsoleUI(BaseUI):
 
         while True: # return breaks this loop
             try:
-                print "Enter choice (first number, return for default, ? for help):"
+                print "Enter choice (first number, return for default, 'all', ? for help):"
                 ans = raw_input()
             except KeyboardInterrupt:
                 raise tvdb_userabort("User aborted (^c keyboard interupt)")
@@ -128,9 +133,13 @@ class ConsoleUI(BaseUI):
                 elif ans == "?":
                     print "## Help"
                     print "# Enter the number that corresponds to the correct show."
+                    print "# a - display all results"
+                    print "# all - display all results"
                     print "# ? - this help"
                     print "# q - abort tvnamer"
                     print "# Press return with no input to select first result"
+                elif ans.lower() in ["a", "all"]:
+                    self._displaySeries(allSeries, limit = None)
                 else:
                     log().debug('Unknown keypress %s' % (ans))
             else:
