@@ -75,12 +75,12 @@ def store_in_cache(cache_location, url, response):
     """Tries to store response in cache."""
     hpath, bpath = calculate_cache_path(cache_location, url)
     try:
-        outf = open(hpath, "w")
+        outf = open(hpath, "wb")
         headers = str(response.info())
         outf.write(headers)
         outf.close()
 
-        outf = open(bpath, "w")
+        outf = open(bpath, "wb")
         outf.write(response.read())
         outf.close()
     except IOError:
@@ -167,12 +167,12 @@ class CachedResponse(StringIO.StringIO):
         self.cache_location = cache_location
         hpath, bpath = calculate_cache_path(cache_location, url)
 
-        StringIO.StringIO.__init__(self, file(bpath).read())
+        StringIO.StringIO.__init__(self, file(bpath, "rb").read())
 
         self.url     = url
         self.code    = 200
         self.msg     = "OK"
-        headerbuf = file(hpath).read()
+        headerbuf = file(hpath, "rb").read()
         if set_cache_header:
             headerbuf += "x-local-cache: %s\r\n" % (bpath)
         self.headers = httplib.HTTPMessage(StringIO.StringIO(headerbuf))
