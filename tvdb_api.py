@@ -536,6 +536,8 @@ class Tvdb:
                 myzipfile = zipfile.ZipFile(zipdata)
                 return myzipfile.read('%s.xml' % language)
             except zipfile.BadZipfile:
+                if 'x-local-cache' in resp.headers:
+                    resp.delete_cache()
                 raise tvdb_error("Bad zip file received from thetvdb.com, could not read it")
 
         return resp.read()

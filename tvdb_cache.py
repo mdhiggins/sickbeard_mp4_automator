@@ -87,6 +87,20 @@ def store_in_cache(cache_location, url, response):
         return True
     else:
         return False
+        
+@locked_function
+def delete_from_cache(cache_location, url):
+    """Deletes a response in cache."""
+    hpath, bpath = calculate_cache_path(cache_location, url)
+    try:
+        if os.path.exists(hpath):
+            os.remove(hpath)
+        if os.path.exists(bpath):
+            os.remove(bpath)
+    except IOError:
+        return True
+    else:
+        return False
 
 class CacheHandler(urllib2.BaseHandler):
     """Stores responses in a persistant on-disk cache.
@@ -197,6 +211,13 @@ class CachedResponse(StringIO.StringIO):
         )
         CachedResponse.__init__(self, self.cache_location, self.url, True)
 
+    @locked_function
+    def delete_cache(self):
+        delete_from_cache(
+            self.cache_location,
+            self.url
+        )
+    
 
 if __name__ == "__main__":
     def main():
