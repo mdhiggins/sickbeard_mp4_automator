@@ -119,19 +119,32 @@ class MediaStreamInfo(object):
             self.video_width = self.parse_int(val)
         elif key == 'height':
             self.video_height = self.parse_int(val)
-        elif key == 'avg_frame_rate':
-            if '/' in val:
-                n, d = val.split('/')
-                n = self.parse_float(n)
-                d = self.parse_float(d)
-                if n > 0.0 and d > 0.0:
-                    self.video_fps = float(n) / float(d)
-            elif '.' in val:
-                self.video_fps = self.parse_float(val)
         elif key == 'channels':
             self.audio_channels = self.parse_int(val)
         elif key == 'sample_rate':
             self.audio_samplerate = self.parse_float(val)
+
+        if self.type == 'audio':
+            if key == 'avg_frame_rate':
+                if '/' in val:
+                    n, d = val.split('/')
+                    n = self.parse_float(n)
+                    d = self.parse_float(d)
+                    if n > 0.0 and d > 0.0:
+                        self.video_fps = float(n) / float(d)
+                elif '.' in val:
+                    self.video_fps = self.parse_float(val)
+
+        if self.type == 'video':
+            if key == 'r_frame_rate':
+                if '/' in val:
+                    n, d = val.split('/')
+                    n = self.parse_float(n)
+                    d = self.parse_float(d)
+                    if n > 0.0 and d > 0.0:
+                        self.video_fps = float(n) / float(d)
+                elif '.' in val:
+                    self.video_fps = self.parse_float(val)
 
     def __repr__(self):
         d = ''
