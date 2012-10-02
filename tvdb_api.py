@@ -17,9 +17,11 @@ u'Cabin Fever'
 __author__ = "dbr/Ben"
 __version__ = "1.8"
 
-import os, time
+import os
+import time
 import urllib
 import urllib2
+import getpass
 import StringIO
 import tempfile
 import warnings
@@ -494,9 +496,17 @@ class Tvdb:
     #end __init__
 
     def _getTempDir(self):
-        """Returns the [system temp dir]/tvdb_api
+        """Returns the [system temp dir]/tvdb_api-u501 (or
+        tvdb_api-myuser)
         """
-        return os.path.join(tempfile.gettempdir(), "tvdb_api-u%s" % (os.getuid()))
+        if hasattr(os, 'getuid'):
+            uid = "u%d" % (os.getuid())
+        else:
+            # For Windows
+            import getpass
+            uid = getpass.getpass()
+
+        return os.path.join(tempfile.gettempdir(), "tvdb_api-%s" % (uid))
 
     def _loadUrl(self, url, recache = False, language=None):
         global lastTimeout
