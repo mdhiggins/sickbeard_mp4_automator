@@ -496,7 +496,7 @@ class Tvdb:
     def _getTempDir(self):
         """Returns the [system temp dir]/tvdb_api
         """
-        return os.path.join(tempfile.gettempdir(), "tvdb_api")
+        return os.path.join(tempfile.gettempdir(), "tvdb_api-u%s" % (os.getuid()))
 
     def _loadUrl(self, url, recache = False, language=None):
         global lastTimeout
