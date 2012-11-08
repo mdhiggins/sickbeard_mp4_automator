@@ -15,7 +15,7 @@ Example usage:
 u'Cabin Fever'
 """
 __author__ = "dbr/Ben"
-__version__ = "1.8.1"
+__version__ = "1.8.2"
 
 import os
 import time
