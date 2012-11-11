@@ -412,7 +412,7 @@ class FFMpeg(object):
         cmds = [self.ffmpeg_path,
             '-ss', str(time),
             '-i', fname,
-            '-y', '-an', '-f', 'image2', '-sameq', '-vframes', '1']
+            '-y', '-an', '-f', 'image2', '-q:v', '0', '-vframes', '1']
 
         if size:
             cmds.extend(['-s', str(size)])
