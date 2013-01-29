@@ -61,10 +61,14 @@ def get_index(datastream):
         index.append((atom_type, datastream.tell() - skip, atom_size))
 
         if atom_size == 0:
-            # Some files may end in mdat with no size set, which generally
-            # means to seek to the end of the file. We can just stop indexing
-            # as no more entries will be found!
-            break
+            if atom_type == "mdat":
+                # Some files may end in mdat with no size set, which generally
+                # means to seek to the end of the file. We can just stop indexing
+                # as no more entries will be found!
+                break
+            else:
+                # Weird, but just continue to try to find more atoms
+                atom_size = skip
 
         datastream.seek(atom_size - skip, os.SEEK_CUR)
 
@@ -139,6 +143,10 @@ def process(infilename, outfilename, limit=0):
             # This free atom is before the mdat!
             free_size += size
             log.info("Removing free atom at %d (%d bytes)" % (pos, size))
+        elif atom == "\x00\x00\x00\x00" and pos < mdat_pos:
+            # This is some strange zero atom with incorrect size
+            free_size += 8
+            log.info("Removing strange zero atom at %s (8 bytes)" % pos)
 
     # Offset to shift positions
     offset = moov_size - free_size

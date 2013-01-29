@@ -53,6 +53,11 @@ if __name__ == "__main__":
         index = processor.get_index(open(args[0], "rb"))
         
         for atom, pos, size in index:
+            if atom == "\x00\x00\x00\x00":
+                # Strange zero atom... display with dashes rather than
+                # an empty string
+                atom = "----"
+
             print atom, "(" + str(size) + " bytes)"
             
         raise SystemExit
