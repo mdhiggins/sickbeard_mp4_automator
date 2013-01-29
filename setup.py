@@ -1,7 +1,7 @@
 from distutils.core import setup
 import qtfaststart
 
-long_description = open('README.rst').read()
+long_description = open('README.txt').read()
 
 setup(
     name='qtfaststart',
