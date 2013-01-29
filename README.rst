@@ -42,7 +42,7 @@ may need root access (via ``sudo`` or ``su``).
 Usage
 -----
 See ``qtfaststart --help`` for more info! If outfile is not present then
-the infile is overwritten.
+the infile is overwritten::
 
     $ qtfaststart infile [outfile]
 
