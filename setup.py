@@ -11,7 +11,7 @@ setup(
     author='Daniel G. Taylor',
     author_email='dan@programmer-art.org',
     url='https://github.com/gtaylor/qtfaststart',
-    license='GNU General Public License (GPL)',
+    license='MIT License',
     platforms=["any"],
     provides=['qtfaststart'],
     packages=[
@@ -21,7 +21,7 @@ setup(
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: GNU General Public License (GPL)',
+        'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
