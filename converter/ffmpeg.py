@@ -318,7 +318,7 @@ class FFMpeg(object):
 
         return info
 
-    def convert(self, infile, outfile, opts):
+    def convert(self, infile, outfile, opts, timeout=10):
         """
         Convert the source media (infile) according to specified options
         (a list of ffmpeg switches as strings) and save it to outfile.
@@ -327,6 +327,11 @@ class FFMpeg(object):
         conversion process. The generator will periodically yield timecode
         of currently processed part of the file (ie. at which second in the
         content is the conversion process currently).
+
+        The optional timeout argument specifies how long should the operation
+        be blocked in case ffmpeg gets stuck and doesn't report back. See
+        the documentation in Converter.convert() for more details about this
+        option.
 
         >>> conv = f.convert('test.ogg', '/tmp/output.mp3',
         ...    ['-acodec libmp3lame', '-vn'])
@@ -341,11 +346,12 @@ class FFMpeg(object):
         cmds.extend(opts)
         cmds.extend(['-y', outfile])
 
-        def on_sigalrm(*args):
-            signal.signal(signal.SIGALRM, signal.SIG_DFL)
-            raise Exception('timed out while waiting for ffmpeg')
+        if timeout:
+            def on_sigalrm(*args):
+                signal.signal(signal.SIGALRM, signal.SIG_DFL)
+                raise Exception('timed out while waiting for ffmpeg')
 
-        signal.signal(signal.SIGALRM, on_sigalrm)
+            signal.signal(signal.SIGALRM, on_sigalrm)
 
         try:
             _, fd = self._spawn(cmds)
@@ -357,9 +363,13 @@ class FFMpeg(object):
         total_output = ''
         pat = re.compile(r'time=([0-9.:]+) ')
         while True:
-            signal.alarm(10)
+            if timeout:
+                signal.alarm(timeout)
+
             ret = fd.read(10)
-            signal.alarm(0)
+
+            if timeout:
+                signal.alarm(0)
 
             if not ret:
                 break
@@ -382,7 +392,8 @@ class FFMpeg(object):
                     yielded = True
                     yield timecode
 
-        signal.signal(signal.SIGALRM, signal.SIG_DFL)
+        if timeout:
+            signal.signal(signal.SIGALRM, signal.SIG_DFL)
 
         if total_output == '':
             raise FFMpegError('Error while calling ffmpeg binary')

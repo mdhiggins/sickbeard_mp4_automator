@@ -111,7 +111,7 @@ class Converter(object):
 
         return optlist
 
-    def convert(self, infile, outfile, options, twopass=False):
+    def convert(self, infile, outfile, options, twopass=False, timeout=10):
         """
         Convert media file (infile) according to specified options, and
         save it to outfile. For two-pass encoding, specify the pass (1 or 2)
@@ -132,6 +132,16 @@ class Converter(object):
         conversion process. The generator will periodically yield timecode
         of currently processed part of the file (ie. at which second in the
         content is the conversion process currently).
+
+        The optional timeout argument specifies how long should the operation
+        be blocked in case ffmpeg gets stuck and doesn't report back. This
+        doesn't limit the total conversion time, just the amount of time
+        Converter will wait for each update from ffmpeg. As it's usually
+        less than a second, the default of 10 is a reasonable default. To
+        disable the timeout, set it to None. You may need to do this if
+        using Converter in a threading environment, since the way the
+        timeout is handled (using signals) has special restriction when
+        using threads.
 
         >>> conv = c.convert('test1.ogg', '/tmp/output.mkv', {
         ...    'format': 'mkv',
@@ -166,15 +176,18 @@ class Converter(object):
 
         if twopass:
             optlist1 = self.parse_options(options, 1)
-            for timecode in self.ffmpeg.convert(infile, outfile, optlist1):
+            for timecode in self.ffmpeg.convert(infile, outfile, optlist,
+                    timeout=timeout):
                 yield int((50.0 * timecode) / info.format.duration)
 
             optlist2 = self.parse_options(options, 2)
-            for timecode in self.ffmpeg.convert(infile, outfile, optlist2):
+            for timecode in self.ffmpeg.convert(infile, outfile, optlist2,
+                    timeout=timeout):
                 yield int(50.0 + (50.0 * timecode) / info.format.duration)
         else:
             optlist = self.parse_options(options, twopass)
-            for timecode in self.ffmpeg.convert(infile, outfile, optlist):
+            for timecode in self.ffmpeg.convert(infile, outfile, optlist,
+                    timeout=timeout):
                 yield int((100.0 * timecode) / info.format.duration)
 
     def probe(self, fname):
