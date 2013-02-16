@@ -1,3 +1,10 @@
+Sickbeard MP4 automation script.
+
+Automatically converts mkv files downloaded by sickbeard to mp4 files, and tags them with the appropriate metadata from theTVDB. Works as an extra_script, integrated with SAB, as well as a manual post-processing script.
+
+Requires Python 2.7 (Does NOT work with Python 3)
+Only tested on Windows.
+
 [Installation Instructions]
 1. Open Sickbeard's config.ini in sickbeard and set your "extra_scripts" value in the general section to the full path to postConversion.bat using double backslashes (C:\\Scripts\\postConversion.cmd). Make sure this is done while Sickbeard is not running or it will be reverted.
 2. Open tvdb_mp4.ini and set the variables:
