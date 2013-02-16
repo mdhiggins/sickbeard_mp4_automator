@@ -23,12 +23,16 @@ ffmpeg = config.get("TVDB_MP4", "ffmpeg").replace("\\","\\\\").replace("\\\\\\\\
 ffprobe = config.get("TVDB_MP4", "ffprobe").replace("\\","\\\\").replace("\\\\\\\\","\\\\")
 output_dir = config.get("TVDB_MP4", "output_directory").replace("\\","\\\\").replace("\\\\\\\\","\\\\")
 output_extension = config.get("TVDB_MP4", "output_extension")
-delete = config.get("TVDB_MP4", "delete_original")
+delete = config.getboolean("TVDB_MP4", "delete_original")
 protocol = "http://"
 
-if int(config.get("TVDB_MP4", "ssl")) == 1:
+if config.getboolean("TVDB_MP4", "ssl"):
     protocol = "https://"
 
+if output_dir == "" and delete is False:
+    print "Error - you must specific an alternate output directory if you aren't going to delete the original file"
+    sys.exit()
+    
 sickbeard_url = protocol + ip + ":" + port + "/api/" + api_key + "/"
 
 if len(sys.argv) > 4:
@@ -46,8 +50,8 @@ if len(sys.argv) > 4:
         for item in refresh:
             print refresh[item]
         
-    tagMp4 = Tvdb_mp4(tvdb_id, season, episode)
-    tagMp4.writeTags(path)
+    tagmp4 = Tvdb_mp4(tvdb_id, season, episode)
+    tagmp4.writeTags(path)
 else:
     print "Not enough command line arguments present " + str(len(sys.argv))
     sys.exit()
