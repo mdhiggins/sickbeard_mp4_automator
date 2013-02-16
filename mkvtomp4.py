@@ -3,9 +3,21 @@ import sys
 from converter import Converter
 
 class MkvtoMp4:
-    def __init__(self, file, FFMPEG_PATH, FFPROBE_PATH):
-        c = Converter(FFMPEG_PATH, FFPROBE_PATH)
-        if file.endswith(".mkv"):
+    def __init__(self, file, FFMPEG_PATH="FFMPEG.exe", FFPROBE_PATH="FFPROBE.exe", delete=True, output_extension="mp4", output_dir=None):
+        valid_input_extensions = ['mkv']
+        valid_output_extensions = ['mp4', 'm4v']
+        
+        #Get path information from the input file
+        working_dir, filename = os.path.split(file)
+        filename, input_extension = os.path.splitext(filename)
+        input_extension = input_extension[1:]
+        
+        #If no custom output directory is set, assume same directory as input file
+        if output_dir is None:
+            output_dir = working_dir
+            
+        if input_extension in valid_input_extensions and output_extension in valid_output_extensions:
+            c = Converter(FFMPEG_PATH, FFPROBE_PATH)
             print "Reading " + file
             acodec = "aac"
             vcodec = "h264"
@@ -15,10 +27,8 @@ class MkvtoMp4:
             print "Audiocodec detected: " + info.audio.codec
             print "Channels detected: " + str(achannels)
             if info.video.codec == "h264" or info.videocodec == "x264":
-                print "Video is in the correct format"
                 vcodec = "copy"
             if info.audio.codec == "aac":
-                print "Audio is in the correct format"
                 acodec == "copy"
             options = {
                         'format': 'mp4',
@@ -32,18 +42,19 @@ class MkvtoMp4:
                             'codec': vcodec,
                         },
                     }
-            self.output = file[:-4] + ".mp4"
+            self.output = os.path.join(output_dir, filename + "." + output_extension)
             conv = c.convert(file, self.output, options)
             for timecode in conv:
                 print '[{0}] {1}%'.format('#'*(timecode/10) + ' '*(10-(timecode/10)), timecode, end='\r')
             print "Conversion complete"
-            try:
-                os.remove(file)
-                print file + " deleted"
-            except OSError:
-                print "Unable to delete " + file
-        elif file.endswith(".mp4"):
+            if delete:
+                try:
+                    os.remove(file)
+                    print file + " deleted"
+                except OSError:
+                    print "Unable to delete " + file
+        elif input_extension in valid_output_extensions:
             self.output = file
         else:
-            print file + " - file cannot be converted and is not an mp4"
+            print file + " - file not in the correct format"
             sys.exit()
