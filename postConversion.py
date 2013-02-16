@@ -30,8 +30,14 @@ if config.getboolean("TVDB_MP4", "ssl"):
     protocol = "https://"
 
 if output_dir == "" and delete is False:
-    print "Error - you must specific an alternate output directory if you aren't going to delete the original file"
+    print "Error - you must specify an alternate output directory if you aren't going to delete the original file"
     sys.exit()
+
+if output_dir == "":
+    output_dir = None
+else:
+    if not os.path.isdir(output_dir):
+        os.makedirs(output_dir)
     
 sickbeard_url = protocol + ip + ":" + port + "/api/" + api_key + "/"
 
@@ -43,13 +49,15 @@ if len(sys.argv) > 4:
     episode  = int(sys.argv[5])
 
     if extension not in valid_output_extensions:
-        convert = MkvtoMp4(path, ffmpeg, ffprobe)
+        convert = MkvtoMp4(path, ffmpeg, ffprobe, delete, output_extension, output_dir)
         path = convert.output
         fullURL = sickbeard_url + "?cmd=show.refresh&tvdbid=" + str(tvdb_id)
-        refresh = json.load(urllib.urlopen(fullURL))
-        for item in refresh:
-            print refresh[item]
-        
+        try:
+            refresh = json.load(urllib.urlopen(fullURL))
+            for item in refresh:
+                print refresh[item]
+        except IOError:
+            print "Couldn't refresh Sickbeard, check your tvdb_mp4.ini settings"
     tagmp4 = Tvdb_mp4(tvdb_id, season, episode)
     tagmp4.writeTags(path)
 else:
