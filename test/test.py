@@ -85,7 +85,7 @@ class TestFFMpeg(unittest.TestCase):
 
         last_tc = 0.0
         for tc in conv:
-            assert (tc > last_tc and tc <= info.format.duration), (last_tc, tc, info.format.duration)
+            assert (tc > last_tc and tc <= info.format.duration + 0.1), (last_tc, tc, info.format.duration)
 
 
         info = f.probe('/tmp/output.ogg')
