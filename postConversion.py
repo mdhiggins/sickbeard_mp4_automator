@@ -21,6 +21,9 @@ port = config.get("TVDB_MP4", "port")
 api_key = config.get("TVDB_MP4", "api_key")
 ffmpeg = config.get("TVDB_MP4", "ffmpeg").replace("\\","\\\\").replace("\\\\\\\\","\\\\")
 ffprobe = config.get("TVDB_MP4", "ffprobe").replace("\\","\\\\").replace("\\\\\\\\","\\\\")
+output_dir = config.get("TVDB_MP4", "output_directory").replace("\\","\\\\").replace("\\\\\\\\","\\\\")
+output_extension = config.get("TVDB_MP4", "output_extension")
+delete = config.get("TVDB_MP4", "delete_original")
 protocol = "http://"
 
 if int(config.get("TVDB_MP4", "ssl")) == 1:
