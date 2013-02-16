@@ -1,12 +1,10 @@
 import os
 import sys
 from converter import Converter
+from extensions import valid_input_extensions, valid_output_extensions
 
 class MkvtoMp4:
-    def __init__(self, file, FFMPEG_PATH="FFMPEG.exe", FFPROBE_PATH="FFPROBE.exe", delete=True, output_extension="mp4", output_dir=None):
-        valid_input_extensions = ['mkv']
-        valid_output_extensions = ['mp4', 'm4v']
-        
+    def __init__(self, file, FFMPEG_PATH="FFMPEG.exe", FFPROBE_PATH="FFPROBE.exe", delete=True, output_extension="mp4", output_dir=None):     
         #Get path information from the input file
         working_dir, filename = os.path.split(file)
         filename, input_extension = os.path.splitext(filename)
