@@ -18,6 +18,7 @@ class Tvdb_mp4:
                 self.show = show
                 self.season = season
                 self.episode = episode
+                self.HD = None
                 
                 #Gather information from theTVDB
                 self.showdata = self.tvdb_show[self.show]
@@ -64,6 +65,8 @@ class Tvdb_mp4:
         video["tvsn"] = [self.season] #Season number
         video["tves"] = [self.episode] #Episode number
         video["stik"] = [10] #TV show iTunes category
+        if self.HD is not None:
+            video["hdvd"] = self.HD
         if self.genre != None:
             video["\xa9gen"] = self.genre.replace('|',',')[1:-1] #Genre(s)
         video["----:com.apple.iTunes:iTunMOVI"] = self.xml #XML - see xmlTags method
@@ -87,6 +90,12 @@ class Tvdb_mp4:
                 attempts += 1
     #end writeTags
     
+    def setHD(self, width, height):
+        if width >= 1280 or height >= 720:
+            self.HD = True
+        else:
+            self.HD = False
+            
     def xmlTags(self):
         #constants
         header = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\"><plist version=\"1.0\"><dict>\n"

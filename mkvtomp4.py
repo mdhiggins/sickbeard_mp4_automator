@@ -13,18 +13,18 @@ class MkvtoMp4:
         #If no custom output directory is set, assume same directory as input file
         if output_dir is None:
             output_dir = working_dir
-            
+        c = Converter(FFMPEG_PATH, FFPROBE_PATH)
+        info = c.probe(file)
+        self.height = info.video.video_height
+        self.width = info.video.video_width
         if input_extension in valid_input_extensions and output_extension in valid_output_extensions:
-            c = Converter(FFMPEG_PATH, FFPROBE_PATH)
-            print "Reading " + file
             acodec = "aac"
             vcodec = "h264"
-            info = c.probe(file)
             achannels = info.audio.audio_channels 
             print "Video codec detected: " + info.video.codec
             print "Audiocodec detected: " + info.audio.codec
             print "Channels detected: " + str(achannels)
-            if info.video.codec == "h264" or info.videocodec == "x264":
+            if info.video.codec == "h264" or info.video.codec == "x264":
                 vcodec = "copy"
             if info.audio.codec == "aac":
                 acodec == "copy"
