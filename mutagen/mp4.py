@@ -588,7 +588,7 @@ class MP4Tags(DictProxy, Metadata):
         "covr": (__parse_cover, __render_cover),
         "purl": (__parse_text, __render_text, 0),
         "egid": (__parse_text, __render_text, 0),
-        "hdvd": (__parse_bool, __render_bool),
+        "hdvd": (__parse_uint8, __render_uint8),
         "tves": (__parse_uint32, __render_uint32),
         "tvsn": (__parse_uint32, __render_uint32),
         "stik": (__parse_uint8, __render_uint8),

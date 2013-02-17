@@ -96,10 +96,12 @@ class Tvdb_mp4:
     #end writeTags
     
     def setHD(self, width, height):
-        if width >= 1280 or height >= 720:
-            self.HD = True
+        if width >= 1920 or height >= 1080:
+            self.HD = [2]
+        elif width >= 1280 or height >= 720:
+            self.HD = [1]
         else:
-            self.HD = False
+            self.HD = [0]
             
     def xmlTags(self):
         #constants
