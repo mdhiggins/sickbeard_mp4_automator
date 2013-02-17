@@ -16,8 +16,8 @@ if len(sys.argv) > 4:
     season = int(sys.argv[4])
     episode  = int(sys.argv[5])
 
+    convert = MkvtoMp4(path, settings.ffmpeg, settings.ffprobe, settings.delete, settings.output_extension, settings.output_dir)
     if extension not in valid_output_extensions:
-        convert = MkvtoMp4(path, settings.ffmpeg, settings.ffprobe, settings.delete, settings.output_extension, settings.output_dir)
         path = convert.output
         try:
             refresh = json.load(urllib.urlopen(settings.getRefreshURL(tvdb_id)))
@@ -26,6 +26,7 @@ if len(sys.argv) > 4:
         except IOError:
             print "Couldn't refresh Sickbeard, check your tvdb_mp4.ini settings"
     tagmp4 = Tvdb_mp4(tvdb_id, season, episode)
+    tagmp4.setHD(convert.width, convert.height)
     tagmp4.writeTags(path)
 else:
     print "Not enough command line arguments present " + str(len(sys.argv))
