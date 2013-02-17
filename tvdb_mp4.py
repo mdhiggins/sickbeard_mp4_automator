@@ -22,7 +22,8 @@ class Tvdb_mp4:
                 
                 #Gather information from theTVDB
                 self.showdata = self.tvdb_show[self.show]
-                self.episodedata = self.showdata[self.season][self.episode]
+                self.seasondata = self.showdata[self.season]
+                self.episodedata = self.seasondata[self.episode]
                 #episodedata = self.tvdb_show[self.show][self.season][self.episode]
                 
                 self.show = self.showdata['seriesname']
@@ -63,7 +64,9 @@ class Tvdb_mp4:
         if self.airdate != "0000-00-00":
             video["\xa9day"] = self.airdate #Airdate
         video["tvsn"] = [self.season] #Season number
+        video["\xa9alb"] = self.show + ", Season " + str(self.season)
         video["tves"] = [self.episode] #Episode number
+        video["trkn"] = [(int(self.episode), len(self.seasondata))] #Episode number iTunes
         video["stik"] = [10] #TV show iTunes category
         if self.HD is not None:
             video["hdvd"] = self.HD
@@ -77,6 +80,8 @@ class Tvdb_mp4:
 
         video.pprint()
         attempts = 0
+        MP4(mp4Path).delete(mp4Path)
+        video.save()
         while attempts < 3:
             try:
                 print "Trying to write tags"
@@ -85,7 +90,7 @@ class Tvdb_mp4:
                 print "Tags written successfully"
                 break
             except IOError:
-                print "Failed"
+                print IOError
                 time.sleep(5)
                 attempts += 1
     #end writeTags
@@ -121,13 +126,15 @@ class Tvdb_mp4:
         if self.writer != None:
             output.write(writerheader)
             for name in self.writer.split("|"):
-                output.write("<dict><key>name</key><string>" + name.encode('ascii', errors='ignore') + "</string></dict>\n")
+                if name != "":
+                    output.write("<dict><key>name</key><string>" + name.encode('ascii', errors='ignore') + "</string></dict>\n")
             output.write(subfooter)
         #write Director
         if self.director != None:
             output.write(directorheader)
             for name in self.director.split("|"):
-                output.write("<dict><key>name</key><string>" + name.encode('ascii', errors='ignore') + "</string></dict>\n")
+                if name != "":
+                    output.write("<dict><key>name</key><string>" + name.encode('ascii', errors='ignore') + "</string></dict>\n")
             output.write(subfooter)
         output.write(footer)
         return output.getvalue()
