@@ -2,44 +2,12 @@ import os
 import sys
 import json
 import urllib
-import ConfigParser
+from readSettings import ReadSettings
 from tvdb_mp4 import Tvdb_mp4
 from mkvtomp4 import MkvtoMp4
 from extensions import valid_output_extensions
 
-#Sickbeard API goodies
-config = ConfigParser.ConfigParser()
-configFile = os.path.join(os.path.dirname(sys.argv[0]),"tvdb_mp4.ini")
-if not os.path.isfile(configFile):
-    print "Error: Config file not found"
-fp = open(configFile, "r")
-config.readfp(fp)
-fp.close()
-
-ip = config.get("TVDB_MP4", "ip")
-port = config.get("TVDB_MP4", "port")
-api_key = config.get("TVDB_MP4", "api_key")
-ffmpeg = config.get("TVDB_MP4", "ffmpeg").replace("\\","\\\\").replace("\\\\\\\\","\\\\")
-ffprobe = config.get("TVDB_MP4", "ffprobe").replace("\\","\\\\").replace("\\\\\\\\","\\\\")
-output_dir = config.get("TVDB_MP4", "output_directory").replace("\\","\\\\").replace("\\\\\\\\","\\\\")
-output_extension = config.get("TVDB_MP4", "output_extension")
-delete = config.getboolean("TVDB_MP4", "delete_original")
-protocol = "http://"
-
-if config.getboolean("TVDB_MP4", "ssl"):
-    protocol = "https://"
-
-if output_dir == "" and delete is False:
-    print "Error - you must specify an alternate output directory if you aren't going to delete the original file"
-    sys.exit()
-
-if output_dir == "":
-    output_dir = None
-else:
-    if not os.path.isdir(output_dir):
-        os.makedirs(output_dir)
-    
-sickbeard_url = protocol + ip + ":" + port + "/api/" + api_key + "/"
+settings = ReadSettings(os.path.dirname(sys.argv[0]), "tvdb_mp4.ini")
 
 if len(sys.argv) > 4:
     path = str(sys.argv[1]).replace("\\","\\\\").replace("\\\\\\\\","\\\\")
@@ -49,11 +17,10 @@ if len(sys.argv) > 4:
     episode  = int(sys.argv[5])
 
     if extension not in valid_output_extensions:
-        convert = MkvtoMp4(path, ffmpeg, ffprobe, delete, output_extension, output_dir)
+        convert = MkvtoMp4(path, settings.ffmpeg, settings.ffprobe, settings.delete, settings.output_extension, settings.output_dir)
         path = convert.output
-        fullURL = sickbeard_url + "?cmd=show.refresh&tvdbid=" + str(tvdb_id)
         try:
-            refresh = json.load(urllib.urlopen(fullURL))
+            refresh = json.load(urllib.urlopen(settings.getRefreshURL(tvdb_id)))
             for item in refresh:
                 print refresh[item]
         except IOError:
