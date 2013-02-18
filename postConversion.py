@@ -28,6 +28,11 @@ if len(sys.argv) > 4:
     tagmp4 = Tvdb_mp4(tvdb_id, season, episode)
     tagmp4.setHD(convert.width, convert.height)
     tagmp4.writeTags(path)
+    if (settings.move_dir is not None):
+        output_dir, filename = os.path.split(convert.output)
+        final_dest = os.path.join(settings.move_dir, filename)
+        os.rename(convert.output, final_dest)
+        print "Moving file to " + str(final_dest)
 else:
     print "Not enough command line arguments present " + str(len(sys.argv))
     sys.exit()

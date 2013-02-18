@@ -22,7 +22,8 @@ class ReadSettings:
         self.output_dir = config.get("TVDB_MP4", "output_directory").replace("\\","\\\\").replace("\\\\\\\\","\\\\") #Output directory
         self.output_extension = config.get("TVDB_MP4", "output_extension") #Output extension
         self.delete = config.getboolean("TVDB_MP4", "delete_original") #Delete original file
-        
+        self.move_dir = config.get("TVDB_MP4", "move_directory").replace("\\","\\\\").replace("\\\\\\\\","\\\\") #Move directory
+
         #SSL
         self.protocol = "http://"
         if config.getboolean("TVDB_MP4", "ssl"):
@@ -37,7 +38,7 @@ class ReadSettings:
         else:
             if not os.path.isdir(self.output_dir):
                 os.makedirs(self.output_dir)
-            
+
     def getRefreshURL (self, tvdb_id):
         sickbeard_url = self.protocol + self.ip + ":" + self.port + "/api/" + self.api_key + "/?cmd=show.refresh&tvdbid=" + str(tvdb_id)
         return sickbeard_url
