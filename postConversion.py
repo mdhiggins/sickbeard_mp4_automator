@@ -16,7 +16,7 @@ if len(sys.argv) > 4:
     season = int(sys.argv[4])
     episode  = int(sys.argv[5])
 
-    convert = MkvtoMp4(path, settings.ffmpeg, settings.ffprobe, settings.delete, settings.output_extension, settings.output_dir)
+    convert = MkvtoMp4(path, settings.ffmpeg, settings.ffprobe, settings.delete, settings.output_extension)
     if extension not in valid_output_extensions:
         path = convert.output
         try:
@@ -28,6 +28,11 @@ if len(sys.argv) > 4:
     tagmp4 = Tvdb_mp4(tvdb_id, season, episode)
     tagmp4.setHD(convert.width, convert.height)
     tagmp4.writeTags(path)
+    if settings.output_dir is not None:
+        try:
+            os.rename(path, os.path.join(settings.output_dir, os.path.split(path)[1]))
+        except OSError:
+            print "Unable to move file"
 else:
     print "Not enough command line arguments present " + str(len(sys.argv))
     sys.exit()

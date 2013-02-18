@@ -13,7 +13,7 @@ for r,d,f in os.walk(path):
     for files in f:
         if os.path.splitext(files)[1][1:] in valid_input_extensions:
             file = os.path.join(r,files)
-            convert = MkvtoMp4(file, settings.ffmpeg, settings.ffprobe, settings.delete, settings.output_extension, settings.output_dir)
+            convert = MkvtoMp4(file, settings.ffmpeg, settings.ffprobe, settings.delete, settings.output_extension)
 
 """Contents of sabToSickbeard.py"""                
 if len(sys.argv) < 2:
