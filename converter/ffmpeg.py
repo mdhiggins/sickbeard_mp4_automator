@@ -340,7 +340,7 @@ class FFMpeg(object):
         cmds.extend(opts)
         #Dirty injection to copy subtitles if present, implement this properly when you can
         cmds.extend(['-scodec', 'mov_text'])
-        cmds.extend(['-metadata:s:s:0', 'language=eng'])
+        cmds.extend(['-map', '0'])
         cmds.extend(['-y', outfile])
 
         def on_sigalrm(*args):
