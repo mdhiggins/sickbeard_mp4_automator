@@ -73,10 +73,12 @@ class Tvdb_mp4:
         if self.genre != None:
             video["\xa9gen"] = self.genre.replace('|',',')[1:-1] #Genre(s)
         video["----:com.apple.iTunes:iTunMOVI"] = self.xml #XML - see xmlTags method
-        if path.endswith('png'):
-            video["covr"] = [MP4Cover(cover, MP4Cover.FORMAT_PNG)] #png poster
-        else:
-            video["covr"] = [MP4Cover(cover, MP4Cover.FORMAT_JPEG)] #jpeg poster
+        if path is not None:
+            cover = open(path, 'rb').read()
+            if path.endswith('png'):
+                video["covr"] = [MP4Cover(cover, MP4Cover.FORMAT_PNG)] #png poster
+            else:
+                video["covr"] = [MP4Cover(cover, MP4Cover.FORMAT_JPEG)] #jpeg poster
 
         video.pprint()
         attempts = 0
@@ -154,7 +156,11 @@ class Tvdb_mp4:
                     poster.rating = float(self.showdata['_banners']['season']['season'][bannerid]['rating'])
                 poster.bannerpath = self.showdata['_banners']['season']['season'][bannerid]['_bannerpath']
                 posters.addPoster(poster)
-        return urllib.urlretrieve(posters.topPoster().bannerpath, tempfile.gettempdir() + "\poster.jpg")[0]
+        try:
+            poster = urllib.urlretrieve(posters.topPoster().bannerpath, tempfile.gettempdir() + "\poster.jpg")[0]
+        except:
+            poster = None
+        return poster
     #end artwork
 #end tvdb_mp4
 
