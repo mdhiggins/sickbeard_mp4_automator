@@ -4,7 +4,7 @@
 import os
 import os.path
 
-from avcodecs import video_codec_list, audio_codec_list
+from avcodecs import video_codec_list, audio_codec_list, subtitle_codec_list
 from formats import format_list
 
 from ffmpeg import FFMpeg, FFMpegError, FFMpegConvertError
@@ -30,6 +30,7 @@ class Converter(object):
             ffprobe_path=ffprobe_path)
         self.video_codecs = {}
         self.audio_codecs = {}
+        self.subtitle_codecs = {}
         self.formats = {}
 
         for cls in audio_codec_list:
@@ -39,6 +40,10 @@ class Converter(object):
         for cls in video_codec_list:
             name = cls.codec_name
             self.video_codecs[name] = cls
+            
+        for cls in subtitle_codec_list:
+            name = cls.codec_name
+            self.subtitle_codecs[name] = cls
 
         for cls in format_list:
             name = cls.format_name
@@ -51,6 +56,7 @@ class Converter(object):
         format_options = None
         audio_options = []
         video_options = []
+        subtitle_options = []
 
         if not isinstance(opt, dict):
             raise ConverterError('Invalid output specification')
@@ -70,24 +76,44 @@ class Converter(object):
             raise ConverterError('Neither audio nor video streams requested')
 
         if 'audio' not in opt or twopass == 1:
-            opt['audio'] = {'codec': None}
+            opt['audio'][0] = {'codec': None}
 
         if 'video' not in opt:
             opt['video'] = {'codec': None}
+            
+        if 'subtitle' not in opt:
+            opt['subtitle'][0] = {'codec': None}
 
         if 'audio' in opt:
-            x = opt['audio']
+            y = opt['audio']
+            for n in y:
+                x = y[n]
 
-            if not isinstance(x, dict) or 'codec' not in x:
-                raise ConverterError('Invalid audio codec specification')
+                if not isinstance(x, dict) or 'codec' not in x:
+                    raise ConverterError('Invalid audio codec specification')
 
-            c = x['codec']
-            if c not in self.audio_codecs:
-                raise ConverterError('Requested unknown audio codec ' + str(c))
+                c = x['codec']
+                if c not in self.audio_codecs:
+                    raise ConverterError('Requested unknown audio codec ' + str(c))
 
-            audio_options = self.audio_codecs[c]().parse_options(x)
-            if audio_options is None:
-                raise ConverterError('Unknown audio codec error')
+                audio_options.extend(self.audio_codecs[c]().parse_options(x, n))
+                if audio_options is None:
+                    raise ConverterError('Unknown audio codec error')
+                    
+        if 'subtitle' in opt:
+            y = opt['subtitle']
+            for n in y:
+                x = y[n]
+                if not isinstance(x, dict) or 'codec' not in x:
+                    raise ConverterError('Invalid subtitle codec specification')
+
+                c = x['codec']
+                if c not in self.subtitle_codecs:
+                    raise ConverterError('Requested unknown audio codec ' + str(c))
+
+                subtitle_options.extend(self.subtitle_codecs[c]().parse_options(x, n))
+                if audio_options is None:
+                    raise ConverterError('Unknown audio codec error')
 
         if 'video' in opt:
             x = opt['video']
@@ -102,7 +128,7 @@ class Converter(object):
             if video_options is None:
                 raise ConverterError('Unknown video codec error')
 
-        optlist = audio_options + video_options + format_options
+        optlist = audio_options + video_options + subtitle_options + format_options
 
         if twopass == 1:
             optlist.extend(['-pass', '1'])

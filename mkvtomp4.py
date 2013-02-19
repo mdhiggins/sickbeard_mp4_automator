@@ -15,30 +15,44 @@ class MkvtoMp4:
         self.height = info.video.video_height
         self.width = info.video.video_width
         if input_extension in valid_input_extensions and output_extension in valid_output_extensions:
-            acodec = "aac"
             vcodec = "h264"
-            achannels = info.audio[0].audio_channels 
             print "Video codec detected: " + info.video.codec
-            print "Audiocodec detected: " + info.audio[0].codec
-            print "Channels detected: " + str(achannels)
+            audio_settings = {}
+            l = 0
+            for a in info.audio:
+                print "Audio stream detected: " + a.codec
+                print "Channels: " + str(a.audio_channels)
+                if a.codec == "aac":
+                    acodec = "copy"
+                else:
+                    acodec = "aac"
+                audio_settings.update({l:{
+                                    'codec': acodec,
+                                    'channels': a.audio_channels,
+                                    'bitrate': audio_bitrate,
+                                    'language': a.language,
+                                    }}) 
+                l = l + 1
+            subtitle_settings = {}
+            l = 0
             for s in info.subtitle:
-                print "Subtitle detected: " + s.sub_language
+                print "Subtitle detected: " + s.language
                 print "Forced: " + str(s.sub_forced)
+                #Going to eventually need settings to go here
+                subtitle_settings.update({l:{
+                                    'codec': 'mov_text',
+                                    'language': s.language
+                                    }})
+                l = l + 1
             if info.video.codec == "h264" or info.video.codec == "x264":
                 vcodec = "copy"
-            if info.audio[0].codec == "aac":
-                acodec == "copy"
             options = {
                         'format': 'mp4',
-                        'audio': {
-                            'codec': acodec,
-                            'channels': achannels,
-                            'bitrate': audio_bitrate,
-                            'language': "eng",
-                        },
                         'video': {
                             'codec': vcodec,
                         },
+                        'audio': audio_settings,
+                        'subtitle': subtitle_settings,
                     }
             self.output = os.path.join(output_dir, filename + "." + output_extension)
             conv = c.convert(file, self.output, options)

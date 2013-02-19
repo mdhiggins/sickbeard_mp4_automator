@@ -86,7 +86,7 @@ class MediaStreamInfo(object):
         self.audio_channels = None
         self.audio_samplerate = None
         self.sub_forced = None
-        self.sub_language = None
+        self.language = None
 
     @staticmethod
     def parse_float(val, default=0.0):
@@ -125,6 +125,8 @@ class MediaStreamInfo(object):
             self.audio_channels = self.parse_int(val)
         elif key == 'sample_rate':
             self.audio_samplerate = self.parse_float(val)
+        elif key.lower() == 'tag:language':
+                self.language = val
 
         if self.type == 'audio':
             if key == 'avg_frame_rate':
@@ -149,12 +151,10 @@ class MediaStreamInfo(object):
                     self.video_fps = self.parse_float(val)
         
         if self.type == 'subtitle':
-            if key == 'DISPOSITION:forced':
+            if key.lower() == 'disposition:forced':
                 self.sub_forced = self.parse_int(val)
-            if key == 'DISPOSITION:default':
+            if key.lower() == 'disposition:default':
                 self.sub_default = self.parse_int(val)
-            if key == 'TAG:language':
-                self.sub_language = val
 
     def __repr__(self):
         d = ''
@@ -361,12 +361,12 @@ class FFMpeg(object):
             raise FFMpegError("Input file doesn't exist: " + infile)
 
         cmds = [self.ffmpeg_path, '-i', infile]
-        cmds.extend(opts)
-        #Dirty injection to copy subtitles if present, implement this properly when you can
-        cmds.extend(['-scodec', 'mov_text'])
         cmds.extend(['-map', '0'])
+        cmds.extend(opts)
         cmds.extend(['-y', outfile])
-
+        
+        print cmds
+        
         def on_sigalrm(*args):
             signal.signal(signal.SIGALRM, signal.SIG_DFL)
             raise Exception('timed out while waiting for ffmpeg')

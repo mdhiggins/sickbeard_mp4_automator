@@ -58,9 +58,9 @@ class AudioCodec(BaseCodec):
         'samplerate': int
     }
 
-    def parse_options(self, opt):
+    def parse_options(self, opt, stream):
         super(AudioCodec, self).parse_options(opt)
-
+        stream = str(stream)
         safe = self.safe_options(opt)
 
         if 'channels' in safe:
@@ -80,19 +80,64 @@ class AudioCodec(BaseCodec):
 
         safe = self._codec_specific_parse_options(safe)
 
-        optlist = ['-acodec', self.ffmpeg_codec_name]
+        optlist = ['-c:a:'+stream, self.ffmpeg_codec_name]
         if 'channels' in safe:
-            optlist.extend(['-ac', str(safe['channels'])])
+            optlist.extend(['-ac:a:'+stream, str(safe['channels'])])
         if 'bitrate' in safe:
-            optlist.extend(['-ab', str(safe['bitrate']) + 'k'])
+            optlist.extend(['-b:a:'+stream, str(safe['bitrate']) + 'k'])
         if 'samplerate' in safe:
-            optlist.extend(['-ar', str(safe['samplerate'])])
+            optlist.extend(['-r:a:'+stream, str(safe['samplerate'])])
         if 'language' in safe:
-            optlist.extend(['-metadata:s:a:0', "language=" + str(safe['language'])])
+                lang = str(safe['language'])
+        else:
+            lang = 'eng'
+        optlist.extend(['-metadata:s:a:'+stream, "language=" + lang])
 
         optlist.extend(self._codec_specific_produce_ffmpeg_list(safe))
         return optlist
 
+class SubtitleCodec(BaseCodec):
+    """
+    Base subtitle codec class handles general subtitle options. Possible
+    parameters are:
+      * codec (string) - audio codec name
+      * language (string) - number of audio channels
+      * forced (int) - stream bitrate
+      * default (int) - sample rate (frequency)
+
+    Supported audio codecs are: null (no audio), copy (copy from
+    original), vorbis, aac, mp3, mp2
+    """
+
+    #Need to add safety checks here - values for forced default should be either 0 or 1 (maybe true false) and language should be less than 3 chars
+    
+    encoder_options = {
+        'codec': str,
+        'language': str,
+        'forced': int,
+        'default': int
+    }
+
+    def parse_options(self, opt, stream):
+        super(SubtitleCodec, self).parse_options(opt)
+        stream = str(stream)
+        safe = self.safe_options(opt)
+
+        safe = self._codec_specific_parse_options(safe)
+
+        optlist = ['-c:s:'+stream, self.ffmpeg_codec_name]
+        if 'default' in safe:
+            optlist.extend(['-metadata:s:s:'+stream, "disposition:default=" + str(safe['default'])])
+        if 'forced' in safe:
+            optlist.extend(['-metadata:s:s:'+stream, "disposition:forced=" + str(safe['forced'])])
+        if 'language' in safe:
+                lang = str(safe['language'])
+        else:
+            lang = 'eng'
+        optlist.extend(['-metadata:s:s:'+stream, "language=" + lang])
+
+        optlist.extend(self._codec_specific_produce_ffmpeg_list(safe))
+        return optlist
 
 class VideoCodec(BaseCodec):
     """
@@ -274,7 +319,7 @@ class AudioNullCodec(BaseCodec):
     """
     codec_name = None
 
-    def parse_options(self, opt):
+    def parse_options(self, opt, stream):
         return ['-an']
 
 
@@ -294,9 +339,19 @@ class AudioCopyCodec(BaseCodec):
     Copy audio stream directly from the source.
     """
     codec_name = 'copy'
-
-    def parse_options(self, opt):
-            return ['-acodec', 'copy']
+    encoder_options = {'language': str}
+    
+    def parse_options(self, opt, stream):
+            safe = self.safe_options(opt)
+            stream = str(stream)
+            optlist = []
+            optlist.extend(['-c:a:'+stream, 'copy'])
+            if 'language' in safe:
+                lang = str(safe['language'])
+            else:
+                lang = 'eng'
+            optlist.extend(['-metadata:s:a:'+stream, "language=" + lang])
+            return optlist
 
 
 class VideoCopyCodec(BaseCodec):
@@ -441,6 +496,13 @@ class Mpeg2Codec(MpegCodec):
     """
     codec_name = 'mpeg2'
     ffmpeg_codec_name = 'mpeg2video'
+    
+class MOVTextCodec(SubtitleCodec):
+    """
+    MOV Text video codec.
+    """
+    codec_name = 'mov_text'
+    ffmpeg_codec_name = 'mov_text'
 
 
 audio_codec_list = [
@@ -451,4 +513,8 @@ video_codec_list = [
     VideoNullCodec, VideoCopyCodec, TheoraCodec, H264Codec,
     DivxCodec, Vp8Codec, H263Codec, FlvCodec, Mpeg1Codec,
     Mpeg2Codec
+]
+
+subtitle_codec_list = [
+    MOVTextCodec
 ]
