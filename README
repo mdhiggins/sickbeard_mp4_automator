@@ -7,7 +7,7 @@ Only tested on Windows.
 
 [Installation Instructions]
 1. Open Sickbeard's config.ini in sickbeard and set your "extra_scripts" value in the general section to the full path to postConversion.bat using double backslashes (C:\\Scripts\\postConversion.cmd). Make sure this is done while Sickbeard is not running or it will be reverted.
-2. Open tvdb_mp4.ini and set the variables:
+2. Rename tvdb_mp4.ini.default to tvdb_mp4.ini and set the variables:
          ip = probably localhost
          port = sickbeard port (8081)
          ssl = True/False
