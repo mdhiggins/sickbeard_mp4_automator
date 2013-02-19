@@ -17,13 +17,16 @@ class MkvtoMp4:
         if input_extension in valid_input_extensions and output_extension in valid_output_extensions:
             acodec = "aac"
             vcodec = "h264"
-            achannels = info.audio.audio_channels 
+            achannels = info.audio[0].audio_channels 
             print "Video codec detected: " + info.video.codec
-            print "Audiocodec detected: " + info.audio.codec
+            print "Audiocodec detected: " + info.audio[0].codec
             print "Channels detected: " + str(achannels)
+            for s in info.subtitle:
+                print "Subtitle detected: " + s.sub_language
+                print "Forced: " + str(s.sub_forced)
             if info.video.codec == "h264" or info.video.codec == "x264":
                 vcodec = "copy"
-            if info.audio.codec == "aac":
+            if info.audio[0].codec == "aac":
                 acodec == "copy"
             options = {
                         'format': 'mp4',
