@@ -45,6 +45,7 @@ class AudioCodec(BaseCodec):
       * channels (integer) - number of audio channels
       * bitrate (integer) - stream bitrate
       * samplerate (integer) - sample rate (frequency)
+      * language (str) - language of audio stream (3 char code)
 
     Supported audio codecs are: null (no audio), copy (copy from
     original), vorbis, aac, mp3, mp2
@@ -105,16 +106,13 @@ class SubtitleCodec(BaseCodec):
     """
     Base subtitle codec class handles general subtitle options. Possible
     parameters are:
-      * codec (string) - audio codec name
-      * language (string) - number of audio channels
-      * forced (int) - stream bitrate
-      * default (int) - sample rate (frequency)
+      * codec (string) - subtitle codec name (mov_text only one supported currently)
+      * language (string) - language of audio stream (3 char code)
+      * forced (int) - force subtitles (1 true, 0 false)
+      * default (int) - default subtitles (1 true, 0 false)
 
-    Supported audio codecs are: null (no audio), copy (copy from
-    original), vorbis, aac, mp3, mp2
+    Supported subtitle codecs are: null (no subtitle), mov_text
     """
-
-    #Need to add safety checks here - values for forced default should be either 0 or 1 (maybe true false) and language should be less than 3 chars
     
     encoder_options = {
         'codec': str,

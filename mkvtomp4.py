@@ -21,7 +21,6 @@ class MkvtoMp4:
             l = 0
             for a in info.audio:
                 print "Audio stream detected: " + a.codec
-                print "Channels: " + str(a.audio_channels)
                 if a.codec == "aac":
                     acodec = "copy"
                 else:
@@ -36,12 +35,12 @@ class MkvtoMp4:
             subtitle_settings = {}
             l = 0
             for s in info.subtitle:
-                print "Subtitle detected: " + s.language
-                print "Forced: " + str(s.sub_forced)
-                #Going to eventually need settings to go here
+                print "Subtitle stream detected: " + s.language
                 subtitle_settings.update({l:{
                                     'codec': 'mov_text',
-                                    'language': s.language
+                                    'language': s.language,
+                                    'forced': s.sub_forced,
+                                    'default': s.sub_default
                                     }})
                 l = l + 1
             if info.video.codec == "h264" or info.video.codec == "x264":

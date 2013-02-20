@@ -86,6 +86,7 @@ class MediaStreamInfo(object):
         self.audio_channels = None
         self.audio_samplerate = None
         self.sub_forced = None
+        self.sub_default = None
         self.language = None
 
     @staticmethod
