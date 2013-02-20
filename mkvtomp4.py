@@ -4,7 +4,7 @@ from converter import Converter
 from extensions import valid_input_extensions, valid_output_extensions
 
 class MkvtoMp4:
-    def __init__(self, file, FFMPEG_PATH="FFMPEG.exe", FFPROBE_PATH="FFPROBE.exe", delete=True, output_extension="mp4", audio_bitrate=640):     
+    def __init__(self, file, FFMPEG_PATH="FFMPEG.exe", FFPROBE_PATH="FFPROBE.exe", delete=True, output_extension='mp4', video_codec='h264', audio_codec='aac', audio_bitrate=640):     
         #Get path information from the input file
         output_dir, filename = os.path.split(file)
         filename, input_extension = os.path.splitext(filename)
@@ -15,16 +15,17 @@ class MkvtoMp4:
         self.height = info.video.video_height
         self.width = info.video.video_width
         if input_extension in valid_input_extensions and output_extension in valid_output_extensions:
-            vcodec = "h264"
             print "Video codec detected: " + info.video.codec
+            vcodec = video_codec
+            if info.video.codec == video_codec:
+                vcodec = "copy"
             audio_settings = {}
             l = 0
             for a in info.audio:
                 print "Audio stream detected: " + a.codec
-                if a.codec == "aac":
-                    acodec = "copy"
-                else:
-                    acodec = "aac"
+                acodec = audio_codec
+                if a.codec == audio_codec:
+                    acodec = 'copy'
                 audio_settings.update({l:{
                                     'codec': acodec,
                                     'channels': a.audio_channels,
@@ -43,8 +44,6 @@ class MkvtoMp4:
                                     'default': s.sub_default
                                     }})
                 l = l + 1
-            if info.video.codec == "h264" or info.video.codec == "x264":
-                vcodec = "copy"
             options = {
                         'format': 'mp4',
                         'video': {
