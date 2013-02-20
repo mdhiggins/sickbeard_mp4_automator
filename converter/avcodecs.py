@@ -78,6 +78,11 @@ class AudioCodec(BaseCodec):
             if f < 1000 or f > 50000:
                 del safe['samplerate']
 
+        if 'language' in safe:
+            l = safe['language']
+            if len(l) > 3:
+                del safe['language']
+                
         safe = self._codec_specific_parse_options(safe)
 
         optlist = ['-c:a:'+stream, self.ffmpeg_codec_name]
@@ -123,6 +128,21 @@ class SubtitleCodec(BaseCodec):
         stream = str(stream)
         safe = self.safe_options(opt)
 
+        if 'forced' in safe:
+            f = safe['forced']
+            if f < 0 or f > 1:
+                del safe['forced']
+                
+        if 'default' in safe:
+            d = safe['default']
+            if d < 0 or d > 1:
+                del safe['default']
+                
+        if 'language' in safe:
+            l = safe['language']
+            if len(l) > 3:
+                del safe['language']
+        
         safe = self._codec_specific_parse_options(safe)
 
         optlist = ['-c:s:'+stream, self.ffmpeg_codec_name]
@@ -346,6 +366,10 @@ class AudioCopyCodec(BaseCodec):
             stream = str(stream)
             optlist = []
             optlist.extend(['-c:a:'+stream, 'copy'])
+            if 'language' in safe:
+                l = safe['language']
+                if len(l) > 3:
+                    del safe['language']
             if 'language' in safe:
                 lang = str(safe['language'])
             else:
