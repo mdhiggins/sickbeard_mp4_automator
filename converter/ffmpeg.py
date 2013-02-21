@@ -377,7 +377,6 @@ class FFMpeg(object):
             raise FFMpegError("Input file doesn't exist: " + infile)
 
         cmds = [self.ffmpeg_path, '-i', infile]
-        cmds.extend(['-map', '0'])
         cmds.extend(opts)
         cmds.extend(['-y', outfile])
 

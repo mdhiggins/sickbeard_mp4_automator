@@ -29,6 +29,7 @@ class MkvtoMp4:
                 if a.audio_channels <= 2 and audio_bitrate > 512:
                     audio_bitrate = 512
                 audio_settings.update({l:{
+                                    'map': a.index,
                                     'codec': acodec,
                                     'channels': a.audio_channels,
                                     'bitrate': audio_bitrate,
@@ -40,6 +41,7 @@ class MkvtoMp4:
             for s in info.subtitle:
                 print "Subtitle stream detected: " + s.language
                 subtitle_settings.update({l:{
+                                    'map': s.index,
                                     'codec': 'mov_text',
                                     'language': s.language,
                                     'forced': s.sub_forced,
@@ -50,6 +52,7 @@ class MkvtoMp4:
                         'format': 'mp4',
                         'video': {
                             'codec': vcodec,
+                            #'map': info.video.index
                         },
                         'audio': audio_settings,
                         'subtitle': subtitle_settings,

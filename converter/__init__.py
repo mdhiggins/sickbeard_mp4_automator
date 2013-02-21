@@ -92,6 +92,9 @@ class Converter(object):
                 if not isinstance(x, dict) or 'codec' not in x:
                     raise ConverterError('Invalid audio codec specification')
 
+                if 'map' not in x:
+                    raise ConverterError('Must specify a map value')
+
                 c = x['codec']
                 if c not in self.audio_codecs:
                     raise ConverterError('Requested unknown audio codec ' + str(c))
@@ -107,6 +110,9 @@ class Converter(object):
                 if not isinstance(x, dict) or 'codec' not in x:
                     raise ConverterError('Invalid subtitle codec specification')
 
+                if 'map' not in x:
+                    raise ConverterError('Must specify a map value')
+
                 c = x['codec']
                 if c not in self.subtitle_codecs:
                     raise ConverterError('Requested unknown audio codec ' + str(c))
@@ -119,6 +125,9 @@ class Converter(object):
             x = opt['video']
             if not isinstance(x, dict) or 'codec' not in x:
                 raise ConverterError('Invalid video codec specification')
+
+            if 'map' not in x:
+                opt['video']['map'] = 0
 
             c = x['codec']
             if c not in self.video_codecs:

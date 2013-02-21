@@ -56,7 +56,8 @@ class AudioCodec(BaseCodec):
         'language': str,
         'channels': int,
         'bitrate': int,
-        'samplerate': int
+        'samplerate': int,
+        'map': int
     }
 
     def parse_options(self, opt, stream):
@@ -87,6 +88,8 @@ class AudioCodec(BaseCodec):
         safe = self._codec_specific_parse_options(safe)
 
         optlist = ['-c:a:'+stream, self.ffmpeg_codec_name]
+        if 'map' in safe:
+            optlist.extend(['-map', '0:'+str(safe['map'])])
         if 'channels' in safe:
             optlist.extend(['-ac:a:'+stream, str(safe['channels'])])
         if 'bitrate' in safe:
@@ -118,7 +121,8 @@ class SubtitleCodec(BaseCodec):
         'codec': str,
         'language': str,
         'forced': int,
-        'default': int
+        'default': int,
+        'map': int
     }
 
     def parse_options(self, opt, stream):
@@ -144,6 +148,8 @@ class SubtitleCodec(BaseCodec):
         safe = self._codec_specific_parse_options(safe)
 
         optlist = ['-c:s:'+stream, self.ffmpeg_codec_name]
+        if 'map' in safe:
+            optlist.extend(['-map', '0:'+str(safe['map'])])
         if 'default' in safe:
             optlist.extend(['-metadata:s:s:'+stream, "disposition:default=" + str(safe['default'])])
         if 'forced' in safe:
@@ -195,6 +201,7 @@ class VideoCodec(BaseCodec):
         'mode': str,
         'src_width': int,
         'src_height': int,
+        'map': int
     }
 
     def _aspect_corrections(self, sw, sh, w, h, mode):
@@ -317,6 +324,8 @@ class VideoCodec(BaseCodec):
         filters = safe['aspect_filters']
 
         optlist = ['-vcodec', self.ffmpeg_codec_name]
+        if 'map' in safe:
+            optlist.extend(['-map', '0:'+str(safe['map'])])
         if 'fps' in safe:
             optlist.extend(['-r', str(safe['fps'])])
         if 'bitrate' in safe:
@@ -357,23 +366,26 @@ class AudioCopyCodec(BaseCodec):
     Copy audio stream directly from the source.
     """
     codec_name = 'copy'
-    encoder_options = {'language': str}
+    encoder_options = {'language': str,
+                       'map': int}
     
     def parse_options(self, opt, stream):
-            safe = self.safe_options(opt)
-            stream = str(stream)
-            optlist = []
-            optlist.extend(['-c:a:'+stream, 'copy'])
-            if 'language' in safe:
-                l = safe['language']
-                if len(l) > 3:
-                    del safe['language']
-            if 'language' in safe:
-                lang = str(safe['language'])
-            else:
-                lang = 'eng'
-            optlist.extend(['-metadata:s:a:'+stream, "language=" + lang])
-            return optlist
+        safe = self.safe_options(opt)
+        stream = str(stream)
+        optlist = []
+        optlist.extend(['-c:a:'+stream, 'copy'])
+        if 'map' in safe:
+            oplist.extend(['-map', '0:'+str(safe['map'])])
+        if 'language' in safe:
+            l = safe['language']
+            if len(l) > 3:
+                del safe['language']
+        if 'language' in safe:
+            lang = str(safe['language'])
+        else:
+            lang = 'eng'
+        optlist.extend(['-metadata:s:a:'+stream, "language=" + lang])
+        return optlist
 
 
 class VideoCopyCodec(BaseCodec):
@@ -381,9 +393,15 @@ class VideoCopyCodec(BaseCodec):
     Copy video stream directly from the source.
     """
     codec_name = 'copy'
+    encoder_options = {'map': int}
 
     def parse_options(self, opt):
-            return ['-vcodec', 'copy']
+        safe = self.safe_options(opt)
+        optlist = []
+        optlist.extend(['-vcodec', 'copy'])
+        if 'map' in safe:
+            optlist.extend(['-map', '0:'+str(safe['map'])])
+        return optlist
 
 
 class VorbisCodec(AudioCodec):
