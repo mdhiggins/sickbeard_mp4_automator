@@ -12,7 +12,7 @@ Installation Instructions
 2. Rename autoProcess.ini.sample to autoprocess.ini. This will replace the need for autoProcessTV.cfg, so you don't need to manage 2 files. Set the variables:
     - host = probably localhost
     - port = sickbeard port (8081)
-    - ssl = True/False
+    - ssl = 0/1
     - api_key = Set this to your sickbeard API key (options -> general, enable API in sickbeard to get this key)
     - ffmpeg = Path to FFMPEG.exe
     - ffprobe = Path to FFPROBE.exe
