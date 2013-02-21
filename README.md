@@ -9,8 +9,8 @@ Sickbeard MP4 automation script.
 Installation Instructions
 --------------
 1. Open Sickbeard's config.ini in sickbeard and set your "extra_scripts" value in the general section to the full path to postConversion.bat using double backslashes (C:\\Scripts\\postConversion.cmd). Make sure this is done while Sickbeard is not running or it will be reverted.
-2. Rename tvdb_mp4.ini.default to tvdb_mp4.ini and set the variables:
-    - ip = probably localhost
+2. Rename autoProcess.ini.sample to autoprocess.ini. This will replace the need for autoProcessTV.cfg, so you don't need to manage 2 files. Set the variables:
+    - host = probably localhost
     - port = sickbeard port (8081)
     - ssl = True/False
     - api_key = Set this to your sickbeard API key (options -> general, enable API in sickbeard to get this key)

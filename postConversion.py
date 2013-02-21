@@ -7,7 +7,7 @@ from tvdb_mp4 import Tvdb_mp4
 from mkvtomp4 import MkvtoMp4
 from extensions import valid_output_extensions
 
-settings = ReadSettings(os.path.dirname(sys.argv[0]), "tvdb_mp4.ini")
+settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
 
 if len(sys.argv) > 4:
     path = str(sys.argv[1]).replace("\\","\\\\").replace("\\\\\\\\","\\\\")

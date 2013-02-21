@@ -6,7 +6,7 @@ from mkvtomp4 import MkvtoMp4
 from converter import Converter
 from extensions import valid_input_extensions
 
-settings = ReadSettings(os.path.dirname(sys.argv[0]),"tvdb_mp4.ini")
+settings = ReadSettings(os.path.dirname(sys.argv[0]),"autoProcess.ini")
 
 path = str(sys.argv[1])
 for r,d,f in os.walk(path):
