@@ -93,7 +93,7 @@ class AudioCodec(BaseCodec):
             optlist.extend(['-b:a:'+stream, str(safe['bitrate']) + 'k'])
         if 'samplerate' in safe:
             optlist.extend(['-r:a:'+stream, str(safe['samplerate'])])
-        if 'language' in safe:
+        if 'language' in safe and safe['language'] != 'und':
                 lang = str(safe['language'])
         else:
             lang = 'eng'
@@ -148,7 +148,7 @@ class SubtitleCodec(BaseCodec):
             optlist.extend(['-metadata:s:s:'+stream, "disposition:default=" + str(safe['default'])])
         if 'forced' in safe:
             optlist.extend(['-metadata:s:s:'+stream, "disposition:forced=" + str(safe['forced'])])
-        if 'language' in safe:
+        if 'language' in safe and safe['language'] != 'und':
                 lang = str(safe['language'])
         else:
             lang = 'eng'
