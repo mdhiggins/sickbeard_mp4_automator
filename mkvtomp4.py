@@ -26,6 +26,8 @@ class MkvtoMp4:
                 acodec = audio_codec
                 if a.codec == audio_codec:
                     acodec = 'copy'
+                if a.audio_channels <= 2 and audio_bitrate > 512:
+                    audio_bitrate = 512
                 audio_settings.update({l:{
                                     'codec': acodec,
                                     'channels': a.audio_channels,
