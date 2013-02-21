@@ -79,7 +79,7 @@ class Tvdb_mp4:
                 video["covr"] = [MP4Cover(cover, MP4Cover.FORMAT_PNG)] #png poster
             else:
                 video["covr"] = [MP4Cover(cover, MP4Cover.FORMAT_JPEG)] #jpeg poster
-
+        video["\xa9too"] = "Sickbeard MP4 Automator MDH"
         video.pprint()
         attempts = 0
         MP4(mp4Path).delete(mp4Path)
