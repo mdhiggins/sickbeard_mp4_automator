@@ -293,17 +293,23 @@ class FFMpeg(object):
             raise FFMpegError("ffprobe binary not found: " + self.ffprobe_path)
 
     @staticmethod
-    def _spawn(cmds):
+    def _spawn(cmds, communicate=False):
         if Popen and os.name!='nt':
             p = Popen(cmds, shell=False,
                 stdin=PIPE, stdout=PIPE, stderr=PIPE,
                 close_fds=True)
-            return (p.stdout, p.stderr)
+            if communicate:
+                    return p.communicate()
+            else:
+                return (p.stdout, p.stderr)
         elif Popen and os.name=='nt':
             p = Popen(cmds, shell=False,
                 stdin=PIPE, stdout=PIPE, stderr=PIPE,
                 close_fds=False)
-            return (p.stdout, p.stderr)
+            if communicate:
+                return p.communicate()
+            else:
+                return (p.stdout, p.stderr)
         else:
             pin, pout, perr = os.popen3(cmds)
             return (pout, perr)
@@ -336,10 +342,9 @@ class FFMpeg(object):
 
         info = MediaInfo()
 
-        fd, _ = self._spawn([self.ffprobe_path,
-            '-show_format', '-show_streams', fname])
-        raw = fd.read()
-
+        raw, _ = self._spawn([self.ffprobe_path,
+            '-show_format', '-show_streams', fname], True)
+        
         info.parse_ffprobe(raw)
 
         if not info.format.format and len(info.streams) == 0:
