@@ -52,7 +52,6 @@ class Tvdb_mp4:
             return
         ##Artwork will also require additional processing -- see artwork
         path = self.getArtwork()
-        cover = open(path, 'rb').read()
                 
         video=MP4(mp4Path)
         video["tvsh"] = self.show #TV show title
@@ -178,11 +177,13 @@ class posterCollection:
         self.posters = []
     def topPoster(self):
         #Determines which poster has the highest rating, returns the Poster object
-        top = Poster()
+        top = None
         for poster in self.posters:
-            if poster.rating > top.rating:
+            if top is None:
                 top = poster
-            if poster.rating == top.rating and poster.ratingcount > top.ratingcount:
+            elif poster.rating > top.rating:
+                top = poster
+            elif poster.rating == top.rating and poster.ratingcount > top.ratingcount:
                 top = poster
         return top
     def addPoster(self, inputPoster):
