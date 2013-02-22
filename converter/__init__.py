@@ -127,7 +127,7 @@ class Converter(object):
                 raise ConverterError('Invalid video codec specification')
 
             if 'map' not in x:
-                opt['video']['map'] = 0
+                raise ConverterError('Must specify a map value')
 
             c = x['codec']
             if c not in self.video_codecs:

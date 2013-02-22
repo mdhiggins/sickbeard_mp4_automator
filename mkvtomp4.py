@@ -52,7 +52,7 @@ class MkvtoMp4:
                         'format': 'mp4',
                         'video': {
                             'codec': vcodec,
-                            #'map': info.video.index
+                            'map': info.video.index
                         },
                         'audio': audio_settings,
                         'subtitle': subtitle_settings,
