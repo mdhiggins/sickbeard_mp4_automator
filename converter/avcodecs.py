@@ -375,7 +375,7 @@ class AudioCopyCodec(BaseCodec):
         optlist = []
         optlist.extend(['-c:a:'+stream, 'copy'])
         if 'map' in safe:
-            oplist.extend(['-map', '0:'+str(safe['map'])])
+            optlist.extend(['-map', '0:'+str(safe['map'])])
         if 'language' in safe:
             l = safe['language']
             if len(l) > 3:
