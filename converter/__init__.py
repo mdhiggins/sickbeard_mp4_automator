@@ -137,7 +137,7 @@ class Converter(object):
             if video_options is None:
                 raise ConverterError('Unknown video codec error')
 
-        optlist = audio_options + video_options + subtitle_options + format_options
+        optlist = video_options + audio_options + subtitle_options + format_options
 
         if twopass == 1:
             optlist.extend(['-pass', '1'])
