@@ -8,6 +8,7 @@ import time
 import tvdb_api
 from tvdb_api import tvdb_api
 from mutagen.mp4 import MP4, MP4Cover
+from extensions import valid_output_extensions
 
 class Tvdb_mp4:
     def __init__(self, show, season, episode):
@@ -47,9 +48,16 @@ class Tvdb_mp4:
 
     def writeTags(self, mp4Path):
         print "Tagging file :" + mp4Path
-        if not mp4Path.endswith('mp4') and not mp4Path.endswith('m4v'):
+        ext = os.path.splitext(mp4Path)[1][1:]
+        if ext not in valid_output_extensions:
             print "Error: File is not the correct format"
-            return
+            sys.exit()
+        
+        try:
+            MP4(mp4Path).delete()
+        except IOError:
+            print "Unable to clear original tags"
+        
         ##Artwork will also require additional processing -- see artwork
         path = self.getArtwork()
                 
@@ -86,7 +94,6 @@ class Tvdb_mp4:
         while attempts < 3:
             try:
                 print "Trying to write tags"
-                MP4(mp4Path).delete(mp4Path)
                 video.save()
                 print "Tags written successfully"
                 break
