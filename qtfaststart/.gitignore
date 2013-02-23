@@ -1,8 +1,0 @@
-.idea
-build
-dist
-*.pyc
-*~
-*.tmp
-*.swp
-MANIFEST
