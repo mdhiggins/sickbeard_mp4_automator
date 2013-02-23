@@ -68,7 +68,7 @@ class MkvtoMp4:
                 try:
                     os.remove(file)
                     print file + " deleted"
-                except IOError:
+                except OSError:
                     print "Unable to delete " + file
         elif input_extension in valid_output_extensions:
             self.output = file
@@ -78,6 +78,10 @@ class MkvtoMp4:
         if (relocate_moov):
             print "Relocating MOOV atom to start of file"
             tmp = self.output + ".tmp"
+            try:
+                os.remove(tmp)
+            except OSError:
+                pass
             os.rename(self.output, tmp)
             processor.process(tmp, self.output)
             os.remove(tmp)
