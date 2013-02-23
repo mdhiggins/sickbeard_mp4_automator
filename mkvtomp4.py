@@ -1,6 +1,6 @@
 import os
 import sys
-from converter import Converter
+from python_video_converter.converter import Converter
 from extensions import valid_input_extensions, valid_output_extensions
 from qtfaststart import processor
 
