@@ -15,8 +15,7 @@ if len(sys.argv) > 4:
     tvdb_id = int(sys.argv[3])
     season = int(sys.argv[4])
     episode = int(sys.argv[5])
-
-    convert = MkvtoMp4(path, settings.ffmpeg, settings.ffprobe, settings.delete, settings.output_extension)
+    convert = MkvtoMp4(path, settings.ffmpeg, settings.ffprobe, settings.delete, settings.output_extension, settings.relocate_moov)
     if extension not in valid_output_extensions:
         path = convert.output
         try:

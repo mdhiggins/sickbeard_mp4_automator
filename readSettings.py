@@ -13,7 +13,8 @@ class ReadSettings:
                     'ffprobe': 'ffprobe.exe',
                     'output_directory': '',
                     'output_extension': 'mp4',
-                    'delete_original': "True"}
+                    'delete_original': "True",
+                    'relocate_moov': "True"}
         defaults = sb_defaults.copy()
         defaults.update(mp4_defaults)
         section = "MP4"
@@ -44,6 +45,7 @@ class ReadSettings:
         self.output_dir = config.get(section, "output_directory").replace("\\", "\\\\").replace("\\\\\\\\", "\\\\")  # Output directory
         self.output_extension = config.get(section, "output_extension")  # Output extension
         self.delete = config.getboolean(section, "delete_original")  # Delete original file
+        self.relocate_moov = config.getboolean(section, "relocate_moov")  # Relocate MOOV atom to start of file
 
         if self.output_dir == "" and self.delete is False:
             print "Error - you must specify an alternate output directory if you aren't going to delete the original file"
