@@ -9,7 +9,7 @@ import struct
 
 from StringIO import StringIO
 
-from qtfaststart.exceptions import FastStartException
+from exceptions import FastStartException
 
 CHUNK_SIZE = 8192
 
