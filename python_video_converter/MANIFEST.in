@@ -1,0 +1,3 @@
+graft doc
+prune doc/_build
+include test/test1.ogg
