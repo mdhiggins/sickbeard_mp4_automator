@@ -4,6 +4,7 @@ from converter import Converter
 from extensions import valid_input_extensions, valid_output_extensions
 from qtfaststart import processor
 
+
 class MkvtoMp4:
     def __init__(self, file, FFMPEG_PATH="FFMPEG.exe", FFPROBE_PATH="FFPROBE.exe", delete=True, output_extension='mp4', relocate_moov=True, video_codec='h264', audio_codec='aac', audio_bitrate=640):
         #Get path information from the input file
@@ -67,7 +68,7 @@ class MkvtoMp4:
                 try:
                     os.remove(file)
                     print file + " deleted"
-                except OSError:
+                except IOError:
                     print "Unable to delete " + file
         elif input_extension in valid_output_extensions:
             self.output = file
@@ -76,4 +77,10 @@ class MkvtoMp4:
             sys.exit()
         if (relocate_moov):
             print "Relocating MOOV atom to start of file"
-            processor.process(self.output, self.output)
+            tmp = self.output + ".tmp"
+            try:
+                os.rename(self.output, tmp)
+                processor.process(tmp, self.output)
+                os.remove(tmp)
+            except:
+                print "Unable to move MOOV atom"
