@@ -2,10 +2,10 @@ import os
 import sys
 from converter import Converter
 from extensions import valid_input_extensions, valid_output_extensions
-
+from qtfaststart import processor
 
 class MkvtoMp4:
-    def __init__(self, file, FFMPEG_PATH="FFMPEG.exe", FFPROBE_PATH="FFPROBE.exe", delete=True, output_extension='mp4', video_codec='h264', audio_codec='aac', audio_bitrate=640):
+    def __init__(self, file, FFMPEG_PATH="FFMPEG.exe", FFPROBE_PATH="FFPROBE.exe", delete=True, output_extension='mp4', relocate_moov=True, video_codec='h264', audio_codec='aac', audio_bitrate=640):
         #Get path information from the input file
         output_dir, filename = os.path.split(file)
         filename, input_extension = os.path.splitext(filename)
@@ -74,3 +74,6 @@ class MkvtoMp4:
         else:
             print file + " - file not in the correct format"
             sys.exit()
+        if (relocate_moov):
+            print "Relocating MOOV atom to start of file"
+            processor.process(self.output, self.output)
