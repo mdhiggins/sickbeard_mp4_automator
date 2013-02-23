@@ -80,7 +80,7 @@ class Converter(object):
 
         if 'video' not in opt:
             opt['video'] = {'codec': None}
-            
+
         if 'subtitle' not in opt:
             opt['subtitle'][0] = {'codec': None}
 
@@ -102,7 +102,7 @@ class Converter(object):
                 audio_options.extend(self.audio_codecs[c]().parse_options(x, n))
                 if audio_options is None:
                     raise ConverterError('Unknown audio codec error')
-                    
+
         if 'subtitle' in opt:
             y = opt['subtitle']
             for n in y:
@@ -177,7 +177,7 @@ class Converter(object):
         using Converter in a threading environment, since the way the
         timeout is handled (using signals) has special restriction when
         using threads.
-               
+
         >>> conv = c.convert('test1.ogg', '/tmp/output.mkv', {
         ...    'format': 'mkv',
         ...    'audio': { 'codec': 'aac' },

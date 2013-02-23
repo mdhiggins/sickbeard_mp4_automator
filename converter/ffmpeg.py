@@ -150,7 +150,7 @@ class MediaStreamInfo(object):
                         self.video_fps = float(n) / float(d)
                 elif '.' in val:
                     self.video_fps = self.parse_float(val)
-        
+
         if self.type == 'subtitle':
             if key.lower() == 'disposition:forced':
                 self.sub_forced = self.parse_int(val)
@@ -238,7 +238,7 @@ class MediaInfo(object):
             if s.type == 'audio':
                 result.append(s)
         return result
-        
+
     @property
     def subtitle(self):
         """
@@ -249,6 +249,7 @@ class MediaInfo(object):
             if s.type == 'subtitle':
                 result.append(s)
         return result
+
 
 class FFMpeg(object):
     """
@@ -294,7 +295,7 @@ class FFMpeg(object):
 
     @staticmethod
     def _spawn(cmds, communicate=False):
-        if Popen and os.name!='nt':
+        if Popen and os.name != 'nt':
             p = Popen(cmds, shell=False,
                 stdin=PIPE, stdout=PIPE, stderr=PIPE,
                 close_fds=True)
@@ -302,7 +303,7 @@ class FFMpeg(object):
                     return p.communicate()
             else:
                 return (p.stdout, p.stderr)
-        elif Popen and os.name=='nt':
+        elif Popen and os.name == 'nt':
             p = Popen(cmds, shell=False,
                 stdin=PIPE, stdout=PIPE, stderr=PIPE,
                 close_fds=False)
@@ -344,7 +345,7 @@ class FFMpeg(object):
 
         raw, _ = self._spawn([self.ffprobe_path,
             '-show_format', '-show_streams', fname], True)
-        
+
         info.parse_ffprobe(raw)
 
         if not info.format.format and len(info.streams) == 0:
@@ -380,7 +381,7 @@ class FFMpeg(object):
         cmds.extend(opts)
         cmds.extend(['-y', outfile])
 
-        if timeout and os.name!='nt':
+        if timeout and os.name != 'nt':
             def on_sigalrm(*args):
                 signal.signal(signal.SIGALRM, signal.SIG_DFL)
                 raise Exception('timed out while waiting for ffmpeg')
@@ -397,12 +398,12 @@ class FFMpeg(object):
         total_output = ''
         pat = re.compile(r'time=([0-9.:]+) ')
         while True:
-            if timeout and os.name!='nt':
+            if timeout and os.name != 'nt':
                 signal.alarm(timeout)
 
             ret = fd.read(10)
 
-            if timeout and os.name!='nt':
+            if timeout and os.name != 'nt':
                 signal.alarm(0)
 
             if not ret:
@@ -426,7 +427,7 @@ class FFMpeg(object):
                     yielded = True
                     yield timecode
 
-        if timeout and os.name!='nt':
+        if timeout and os.name != 'nt':
             signal.signal(signal.SIGALRM, signal.SIG_DFL)
 
         if total_output == '':

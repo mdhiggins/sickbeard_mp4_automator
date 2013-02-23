@@ -3,13 +3,14 @@ import sys
 from converter import Converter
 from extensions import valid_input_extensions, valid_output_extensions
 
+
 class MkvtoMp4:
-    def __init__(self, file, FFMPEG_PATH="FFMPEG.exe", FFPROBE_PATH="FFPROBE.exe", delete=True, output_extension='mp4', video_codec='h264', audio_codec='aac', audio_bitrate=640):     
+    def __init__(self, file, FFMPEG_PATH="FFMPEG.exe", FFPROBE_PATH="FFPROBE.exe", delete=True, output_extension='mp4', video_codec='h264', audio_codec='aac', audio_bitrate=640):
         #Get path information from the input file
         output_dir, filename = os.path.split(file)
         filename, input_extension = os.path.splitext(filename)
         input_extension = input_extension[1:]
-        
+
         c = Converter(FFMPEG_PATH, FFPROBE_PATH)
         info = c.probe(file)
         self.height = info.video.video_height
@@ -28,19 +29,19 @@ class MkvtoMp4:
                     acodec = 'copy'
                 if a.audio_channels <= 2 and audio_bitrate > 512:
                     audio_bitrate = 512
-                audio_settings.update({l:{
+                audio_settings.update({l: {
                                     'map': a.index,
                                     'codec': acodec,
                                     'channels': a.audio_channels,
                                     'bitrate': audio_bitrate,
                                     'language': a.language,
-                                    }}) 
+                                    }})
                 l = l + 1
             subtitle_settings = {}
             l = 0
             for s in info.subtitle:
                 print "Subtitle stream detected: " + s.language
-                subtitle_settings.update({l:{
+                subtitle_settings.update({l: {
                                     'map': s.index,
                                     'codec': 'mov_text',
                                     'language': s.language,
@@ -60,7 +61,7 @@ class MkvtoMp4:
             self.output = os.path.join(output_dir, filename + "." + output_extension)
             conv = c.convert(file, self.output, options)
             for timecode in conv:
-                print '[{0}] {1}%'.format('#'*(timecode/10) + ' '*(10-(timecode/10)), timecode, end='\r')
+                print '[{0}] {1}%'.format('#' * (timecode / 10) + ' ' * (10 - (timecode / 10)), timecode, end='\r')
             print "Conversion complete"
             if delete:
                 try:

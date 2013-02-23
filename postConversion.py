@@ -10,11 +10,11 @@ from extensions import valid_output_extensions
 settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
 
 if len(sys.argv) > 4:
-    path = str(sys.argv[1]).replace("\\","\\\\").replace("\\\\\\\\","\\\\")
+    path = str(sys.argv[1]).replace("\\", "\\\\").replace("\\\\\\\\", "\\\\")
     extension = os.path.splitext(path)[1][1:]
     tvdb_id = int(sys.argv[3])
     season = int(sys.argv[4])
-    episode  = int(sys.argv[5])
+    episode = int(sys.argv[5])
 
     convert = MkvtoMp4(path, settings.ffmpeg, settings.ffprobe, settings.delete, settings.output_extension)
     if extension not in valid_output_extensions:
