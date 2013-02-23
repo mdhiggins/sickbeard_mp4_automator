@@ -85,6 +85,9 @@ class MediaStreamInfo(object):
         self.video_fps = None
         self.audio_channels = None
         self.audio_samplerate = None
+        self.sub_forced = None
+        self.sub_default = None
+        self.language = None
 
     @staticmethod
     def parse_float(val, default=0.0):
@@ -123,6 +126,8 @@ class MediaStreamInfo(object):
             self.audio_channels = self.parse_int(val)
         elif key == 'sample_rate':
             self.audio_samplerate = self.parse_float(val)
+        elif key.lower() == 'tag:language':
+                self.language = val
 
         if self.type == 'audio':
             if key == 'avg_frame_rate':
@@ -146,6 +151,12 @@ class MediaStreamInfo(object):
                 elif '.' in val:
                     self.video_fps = self.parse_float(val)
 
+        if self.type == 'subtitle':
+            if key.lower() == 'disposition:forced':
+                self.sub_forced = self.parse_int(val)
+            if key.lower() == 'disposition:default':
+                self.sub_default = self.parse_int(val)
+
     def __repr__(self):
         d = ''
         if self.type == 'audio':
@@ -156,6 +167,8 @@ class MediaStreamInfo(object):
             d = 'type=%s, codec=%s, width=%d, height=%d, fps=%.1f' % (
                 self.type, self.codec, self.video_width, self.video_height,
                 self.video_fps)
+        elif self.type == 'subtitle':
+            d = 'type=%s, language=%s, forced=%d' % (self.type, self.sub_language, self.sub_forced)
         return 'MediaStreamInfo(%s)' % d
 
 
@@ -218,12 +231,24 @@ class MediaInfo(object):
     @property
     def audio(self):
         """
-        First audio stream, or None if there are no audio streams.
+        All audio streams
         """
+        result = []
         for s in self.streams:
             if s.type == 'audio':
-                return s
-        return None
+                result.append(s)
+        return result
+
+    @property
+    def subtitle(self):
+        """
+        All subtitle streams
+        """
+        result = []
+        for s in self.streams:
+            if s.type == 'subtitle':
+                result.append(s)
+        return result
 
 
 class FFMpeg(object):
@@ -269,12 +294,23 @@ class FFMpeg(object):
             raise FFMpegError("ffprobe binary not found: " + self.ffprobe_path)
 
     @staticmethod
-    def _spawn(cmds):
-        if Popen:
+    def _spawn(cmds, communicate=False):
+        if Popen and os.name != 'nt':
             p = Popen(cmds, shell=False,
                 stdin=PIPE, stdout=PIPE, stderr=PIPE,
                 close_fds=True)
-            return (p.stdout, p.stderr)
+            if communicate:
+                    return p.communicate()
+            else:
+                return (p.stdout, p.stderr)
+        elif Popen and os.name == 'nt':
+            p = Popen(cmds, shell=False,
+                stdin=PIPE, stdout=PIPE, stderr=PIPE,
+                close_fds=False)
+            if communicate:
+                return p.communicate()
+            else:
+                return (p.stdout, p.stderr)
         else:
             pin, pout, perr = os.popen3(cmds)
             return (pout, perr)
@@ -307,9 +343,8 @@ class FFMpeg(object):
 
         info = MediaInfo()
 
-        fd, _ = self._spawn([self.ffprobe_path,
-            '-show_format', '-show_streams', fname])
-        raw = fd.read()
+        raw, _ = self._spawn([self.ffprobe_path,
+            '-show_format', '-show_streams', fname], True)
 
         info.parse_ffprobe(raw)
 
@@ -334,7 +369,7 @@ class FFMpeg(object):
         option.
 
         >>> conv = f.convert('test.ogg', '/tmp/output.mp3',
-        ...    ['-acodec libmp3lame', '-vn'])
+        ...    [0, ['-acodec libmp3lame', '-vn']])
         >>> for timecode in conv:
         ...    pass # can be used to inform the user about conversion progress
 
@@ -346,7 +381,7 @@ class FFMpeg(object):
         cmds.extend(opts)
         cmds.extend(['-y', outfile])
 
-        if timeout:
+        if timeout and os.name != 'nt':
             def on_sigalrm(*args):
                 signal.signal(signal.SIGALRM, signal.SIG_DFL)
                 raise Exception('timed out while waiting for ffmpeg')
@@ -363,12 +398,12 @@ class FFMpeg(object):
         total_output = ''
         pat = re.compile(r'time=([0-9.:]+) ')
         while True:
-            if timeout:
+            if timeout and os.name != 'nt':
                 signal.alarm(timeout)
 
             ret = fd.read(10)
 
-            if timeout:
+            if timeout and os.name != 'nt':
                 signal.alarm(0)
 
             if not ret:
@@ -392,7 +427,7 @@ class FFMpeg(object):
                     yielded = True
                     yield timecode
 
-        if timeout:
+        if timeout and os.name != 'nt':
             signal.signal(signal.SIGALRM, signal.SIG_DFL)
 
         if total_output == '':
