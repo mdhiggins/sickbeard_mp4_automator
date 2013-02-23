@@ -65,6 +65,7 @@ class MediaStreamInfo(object):
       * codec - codec (short) name (e.g "vorbis", "theora")
       * codec_desc - codec full (descriptive) name
       * duration - stream duration in seconds
+      * map - stream index
     Video-specific attributes are:
       * video_width - width of video in pixels
       * video_height - height of video in pixels
