@@ -78,9 +78,6 @@ class MkvtoMp4:
         if (relocate_moov):
             print "Relocating MOOV atom to start of file"
             tmp = self.output + ".tmp"
-            try:
-                os.rename(self.output, tmp)
-                processor.process(tmp, self.output)
-                os.remove(tmp)
-            except:
-                print "Unable to move MOOV atom"
+            os.rename(self.output, tmp)
+            processor.process(tmp, self.output)
+            os.remove(tmp)

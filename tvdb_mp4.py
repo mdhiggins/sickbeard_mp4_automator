@@ -210,7 +210,7 @@ def main():
         if os.path.splitext(mp4)[1][1:] in valid_output_extensions:
             tvdb_mp4_instance.writeTags(mp4)
         else:
-            print "Wrong file type (must be .mp4 or .m4v)"
+            print "Wrong file type"
 
 if __name__ == '__main__':
     main()
