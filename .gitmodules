@@ -1,0 +1,3 @@
+[submodule "qtfaststart"]
+	path = qtfaststart
+	url = git://github.com/danielgtaylor/qtfaststart.git

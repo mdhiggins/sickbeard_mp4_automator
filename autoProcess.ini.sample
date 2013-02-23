@@ -13,3 +13,4 @@ ffprobe=ffprobe.exe
 output_directory=
 output_extension=mp4
 delete_original=True
+relocate_moov=True
