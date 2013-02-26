@@ -23,7 +23,7 @@ if len(sys.argv) > 4:
             for item in refresh:
                 print refresh[item]
         except IOError:
-            print "Couldn't refresh Sickbeard, check your tvdb_mp4.ini settings"
+            print "Couldn't refresh Sickbeard, check your settings"
     tagmp4 = Tvdb_mp4(tvdb_id, season, episode)
     tagmp4.setHD(convert.width, convert.height)
     tagmp4.writeTags(path)
