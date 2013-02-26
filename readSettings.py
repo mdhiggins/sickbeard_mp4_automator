@@ -13,8 +13,9 @@ class ReadSettings:
                     'ffprobe': 'ffprobe.exe',
                     'output_directory': '',
                     'output_extension': 'mp4',
-                    'delete_original': "True",
-                    'relocate_moov': "True"}
+                    'delete_original': 'True',
+                    'relocate_moov': 'True',
+                    'ios-audio': 'False'}
         defaults = sb_defaults.copy()
         defaults.update(mp4_defaults)
         section = "MP4"
@@ -46,6 +47,7 @@ class ReadSettings:
         self.output_extension = config.get(section, "output_extension")  # Output extension
         self.delete = config.getboolean(section, "delete_original")  # Delete original file
         self.relocate_moov = config.getboolean(section, "relocate_moov")  # Relocate MOOV atom to start of file
+        self.iOS = config.getboolean(section, "ios-audio")  # Creates a second audio channel in AAC Stereo if the standard output methods are different from this for iOS compatability
 
         if self.output_dir == "" and self.delete is False:
             print "Error - you must specify an alternate output directory if you aren't going to delete the original file"
@@ -64,6 +66,11 @@ class ReadSettings:
         section = "SickBeard"
         #SSL
         protocol = "http://"
+
+        if not config.has_section(section):
+            print "You need to put your sickbeard settings in the config file"
+            sys.exit()
+
         if config.getboolean(section, "ssl"):
             protocol = "https://"
         host = config.get(section, "host")  # Server Address
