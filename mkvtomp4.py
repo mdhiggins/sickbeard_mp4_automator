@@ -6,7 +6,7 @@ from qtfaststart import processor
 
 
 class MkvtoMp4:
-    def __init__(self, file, FFMPEG_PATH="FFMPEG.exe", FFPROBE_PATH="FFPROBE.exe", delete=True, output_extension='mp4', relocate_moov=True, video_codec='h264', audio_codec='aac', audio_bitrate=640):
+    def __init__(self, file, FFMPEG_PATH="FFMPEG.exe", FFPROBE_PATH="FFPROBE.exe", delete=True, output_extension='mp4', relocate_moov=True, video_codec='h264', audio_codec='aac', audio_bitrate=640, iOS=False):
         #Get path information from the input file
         output_dir, filename = os.path.split(file)
         filename, input_extension = os.path.splitext(filename)
@@ -26,6 +26,16 @@ class MkvtoMp4:
             for a in info.audio:
                 print "Audio stream detected: " + a.codec
                 acodec = audio_codec
+                if iOS and a.audio_channels > 2:
+                    print "Creating dual audio channels for iOS compatability for this stream"
+                    audio_settings.update({l: {
+                                        'map': a.index,
+                                        'codec': 'aac',
+                                        'channels': 2,
+                                        'bitrate': 512,
+                                        'language': a.language,
+                                        }})
+                    l += 1
                 if a.codec == audio_codec:
                     acodec = 'copy'
                 if a.audio_channels <= 2 and audio_bitrate > 512:
