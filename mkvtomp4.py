@@ -18,57 +18,54 @@ class MkvtoMp4:
         self.width = info.video.video_width
         if input_extension in valid_input_extensions and output_extension in valid_output_extensions:
             print "Video codec detected: " + info.video.codec
-            vcodec = video_codec
-            if info.video.codec == video_codec:
-                vcodec = "copy"
+            vcodec = 'copy' if info.video.codec == video_codec else video_codec
             audio_settings = {}
             l = 0
             for a in info.audio:
                 print "Audio stream detected: " + a.codec
-                acodec = audio_codec
                 if iOS and a.audio_channels > 2:
                     print "Creating dual audio channels for iOS compatability for this stream"
                     audio_settings.update({l: {
-                                        'map': a.index,
-                                        'codec': 'aac',
-                                        'channels': 2,
-                                        'bitrate': 512,
-                                        'language': a.language,
-                                        }})
+                        'map': a.index,
+                        'codec': 'aac',
+                        'channels': 2,
+                        'bitrate': 512,
+                        'language': a.language,
+                    }})
                     l += 1
-                if a.codec == audio_codec:
-                    acodec = 'copy'
+                acodec = 'copy' if a.codec == audio_codec else audio_codec
                 if a.audio_channels <= 2 and audio_bitrate > 512:
                     audio_bitrate = 512
                 audio_settings.update({l: {
-                                    'map': a.index,
-                                    'codec': acodec,
-                                    'channels': a.audio_channels,
-                                    'bitrate': audio_bitrate,
-                                    'language': a.language,
-                                    }})
+                    'map': a.index,
+                    'codec': acodec,
+                    'channels': a.audio_channels,
+                    'bitrate': audio_bitrate,
+                    'language': a.language,
+                }})
                 l = l + 1
             subtitle_settings = {}
             l = 0
             for s in info.subtitle:
                 print "Subtitle stream detected: " + s.language
                 subtitle_settings.update({l: {
-                                    'map': s.index,
-                                    'codec': 'mov_text',
-                                    'language': s.language,
-                                    'forced': s.sub_forced,
-                                    'default': s.sub_default
-                                    }})
+                    'map': s.index,
+                    'codec': 'mov_text',
+                    'language': s.language,
+                    'forced': s.sub_forced,
+                    'default': s.sub_default
+                }})
                 l = l + 1
             options = {
-                        'format': 'mp4',
-                        'video': {
-                            'codec': vcodec,
-                            'map': info.video.index
-                        },
-                        'audio': audio_settings,
-                        'subtitle': subtitle_settings,
-                    }
+                'format': 'mp4',
+                'video': {
+                    'codec': vcodec,
+                    'map': info.video.index
+                },
+                'audio': audio_settings,
+                'subtitle': subtitle_settings,
+            }
+            print options
             self.output = os.path.join(output_dir, filename + "." + output_extension)
             conv = c.convert(file, self.output, options)
             for timecode in conv:
