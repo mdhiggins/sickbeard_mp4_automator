@@ -128,7 +128,10 @@ class MediaStreamInfo(object):
         elif key == 'sample_rate':
             self.audio_samplerate = self.parse_float(val)
         elif key.lower() == 'tag:language':
+            if val is not None:
                 self.language = val
+            else:
+                self.language = 'und'
 
         if self.type == 'audio':
             if key == 'avg_frame_rate':
