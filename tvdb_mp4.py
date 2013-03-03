@@ -54,7 +54,7 @@ class Tvdb_mp4:
         try:
             MP4(mp4Path).delete()
         except IOError:
-            print "Unable to clear original tags"
+            print "Unable to clear original tags, attempting to proceed"
 
         video = MP4(mp4Path)
         video["tvsh"] = self.show  # TV show title
@@ -72,7 +72,7 @@ class Tvdb_mp4:
         video["stik"] = [10]  # TV show iTunes category
         if self.HD is not None:
             video["hdvd"] = self.HD
-        if self.genre != None:
+        if self.genre is not None:
             video["\xa9gen"] = self.genre.replace('|', ',')[1:-1]  # Genre(s)
         video["----:com.apple.iTunes:iTunMOVI"] = self.xml  # XML - see xmlTags method
 
@@ -85,10 +85,8 @@ class Tvdb_mp4:
                 video["covr"] = [MP4Cover(cover, MP4Cover.FORMAT_JPEG)]  # jpeg poster
         video["\xa9too"] = "Sickbeard MP4 Automator MDH"
         video.pprint()
-        attempts = 0
         MP4(mp4Path).delete(mp4Path)
-        video.save()
-        while attempts < 3:
+        for i in range(3):
             try:
                 print "Trying to write tags"
                 video.save()
@@ -97,8 +95,6 @@ class Tvdb_mp4:
             except IOError:
                 print IOError
                 time.sleep(5)
-                attempts += 1
-    #end writeTags
 
     def setHD(self, width, height):
         if width >= 1920 or height >= 1080:
@@ -119,37 +115,36 @@ class Tvdb_mp4:
 
         output = StringIO.StringIO()
         output.write(header)
-        output.write(castheader)
 
-        #Write Actors
-        count = 0
-        while (count < len(self.showdata['_actors']) - 1):
-            name = self.showdata['_actors'][count]['name']
-            if name != None:
-                output.write("<dict><key>name</key><string>" + name.encode('ascii', errors='ignore') + "</string></dict>\n")
-            count = count + 1
+        # Write actors
+        output.write(castheader)
+        for a in self.showdata['_actors'][:5]:
+            if a is not None:
+                output.write("<dict><key>name</key><string>" + a['name'].encode('ascii', errors='ignore') + "</string></dict>\n")
         output.write(subfooter)
-        #write Screenwriter
-        if self.writer != None:
+
+        # Write screenwriterr
+        if self.writer is not None:
             output.write(writerheader)
             for name in self.writer.split("|"):
                 if name != "":
                     output.write("<dict><key>name</key><string>" + name.encode('ascii', errors='ignore') + "</string></dict>\n")
             output.write(subfooter)
-        #write Director
-        if self.director != None:
+
+        # Write directors
+        if self.director is not None:
             output.write(directorheader)
             for name in self.director.split("|"):
                 if name != "":
                     output.write("<dict><key>name</key><string>" + name.encode('ascii', errors='ignore') + "</string></dict>\n")
             output.write(subfooter)
+
+        # Close XML
         output.write(footer)
         return output.getvalue()
-        output.close()
-    #end xmlTags
 
     def getArtwork(self):
-        #Pulls down all the poster metadata for the correct season and sorts them into the Poster object
+        # Pulls down all the poster metadata for the correct season and sorts them into the Poster object
         posters = posterCollection()
         for bannerid in self.showdata['_banners']['season']['season'].keys():
             if str(self.showdata['_banners']['season']['season'][bannerid]['season']) == str(self.season):
@@ -164,18 +159,14 @@ class Tvdb_mp4:
         except:
             poster = None
         return poster
-    #end artwork
-#end tvdb_mp4
 
 
 class Poster:
-    #simple container for all the poster parameters needed
+    # Simple container for all the poster parameters needed
     def __init__(self, rating=0, ratingcount=0, bannerpath=""):
         self.rating = rating
         self.bannerpath = bannerpath
         self.ratingcount = ratingcount
-        #self.language
-    #end poster
 
 
 class posterCollection:
@@ -183,7 +174,7 @@ class posterCollection:
         self.posters = []
 
     def topPoster(self):
-        #Determines which poster has the highest rating, returns the Poster object
+        # Determines which poster has the highest rating, returns the Poster object
         top = None
         for poster in self.posters:
             if top is None:
