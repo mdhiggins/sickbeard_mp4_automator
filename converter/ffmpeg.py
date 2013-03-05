@@ -88,7 +88,7 @@ class MediaStreamInfo(object):
         self.audio_samplerate = None
         self.sub_forced = None
         self.sub_default = None
-        self.language = None
+        self.language = 'und'
 
     @staticmethod
     def parse_float(val, default=0.0):
@@ -130,8 +130,6 @@ class MediaStreamInfo(object):
         elif key.lower() == 'tag:language':
             if val is not None:
                 self.language = val
-            else:
-                self.language = 'und'
 
         if self.type == 'audio':
             if key == 'avg_frame_rate':
