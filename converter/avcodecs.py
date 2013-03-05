@@ -97,10 +97,10 @@ class AudioCodec(BaseCodec):
             optlist.extend(['-b:a:' + stream, str(safe['bitrate']) + 'k'])
         if 'samplerate' in safe:
             optlist.extend(['-r:a:' + stream, str(safe['samplerate'])])
-        if 'language' in safe and safe['language'] != 'und':
+        if 'language' in safe:
                 lang = str(safe['language'])
         else:
-            lang = 'eng'
+            lang = 'und'
         optlist.extend(['-metadata:s:a:' + stream, "language=" + lang])
 
         optlist.extend(self._codec_specific_produce_ffmpeg_list(safe))
@@ -156,10 +156,10 @@ class SubtitleCodec(BaseCodec):
             optlist.extend(['-metadata:s:s:' + stream, "disposition:default=" + str(safe['default'])])
         if 'forced' in safe:
             optlist.extend(['-metadata:s:s:' + stream, "disposition:forced=" + str(safe['forced'])])
-        if 'language' in safe and safe['language'] != 'und':
+        if 'language' in safe:
                 lang = str(safe['language'])
         else:
-            lang = 'eng'
+            lang = 'und'
         optlist.extend(['-metadata:s:s:' + stream, "language=" + lang])
 
         optlist.extend(self._codec_specific_produce_ffmpeg_list(safe))
@@ -383,10 +383,10 @@ class AudioCopyCodec(BaseCodec):
             l = safe['language']
             if len(l) > 3:
                 del safe['language']
-        if 'language' in safe:
-            lang = str(safe['language'])
+            else:
+                lang = str(safe['language'])
         else:
-            lang = 'eng'
+            lang = 'und'
         optlist.extend(['-metadata:s:a:' + stream, "language=" + lang])
         return optlist
 
