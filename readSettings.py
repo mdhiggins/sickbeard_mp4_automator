@@ -15,7 +15,9 @@ class ReadSettings:
                         'output_extension': 'mp4',
                         'delete_original': 'True',
                         'relocate_moov': 'True',
-                        'ios-audio': 'False'}
+                        'ios-audio': 'False',
+                        'audio-language': '',
+                        'subtitle-language': ''}
         defaults = sb_defaults.copy()
         defaults.update(mp4_defaults)
         section = "MP4"
@@ -48,6 +50,17 @@ class ReadSettings:
         self.delete = config.getboolean(section, "delete_original")  # Delete original file
         self.relocate_moov = config.getboolean(section, "relocate_moov")  # Relocate MOOV atom to start of file
         self.iOS = config.getboolean(section, "ios-audio")  # Creates a second audio channel in AAC Stereo if the standard output methods are different from this for iOS compatability
+
+        self.awl = config.get(section, 'audio-language')  # List of acceptable languages for audio streams to be carried over from the original file, separated by a comma. Blank for all
+        if self.awl == '':
+            self.awl = None
+        else:
+            self.awl = self.awl.split(',')
+        self.swl = config.get(section, 'subtitle-language')  # List of acceptable languages for subtitle streams to be carried over from the original file, separated by a comma. Blank for all
+        if self.swl == '':
+            self.swl = None
+        else:
+            self.swl = self.swl.split(',')
 
         if self.output_dir == "" and self.delete is False:
             print "Error - you must specify an alternate output directory if you aren't going to delete the original file"
