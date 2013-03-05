@@ -6,16 +6,16 @@ import ConfigParser
 class ReadSettings:
     def __init__(self, directory, filename):
         sb_defaults = {'host': 'localhost',
-                    'port': '8081',
-                    'ssl': "False",
-                    'api_key': '', }
+                       'port': '8081',
+                       'ssl': "False",
+                       'api_key': '', }
         mp4_defaults = {'ffmpeg': 'ffmpeg.exe',
-                    'ffprobe': 'ffprobe.exe',
-                    'output_directory': '',
-                    'output_extension': 'mp4',
-                    'delete_original': 'True',
-                    'relocate_moov': 'True',
-                    'ios-audio': 'False'}
+                        'ffprobe': 'ffprobe.exe',
+                        'output_directory': '',
+                        'output_extension': 'mp4',
+                        'delete_original': 'True',
+                        'relocate_moov': 'True',
+                        'ios-audio': 'False'}
         defaults = sb_defaults.copy()
         defaults.update(mp4_defaults)
         section = "MP4"
