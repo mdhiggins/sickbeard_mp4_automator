@@ -17,7 +17,9 @@ class ReadSettings:
                         'relocate_moov': 'True',
                         'ios-audio': 'False',
                         'audio-language': '',
-                        'subtitle-language': ''}
+                        'subtitle-language': '',
+                        'audio-default-language': '',
+                        'subtitle-default-language': ''}
         defaults = sb_defaults.copy()
         defaults.update(mp4_defaults)
         section = "MP4"
@@ -61,6 +63,13 @@ class ReadSettings:
             self.swl = None
         else:
             self.swl = self.swl.split(',')
+
+        self.adl = config.get(section, 'audio-default-language')
+        if self.adl == "":
+            self.adl = None
+        self.sdl = config.get(section, 'subtitle-default-language')
+        if self.sdl == "":
+            self.sdl = None
 
         if self.output_dir == "" and self.delete is False:
             print "Error - you must specify an alternate output directory if you aren't going to delete the original file"

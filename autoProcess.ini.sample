@@ -16,4 +16,6 @@ delete_original=True
 relocate_moov=True
 ios-audio=False
 audio-language=
+audio-default-language=
 subtitle-language=
+subtitle-default-language=

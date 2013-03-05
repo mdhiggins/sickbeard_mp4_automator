@@ -6,7 +6,7 @@ from qtfaststart import processor
 
 
 class MkvtoMp4:
-    def __init__(self, file, FFMPEG_PATH="FFMPEG.exe", FFPROBE_PATH="FFPROBE.exe", delete=True, output_extension='mp4', relocate_moov=True, video_codec='h264', audio_codec='aac', audio_bitrate=640, iOS=False, awl=None, swl=None):
+    def __init__(self, file, FFMPEG_PATH="FFMPEG.exe", FFPROBE_PATH="FFPROBE.exe", delete=True, output_extension='mp4', relocate_moov=True, video_codec='h264', audio_codec='aac', audio_bitrate=640, iOS=False, awl=None, swl=None, adl=None, sdl=None):
         #Get path information from the input file
         output_dir, filename = os.path.split(file)
         filename, input_extension = os.path.splitext(filename)
@@ -23,6 +23,8 @@ class MkvtoMp4:
             l = 0
             for a in info.audio:
                 print "Audio stream detected: " + a.codec
+                if adl is not None and a.language == 'und':
+                    a.language = adl
                 if awl is None or a.language in awl:
                     if iOS and a.audio_channels > 2:
                         print "Creating dual audio channels for iOS compatability for this stream"
@@ -49,6 +51,8 @@ class MkvtoMp4:
             l = 0
             for s in info.subtitle:
                 print "Subtitle stream detected: " + s.language
+                if sdl is not None and s.language == 'und':
+                    s.language = sdl
                 if swl is None or s.language in swl:
                     subtitle_settings.update({l: {
                         'map': s.index,
