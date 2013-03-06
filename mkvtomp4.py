@@ -67,8 +67,10 @@ class MkvtoMp4:
             l = 0
             for s in info.subtitle:
                 print "Subtitle stream detected: " + s.language
+                # Set undefined language to default language if specified
                 if sdl is not None and s.language == 'und':
                     s.language = sdl
+                # Proceed if no whitelist is set, or if the language is in the whitelist
                 if swl is None or s.language in swl:
                     subtitle_settings.update({l: {
                         'map': s.index,
@@ -84,7 +86,8 @@ class MkvtoMp4:
                 'format': 'mp4',
                 'video': {
                     'codec': vcodec,
-                    'map': info.video.index
+                    'map': info.video.index,
+                    'bitrate': info.video.bitrate
                 },
                 'audio': audio_settings,
                 'subtitle': subtitle_settings,
