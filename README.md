@@ -58,5 +58,6 @@ This project makes use of the following projects:
 - https://code.google.com/p/mutagen/
 - http://imdbpy.sourceforge.net/
 - https://github.com/danielgtaylor/qtfaststart
+- https://github.com/clinton-hall/nzbToMedia
 
 Enjoy
