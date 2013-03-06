@@ -3,6 +3,8 @@ Sickbeard/CouchPotato MP4 automation script.
 
 **Automatically converts mkv files downloaded by sickbeard to mp4 files, and tags them with the appropriate metadata from theTVDB. Works as an extra_script, integrated with SAB, as well as a manual post-processing script.**
 
+**Works with CouchPotato as well, tagging with the appropriate metadata from IMDb. Requires SAB**
+
 - Requires Python 2.7 *(Does NOT work with Python 3)*
 - Requires FFMPEG and FFPROBE
 - Only tested on Windows
