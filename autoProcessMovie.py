@@ -4,7 +4,7 @@ import os.path
 import shutil
 import time
 import json
-import readSettings
+from readSettings import ReadSettings
 
 
 class AuthURLOpener(urllib.FancyURLopener):
@@ -29,7 +29,7 @@ class AuthURLOpener(urllib.FancyURLopener):
 def process(dirName, nzbName=None, status=0):
 
     status = int(status)
-    settings = readSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
+    settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
 
     host = settings.CP['host']
     port = settings.CP['port']
