@@ -50,13 +50,13 @@ CouchPotato Support
 Credits
 --------------
 This project makes use of the following projects:
-    - http://www.sickbeard.com/
-    - https://couchpota.to/
-    - http://sabnzbd.org/
-    - https://github.com/senko/python-video-converter
-    - https://github.com/dbr/tvdb_api
-    - https://code.google.com/p/mutagen/
-    - http://imdbpy.sourceforge.net/
-    - https://github.com/danielgtaylor/qtfaststart
+- http://www.sickbeard.com/
+- https://couchpota.to/
+- http://sabnzbd.org/
+- https://github.com/senko/python-video-converter
+- https://github.com/dbr/tvdb_api
+- https://code.google.com/p/mutagen/
+- http://imdbpy.sourceforge.net/
+- https://github.com/danielgtaylor/qtfaststart
 
 Enjoy
