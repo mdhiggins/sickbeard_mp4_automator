@@ -19,3 +19,15 @@ audio-language=
 audio-default-language=
 subtitle-language=
 subtitle-default-language=
+
+[CouchPotato]
+host = localhost
+port = 5050
+username = 
+password =
+web_root =
+ssl = 0
+apikey = 
+delay = 65
+method = renamer
+delete_failed = 0

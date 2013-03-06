@@ -5,10 +5,12 @@ import ConfigParser
 
 class ReadSettings:
     def __init__(self, directory, filename):
+        # Default settings for SickBeard
         sb_defaults = {'host': 'localhost',
                        'port': '8081',
                        'ssl': "False",
                        'api_key': '', }
+       # Default MP4 conversion settings
         mp4_defaults = {'ffmpeg': 'ffmpeg.exe',
                         'ffprobe': 'ffprobe.exe',
                         'output_directory': '',
@@ -20,9 +22,21 @@ class ReadSettings:
                         'subtitle-language': '',
                         'audio-default-language': '',
                         'subtitle-default-language': ''}
-        defaults = sb_defaults.copy()
-        defaults.update(mp4_defaults)
-        section = "MP4"
+        #$Default settings for CouchPotato
+        cp_defaults = {'host': 'localhost',
+                       'port': '5050',
+                       'username': '',
+                       'password': '',
+                       'apikey': '',
+                       'delay': '65',
+                       'method': 'renamer',
+                       'delete_failed': 'False',
+                       'ssl': 'False',
+                       'web_root': ''}
+
+        defaults = {'SickBeard': sb_defaults, 'CouchPotato': cp_defaults, 'MP4': mp4_defaults}
+        write = False  # Will be changed to true if a value is missing from the config file and needs to be written
+
         config = ConfigParser.SafeConfigParser()
         configFile = os.path.join(directory, filename)
         if os.path.isfile(configFile):
@@ -30,21 +44,26 @@ class ReadSettings:
             config.readfp(fp)
             fp.close()
         else:
-            print "Error: Config file not found, using default values"
-            config = ConfigParser.SafeConfigParser(defaults)
+            print "Error: Config file not found, creating"
+            #config.filename = filename
+            write = True
 
-        if not config.has_section(section):
-            config.add_section(section)
+        # Make sure all sections and all keys for each section are present
+        for s in defaults:
+            if not config.has_section(s):
+                config.add_section(s)
+                write = True
+            for k in defaults[s]:
+                if not config.has_option(s, k):
+                    config.set(s, k, defaults[s][k])
+                    write = True
 
-        changed = False
-        for r in mp4_defaults:
-            if not config.has_option(section, r):
-                config.set(section, r, mp4_defaults[r])
-                changed = True
-
-        if changed:
+        # If any keys are missing from the config file, write them
+        if write:
             self.writeConfig(config, configFile)
 
+        #Read relevant MP4 section information
+        section = "MP4"
         self.ffmpeg = config.get(section, "ffmpeg").replace("\\", "\\\\").replace("\\\\\\\\", "\\\\")  # Location of FFMPEG.exe
         self.ffprobe = config.get(section, "ffprobe").replace("\\", "\\\\").replace("\\\\\\\\", "\\\\")  # Location of FFPROBE.exe
         self.output_dir = config.get(section, "output_directory").replace("\\", "\\\\").replace("\\\\\\\\", "\\\\")  # Output directory
@@ -52,7 +71,6 @@ class ReadSettings:
         self.delete = config.getboolean(section, "delete_original")  # Delete original file
         self.relocate_moov = config.getboolean(section, "relocate_moov")  # Relocate MOOV atom to start of file
         self.iOS = config.getboolean(section, "ios-audio")  # Creates a second audio channel in AAC Stereo if the standard output methods are different from this for iOS compatability
-
         self.awl = config.get(section, 'audio-language')  # List of acceptable languages for audio streams to be carried over from the original file, separated by a comma. Blank for all
         if self.awl == '':
             self.awl = None
@@ -63,43 +81,66 @@ class ReadSettings:
             self.swl = None
         else:
             self.swl = self.swl.split(',')
-
-        self.adl = config.get(section, 'audio-default-language')
-        if self.adl == "":
+        self.adl = config.get(section, 'audio-default-language')  # What language to default an undefinied audio language tag to. If blank, it will remain undefined. This is useful for single language releases which tend to leave things tagged as und
+        if self.adl == "" or len(self.adl) > 3:
             self.adl = None
-        self.sdl = config.get(section, 'subtitle-default-language')
-        if self.sdl == "":
+        self.sdl = config.get(section, 'subtitle-default-language')  # What language to default an undefinied subtitle language tag to. If blank, it will remain undefined. This is useful for single language releases which tend to leave things tagged as und
+        if self.sdl == ""or len(self.sdl) > 3:
             self.sdl = None
-
+        # Prevent incompatible combination of settings
         if self.output_dir == "" and self.delete is False:
             print "Error - you must specify an alternate output directory if you aren't going to delete the original file"
             sys.exit()
-
+        # Create output directory if it does not exist
         if self.output_dir == "":
             self.output_dir = None
         else:
             if not os.path.isdir(self.output_dir):
                 os.makedirs(self.output_dir)
+
+        #Read relevant CouchPotato section information
+        section = "CouchPotato"
+        self.CP = {}
+        self.CP['host'] = config.get(section, "host")
+        self.CP['port'] = config.get(section, "port")
+        self.CP['username'] = config.get(section, "username")
+        self.CP['password'] = config.get(section, "password")
+        self.CP['apikey'] = config.get(section, "apikey")
+        self.CP['delay'] = config.get(section, "delay")
+        self.CP['method'] = config.get(section, "method")
+        self.CP['web_root'] = config.get(section, "web_root")
+        try:
+            self.CP['delay'] = float(self.CP['delay'])
+        except ValueError:
+            self.CP['delay'] = 60
+        try:
+            self.CP['delete_failed'] = config.getboolean(section, "delete_failed")
+        except (ConfigParser.NoOptionError, ValueError):
+            self.CP['delete_failed'] = False
+        try:
+            if config.getboolean(section, 'ssl'):
+                self.CP['protocol'] = "https://"
+            else:
+                self.CP['protocol'] = "http://"
+        except (ConfigParser.NoOptionError, ValueError):
+            self.CP['protocol'] = "http://"
+
+        #Pass the values on
         self.config = config
         self.configFile = configFile
 
     def getRefreshURL(self, tvdb_id):
         config = self.config
         section = "SickBeard"
-        #SSL
-        protocol = "http://"
 
-        if not config.has_section(section):
-            print "You need to put your sickbeard settings in the config file"
-            sys.exit()
-
-        if config.getboolean(section, "ssl"):
-            protocol = "https://"
+        protocol = "http://"  # SSL
+        try:
+            if config.getboolean(section, "ssl"):
+                protocol = "https://"
+        except (ConfigParser.NoOptionError, ValueError):
+            pass
         host = config.get(section, "host")  # Server Address
         port = config.get(section, "port")  # Server Port
-        if not config.has_option(section, "api_key"):
-            config.set(section, "api_key", "")
-            self.writeConfig(config, self.configFile)
         api_key = config.get(section, "api_key")  # Sickbeard API key
 
         sickbeard_url = protocol + host + ":" + port + "/api/" + api_key + "/?cmd=show.refresh&tvdbid=" + str(tvdb_id)
