@@ -48,10 +48,11 @@ class MkvtoMp4:
                     acodec = 'copy' if a.codec == audio_codec else audio_codec
 
                     # Bitrate calculations/overrides
-                    if audio_bitrate is None or audio_bitrate > (a.audio_channels * 264):
-                        abitrate = 264 * a.audio_channels
+                    if audio_bitrate is None or audio_bitrate > (a.audio_channels * 256):
+                        abitrate = 256 * a.audio_channels
                     else:
                         abitrate = audio_bitrate
+                    print abitrate
 
                     audio_settings.update({l: {
                         'map': a.index,
@@ -93,6 +94,7 @@ class MkvtoMp4:
                 'subtitle': subtitle_settings,
             }
 
+            print options
             self.output = os.path.join(output_dir, filename + "." + output_extension)
             conv = c.convert(file, self.output, options)
 
