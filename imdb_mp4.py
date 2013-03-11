@@ -11,6 +11,7 @@ from extensions import valid_output_extensions
 
 class imdb_mp4:
     def __init__(self, imdbid):
+        print "Fetching info for imdb id " + str(imdbid)
         for i in range(3):
             try:
                 imdb = IMDb()
@@ -21,15 +22,20 @@ class imdb_mp4:
 
                 self.genre = self.movie['genre']
 
-                self.description = self.movie['plot'][0].split('::')[0]
                 self.shortdescription = self.movie['plot outline']
+                if 'plot' in self.movie.keys():
+                    self.description = self.movie['plot'][0].split('::')[0]
+                else:
+                    self.description = self.shortdescription
+
                 self.date = str(self.movie['year'])
 
                 # Generate XML tags for Actors/Writers/Directors/Producers
                 self.xml = self.xmlTags()
                 break
             except:
-                print "Failed to connect to IMDb, trying again in 20 seconds"
+                print sys.exc_info()[0]
+                #print "Failed to connect to IMDb, trying again in 20 seconds"
                 time.sleep(20)
 
     def writeTags(self, mp4Path):
