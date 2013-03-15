@@ -2,6 +2,7 @@ import os
 import sys
 import json
 import urllib
+import shutil
 from readSettings import ReadSettings
 from tvdb_mp4 import Tvdb_mp4
 from mkvtomp4 import MkvtoMp4
@@ -28,10 +29,16 @@ if len(sys.argv) > 4:
     tagmp4.setHD(convert.width, convert.height)
     tagmp4.writeTags(path)
     if settings.output_dir is not None:
-        try:
-            os.rename(path, os.path.join(settings.output_dir, os.path.split(path)[1]))
-        except OSError:
-            print "Unable to move file"
+        if extension in valid_output_extensions:  # If the file is already in a valid format, this will duplicate the file in the output directory since no original would be left behind
+            try:
+                shutil.copy(path, os.path.join(settings.output_dir, os.path.split(path)[1]))
+            except OSError:
+                print "Unable to copy file to output directory"
+        else:  # Otherwise just move the file like normal, leaving behind the original MKV
+            try:
+                os.rename(path, os.path.join(settings.output_dir, os.path.split(path)[1]))
+            except OSError:
+                print "Unable to move file to output directory"
 else:
     print "Not enough command line arguments present " + str(len(sys.argv))
     sys.exit()
