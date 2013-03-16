@@ -24,7 +24,6 @@ class Tvdb_mp4:
                 self.showdata = self.tvdb_show[self.show]
                 self.seasondata = self.showdata[self.season]
                 self.episodedata = self.seasondata[self.episode]
-                #episodedata = self.tvdb_show[self.show][self.season][self.episode]
 
                 self.show = self.showdata['seriesname']
                 self.genre = self.showdata['genre']
@@ -146,15 +145,15 @@ class Tvdb_mp4:
     def getArtwork(self):
         # Pulls down all the poster metadata for the correct season and sorts them into the Poster object
         posters = posterCollection()
-        for bannerid in self.showdata['_banners']['season']['season'].keys():
-            if str(self.showdata['_banners']['season']['season'][bannerid]['season']) == str(self.season):
-                poster = Poster()
-                poster.ratingcount = int(self.showdata['_banners']['season']['season'][bannerid]['ratingcount'])
-                if poster.ratingcount > 0:
-                    poster.rating = float(self.showdata['_banners']['season']['season'][bannerid]['rating'])
-                poster.bannerpath = self.showdata['_banners']['season']['season'][bannerid]['_bannerpath']
-                posters.addPoster(poster)
         try:
+            for bannerid in self.showdata['_banners']['season']['season'].keys():
+                if str(self.showdata['_banners']['season']['season'][bannerid]['season']) == str(self.season):
+                    poster = Poster()
+                    poster.ratingcount = int(self.showdata['_banners']['season']['season'][bannerid]['ratingcount'])
+                    if poster.ratingcount > 0:
+                        poster.rating = float(self.showdata['_banners']['season']['season'][bannerid]['rating'])
+                    poster.bannerpath = self.showdata['_banners']['season']['season'][bannerid]['_bannerpath']
+                    posters.addPoster(poster)
             poster = urllib.urlretrieve(posters.topPoster().bannerpath, tempfile.gettempdir() + "\poster.jpg")[0]
         except:
             poster = None
