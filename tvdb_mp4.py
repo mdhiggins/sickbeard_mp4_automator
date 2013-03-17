@@ -12,6 +12,12 @@ from extensions import valid_output_extensions
 class Tvdb_mp4:
     def __init__(self, show, season, episode):
         attempts = 0
+        # Set blanks
+        self.show = ""
+        self.genre = ""
+        self.network = ""
+        self.title = ""
+        self.description = ""
         while attempts < 3:
             try:
                 self.tvdb_show = Tvdb(interactive=False, cache=False, banners=True, actors=True, forceConnect=True)
