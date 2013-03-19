@@ -11,14 +11,7 @@ from extensions import valid_output_extensions
 
 class Tvdb_mp4:
     def __init__(self, show, season, episode):
-        attempts = 0
-        # Set blanks
-        self.show = ""
-        self.genre = ""
-        self.network = ""
-        self.title = ""
-        self.description = ""
-        while attempts < 3:
+        for i in range(3):
             try:
                 self.tvdb_show = Tvdb(interactive=False, cache=False, banners=True, actors=True, forceConnect=True)
                 self.show = show
@@ -47,7 +40,6 @@ class Tvdb_mp4:
             except:
                 print "Failed to connect to TVDB, trying again in 20 seconds"
                 time.sleep(20)
-                attempts += 1
         #end __init__
 
     def writeTags(self, mp4Path):
