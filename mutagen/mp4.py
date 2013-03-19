@@ -274,11 +274,12 @@ class MP4Tags(DictProxy, Metadata):
         items = self.items()
         items.sort(self.__key_sort)
         for key, value in items:
-            info = self.__atoms.get(key[:4], (None, type(self).__render_text))
-            try:
-                values.append(info[1](self, key, value, *info[2:]))
-            except (TypeError, ValueError), s:
-                raise MP4MetadataValueError, s, sys.exc_info()[2]
+            if value is not None:
+                info = self.__atoms.get(key[:4], (None, type(self).__render_text))
+                try:
+                    values.append(info[1](self, key, value, *info[2:]))
+                except (TypeError, ValueError), s:
+                    raise MP4MetadataValueError, s, sys.exc_info()[2]
         data = Atom.render("ilst", "".join(values))
 
         # Find the old atoms.
