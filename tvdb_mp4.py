@@ -40,7 +40,6 @@ class Tvdb_mp4:
             except:
                 print "Failed to connect to TVDB, trying again in 20 seconds"
                 time.sleep(20)
-        #end __init__
 
     def writeTags(self, mp4Path):
         print "Tagging file :" + mp4Path
