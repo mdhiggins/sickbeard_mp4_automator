@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 from converter import Converter
 from extensions import valid_input_extensions, valid_output_extensions
 from qtfaststart import processor
@@ -127,6 +128,11 @@ class MkvtoMp4:
                 os.remove(tmp)
             except OSError:
                 pass
-            os.rename(self.output, tmp)
+            for i in range(3):
+                try:
+                    os.rename(self.output, tmp)
+                    break
+                except WindowsError:
+                    time.sleep(10)
             processor.process(tmp, self.output)
             os.remove(tmp)
