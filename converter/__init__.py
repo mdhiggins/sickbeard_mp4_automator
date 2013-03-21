@@ -84,9 +84,13 @@ class Converter(object):
         if 'audio' in opt:
             y = opt['audio']
 
-            # Creates the new nested dictionary if it is not present to preserve backwards compatability
-            if not isinstance(y.itervalues().next(), dict):
-                y = {0: y}
+            # Creates the new nested dictionary to preserve backwards compatability
+            try:
+                first = y.values()[0]
+                if not isinstance(first, dict) and not isinstance(first, None):
+                    y = {0: y}
+            except IndexError:
+                pass
 
             for n in y:
                 x = y[n]
@@ -108,9 +112,13 @@ class Converter(object):
         if 'subtitle' in opt:
             y = opt['subtitle']
 
-            # Creates the new nested dictionary if it is not present to preserve backwards compatability
-            if not isinstance(y.itervalues().next(), dict):
-                y = {0: y}
+            # Creates the new nested dictionary to preserve backwards compatability
+            try:
+                first = y.values()[0]
+                if not isinstance(first, dict) and not isinstance(first, None):
+                    y = {0: y}
+            except IndexError:
+                pass
 
             for n in y:
                 x = y[n]
