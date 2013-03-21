@@ -76,16 +76,22 @@ class Converter(object):
             raise ConverterError('Neither audio nor video streams requested')
 
         if 'audio' not in opt or twopass == 1:
-            opt['audio'][0] = {'codec': None}
+            opt['audio'] = {0: {'codec': None}}
 
         if 'video' not in opt:
             opt['video'] = {'codec': None}
 
-        if 'subtitle' not in opt:
-            opt['subtitle'][0] = {'codec': None}
-
         if 'audio' in opt:
             y = opt['audio']
+
+            # Creates the new nested dictionary to preserve backwards compatability
+            try:
+                first = y.values()[0]
+                if not isinstance(first, dict) and not isinstance(first, None):
+                    y = {0: y}
+            except IndexError:
+                pass
+
             for n in y:
                 x = y[n]
 
@@ -105,6 +111,15 @@ class Converter(object):
 
         if 'subtitle' in opt:
             y = opt['subtitle']
+
+            # Creates the new nested dictionary to preserve backwards compatability
+            try:
+                first = y.values()[0]
+                if not isinstance(first, dict) and not isinstance(first, None):
+                    y = {0: y}
+            except IndexError:
+                pass
+
             for n in y:
                 x = y[n]
                 if not isinstance(x, dict) or 'codec' not in x:
