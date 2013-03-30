@@ -80,7 +80,6 @@ class Tvdb_mp4:
             else:
                 video["covr"] = [MP4Cover(cover, MP4Cover.FORMAT_JPEG)]  # jpeg poster
         video["\xa9too"] = "Sickbeard MP4 Automator MDH"
-        video.pprint()
         MP4(mp4Path).delete(mp4Path)
         for i in range(3):
             try:

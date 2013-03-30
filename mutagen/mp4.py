@@ -272,14 +272,19 @@ class MP4Tags(DictProxy, Metadata):
         """Save the metadata to the given filename."""
         values = []
         items = self.items()
+
+        # Nonetype safety check
+        for key, value in items:
+            if value is None:
+                items.remove((key, value))
+
         items.sort(self.__key_sort)
         for key, value in items:
-            if value is not None:
-                info = self.__atoms.get(key[:4], (None, type(self).__render_text))
-                try:
-                    values.append(info[1](self, key, value, *info[2:]))
-                except (TypeError, ValueError), s:
-                    raise MP4MetadataValueError, s, sys.exc_info()[2]
+            info = self.__atoms.get(key[:4], (None, type(self).__render_text))
+            try:
+                values.append(info[1](self, key, value, *info[2:]))
+            except (TypeError, ValueError), s:
+                raise MP4MetadataValueError, s, sys.exc_info()[2]
         data = Atom.render("ilst", "".join(values))
 
         # Find the old atoms.
