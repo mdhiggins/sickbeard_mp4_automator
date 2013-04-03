@@ -157,7 +157,7 @@ def process(infilename, outfilename, limit=0):
         if not free_size:
             # No free atoms and moov is correct, we are done!
             log.info("This file appears to already be setup for streaming!")
-            #raise FastStartException()
+            raise FastStartException()
 
     # Read and fix moov
     datastream.seek(moov_pos)

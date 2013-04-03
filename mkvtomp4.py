@@ -3,7 +3,7 @@ import sys
 import time
 from converter import Converter
 from extensions import valid_input_extensions, valid_output_extensions, bad_subtitle_codecs
-from qtfaststart import processor
+from qtfaststart import processor, exceptions
 
 
 class MkvtoMp4:
@@ -126,15 +126,21 @@ class MkvtoMp4:
         if (relocate_moov):
             print "Relocating MOOV atom to start of file"
             tmp = self.output + ".tmp"
+            # Clear out the temp file if it exists
             try:
                 os.remove(tmp)
             except OSError:
                 pass
-            for i in range(3):
-                try:
-                    os.rename(self.output, tmp)
-                    break
-                except WindowsError:
-                    time.sleep(10)
-            processor.process(tmp, self.output)
-            os.remove(tmp)
+
+            try:
+                processor.process(self.output, tmp)
+                # Cleanup - 3 tries
+                for i in range(3):
+                    try:
+                        os.remove(self.output)
+                        os.rename(tmp, self.output)
+                        break
+                    except WindowsError:
+                        time.sleep(10)
+            except exceptions.FastStartException:
+                print "QT FastStart did not run - perhaps moov atom was at the start already"
