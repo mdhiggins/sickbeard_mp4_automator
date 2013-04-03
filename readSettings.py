@@ -95,8 +95,8 @@ class ReadSettings:
         if self.output_dir == "":
             self.output_dir = None
         else:
-            # Add trailing backslash if missing
-            if not self.output_dir.endswith("\\"):
+            # Add trailing backslash if missing in Windows
+            if not self.output_dir.endswith("\\") and os.name == 'nt':
                 self.output_dir += "\\"
             if not os.path.isdir(self.output_dir):
                 os.makedirs(self.output_dir)
