@@ -2,7 +2,7 @@ import os
 import sys
 import time
 from converter import Converter
-from extensions import valid_input_extensions, valid_output_extensions
+from extensions import valid_input_extensions, valid_output_extensions, bad_subtitle_codecs
 from qtfaststart import processor
 
 
@@ -29,7 +29,7 @@ class MkvtoMp4:
             audio_settings = {}
             l = 0
             for a in info.audio:
-                print "Audio stream detected: " + a.codec
+                print "Audio stream detected: " + a.codec + " " + a.language + " [Stream " + str(a.index) + "]"
                 # Set undefined language to default language if specified
                 if adl is not None and a.language == 'und':
                     a.language = adl
@@ -53,7 +53,6 @@ class MkvtoMp4:
                         abitrate = 256 * a.audio_channels
                     else:
                         abitrate = audio_bitrate
-                    print abitrate
 
                     audio_settings.update({l: {
                         'map': a.index,
@@ -68,20 +67,23 @@ class MkvtoMp4:
             subtitle_settings = {}
             l = 0
             for s in info.subtitle:
-                print "Subtitle stream detected: " + s.language
-                # Set undefined language to default language if specified
-                if sdl is not None and s.language == 'und':
-                    s.language = sdl
-                # Proceed if no whitelist is set, or if the language is in the whitelist
-                if swl is None or s.language in swl:
-                    subtitle_settings.update({l: {
-                        'map': s.index,
-                        'codec': 'mov_text',
-                        'language': s.language,
-                        'forced': s.sub_forced,
-                        'default': s.sub_default
-                    }})
-                    l = l + 1
+                print "Subtitle stream detected: " + s.codec + " " + s.language + " [Stream " + str(s.index) + "]"
+
+                # Make sure its not an image based codec
+                if s.codec not in bad_subtitle_codecs:
+                    # Set undefined language to default language if specified
+                    if sdl is not None and s.language == 'und':
+                        s.language = sdl
+                    # Proceed if no whitelist is set, or if the language is in the whitelist
+                    if swl is None or s.language in swl:
+                        subtitle_settings.update({l: {
+                            'map': s.index,
+                            'codec': 'mov_text',
+                            'language': s.language,
+                            'forced': s.sub_forced,
+                            'default': s.sub_default
+                        }})
+                        l = l + 1
 
             # Collect all options
             options = {
