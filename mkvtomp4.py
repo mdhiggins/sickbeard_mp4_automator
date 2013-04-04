@@ -32,6 +32,7 @@ class MkvtoMp4:
                 print "Audio stream detected: " + a.codec + " " + a.language + " [Stream " + str(a.index) + "]"
                 # Set undefined language to default language if specified
                 if adl is not None and a.language == 'und':
+                    print "Undefined language detected, defaulting to " + adl
                     a.language = adl
                 # Proceed if no whitelist is set, or if the language is in the whitelist
                 if awl is None or a.language in awl:
