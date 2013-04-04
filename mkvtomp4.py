@@ -21,6 +21,12 @@ class MkvtoMp4:
         # Make sure input and output extensions are compatible
         if input_extension in valid_input_extensions and output_extension in valid_output_extensions:
 
+            #Broadcast settings for debug purposes
+            print adl
+            print awl
+            print sdl
+            print swl
+
             #Video stream
             print "Video codec detected: " + info.video.codec
             vcodec = 'copy' if info.video.codec == video_codec else video_codec
