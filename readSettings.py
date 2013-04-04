@@ -71,20 +71,24 @@ class ReadSettings:
         self.delete = config.getboolean(section, "delete_original")  # Delete original file
         self.relocate_moov = config.getboolean(section, "relocate_moov")  # Relocate MOOV atom to start of file
         self.iOS = config.getboolean(section, "ios-audio")  # Creates a second audio channel in AAC Stereo if the standard output methods are different from this for iOS compatability
+
         self.awl = config.get(section, 'audio-language')  # List of acceptable languages for audio streams to be carried over from the original file, separated by a comma. Blank for all
         if self.awl == '':
             self.awl = None
         else:
-            self.awl = self.awl.split(',')
+            self.awl = self.awl.replace(' ', '').split(',')
+
         self.swl = config.get(section, 'subtitle-language')  # List of acceptable languages for subtitle streams to be carried over from the original file, separated by a comma. Blank for all
         if self.swl == '':
             self.swl = None
         else:
-            self.swl = self.swl.split(',')
-        self.adl = config.get(section, 'audio-default-language')  # What language to default an undefinied audio language tag to. If blank, it will remain undefined. This is useful for single language releases which tend to leave things tagged as und
+            self.swl = self.swl.replace(' ', '').split(',')
+
+        self.adl = config.get(section, 'audio-default-language').strip()  # What language to default an undefinied audio language tag to. If blank, it will remain undefined. This is useful for single language releases which tend to leave things tagged as und
         if self.adl == "" or len(self.adl) > 3:
             self.adl = None
-        self.sdl = config.get(section, 'subtitle-default-language')  # What language to default an undefinied subtitle language tag to. If blank, it will remain undefined. This is useful for single language releases which tend to leave things tagged as und
+
+        self.sdl = config.get(section, 'subtitle-default-language').strip()  # What language to default an undefinied subtitle language tag to. If blank, it will remain undefined. This is useful for single language releases which tend to leave things tagged as und
         if self.sdl == ""or len(self.sdl) > 3:
             self.sdl = None
         # Prevent incompatible combination of settings
