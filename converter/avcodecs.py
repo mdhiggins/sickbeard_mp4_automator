@@ -448,8 +448,8 @@ class H264Codec(VideoCodec):
         "-sc_threshold 40 -i_qfactor 0.71 -rc_eq 'blurCplx^(1-qComp)' " +
         "-qcomp 0.6 -qmin 10 -qmax 51 -qdiff 4 -level 30")
 
-    def _codec_specific_produce_ffmpeg_list(self, safe):
-        return self.x264_voodoo_recipe_ipod.split(' ')
+    #def _codec_specific_produce_ffmpeg_list(self, safe):
+        #return self.x264_voodoo_recipe_ipod.split(' ')
 
 
 class Mp3Codec(AudioCodec):
