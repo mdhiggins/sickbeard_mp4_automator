@@ -107,11 +107,13 @@ class MkvtoMp4:
 
             # Attempt to delete the input source file
             if delete:
-                try:
-                    os.remove(file)
-                    print file + " deleted"
-                except OSError:
-                    print "Unable to delete " + file
+                for i in range(3):
+                    try:
+                        os.remove(file)
+                        print file + " deleted"
+                        break
+                    except OSError:
+                        time.sleep(10)
 
         # If file is already in the correct format:
         elif input_extension in valid_output_extensions:
