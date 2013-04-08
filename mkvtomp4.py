@@ -148,6 +148,7 @@ class MkvtoMp4:
                 # Replaces the newly deleted file with another by renaming (replacing an original with a newly created file)
                 if replacement is not None:
                     os.rename(replacement, filename)
+                    filename = replacement
                 break
             except OSError:
                 if delay > 0:
