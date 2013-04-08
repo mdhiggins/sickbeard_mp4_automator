@@ -1,4 +1,5 @@
 import os
+import stat
 import sys
 import time
 from converter import Converter
@@ -107,13 +108,10 @@ class MkvtoMp4:
 
             # Attempt to delete the input source file
             if delete:
-                for i in range(3):
-                    try:
-                        os.remove(file)
-                        print file + " deleted"
-                        break
-                    except OSError:
-                        time.sleep(10)
+                if self.removeFile(file):
+                    print file + " deleted"
+                else:
+                    print "Couldn't delete the original file"
 
         # If file is already in the correct format:
         elif input_extension in valid_output_extensions:
@@ -129,20 +127,29 @@ class MkvtoMp4:
             print "Relocating MOOV atom to start of file"
             tmp = self.output + ".tmp"
             # Clear out the temp file if it exists
-            try:
-                os.remove(tmp)
-            except OSError:
-                pass
+            self.removeFile(tmp, 0, 0)
 
             try:
                 processor.process(self.output, tmp)
-                # Cleanup - 3 tries
-                for i in range(3):
-                    try:
-                        os.remove(self.output)
-                        os.rename(tmp, self.output)
-                        break
-                    except WindowsError:
-                        time.sleep(10)
+                # Cleanup
+                if self.removeFile(self.output, replacement=tmp):
+                    print "Cleanup successful"
+                else:
+                    print "Error cleaning up temp files and renaming"
             except exceptions.FastStartException:
                 print "QT FastStart did not run - perhaps moov atom was at the start already"
+
+    def removeFile(self, filename, retries=2, delay=10, replacement=None):
+        for i in range(retries + 1):
+            try:
+                # Make sure file isn't read-only
+                os.chmod(filename, stat.S_IWRITE)
+                os.remove(filename)
+                # Replaces the newly deleted file with another by renaming (replacing an original with a newly created file)
+                if replacement is not None:
+                    os.rename(replacement, filename)
+                break
+            except OSError:
+                if delay > 0:
+                    time.sleep(delay)
+        return False if os.path.isfile(filename) else True
