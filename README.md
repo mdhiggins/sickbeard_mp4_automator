@@ -27,7 +27,7 @@ General Installation Instructions
 
 SickBeard Installation Instructions
 --------------
-1. Open Sickbeard's config.ini in sickbeard and set your "extra_scripts" value in the general section to the full path to postConversion.bat using double backslashes (C:\\Scripts\\postConversion.cmd). Make sure this is done while Sickbeard is not running or it will be reverted.
+1. Open Sickbeard's config.ini in sickbeard and set your "extra_scripts" value in the general section to the full path to "python postConversion.py" using double backslashes (python C:\\Scripts\\postConversion.py). Make sure this is done while Sickbeard is not running or it will be reverted. And make sure python is registered as an environment variable/PATH
 2. Set the SickBeard variables in autoProcess.ini:
     - host = Sickbeard host address (localhost)
     - port = sickbeard port (8081)
