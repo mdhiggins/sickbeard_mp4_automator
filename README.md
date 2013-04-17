@@ -7,7 +7,7 @@ Sickbeard/CouchPotato MP4 automation script.
 
 - Requires Python 2.7 *(Does NOT work with Python 3)*
 - Requires FFMPEG and FFPROBE
-- Only tested on Windows
+- Works on Windows, OSX, and Linux (Linux users make sure you're using a build of FFMPEG with the non open-source codecs, see here: https://ffmpeg.org/trac/ffmpeg/wiki/UbuntuCompilationGuide)
 
 General Installation Instructions
 --------------
