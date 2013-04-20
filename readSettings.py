@@ -190,5 +190,4 @@ class ReadSettings:
                 output += escape_dict[char]
             except KeyError:
                 output += char
-        print output
         return output
