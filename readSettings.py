@@ -4,6 +4,7 @@ import ConfigParser
 
 
 class ReadSettings:
+
     def __init__(self, directory, filename):
         # Default settings for SickBeard
         sb_defaults = {'host': 'localhost',
@@ -64,9 +65,9 @@ class ReadSettings:
 
         #Read relevant MP4 section information
         section = "MP4"
-        self.ffmpeg = config.get(section, "ffmpeg").replace("\\", "\\\\").replace("\\\\\\\\", "\\\\")  # Location of FFMPEG.exe
-        self.ffprobe = config.get(section, "ffprobe").replace("\\", "\\\\").replace("\\\\\\\\", "\\\\")  # Location of FFPROBE.exe
-        self.output_dir = config.get(section, "output_directory").replace("\\", "\\\\").replace("\\\\\\\\", "\\\\")  # Output directory
+        self.ffmpeg = os.path.normpath(self.raw(config.get(section, "ffmpeg")))  # Location of FFMPEG.exe
+        self.ffprobe = os.path.normpath(self.raw(config.get(section, "ffprobe")))  # Location of FFPROBE.exe
+        self.output_dir = os.path.normpath(self.raw(config.get(section, "output_directory")))  # Output directory
         self.output_extension = config.get(section, "output_extension")  # Output extension
         self.delete = config.getboolean(section, "delete_original")  # Delete original file
         self.relocate_moov = config.getboolean(section, "relocate_moov")  # Relocate MOOV atom to start of file
@@ -160,3 +161,34 @@ class ReadSettings:
             except IOError:
                 pass
             fp.close()
+
+    def raw(self, text):
+        escape_dict = {'\a': r'\a',
+                       '\b': r'\b',
+                       '\c': r'\c',
+                       '\f': r'\f',
+                       '\n': r'\n',
+                       '\r': r'\r',
+                       '\t': r'\t',
+                       '\v': r'\v',
+                       '\'': r'\'',
+                       '\"': r'\"',
+                       '\0': r'\0',
+                       '\1': r'\1',
+                       '\2': r'\2',
+                       '\3': r'\3',
+                       '\4': r'\4',
+                       '\5': r'\5',
+                       '\6': r'\6',
+                       '\7': r'\7',
+                       '\8': r'\8',
+                       '\9': r'\9'}
+
+        output = ''
+        for char in text:
+            try:
+                output += escape_dict[char]
+            except KeyError:
+                output += char
+        print output
+        return output
