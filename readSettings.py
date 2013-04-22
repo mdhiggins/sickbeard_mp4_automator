@@ -67,7 +67,11 @@ class ReadSettings:
         section = "MP4"
         self.ffmpeg = os.path.normpath(self.raw(config.get(section, "ffmpeg")))  # Location of FFMPEG.exe
         self.ffprobe = os.path.normpath(self.raw(config.get(section, "ffprobe")))  # Location of FFPROBE.exe
-        self.output_dir = os.path.normpath(self.raw(config.get(section, "output_directory")))  # Output directory
+        self.output_dir = config.get(section, "output_directory")
+        if self.output_dir == '':
+            self.output_dir = None
+        else:
+            self.output_dir = os.path.normpath(self.raw(self.output_dir))  # Output directory
         self.output_extension = config.get(section, "output_extension")  # Output extension
         self.delete = config.getboolean(section, "delete_original")  # Delete original file
         self.relocate_moov = config.getboolean(section, "relocate_moov")  # Relocate MOOV atom to start of file
@@ -97,12 +101,7 @@ class ReadSettings:
             print "Error - you must specify an alternate output directory if you aren't going to delete the original file"
             sys.exit()
         # Create output directory if it does not exist
-        if self.output_dir == "":
-            self.output_dir = None
-        else:
-            # Add trailing backslash if missing in Windows
-            if not self.output_dir.endswith("\\") and os.name == 'nt':
-                self.output_dir += "\\"
+        if self.output_dir is not None:
             if not os.path.isdir(self.output_dir):
                 os.makedirs(self.output_dir)
 
