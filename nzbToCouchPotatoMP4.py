@@ -27,9 +27,12 @@ if len(sys.argv) > 3:
             if os.path.splitext(files)[1][1:] in valid_input_extensions:
                 file = os.path.join(r, files)
                 convert = MkvtoMp4(file, FFMPEG_PATH=settings.ffmpeg, FFPROBE_PATH=settings.ffprobe, delete=settings.delete, output_extension=settings.output_extension, relocate_moov=settings.relocate_moov, iOS=settings.iOS, awl=settings.awl, swl=settings.swl, adl=settings.adl, sdl=settings.sdl)
-                imdbmp4 = imdb_mp4(imdb_id)
-                imdbmp4.setHD(convert.width, convert.height)
-                imdbmp4.writeTags(convert.output)
+                try:
+                    imdbmp4 = imdb_mp4(imdb_id)
+                    imdbmp4.setHD(convert.width, convert.height)
+                    imdbmp4.writeTags(convert.output)
+                except AttributeError:
+                    print "Unable to tag file, Couch Potato probably screwed up passing the IMDB ID"
 
 # SABnzbd
 if len(sys.argv) == 8:
