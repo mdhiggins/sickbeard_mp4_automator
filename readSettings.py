@@ -77,7 +77,7 @@ class ReadSettings:
         self.output_extension = config.get(section, "output_extension")  # Output extension
         self.delete = config.getboolean(section, "delete_original")  # Delete original file
         self.relocate_moov = config.getboolean(section, "relocate_moov")  # Relocate MOOV atom to start of file
-        self.acodec = config.get(section, "audio-codec")  # Gets the desired audio codec, if no valid codec selected, default to AAC
+        self.acodec = config.get(section, "audio-codec").lower()  # Gets the desired audio codec, if no valid codec selected, default to AAC
         if self.acodec not in valid_audio_codecs:
             self.acodec = 'aac'
             print "Audio codec not valid, defaulting to AAC"
