@@ -1,6 +1,7 @@
 import os
 import sys
 import ConfigParser
+from extensions import *
 
 
 class ReadSettings:
@@ -20,10 +21,11 @@ class ReadSettings:
                         'relocate_moov': 'True',
                         'ios-audio': 'False',
                         'audio-language': '',
+                        'audio-codec': 'aac',
                         'subtitle-language': '',
                         'audio-default-language': '',
                         'subtitle-default-language': ''}
-        #$Default settings for CouchPotato
+        # Default settings for CouchPotato
         cp_defaults = {'host': 'localhost',
                        'port': '5050',
                        'username': '',
@@ -75,6 +77,10 @@ class ReadSettings:
         self.output_extension = config.get(section, "output_extension")  # Output extension
         self.delete = config.getboolean(section, "delete_original")  # Delete original file
         self.relocate_moov = config.getboolean(section, "relocate_moov")  # Relocate MOOV atom to start of file
+        self.acodec = config.get(section, "audio-codec")  # Gets the desired audio codec, if no valid codec selected, default to AAC
+        if self.acodec not in valid_audio_codecs:
+            self.acodec = 'aac'
+            print "Audio codec not valid, defaulting to AAC"
         self.iOS = config.getboolean(section, "ios-audio")  # Creates a second audio channel in AAC Stereo if the standard output methods are different from this for iOS compatability
 
         self.awl = config.get(section, 'audio-language')  # List of acceptable languages for audio streams to be carried over from the original file, separated by a comma. Blank for all
