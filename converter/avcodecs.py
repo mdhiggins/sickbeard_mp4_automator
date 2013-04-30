@@ -435,6 +435,22 @@ class AacCodec(AudioCodec):
         return self.aac_experimental_enable
 
 
+class Ac3Codec(AudioCodec):
+    """
+    AC3 audio codec
+    """
+    codec_name = 'ac3'
+    ffmpeg_codec_name = 'ac3'
+
+
+class DtsCodec(AudioCodec):
+    """
+    AC3 audio codec
+    """
+    codec_name = 'dts'
+    ffmpeg_codec_name = 'dts'
+
+
 class H264Codec(VideoCodec):
     """
     H.264/AVC video codec.
@@ -550,7 +566,7 @@ class MOVTextCodec(SubtitleCodec):
 
 
 audio_codec_list = [
-    AudioNullCodec, AudioCopyCodec, VorbisCodec, AacCodec, Mp3Codec, Mp2Codec
+    AudioNullCodec, AudioCopyCodec, VorbisCodec, AacCodec, Mp3Codec, Mp2Codec, Ac3Codec, DtsCodec
 ]
 
 video_codec_list = [
