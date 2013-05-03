@@ -30,15 +30,16 @@ if len(sys.argv) > 4:
     tagmp4.writeTags(path)
     if settings.output_dir is not None:
         if extension in valid_output_extensions:  # If the file is already in a valid format, this will duplicate the file in the output directory since no original would be left behind
+            output = os.path.join(settings.output_dir, os.path.split(path)[1])
             try:
-                shutil.copy(path, os.path.join(settings.output_dir, os.path.split(path)[1]))
-            except OSError:
-                print "Unable to copy file to output directory"
+                shutil.copy(path, output)
+            except (OSError, IOError) as e:
+                print "Unable to copy %s to %s: %s" % (path, output, e.strerror)
         else:  # Otherwise just move the file like normal, leaving behind the original MKV
             try:
-                os.rename(path, os.path.join(settings.output_dir, os.path.split(path)[1]))
-            except OSError:
-                print "Unable to move file to output directory"
+                shutil.move(path, output)
+            except (OSError, IOError) as e:
+                print "Unable to move %s to %s: %s" % (path, output, e.strerror)
 else:
     print "Not enough command line arguments present " + str(len(sys.argv))
     sys.exit()
