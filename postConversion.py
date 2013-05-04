@@ -29,8 +29,8 @@ if len(sys.argv) > 4:
     tagmp4.setHD(convert.width, convert.height)
     tagmp4.writeTags(path)
     if settings.output_dir is not None:
+        output = os.path.join(settings.output_dir, os.path.split(path)[1])
         if extension in valid_output_extensions and settings.delete is False:  # If the file is already in a valid format, this will duplicate the file in the output directory since no original would be left behind
-            output = os.path.join(settings.output_dir, os.path.split(path)[1])
             try:
                 shutil.copy(path, output)
             except (OSError, IOError) as e:
