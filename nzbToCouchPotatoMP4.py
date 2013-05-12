@@ -53,7 +53,6 @@ if len(sys.argv) > 3:
     for r, d, f in os.walk(path):
         for files in f:
             if os.path.splitext(files)[1][1:] in valid_input_extensions:
-                print "%s movie files found!" % (len(f))
                 file = os.path.join(r, files)
                 if imdbid = "":
                     try:
