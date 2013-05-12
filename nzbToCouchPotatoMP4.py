@@ -54,10 +54,10 @@ if len(sys.argv) > 3:
         for files in f:
             if os.path.splitext(files)[1][1:] in valid_input_extensions:
                 file = os.path.join(r, files)
-                if imdbid = "":
+                if imdb_id == "":
                     try:
-                        print "Going to guess the following files info: %s" % (os.path.basename(file))
-                        imdb_id = FILEtoIMDB(os.path.basename(file))
+                        print "Going to guess the following files info: %s" % (sys.argv[2])
+                        imdb_id = FILEtoIMDB(os.path.basename(sys.argv[2])
                     except AttributeError:
                         print "Unable to accurately identify movie file %s" % (file)
                 print "IMDB ID is: %s" % (imdb_id)
