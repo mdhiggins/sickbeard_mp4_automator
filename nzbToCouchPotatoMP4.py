@@ -56,6 +56,7 @@ if len(sys.argv) > 3:
                 file = os.path.join(r, files)
                 if imdbid = "":
                     try:
+                        print "Going to guess the following files info: %s" % (os.path.basename(file))
                         imdb_id = FILEtoIMDB(os.path.basename(file))
                     except AttributeError:
                         print "Unable to accurately identify movie file %s" % (file)
