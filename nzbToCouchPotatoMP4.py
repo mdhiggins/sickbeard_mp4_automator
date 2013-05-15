@@ -2,6 +2,8 @@
 import os
 import sys
 import autoProcessMovie
+import tmdb
+import guessit
 from imdb_mp4 import imdb_mp4
 from readSettings import ReadSettings
 from mkvtomp4 import MkvtoMp4
@@ -9,6 +11,32 @@ from extensions import valid_input_extensions
 
 print "nzbToCouchPotato MP4 edition"
 
+def FILEtoIMDB(file_name): #Added function by nctiggy. This executes if the nzb does not have the IMDB id appended to the name
+    #This does capture all of the movies info not just the IMDB id
+    #Future can eliminate the calls to IMDB to use this data instead perhaps
+    
+    print "CouchPotatoServer did not append the IMDB id to the nzb, guessing instead"
+    api_key = "45e408d2851e968e6e4d0353ce621c66" # You need to get this key from themoviedb.org
+
+    # Guessing at the name of the movie using the filename
+    movie_info = guessit.guess_movie_info(file_name)
+    
+    #configuring tmdb to use the supplied api key
+    tmdb.configure(api_key)
+    print "Guessed movie title as: %s" % (movie_info["title"])
+    
+    #Creating a collection of movies from tmdb for the guess movie title
+    movies = tmdb.Movies(movie_info["title"])
+
+    #parse through all movies found
+    for movie in movies.iter_results():
+        #Identify the first movie in the collection that matches exactly the movie title
+        if movie["title"].lower() == movie_info["title"].lower():
+            print "Matched movie title as: %s %s" % (movie["title"], movie["release_date"])
+            movie = tmdb.Movie(movie["id"])
+            break
+    #return the imdb id of the movie identified
+    return movie.get_imdb_id()[2:]
 
 def NZBtoIMDB(nzbName):
     nzbName = str(nzbName)
@@ -26,6 +54,14 @@ if len(sys.argv) > 3:
         for files in f:
             if os.path.splitext(files)[1][1:] in valid_input_extensions:
                 file = os.path.join(r, files)
+                if imdb_id == "":
+                    try:
+                        print "Going to guess the following files info: %s" % (sys.argv[2])
+                        imdb_id = FILEtoIMDB(os.path.basename(sys.argv[2])
+                    except AttributeError:
+                        print "Unable to accurately identify movie file %s" % (file)
+                print "IMDB ID is: %s" % (imdb_id)
+                print "Converting the following file: %s" % (os.path.basename(file))
                 convert = MkvtoMp4(file, FFMPEG_PATH=settings.ffmpeg, FFPROBE_PATH=settings.ffprobe, delete=settings.delete, output_extension=settings.output_extension, relocate_moov=settings.relocate_moov, iOS=settings.iOS, awl=settings.awl, swl=settings.swl, adl=settings.adl, sdl=settings.sdl)
                 try:
                     imdbmp4 = imdb_mp4(imdb_id)

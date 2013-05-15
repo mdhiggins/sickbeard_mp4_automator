@@ -1,0 +1,144 @@
+? Movies/Fear and Loathing in Las Vegas (1998)/Fear.and.Loathing.in.Las.Vegas.720p.HDDVD.DTS.x264-ESiR.mkv
+: type: movie
+  title: Fear and Loathing in Las Vegas
+  year: 1998
+  screenSize: 720p
+  format: HD-DVD
+  audioCodec: DTS
+  videoCodec: h264
+  releaseGroup: ESiR
+
+? Leopard.dmg
+: type: unknown
+  extension: dmg
+
+? Series/Duckman/Duckman - 101 (01) - 20021107 - I, Duckman.avi
+: type: episode
+  series: Duckman
+  season: 1
+  episodeNumber: 1
+  title: I, Duckman
+  date: 2002-11-07
+
+? Series/Neverwhere/Neverwhere.05.Down.Street.[tvu.org.ru].avi
+: type: episode
+  series: Neverwhere
+  episodeNumber: 5
+  title: Down Street
+  website: tvu.org.ru
+
+? Series/Breaking Bad/Minisodes/Breaking.Bad.(Minisodes).01.Good.Cop.Bad.Cop.WEBRip.XviD.avi
+: type: episode
+  series: Breaking Bad
+  episodeFormat: Minisode
+  episodeNumber: 1
+  title: Good Cop Bad Cop
+  format: WEBRip
+  videoCodec: XviD
+
+? Series/Kaamelott/Kaamelott - Livre V - Ep 23 - Le Forfait.avi
+: type: episode
+  series: Kaamelott
+  episodeNumber: 23
+  title: Le Forfait
+
+? Movies/The Doors (1991)/09.03.08.The.Doors.(1991).BDRip.720p.AC3.X264-HiS@SiLUHD-English.[sharethefiles.com].mkv
+: type: movie
+  title: The Doors
+  year: 1991
+  date: 2008-03-09
+  format: BluRay
+  screenSize: 720p
+  audioCodec: AC3
+  videoCodec: h264
+  releaseGroup: HiS@SiLUHD
+  language: english
+  website: sharethefiles.com
+
+? Movies/M.A.S.H. (1970)/MASH.(1970).[Divx.5.02][Dual-Subtitulos][DVDRip].ogm
+: type: movie
+  title: M A S H
+  year: 1970
+  videoCodec: DivX
+  format: DVD
+
+? the.mentalist.501.hdtv-lol.mp4
+: type: episode
+  series: The Mentalist
+  season: 5
+  episodeNumber: 1
+  format: HDTV
+  releaseGroup: LOL
+
+? the.simpsons.2401.hdtv-lol.mp4
+: type: episode
+  series: The Simpsons
+  season: 24
+  episodeNumber: 1
+  format: HDTV
+  releaseGroup: LOL
+
+? Homeland.S02E01.HDTV.x264-EVOLVE.mp4
+: type: episode
+  series: Homeland
+  season: 2
+  episodeNumber: 1
+  format: HDTV
+  videoCodec: h264
+  releaseGroup: EVOLVE
+
+? /media/Band_of_Brothers-e01-Currahee.mkv
+: type: episode
+  series: Band of Brothers
+  episodeNumber: 1
+  title: Currahee
+
+? /media/Band_of_Brothers-x02-We_Stand_Alone_Together.mkv
+: type: episode
+  series: Band of Brothers
+  bonusNumber: 2
+  bonusTitle: We Stand Alone Together
+
+? /movies/James_Bond-f21-Casino_Royale-x02-Stunts.mkv
+: type: movie
+  title: Casino Royale
+  filmSeries: James Bond
+  filmNumber: 21
+  bonusNumber: 2
+  bonusTitle: Stunts
+
+? /TV Shows/new.girl.117.hdtv-lol.mp4
+: type: episode
+  series: New Girl
+  season: 1
+  episodeNumber: 17
+  format: HDTV
+  releaseGroup: LOL
+
+? The.Office.(US).1x03.Health.Care.HDTV.XviD-LOL.avi
+: type: episode
+  series: The Office (US)
+  country: US
+  season: 1
+  episodeNumber: 3
+  title: Health Care
+  format: HDTV
+  videoCodec: XviD
+  releaseGroup: LOL
+
+? The_Insider-(1999)-x02-60_Minutes_Interview-1996.mp4
+: type: movie
+  title: The Insider
+  year: 1999
+  bonusNumber: 2
+  bonusTitle: 60 Minutes Interview-1996
+
+? OSS_117--Cairo,_Nest_of_Spies.mkv
+: type: movie
+  title: OSS 117--Cairo, Nest of Spies
+
+? Rush.._Beyond_The_Lighted_Stage-x09-Between_Sun_and_Moon-2002_Hartford.mkv
+: type: movie
+  title: Rush Beyond The Lighted Stage
+  bonusNumber: 9
+  bonusTitle: Between Sun and Moon-2002 Hartford
