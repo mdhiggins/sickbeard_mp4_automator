@@ -7,22 +7,21 @@ import guessit
 from imdb_mp4 import imdb_mp4
 from readSettings import ReadSettings
 from mkvtomp4 import MkvtoMp4
-from extensions import valid_input_extensions
+from extensions import valid_input_extensions, tmdb_api_key
 
 print "nzbToCouchPotato MP4 edition"
 
 def FILEtoIMDB(file_name): #Added function by nctiggy. This executes if the nzb does not have the IMDB id appended to the name
     #This does capture all of the movies info not just the IMDB id
     #Future can eliminate the calls to IMDB to use this data instead perhaps
-    
+
     print "CouchPotatoServer did not append the IMDB id to the nzb, guessing instead"
-    api_key = "45e408d2851e968e6e4d0353ce621c66" # You need to get this key from themoviedb.org
 
     # Guessing at the name of the movie using the filename
     movie_info = guessit.guess_movie_info(file_name)
     
     #configuring tmdb to use the supplied api key
-    tmdb.configure(api_key)
+    tmdb.configure(tmdb_api_key)
     print "Guessed movie title as: %s" % (movie_info["title"])
     
     #Creating a collection of movies from tmdb for the guess movie title
