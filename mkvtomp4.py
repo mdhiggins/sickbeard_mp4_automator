@@ -103,7 +103,8 @@ class MkvtoMp4:
             conv = c.convert(file, self.output, options)
 
             for timecode in conv:
-                print '[{0}] {1}%'.format('#' * (timecode / 10) + ' ' * (10 - (timecode / 10)), timecode, end='\r')
+                pass
+                #print '[{0}] {1}%'.format('#' * (timecode / 10) + ' ' * (10 - (timecode / 10)), timecode, end='\r')
             print "Conversion complete"
 
             # Attempt to delete the input source file
