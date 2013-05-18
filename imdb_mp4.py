@@ -14,19 +14,15 @@ class imdb_mp4:
         print "Fetching info for imdb id " + str(imdbid)
         for i in range(3):
             try:
-                tmdb_instance = tmdb.configure(tmdb_api_key)
+                tmdb.configure(tmdb_api_key)
 
-                movies = tmdb_instance.Movies(imdbid)
-
-                for m in movies:
-                    if m['imdb_id'] == imdbid:
-                        self.movie = m
-                        break
+                tmdbid = tmdb.Movies().imdbtotmdb(imdbid)
+                self.movie = tmdb.Movie(tmdbid)
 
                 self.HD = None
 
                 self.title = self.movie.get_title()
-                self.genre = self.movie.get_genre()
+                self.genre = self.movie.get_genres()
 
                 self.shortdescription = self.movie.get_tagline()
                 self.description = self.movie.get_overview()
@@ -64,9 +60,9 @@ class imdb_mp4:
             genre = None
             for g in self.genre:
                 if genre is None:
-                    genre = g
+                    genre = g['name']
                 else:
-                    genre += ", " + g
+                    genre += ", " + g['name']
             video["\xa9gen"] = genre  # Genre(s)
         video["----:com.apple.iTunes:iTunMOVI"] = self.xml  # XML - see xmlTags method
         video["----:com.apple.iTunes:iTunEXTC"] = self.rating()
@@ -159,7 +155,7 @@ class imdb_mp4:
     def getArtwork(self):
         #Pulls down all the poster metadata for the correct season and sorts them into the Poster object
         try:
-            poster = urllib.urlretrieve(self.movie['full-size cover url'], tempfile.gettempdir() + "\poster.jpg")[0]
+            poster = urllib.urlretrieve(self.movie.get_poster(), tempfile.gettempdir() + "\poster.jpg")[0]
         except:
             poster = None
         return poster
