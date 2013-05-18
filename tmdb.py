@@ -14,6 +14,7 @@ try:
 except:
     import json as simplejson
 
+import operator
 import requests
 
 config = {}
@@ -127,9 +128,15 @@ class Movie(Core):
         self.update_configuration()
         self.movies = self.getJSON(config['urls']['movie.info'] % self.movie_id, language=language)
         self.casts = self.getJSON(config['urls']['movie.casts'] % self.movie_id, language=language)
+        self.releases = self.getJSON(config['urls']['movie.releases'] % self.movie_id, language=language)
 
     def is_adult(self):
         return self.movies['adult']
+
+    def get_mpaa_rating(self, country='US'):
+        for r in self.releases['countries']:
+            if country.lower() == r['iso_3166_1'].lower():
+                return r['certification']
 
     def get_writers(self):
         l = []
@@ -145,8 +152,15 @@ class Movie(Core):
                 l.append(r)
         return l
 
+    def get_producers(self):
+        l = []
+        for r in self.casts['crew']:
+            if r['department'] == 'Production':
+                l.append(r)
+        return l
+
     def get_cast(self):
-        return self.casts['cast']
+        return sorted(self.casts['cast'], key=lambda x: x['order'])
 
     def get_collection_id(self):
         return self.movies['belongs_to_collection']["id"]
