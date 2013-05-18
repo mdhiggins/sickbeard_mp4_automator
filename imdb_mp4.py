@@ -12,30 +12,30 @@ from extensions import valid_output_extensions, tmdb_api_key
 class imdb_mp4:
     def __init__(self, imdbid):
         print "Fetching info for imdb id " + str(imdbid)
-        for i in range(3):
-            try:
-                tmdb.configure(tmdb_api_key)
+        #for i in range(3):
+            #try:
+        tmdb.configure(tmdb_api_key)
 
-                tmdbid = tmdb.Movies().imdbtotmdb(imdbid)
-                self.movie = tmdb.Movie(tmdbid)
+        tmdbid = tmdb.Movies().imdbtotmdb(imdbid)
+        self.movie = tmdb.Movie(tmdbid)
 
-                self.HD = None
+        self.HD = None
 
-                self.title = self.movie.get_title()
-                self.genre = self.movie.get_genres()
+        self.title = self.movie.get_title()
+        self.genre = self.movie.get_genres()
 
-                self.shortdescription = self.movie.get_tagline()
-                self.description = self.movie.get_overview()
+        self.shortdescription = self.movie.get_tagline()
+        self.description = self.movie.get_overview()
 
-                self.date = self.movie.get_release_date()
+        self.date = self.movie.get_release_date()
 
-                # Generate XML tags for Actors/Writers/Directors/Producers
-                self.xml = self.xmlTags()
-                break
-            except:
-                print sys.exc_info()[0]
+        # Generate XML tags for Actors/Writers/Directors/Producers
+        self.xml = self.xmlTags()
+        #        break
+        #    except:
+        #        print sys.exc_info()
                 #print "Failed to connect to tMDB, trying again in 20 seconds"
-                time.sleep(20)
+        #        time.sleep(20)
 
     def writeTags(self, mp4Path):
         print "Tagging file :" + mp4Path
@@ -94,12 +94,10 @@ class imdb_mp4:
                         'R': '400',
                         'NC-17': '500'}
         output = None
-        mpaa = self.movie['mpaa']
-        result = mpaa.split(' ')
-        if result[1] in ratings:
-            numerical = ratings[result[1]]
-            cutoff = len(result[0]) + len(result[1]) + 2
-            output = 'mpaa|' + result[1] + '|' + numerical + '|' + mpaa[cutoff:].capitalize()
+        mpaa = self.movie.get_mpaa_rating()
+        if mpaa in ratings:
+            numerical = ratings[mpaa]
+            output = 'mpaa|' + mpaa.capitalize() + '|' + numerical + '|'
         return str(output)
 
     def setHD(self, width, height):
@@ -125,25 +123,27 @@ class imdb_mp4:
 
         # Write actors
         output.write(castheader)
-        for a in self.movie['cast'][:5]:
+        for a in self.movie.get_cast()[:5]:
             if a is not None:
-                output.write("<dict><key>name</key><string>" + str(a) + "</string></dict>\n")
+                output.write("<dict><key>name</key><string>" + str(a['name']) + "</string></dict>\n")
         output.write(subfooter)
         # Write screenwriters
         output.write(writerheader)
-        for w in self.movie['writer'][:5]:
+        for w in self.movie.get_writers()[:5]:
             if w is not None:
-                output.write("<dict><key>name</key><string>" + str(w) + "</string></dict>\n")
+                output.write("<dict><key>name</key><string>" + str(w['name']) + "</string></dict>\n")
         output.write(subfooter)
         # Write directors
         output.write(directorheader)
-        for d in self.movie['director'][:5]:
-            output.write("<dict><key>name</key><string>" + str(d) + "</string></dict>\n")
+        for d in self.movie.get_directors()[:5]:
+            if d is not None:
+                output.write("<dict><key>name</key><string>" + str(d['name']) + "</string></dict>\n")
         output.write(subfooter)
         # Write producers
         output.write(producerheader)
-        for p in self.movie['producer'][:5]:
-            output.write("<dict><key>name</key><string>" + str(p) + "</string></dict>\n")
+        for p in self.movie.get_producers()[:5]:
+            if p is not None:
+                output.write("<dict><key>name</key><string>" + str(p['name']) + "</string></dict>\n")
         output.write(subfooter)
 
         # Write final footer
