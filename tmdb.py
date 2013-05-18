@@ -46,7 +46,6 @@ def configure(api_key, language='en'):
     config['api']['profile.sizes'] = ""
     config['api']['session.id'] = ""
 
-
 class Core(object):
     def getJSON(self, url, language=None):
         language = language or config['language']
@@ -68,6 +67,12 @@ class Core(object):
         config['api']['poster.sizes'] = c['images']['poster_sizes']
         config['api']['profile.sizes'] = c['images']['profile_sizes']
         return "ok"
+
+    def imdbtotmdb(self, imdbid):
+        url = "http://api.themoviedb.org/2.1/Movie.imdbLookup/en/json/" + config['apikey'] + "/" + imdbid
+        print url
+        req = self.getJSON(url)
+        return req[0]['id']
 
     def backdrop_sizes(self,img_size):
         size_list = {'s':'w300','m':'w780','l':'w1280','o':'original'}
@@ -121,9 +126,27 @@ class Movie(Core):
         self.movie_id = movie_id
         self.update_configuration()
         self.movies = self.getJSON(config['urls']['movie.info'] % self.movie_id, language=language)
+        self.casts = self.getJSON(config['urls']['movie.casts'] % self.movie_id, language=language)
 
     def is_adult(self):
         return self.movies['adult']
+
+    def get_writers(self):
+        l = []
+        for r in self.casts['crew']:
+            if r['department'] == 'Writing':
+                l.append(r)
+        return l
+
+    def get_directors(self):
+        l = []
+        for r in self.casts['crew']:
+            if r['department'] == 'Directing':
+                l.append(r)
+        return l
+
+    def get_cast(self):
+        return self.casts['cast']
 
     def get_collection_id(self):
         return self.movies['belongs_to_collection']["id"]
