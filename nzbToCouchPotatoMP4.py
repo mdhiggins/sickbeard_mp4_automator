@@ -56,8 +56,8 @@ if len(sys.argv) > 3:
                 if imdb_id == "":
                     try:
                         print "Going to guess the following files info: %s" % (sys.argv[2])
-                        imdb_id = FILEtoIMDB(os.path.basename(sys.argv[2])
-                    except AttributeError:
+                        imdb_id = FILEtoIMDB(os.path.basename(sys.argv[2]))
+                    except:
                         print "Unable to accurately identify movie file %s" % (file)
                 print "IMDB ID is: %s" % (imdb_id)
                 print "Converting the following file: %s" % (os.path.basename(file))
