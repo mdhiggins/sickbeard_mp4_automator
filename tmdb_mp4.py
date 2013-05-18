@@ -9,7 +9,7 @@ from mutagen.mp4 import MP4, MP4Cover
 from extensions import valid_output_extensions, tmdb_api_key
 
 
-class imdb_mp4:
+class tmdb_mp4:
     def __init__(self, imdbid):
         print "Fetching info for imdb id " + str(imdbid)
         #for i in range(3):
@@ -160,16 +160,16 @@ class imdb_mp4:
             poster = None
         return poster
     #end artwork
-#end imdb_mp4
+#end tmdb_mp4
 
 
 def main():
     if len(sys.argv) > 2:
         mp4 = str(sys.argv[1]).replace("\\", "\\\\").replace("\\\\\\\\", "\\\\")
         imdb_id = str(sys.argv[2])
-        imdb_mp4_instance = imdb_mp4(imdb_id)
+        tmdb_mp4_instance = tmdb_mp4(imdb_id)
         if os.path.splitext(mp4)[1][1:] in valid_output_extensions:
-            imdb_mp4_instance.writeTags(mp4)
+            tmdb_mp4_instance.writeTags(mp4)
         else:
             print "Wrong file type"
 

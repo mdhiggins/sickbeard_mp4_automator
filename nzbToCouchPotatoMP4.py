@@ -4,26 +4,29 @@ import sys
 import autoProcessMovie
 import tmdb
 import guessit
-from imdb_mp4 import imdb_mp4
+from tmdb_mp4 import tmdb_mp4
 from readSettings import ReadSettings
 from mkvtomp4 import MkvtoMp4
 from extensions import valid_input_extensions, tmdb_api_key
 
 print "nzbToCouchPotato MP4 edition"
 
-def FILEtoIMDB(file_name): #Added function by nctiggy. This executes if the nzb does not have the IMDB id appended to the name
-    #This does capture all of the movies info not just the IMDB id
-    #Future can eliminate the calls to IMDB to use this data instead perhaps
+
+def FILEtoIMDB(file_name):
+    """
+    Added function by nctiggy. This executes if the nzb does not have the IMDB id appended to the name
+    This does capture all of the movies info not just the IMDB id
+    """
 
     print "CouchPotatoServer did not append the IMDB id to the nzb, guessing instead"
 
     # Guessing at the name of the movie using the filename
     movie_info = guessit.guess_movie_info(file_name)
-    
+
     #configuring tmdb to use the supplied api key
     tmdb.configure(tmdb_api_key)
     print "Guessed movie title as: %s" % (movie_info["title"])
-    
+
     #Creating a collection of movies from tmdb for the guess movie title
     movies = tmdb.Movies(movie_info["title"])
 
@@ -35,11 +38,12 @@ def FILEtoIMDB(file_name): #Added function by nctiggy. This executes if the nzb 
             movie = tmdb.Movie(movie["id"])
             break
     #return the imdb id of the movie identified
-    return movie.get_imdb_id()[2:]
+    return movie.get_imdb_id()
+
 
 def NZBtoIMDB(nzbName):
     nzbName = str(nzbName)
-    a = nzbName.find('.cp(tt') + 6
+    a = nzbName.find('.cp(tt') + 4
     b = nzbName[a:].find(')') + a
     imdbid = nzbName[a:b]
     return imdbid
@@ -63,7 +67,7 @@ if len(sys.argv) > 3:
                 print "Converting the following file: %s" % (os.path.basename(file))
                 convert = MkvtoMp4(file, FFMPEG_PATH=settings.ffmpeg, FFPROBE_PATH=settings.ffprobe, delete=settings.delete, output_extension=settings.output_extension, relocate_moov=settings.relocate_moov, iOS=settings.iOS, awl=settings.awl, swl=settings.swl, adl=settings.adl, sdl=settings.sdl)
                 try:
-                    imdbmp4 = imdb_mp4(imdb_id)
+                    imdbmp4 = tmdb_mp4(imdb_id)
                     imdbmp4.setHD(convert.width, convert.height)
                     imdbmp4.writeTags(convert.output)
                 except AttributeError:
