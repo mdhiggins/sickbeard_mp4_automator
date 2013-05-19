@@ -37,8 +37,9 @@ class Tvdb_mp4:
                 #Generate XML tags for Actors/Writers/Directors
                 self.xml = self.xmlTags()
                 break
-            except:
+            except Exception as e:
                 print "Failed to connect to TVDB, trying again in 20 seconds"
+                print e
                 time.sleep(20)
 
     def writeTags(self, mp4Path):

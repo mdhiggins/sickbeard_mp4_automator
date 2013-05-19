@@ -12,30 +12,30 @@ from extensions import valid_output_extensions, tmdb_api_key
 class tmdb_mp4:
     def __init__(self, imdbid):
         print "Fetching info for imdb id " + str(imdbid)
-        #for i in range(3):
-            #try:
-        tmdb.configure(tmdb_api_key)
+        for i in range(3):
+            try:
+                tmdb.configure(tmdb_api_key)
 
-        tmdbid = tmdb.Movies().imdbtotmdb(imdbid)
-        self.movie = tmdb.Movie(tmdbid)
+                tmdbid = tmdb.Movies().imdbtotmdb(imdbid)
+                self.movie = tmdb.Movie(tmdbid)
 
-        self.HD = None
+                self.HD = None
 
-        self.title = self.movie.get_title()
-        self.genre = self.movie.get_genres()
+                self.title = self.movie.get_title()
+                self.genre = self.movie.get_genres()
 
-        self.shortdescription = self.movie.get_tagline()
-        self.description = self.movie.get_overview()
+                self.shortdescription = self.movie.get_tagline()
+                self.description = self.movie.get_overview()
 
-        self.date = self.movie.get_release_date()
+                self.date = self.movie.get_release_date()
 
-        # Generate XML tags for Actors/Writers/Directors/Producers
-        self.xml = self.xmlTags()
-        #        break
-        #    except:
-        #        print sys.exc_info()
-                #print "Failed to connect to tMDB, trying again in 20 seconds"
-        #        time.sleep(20)
+                # Generate XML tags for Actors/Writers/Directors/Producers
+                self.xml = self.xmlTags()
+                break
+            except Exception as e:
+                print "Failed to connect to tMDB, trying again in 20 seconds"
+                print e
+                time.sleep(20)
 
     def writeTags(self, mp4Path):
         print "Tagging file :" + mp4Path
