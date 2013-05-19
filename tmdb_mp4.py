@@ -4,7 +4,7 @@ import urllib
 import StringIO
 import tempfile
 import time
-import tmdb
+from tmdb_api import tmdb
 from mutagen.mp4 import MP4, MP4Cover
 from extensions import valid_output_extensions, tmdb_api_key
 

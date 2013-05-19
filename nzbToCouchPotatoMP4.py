@@ -2,8 +2,8 @@
 import os
 import sys
 import autoProcessMovie
-import tmdb
 import guessit
+from tmdb_api import tmdb
 from tmdb_mp4 import tmdb_mp4
 from readSettings import ReadSettings
 from mkvtomp4 import MkvtoMp4
