@@ -31,7 +31,9 @@ def FILEtoIMDB(file_name): #Added function by nctiggy. This executes if the nzb 
     #parse through all movies found
     for movie in movies.iter_results():
         #Identify the first movie in the collection that matches exactly the movie title
-        if movie["title"].lower() == movie_info["title"].lower():
+        foundname = ''.join(e for e in movie["title"] if e.isalnum())
+        origname = ''.join(e for e in movie_info["title"] if e.isalnum())
+        if foundname.lower() == origname.lower():
             print "Matched movie title as: %s %s" % (movie["title"], movie["release_date"])
             movie = tmdb.Movie(movie["id"])
             break
