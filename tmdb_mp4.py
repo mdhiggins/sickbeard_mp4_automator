@@ -67,7 +67,9 @@ class tmdb_mp4:
                     genre += ", " + g['name']
             video["\xa9gen"] = genre  # Genre(s)
         video["----:com.apple.iTunes:iTunMOVI"] = self.xml  # XML - see xmlTags method
-        video["----:com.apple.iTunes:iTunEXTC"] = self.rating()
+        rating = self.rating()
+        if rating is not None:
+            video["----:com.apple.iTunes:iTunEXTC"] = rating
 
         path = self.getArtwork()
         if path is not None:
