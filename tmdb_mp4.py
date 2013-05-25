@@ -11,6 +11,8 @@ from extensions import valid_output_extensions, tmdb_api_key
 
 class tmdb_mp4:
     def __init__(self, imdbid):
+        if imdbid.startswith('tt') is not True:
+            imdbid = 'tt' + imdbid
         print "Fetching info for imdb id " + str(imdbid)
         for i in range(3):
             try:
