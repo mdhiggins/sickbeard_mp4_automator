@@ -151,7 +151,7 @@ class Tvdb_mp4:
                         poster.rating = float(self.showdata['_banners']['season']['season'][bannerid]['rating'])
                     poster.bannerpath = self.showdata['_banners']['season']['season'][bannerid]['_bannerpath']
                     posters.addPoster(poster)
-            poster = urllib.urlretrieve(posters.topPoster().bannerpath, tempfile.gettempdir() + "\poster.jpg")[0]
+            poster = urllib.urlretrieve(posters.topPoster().bannerpath, os.path.join(tempfile.gettempdir(),"poster.jpg"))[0]
         except:
             poster = None
         return poster
