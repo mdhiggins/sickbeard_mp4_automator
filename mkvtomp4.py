@@ -100,7 +100,7 @@ class MkvtoMp4:
 
             print options
             self.output = os.path.join(output_dir, filename + "." + output_extension)
-            conv = c.convert(file, self.output, options, False)
+            conv = c.convert(file, self.output, options, None)
 
             for timecode in conv:
                 pass
