@@ -159,7 +159,7 @@ class tmdb_mp4:
     def getArtwork(self):
         #Pulls down all the poster metadata for the correct season and sorts them into the Poster object
         try:
-            poster = urllib.urlretrieve(self.movie.get_poster(), tempfile.gettempdir() + "\poster.jpg")[0]
+            poster = urllib.urlretrieve(self.movie.get_poster(), os.path.join(tempfile.gettempdir(),"poster.jpg"))[0]
         except:
             poster = None
         return poster
