@@ -129,25 +129,25 @@ class tmdb_mp4:
         output.write(castheader)
         for a in self.movie.get_cast()[:5]:
             if a is not None:
-                output.write("<dict><key>name</key><string>" + str(a['name']) + "</string></dict>\n")
+                output.write("<dict><key>name</key><string>" + a['name'].encode('ascii', 'ignore') + "</string></dict>\n")
         output.write(subfooter)
         # Write screenwriters
         output.write(writerheader)
         for w in self.movie.get_writers()[:5]:
             if w is not None:
-                output.write("<dict><key>name</key><string>" + str(w['name']) + "</string></dict>\n")
+                output.write("<dict><key>name</key><string>" + w['name'].encode('ascii', 'ignore') + "</string></dict>\n")
         output.write(subfooter)
         # Write directors
         output.write(directorheader)
         for d in self.movie.get_directors()[:5]:
             if d is not None:
-                output.write("<dict><key>name</key><string>" + str(d['name']) + "</string></dict>\n")
+                output.write("<dict><key>name</key><string>" + d['name'].encode('ascii', 'ignore') + "</string></dict>\n")
         output.write(subfooter)
         # Write producers
         output.write(producerheader)
         for p in self.movie.get_producers()[:5]:
             if p is not None:
-                output.write("<dict><key>name</key><string>" + str(p['name']) + "</string></dict>\n")
+                output.write("<dict><key>name</key><string>" + p['name'].encode('ascii', 'ignore') + "</string></dict>\n")
         output.write(subfooter)
 
         # Write final footer
