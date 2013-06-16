@@ -1,5 +1,4 @@
 import os
-import stat
 import sys
 import time
 from converter import Converter
@@ -107,6 +106,9 @@ class MkvtoMp4:
                 #print '[{0}] {1}%'.format('#' * (timecode / 10) + ' ' * (10 - (timecode / 10)), timecode, end='\r')
             print "Conversion complete"
 
+            # Set permissions of newly created file
+            os.chmod(self.output, 0777)
+
             # Attempt to delete the input source file
             if delete:
                 if self.removeFile(file):
@@ -132,6 +134,7 @@ class MkvtoMp4:
 
             try:
                 processor.process(self.output, tmp)
+                os.chmod(tmp, 0777)
                 # Cleanup
                 if self.removeFile(self.output, replacement=tmp):
                     print "Cleanup successful"
@@ -144,7 +147,7 @@ class MkvtoMp4:
         for i in range(retries + 1):
             try:
                 # Make sure file isn't read-only
-                os.chmod(filename, stat.S_IWRITE)
+                os.chmod(filename, 0777)
                 os.remove(filename)
                 # Replaces the newly deleted file with another by renaming (replacing an original with a newly created file)
                 if replacement is not None:
