@@ -36,16 +36,17 @@ class MkvtoMp4:
                 # Proceed if no whitelist is set, or if the language is in the whitelist
                 if awl is None or a.language in awl:
                     # Create iOS friendly audio stream if the default audio stream has too many channels (iOS only likes AAC stereo)
-                    if iOS and a.audio_channels > 2:
-                        print "Creating dual audio channels for iOS compatability for this stream"
-                        audio_settings.update({l: {
-                            'map': a.index,
-                            'codec': 'aac',
-                            'channels': 2,
-                            'bitrate': 512,
-                            'language': a.language,
-                        }})
-                        l += 1
+                    if iOS:
+                        if a.audio_channels > 2 or a.codec != 'aac':
+                            print "Creating dual audio channels for iOS compatability for this stream"
+                            audio_settings.update({l: {
+                                'map': a.index,
+                                'codec': 'aac',
+                                'channels': 2,
+                                'bitrate': 512,
+                                'language': a.language,
+                            }})
+                            l += 1
                     acodec = 'copy' if a.codec == audio_codec else audio_codec
 
                     # Bitrate calculations/overrides
