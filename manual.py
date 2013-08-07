@@ -57,12 +57,12 @@ def main():
 	m_type = False
 	if len(sys.argv) > 2:
 		path = str(sys.argv[1]).replace("\\", "\\\\").replace("\\\\\\\\", "\\\\")
-		if sys.argv[2] == 'tv':
+		if sys.argv[2] == '-tv':
 			m_type = 2
 			tvdbid = int(sys.argv[3])
 			season = int(sys.argv[4])
 			episode = int(sys.argv[5])
-		elif sys.argv[2] == 'movie':
+		elif sys.argv[2] == '-m':
 			m_type = 1
 			imdbid = sys.argv[3]
 		else:
