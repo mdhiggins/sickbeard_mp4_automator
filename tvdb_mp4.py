@@ -17,6 +17,7 @@ class Tvdb_mp4:
                 self.show = show
                 self.season = season
                 self.episode = episode
+                self.rating = None
                 self.HD = None
 
                 #Gather information from theTVDB
@@ -27,6 +28,7 @@ class Tvdb_mp4:
                 self.show = self.showdata['seriesname']
                 self.genre = self.showdata['genre']
                 self.network = self.showdata['network']
+                self.contentrating = self.showdata['contentrating']
 
                 self.title = self.episodedata['episodename']
                 self.description = self.episodedata['overview']
@@ -72,6 +74,7 @@ class Tvdb_mp4:
         if self.genre is not None:
             video["\xa9gen"] = self.genre.replace('|', ',')[1:-1]  # Genre(s)
         video["----:com.apple.iTunes:iTunMOVI"] = self.xml  # XML - see xmlTags method
+        video["----:com.apple.iTunes:iTunEXTC"] = self.setRating()
 
         path = self.getArtwork()
         if path is not None:
@@ -99,6 +102,24 @@ class Tvdb_mp4:
             self.HD = [1]
         else:
             self.HD = [0]
+
+
+    def setRating(self):
+        ratings = dict([
+            ("TV-Y",'us-tv|TV-Y|100'),
+            ("TV-Y7",'us-tv|TV-Y7|200'),
+            ("TV-G",'us-tv|TV-G|300'),
+            ("TV-PG",'us-tv|TV-PG|400'),
+            ("TV-14",'us-tv|TV-14|500'),
+            ("TV-MA",'us-tv|TV-MA|600'),
+            ("Not Rated",'mpaa|Not Rated|000'),
+            ("G",'mpaa|G|100'),
+            ("PG",'mpaa|PG|200'),
+            ("PG-13",'mpaa|PG-13|300'),
+            ("R",'mpaa|R|400'),
+            ("NC-17",'mpaa|NC-17|500')])
+
+        return str(ratings[self.contentrating])
 
     def xmlTags(self):
         #constants
