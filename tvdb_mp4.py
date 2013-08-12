@@ -65,6 +65,7 @@ class Tvdb_mp4:
         if self.airdate != "0000-00-00":
             video["\xa9day"] = self.airdate  # Airdate
         video["tvsn"] = [self.season]  # Season number
+        video["disk"] = [(int(self.season),0)] # Season number as disk
         video["\xa9alb"] = self.show + ", Season " + str(self.season)  # iTunes Album as Season
         video["tves"] = [self.episode]  # Episode number
         video["trkn"] = [(int(self.episode), len(self.seasondata))]  # Episode number iTunes
