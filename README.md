@@ -49,6 +49,21 @@ CouchPotato Support
     - Set "Run Every" to 0
     - Set "Force Every" to 0
 
+Manual Script Usage
+--------------
+To run the script manually, simply run the manual.py file and follow the prompts it presents.
+If you wish to run it via the command line (good for batch operations) follow this format:
+
+```
+Movies:
+manual.py mp4path -m imdbid
+Example: manual.py 'C:\The Matrix.mkv' -m tt0133093
+
+TV
+manual.py mp4path -tv tvdbid season episode
+Example: manual.py 'C:\Futurama S03E10.mkv' -tv 73871‎ 3 10
+```
+
 Credits
 --------------
 This project makes use of the following projects:

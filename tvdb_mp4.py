@@ -74,7 +74,7 @@ class Tvdb_mp4:
         if self.genre is not None:
             video["\xa9gen"] = self.genre.replace('|', ',')[1:-1]  # Genre(s)
         video["----:com.apple.iTunes:iTunMOVI"] = self.xml  # XML - see xmlTags method
-        video["----:com.apple.iTunes:iTunEXTC"] = self.setRating()
+        video["----:com.apple.iTunes:iTunEXTC"] = self.setRating()  # iTunes content rating
 
         path = self.getArtwork()
         if path is not None:
