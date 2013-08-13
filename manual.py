@@ -93,8 +93,6 @@ def main():
 		tagmp4 = tmdb_mp4(imdbid)
 		tagmp4.writeTags(path)
 	elif m_type is 2:
-		print season
-		print episode
 		tagmp4 = Tvdb_mp4(tvdbid, season, episode)
 		tagmp4.setHD(convert.width, convert.height)
 		tagmp4.writeTags(path)
