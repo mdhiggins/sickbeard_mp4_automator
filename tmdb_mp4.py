@@ -10,15 +10,15 @@ from extensions import valid_output_extensions, tmdb_api_key
 
 
 class tmdb_mp4:
-    def __init__(self, imdbid):
-        if imdbid.startswith('tt') is not True:
+    def __init__(self, imdbid, tmdbid=False):
+        if tmdbid is False and imdbid.startswith('tt') is not True:
             imdbid = 'tt' + imdbid
-        print "Fetching info for imdb id " + str(imdbid)
         for i in range(3):
             try:
                 tmdb.configure(tmdb_api_key)
 
-                tmdbid = tmdb.Movies().imdbtotmdb(imdbid)
+                if tmdbid is False:
+                    tmdbid = tmdb.Movies().imdbtotmdb(imdbid)
                 self.movie = tmdb.Movie(tmdbid)
 
                 self.HD = None

@@ -42,13 +42,16 @@ def raw(text):
 
 def mediatype():
 	print "Select media type:"
-	print "1. Movie"
-	print "2. TV"
+	print "1. Movie (via IMDB ID)"
+	print "2. Movie (via TMDB ID)"
+	print "3. TV"
 	result = raw_input("#: ")
 	if result == "1":
 		return 1
 	elif result == "2":
 		return 2
+	elif result == "3":
+		return 3
 	else:
 		print "Invalid selection"
 		return mediatype()
@@ -58,8 +61,13 @@ def getIMDBId():
 	imdbid = raw_input("#: ")
 	return imdbid
 
+def getTMDBId():
+	print "Enter TMDB ID:"
+	tmdbid = raw_input("#: ")
+	return tmdbid
+
 def getTVDBId():
-	print "Enter TVDB ID:"
+	print "Enter TVDB Series ID:"
 	tvdbid = raw_input("#: ")
 	return tvdbid
 
@@ -75,14 +83,17 @@ def getEpisode():
 
 def getinfo():
 	m_type = mediatype()
-	if m_type is 2:
+	if m_type is 3:
 		tvdbid = getTVDBId()
 		season = getSeason()
 		episode = getEpisode()
-		return tvdbid, season, episode
+		return m_type, tvdbid, season, episode
 	elif m_type is 1:
 		imdbid = getIMDBId()
-		return [imdbid]
+		return m_type, imdbid
+	elif m_type is 2:
+		tmdbid = getTMDBId()
+		return m_type, tmdbid
 
 def main():
 	if len(sys.argv) > 2:
@@ -97,6 +108,10 @@ def main():
 			imdbid = sys.argv[3]
 			tagmp4 = tmdb_mp4(imdbid)
 			print "Processing %s" %(tagmp4.title)
+		elif sys.argv[2] == '-tmdb':
+			tmdbid = sys.argv[3]
+			tagmp4 = tmdb_mp4(None, tmdbid)
+			print "Processing %s" %(tagmp4.title)
 		else:
 			print "Invalid command line input"
 	#elif len(sys.argv) == 2:
@@ -110,14 +125,18 @@ def main():
 			path = path[1:-1]
 		path = raw(path)
 		result = getinfo()
-		if len(result) is 1:
-			imdbid = result[0]
+		if result[0] is 1:
+			imdbid = result[1]
 			tagmp4 = tmdb_mp4(imdbid)
 			print "Processing %s" %(tagmp4.title)
-		elif len(result) is 3:
-			tvdbid = int(result[0])
-			season = int(result[1])
-			episode = int(result[2])
+		elif result[0] is 2:
+			tmdbid = result[1]
+			tagmp4 = tmdb_mp4(None, tmdbid)
+			print "Processing %s" %(tagmp4.title)
+		elif result[0] is 3:
+			tvdbid = int(result[1])
+			season = int(result[2])
+			episode = int(result[3])
 			tagmp4 = Tvdb_mp4(tvdbid, season, episode)
 			print "Processing %s Season %s Episode %s - %s" %(tagmp4.show, str(tagmp4.season), str(tagmp4.episode), tagmp4.title)
 	extension = os.path.splitext(path)[1][1:]
