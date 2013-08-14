@@ -10,6 +10,36 @@ from extensions import valid_output_extensions
 
 settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
 
+def raw(text):
+    escape_dict = {'\a': r'\a',
+                   '\b': r'\b',
+                   '\c': r'\c',
+                   '\f': r'\f',
+                   '\n': r'\n',
+                   '\r': r'\r',
+                   '\t': r'\t',
+                   '\v': r'\v',
+                   '\'': r'\'',
+                   '\"': r'\"',
+                   '\0': r'\0',
+                   '\1': r'\1',
+                   '\2': r'\2',
+                   '\3': r'\3',
+                   '\4': r'\4',
+                   '\5': r'\5',
+                   '\6': r'\6',
+                   '\7': r'\7',
+                   '\8': r'\8',
+                   '\9': r'\9'}
+
+    output = ''
+    for char in text:
+        try:
+            output += escape_dict[char]
+        except KeyError:
+            output += char
+    return output
+
 def mediatype():
 	print "Select media type:"
 	print "1. Movie"
@@ -54,11 +84,10 @@ def getinfo():
 		imdbid = getIMDBId()
 		return [imdbid]
 
-
 def main():
 	m_type = False
 	if len(sys.argv) > 2:
-		path = str(sys.argv[1]).replace("\\", "\\\\").replace("\\\\\\\\", "\\\\")
+		path = raw(str(sys.argv[1]))
 		if sys.argv[2] == '-tv':
 			m_type = 2
 			tvdbid = int(sys.argv[3])
@@ -74,7 +103,11 @@ def main():
 	#	getinfo()
 	else:
 		print "Enter path to file:"
-		path = raw_input("#: ").replace("\\", "\\\\").replace("\\\\\\\\", "\\\\")
+		path = raw_input("#: ")
+		if path.startswith('"') and path.endswith('"'):
+			print path
+			path = path[1:-1]
+		path = raw(path)
 		result = getinfo()
 		if len(result) is 1:
 			m_type = 1
