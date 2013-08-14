@@ -55,9 +55,13 @@ To run the script manually, simply run the manual.py file and follow the prompts
 If you wish to run it via the command line (good for batch operations) follow this format:
 
 ```
-Movies:
+Movies (using IMDB ID):
 manual.py mp4path -m imdbid
 Example: manual.py 'C:\The Matrix.mkv' -m tt0133093
+
+Movies (using TMDB ID)
+manual.py mp4path -m tmdbid
+Example: manual.py 'C:\The Matrix.mkv' -tmdb 603
 
 TV
 manual.py mp4path -tv tvdbid season episode
