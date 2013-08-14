@@ -105,12 +105,16 @@ class Tvdb_mp4:
             self.HD = [0]
 
     def shortDescription(self, length=255, splitter='.',suffix='.'):
+        if self.description is None:
+            self.description = ''
         if len(self.description) <= length:
             return self.description
         else:
             return ' '.join(self.description[:length+1].split('.')[0:-1]) + suffix
 
     def setRating(self):
+        if self.contentrating is None:
+            return 'us-tv|Not Rated|000'
         ratings = dict([
             ("TV-Y",'us-tv|TV-Y|100'),
             ("TV-Y7",'us-tv|TV-Y7|200'),
