@@ -85,17 +85,18 @@ def getinfo():
 		return [imdbid]
 
 def main():
-	m_type = False
 	if len(sys.argv) > 2:
 		path = raw(str(sys.argv[1]))
 		if sys.argv[2] == '-tv':
-			m_type = 2
 			tvdbid = int(sys.argv[3])
 			season = int(sys.argv[4])
 			episode = int(sys.argv[5])
+			tagmp4 = Tvdb_mp4(tvdbid, season, episode)
+			print "Processing %s Season %s Episode %s - %s" %(tagmp4.show, str(tagmp4.season), str(tagmp4.episode), tagmp4.title)
 		elif sys.argv[2] == '-m':
-			m_type = 1
 			imdbid = sys.argv[3]
+			tagmp4 = tmdb_mp4(imdbid)
+			print "Processing %s" %(tagmp4.title)
 		else:
 			print "Invalid command line input"
 	#elif len(sys.argv) == 2:
@@ -110,27 +111,22 @@ def main():
 		path = raw(path)
 		result = getinfo()
 		if len(result) is 1:
-			m_type = 1
 			imdbid = result[0]
+			tagmp4 = tmdb_mp4(imdbid)
+			print "Processing %s" %(tagmp4.title)
 		elif len(result) is 3:
-			m_type = 2
 			tvdbid = int(result[0])
 			season = int(result[1])
 			episode = int(result[2])
+			tagmp4 = Tvdb_mp4(tvdbid, season, episode)
+			print "Processing %s Season %s Episode %s - %s" %(tagmp4.show, str(tagmp4.season), str(tagmp4.episode), tagmp4.title)
 	extension = os.path.splitext(path)[1][1:]
 	convert = MkvtoMp4(path, FFMPEG_PATH=settings.ffmpeg, FFPROBE_PATH=settings.ffprobe, delete=settings.delete, output_extension=settings.output_extension, relocate_moov=settings.relocate_moov, iOS=settings.iOS, awl=settings.awl, swl=settings.swl, adl=settings.adl, sdl=settings.sdl, audio_codec=settings.acodec)
 	if extension not in valid_output_extensions:
 		path = convert.output
 
-	if m_type is 1:
-		tagmp4 = tmdb_mp4(imdbid)
-		tagmp4.writeTags(path)
-	elif m_type is 2:
-		tagmp4 = Tvdb_mp4(tvdbid, season, episode)
-		tagmp4.setHD(convert.width, convert.height)
-		tagmp4.writeTags(path)
-	else:
-		print "Error"
+	tagmp4.setHD(convert.width, convert.height)
+	tagmp4.writeTags(path)
 
 if __name__ == '__main__':
     main()
