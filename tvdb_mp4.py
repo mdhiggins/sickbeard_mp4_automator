@@ -59,12 +59,13 @@ class Tvdb_mp4:
         video["tvsh"] = self.show  # TV show title
         video["\xa9nam"] = self.title  # Video title
         video["tven"] = self.title  # Episode title
-        video["desc"] = self.description  # Short description
+        video["desc"] = self.shortDescription()  # Short description
         video["ldes"] = self.description  # Long description (same a short for tv)
         video["tvnn"] = self.network  # Network
         if self.airdate != "0000-00-00":
             video["\xa9day"] = self.airdate  # Airdate
         video["tvsn"] = [self.season]  # Season number
+        video["disk"] = [(int(self.season),0)] # Season number as disk
         video["\xa9alb"] = self.show + ", Season " + str(self.season)  # iTunes Album as Season
         video["tves"] = [self.episode]  # Episode number
         video["trkn"] = [(int(self.episode), len(self.seasondata))]  # Episode number iTunes
@@ -103,6 +104,11 @@ class Tvdb_mp4:
         else:
             self.HD = [0]
 
+    def shortDescription(self, length=255, splitter='.',suffix='.'):
+        if len(self.description) <= length:
+            return self.description
+        else:
+            return ' '.join(self.description[:length+1].split('.')[0:-1]) + suffix
 
     def setRating(self):
         ratings = dict([
