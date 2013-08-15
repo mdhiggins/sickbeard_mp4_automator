@@ -60,7 +60,7 @@ manual.py mp4path -m imdbid
 Example: manual.py 'C:\The Matrix.mkv' -m tt0133093
 
 Movies (using TMDB ID)
-manual.py mp4path -m tmdbid
+manual.py mp4path -tmdb tmdbid
 Example: manual.py 'C:\The Matrix.mkv' -tmdb 603
 
 TV
