@@ -77,7 +77,12 @@ class Tvdb_mp4:
         video["----:com.apple.iTunes:iTunMOVI"] = self.xml  # XML - see xmlTags method
         video["----:com.apple.iTunes:iTunEXTC"] = self.setRating()  # iTunes content rating
 
-        path = self.getArtwork()
+        head, tail = os.path.split(os.path.abspath(mp4Path))
+        if (os.path.exists(head + '/' + "cover.jpg")):
+            path = head+ '/' + "cover.jpg"
+            print "Using local artwork: " + head + '/' + "cover.jpg"
+        else:
+            path = self.getArtwork()
         if path is not None:
             cover = open(path, 'rb').read()
             if path.endswith('png'):
