@@ -163,7 +163,6 @@ class tmdb_mp4:
         for e in extensions:
             head, tail = os.path.split(os.path.abspath(mp4Path))
             path = os.path.join(head, filename + os.extsep + e)
-            print path
             if (os.path.exists(path)):
                 poster = path
                 print "Local artwork detected, using " + path
