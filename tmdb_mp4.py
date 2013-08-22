@@ -6,7 +6,7 @@ import tempfile
 import time
 from tmdb_api import tmdb
 from mutagen.mp4 import MP4, MP4Cover
-from extensions import valid_output_extensions, tmdb_api_key
+from extensions import valid_output_extensions, valid_poster_extensions, tmdb_api_key
 
 
 class tmdb_mp4:
@@ -71,7 +71,7 @@ class tmdb_mp4:
         if rating is not None:
             video["----:com.apple.iTunes:iTunEXTC"] = rating
 
-        path = self.getArtwork()
+        path = self.getArtwork(mp4Path)
         if path is not None:
             cover = open(path, 'rb').read()
             if path.endswith('png'):
@@ -156,12 +156,24 @@ class tmdb_mp4:
         output.close()
     #end xmlTags
 
-    def getArtwork(self):
+    def getArtwork(self, mp4Path, filename='cover'):
+        # Check for local artwork in the same directory as the mp4
+        extensions = valid_poster_extensions
+        poster = None
+        for e in extensions:
+            head, tail = os.path.split(os.path.abspath(mp4Path))
+            path = os.path.join(head, filename + os.extsep + e)
+            print path
+            if (os.path.exists(path)):
+                poster = path
+                print "Local artwork detected, using " + path
+                break
         #Pulls down all the poster metadata for the correct season and sorts them into the Poster object
-        try:
-            poster = urllib.urlretrieve(self.movie.get_poster(), os.path.join(tempfile.gettempdir(),"poster.jpg"))[0]
-        except:
-            poster = None
+        if poster is None:
+            try:
+                poster = urllib.urlretrieve(self.movie.get_poster(), os.path.join(tempfile.gettempdir(),"poster.jpg"))[0]
+            except:
+                poster = None
         return poster
     #end artwork
 #end tmdb_mp4
