@@ -98,8 +98,6 @@ class MkvtoMp4:
                             print "External subtitle file detected, language " + lang[1:]
                             if swl is None or lang[1:] in swl:
                                 print "Adding subtitle"
-                                print src
-                                print es
                                 subtitle_settings.update({l: {
                                     'path': os.path.join(output_dir, fname),
                                     'source': src,
