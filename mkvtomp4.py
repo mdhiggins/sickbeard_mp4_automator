@@ -96,7 +96,7 @@ class MkvtoMp4:
                         x, lang = os.path.splitext(subname)
                         if x == filename:
                             print "External subtitle file detected, language " + lang[1:]
-                            if lang[1:] in swl:
+                            if lang[1:] in swl or swl is None:
                                 print "Adding subtitle"
                                 print source
                                 print escount
