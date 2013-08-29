@@ -2,7 +2,7 @@ import os
 import sys
 import time
 from converter import Converter
-from extensions import valid_input_extensions, valid_output_extensions, bad_subtitle_codecs
+from extensions import valid_input_extensions, valid_output_extensions, bad_subtitle_codecs, valid_subtitle_extensions
 from qtfaststart import processor, exceptions
 
 
@@ -85,6 +85,33 @@ class MkvtoMp4:
                             'default': s.sub_default
                         }})
                         l = l + 1
+
+            # External subtitle import
+            escount = 0
+            source = 1
+            for dirName, subdirList, fileList in os.walk(output_dir):
+                for fname in fileList:
+                    subname, subextension = os.path.splitext(fname)
+                    if subextension[1:] in valid_subtitle_extensions:
+                        x, lang = os.path.splitext(subname)
+                        if x == filename:
+                            print "External subtitle file detected, language " + lang[1:]
+                            if lang[1:] in swl:
+                                print "Adding subtitle"
+                                print source
+                                print escount
+                                subtitle_settings.update({l: {
+                                    'path': os.path.join(output_dir, fname),
+                                    'source': source,
+                                    'map': escount,
+                                    'codec': 'mov_text',
+                                    'language': lang[1:],
+                                    }})
+                                l = l + 1
+                                escount = escount + 1
+                                source = source + 1
+                            else:
+                                print "Ignoring"
 
             # Collect all options
             options = {
