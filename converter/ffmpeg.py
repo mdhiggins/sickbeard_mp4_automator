@@ -380,6 +380,14 @@ class FFMpeg(object):
             raise FFMpegError("Input file doesn't exist: " + infile)
 
         cmds = [self.ffmpeg_path, '-i', infile]
+        
+        # Move additional inputs to the front of the line
+        for ind, command in enumerate(opts):
+            if command == '-i':
+                cmds.extend(['-i', opts[ind + 1]])
+                del opts[ind]
+                del opts[ind]
+
         cmds.extend(opts)
         cmds.extend(['-y', outfile])
 
@@ -443,7 +451,7 @@ class FFMpeg(object):
                 elif line.startswith('Error while '):
                     raise FFMpegConvertError('Encoding error: ' + line)
                 elif not yielded:
-                    raise FFMpegConvertError('Unknown ffmpeg error')
+                    raise FFMpegConvertError('Unknown ffmpeg error ' + line)
 
     def thumbnail(self, fname, time, outfile, size=None):
         """

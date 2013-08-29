@@ -128,6 +128,12 @@ class Converter(object):
                 if 'map' not in x:
                     raise ConverterError('Must specify a map value')
 
+                if 'path' in x and 'source' not in x:
+                    raise ConverterError('Cannot specify subtitle path without FFMPEG source number')
+
+                if 'source' in x and 'path' not in x:
+                    raise ConverterError('Cannot specify alternate input source without a path')
+
                 c = x['codec']
                 if c not in self.subtitle_codecs:
                     raise ConverterError('Requested unknown audio codec ' + str(c))
