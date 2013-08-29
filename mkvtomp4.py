@@ -87,8 +87,8 @@ class MkvtoMp4:
                         l = l + 1
 
             # External subtitle import
-            escount = 0
-            source = 1
+            es = 0
+            src = 1
             for dirName, subdirList, fileList in os.walk(output_dir):
                 for fname in fileList:
                     subname, subextension = os.path.splitext(fname)
@@ -96,22 +96,22 @@ class MkvtoMp4:
                         x, lang = os.path.splitext(subname)
                         if x == filename:
                             print "External subtitle file detected, language " + lang[1:]
-                            if lang[1:] in swl or swl is None:
+                            if swl is None or lang[1:] in swl:
                                 print "Adding subtitle"
-                                print source
-                                print escount
+                                print src
+                                print es
                                 subtitle_settings.update({l: {
                                     'path': os.path.join(output_dir, fname),
-                                    'source': source,
-                                    'map': escount,
+                                    'source': src,
+                                    'map': es,
                                     'codec': 'mov_text',
                                     'language': lang[1:],
                                     }})
                                 l = l + 1
-                                escount = escount + 1
-                                source = source + 1
+                                es = es + 1
+                                src = src + 1
                             else:
-                                print "Ignoring"
+                                print "Ignoring subtitle stream due to language"
 
             # Collect all options
             options = {
