@@ -9,6 +9,12 @@ Sickbeard/CouchPotato MP4 automation script.
 - Requires FFMPEG and FFPROBE
 - Works on Windows, OSX, and Linux (Linux users make sure you're using a build of FFMPEG with the non open-source codecs, see here: https://ffmpeg.org/trac/ffmpeg/wiki/UbuntuCompilationGuide)
 
+Default Settings
+--------------
+1. Video - H264
+2. Audio - AAC 2.0 with additional AC3 track when source has >2 channels (ex 5.1)
+3. Subtitles - mov_text
+
 General Installation Instructions
 --------------
 1. Rename autoProcess.ini.sample to autoProcess.ini
@@ -19,7 +25,8 @@ General Installation Instructions
     - output_extension = mp4/m4v (must be one of these 2)
     - delete_original = True/False
     - relocate_moov = True/False - relocates the MOOV atom to the beginning of the file for better streaming
-    - ios-audio - creates a 2nd copy of an audio stream that will be iOS compatible (AAC Stereo) if the normal output will not be
+    - ios-audio - creates a 2nd copy of an audio stream that will be iOS compatible (AAC Stereo) if the normal output will not be. If a stereo source stream is detected with this option enabled, an AAC stereo stream will be the only one produced (essentially overriding the codec option) to avoid multiple stereo audio stream copies in different codecs.
+    - audio-codec - set your desired audio codec. Supports AAC, AC3, and DTS
     - audio-language - 3 letter language code for audio streams you wish to copy. Leave blank to copy all. Separate multiple audio streams with commas (ex: eng,spa)
     - audio-default-language - If an audio stream with an unidentified/untagged language is detected, you can default that language tag to whatever this value is (ex: eng). This is useful for many single-audio releases which don't bother to tag the audio stream as anything
     - subtitle-language - same as audio-language but for subtitles
@@ -66,6 +73,20 @@ Example: manual.py 'C:\The Matrix.mkv' -tmdb 603
 TV
 manual.py mp4path -tv tvdbid season episode
 Example: manual.py 'C:\Futurama S03E10.mkv' -tv 73871‎ 3 10
+```
+
+External Cover Art
+--------------
+To use your own cover art instead of what the script pulls from TMDB or TVDB, simply place an image file named cover.jpg or cover.png in the same directory as the input video before processing and it will be used.
+
+Import External Subtitles
+--------------
+To import external subtitles, place the .srt file in the same directory as the file to be processed. The srt must have the same name as the input video file, as well as the 3 character language code for which the subtitle is. Subtitle importing obeys the langauge rules set in autoProcess.ini, so languages that aren't whitelisted will be ignored.
+
+Naming example:
+```
+input mkv - The.Matrix.1999.mkv
+subtitle srt - The.Matrix.1999.eng.srt
 ```
 
 Credits
