@@ -105,7 +105,7 @@ def getinfo():
 
 def main():
     if len(sys.argv) > 2:
-        path = raw(str(sys.argv[1]))
+        path = str(sys.argv[1])
         if sys.argv[2] == '-tv':
             tvdbid = int(sys.argv[3])
             season = int(sys.argv[4])
@@ -129,9 +129,7 @@ def main():
         print "Enter path to file:"
         path = raw_input("#: ")
         if path.startswith('"') and path.endswith('"'):
-            print path
             path = path[1:-1]
-        #path = raw(path)
         result = getinfo()
         if result[0] is 1:
             imdbid = result[1]
