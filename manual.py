@@ -131,7 +131,7 @@ def main():
         if path.startswith('"') and path.endswith('"'):
             print path
             path = path[1:-1]
-        path = raw(path)
+        #path = raw(path)
         result = getinfo()
         if result[0] is 1:
             imdbid = result[1]
