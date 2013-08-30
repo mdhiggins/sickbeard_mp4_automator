@@ -19,9 +19,9 @@ class ReadSettings:
                         'output_extension': 'mp4',
                         'delete_original': 'True',
                         'relocate_moov': 'True',
-                        'ios-audio': 'False',
+                        'ios-audio': 'True',
                         'audio-language': '',
-                        'audio-codec': 'aac',
+                        'audio-codec': 'ac3',
                         'subtitle-language': '',
                         'audio-default-language': '',
                         'subtitle-default-language': ''}
