@@ -8,11 +8,10 @@ from readSettings import ReadSettings
 from tvdb_mp4 import Tvdb_mp4
 from mkvtomp4 import MkvtoMp4
 from extensions import valid_output_extensions
-
 settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
 
 if len(sys.argv) > 4:
-    path = str(sys.argv[1]).replace("\\", "\\\\").replace("\\\\\\\\", "\\\\")
+    path = sys.argv[1]
     extension = os.path.splitext(path)[1][1:]
     tvdb_id = int(sys.argv[3])
     season = int(sys.argv[4])
@@ -29,6 +28,10 @@ if len(sys.argv) > 4:
     tagmp4 = Tvdb_mp4(tvdb_id, season, episode)
     tagmp4.setHD(convert.width, convert.height)
     tagmp4.writeTags(path)
+
+    if settings.relocate_moov:
+        convert.QTFS()
+
     if settings.output_dir is not None:
         output = os.path.join(settings.output_dir, os.path.split(path)[1])
         if extension in valid_output_extensions and settings.delete is False:  # If the file is already in a valid format, this will duplicate the file in the output directory since no original would be left behind

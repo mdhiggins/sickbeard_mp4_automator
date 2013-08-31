@@ -153,5 +153,8 @@ def main():
     tagmp4.setHD(convert.width, convert.height)
     tagmp4.writeTags(path)
 
+    if settings.relocate_moov:
+        convert.QTFS()
+
 if __name__ == '__main__':
     main()

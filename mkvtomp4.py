@@ -12,6 +12,7 @@ class MkvtoMp4:
         output_dir, filename = os.path.split(file)
         filename, input_extension = os.path.splitext(filename)
         input_extension = input_extension[1:]
+        self.relocate_moov = relocate_moov
 
         c = Converter(FFMPEG_PATH, FFPROBE_PATH)
         # Get values for width and height to be passed to the tagging classes for proper HD tags
@@ -155,8 +156,9 @@ class MkvtoMp4:
             print file + " - file not in the correct format"
             sys.exit()
 
+    def QTFS(self):
         # Relocate MOOV atom to the very beginning. Can double the time it takes to convert a file but makes streaming faster
-        if (relocate_moov):
+        if (self.relocate_moov):
             print "Relocating MOOV atom to start of file"
             tmp = self.output + ".tmp"
             # Clear out the temp file if it exists
