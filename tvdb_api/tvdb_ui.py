@@ -150,6 +150,4 @@ class ConsoleUI(BaseUI):
                     log().debug('Invalid show number entered!')
                     print "Invalid number (%s) selected!"
                     self._displaySeries(allSeries)
-            #end try
-        #end while not valid_input
 

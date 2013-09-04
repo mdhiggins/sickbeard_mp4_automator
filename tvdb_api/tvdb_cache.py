@@ -159,7 +159,6 @@ class CacheHandler(urllib2.BaseHandler):
                 )
             else:
                 set_cache_header = True
-            #end if x-cache in response
 
             return CachedResponse(
                 self.cache_location,
