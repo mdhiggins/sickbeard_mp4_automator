@@ -31,6 +31,7 @@ General Installation Instructions
     - audio-default-language - If an audio stream with an unidentified/untagged language is detected, you can default that language tag to whatever this value is (ex: eng). This is useful for many single-audio releases which don't bother to tag the audio stream as anything
     - subtitle-language - same as audio-language but for subtitles
     - subtitle-language-default - same as audio-language-default but for subtitles
+    - convert-mp4 - forces the script to reprocess and convert mp4 files as though they were mkvs. Good if you have old mp4's that you want to match your current codec configuration.
 
 SickBeard Installation Instructions
 --------------
