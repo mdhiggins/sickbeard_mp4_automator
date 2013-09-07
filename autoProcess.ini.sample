@@ -20,6 +20,7 @@ audio-language=
 audio-default-language=
 subtitle-language=
 subtitle-default-language=
+convert-mp4=False
 
 [CouchPotato]
 host = localhost
