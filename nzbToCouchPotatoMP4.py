@@ -7,7 +7,7 @@ from tmdb_api import tmdb
 from tmdb_mp4 import tmdb_mp4
 from readSettings import ReadSettings
 from mkvtomp4 import MkvtoMp4
-from extensions import valid_input_extensions, tmdb_api_key
+from extensions import tmdb_api_key
 
 print "nzbToCouchPotato MP4 edition"
 
@@ -57,8 +57,9 @@ if len(sys.argv) > 3:
     path = str(sys.argv[1])
     for r, d, f in os.walk(path):
         for files in f:
-            if os.path.splitext(files)[1][1:] in valid_input_extensions:
-                file = os.path.join(r, files)
+            file = os.path.join(r, files)
+            convert = MkvtoMp4(file, FFMPEG_PATH=settings.ffmpeg, FFPROBE_PATH=settings.ffprobe, delete=settings.delete, output_extension=settings.output_extension, relocate_moov=settings.relocate_moov, iOS=settings.iOS, awl=settings.awl, swl=settings.swl, adl=settings.adl, sdl=settings.sdl, processMP4=settings.processMP4)
+            if convert.output is not None:  # If convert returns True, the output file should be present in a valid format, proceed with trying to tag
                 if imdb_id == "":
                     try:
                         print "Going to guess the following files info: %s" % (sys.argv[2])
@@ -67,7 +68,6 @@ if len(sys.argv) > 3:
                         print "Unable to accurately identify movie file %s" % (file)
                 print "IMDB ID is: %s" % (imdb_id)
                 print "Converting the following file: %s" % (os.path.basename(file))
-                convert = MkvtoMp4(file, FFMPEG_PATH=settings.ffmpeg, FFPROBE_PATH=settings.ffprobe, delete=settings.delete, output_extension=settings.output_extension, relocate_moov=settings.relocate_moov, iOS=settings.iOS, awl=settings.awl, swl=settings.swl, adl=settings.adl, sdl=settings.sdl)
                 try:
                     imdbmp4 = tmdb_mp4(imdb_id)
                     imdbmp4.setHD(convert.width, convert.height)

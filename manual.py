@@ -6,7 +6,6 @@ from readSettings import ReadSettings
 from tvdb_mp4 import Tvdb_mp4
 from tmdb_mp4 import tmdb_mp4
 from mkvtomp4 import MkvtoMp4
-from extensions import valid_output_extensions
 
 settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
 
@@ -115,16 +114,14 @@ def main():
             episode = int(result[3])
             tagmp4 = Tvdb_mp4(tvdbid, season, episode)
             print "Processing %s Season %s Episode %s - %s" % (tagmp4.show, str(tagmp4.season), str(tagmp4.episode), tagmp4.title)
-    extension = os.path.splitext(path)[1][1:]
-    convert = MkvtoMp4(path, FFMPEG_PATH=settings.ffmpeg, FFPROBE_PATH=settings.ffprobe, delete=settings.delete, output_extension=settings.output_extension, relocate_moov=settings.relocate_moov, iOS=settings.iOS, awl=settings.awl, swl=settings.swl, adl=settings.adl, sdl=settings.sdl, audio_codec=settings.acodec)
-    if extension not in valid_output_extensions:
-        path = convert.output
+    
+    convert = MkvtoMp4(path, FFMPEG_PATH=settings.ffmpeg, FFPROBE_PATH=settings.ffprobe, delete=settings.delete, output_extension=settings.output_extension, relocate_moov=settings.relocate_moov, iOS=settings.iOS, awl=settings.awl, swl=settings.swl, adl=settings.adl, sdl=settings.sdl, audio_codec=settings.acodec, processMP4=settings.processMP4)
+    if convert.output is not None:
+        tagmp4.setHD(convert.width, convert.height)
+        tagmp4.writeTags(convert.output)
 
-    tagmp4.setHD(convert.width, convert.height)
-    tagmp4.writeTags(path)
-
-    if settings.relocate_moov:
-        convert.QTFS()
+        if settings.relocate_moov:
+            convert.QTFS()
 
 if __name__ == '__main__':
     main()
