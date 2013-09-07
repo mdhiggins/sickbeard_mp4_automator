@@ -145,17 +145,15 @@ class MkvtoMp4:
                     print file + " deleted"
                 else:
                     print "Couldn't delete the original file"
-            return True
 
         # If file is already in the correct format:
         elif input_extension in valid_output_extensions and processMP4 is False:
             self.output = file
-            return True
 
         # If all else fails
         else:
             print file + " - file not in the correct format"
-            return False
+            self.output = None
 
     def QTFS(self):
         # Relocate MOOV atom to the very beginning. Can double the time it takes to convert a file but makes streaming faster
