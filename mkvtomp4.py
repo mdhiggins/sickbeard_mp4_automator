@@ -1,5 +1,4 @@
 import os
-import sys
 import time
 from converter import Converter
 from extensions import valid_input_extensions, valid_output_extensions, bad_subtitle_codecs, valid_subtitle_extensions
@@ -7,7 +6,7 @@ from qtfaststart import processor, exceptions
 
 
 class MkvtoMp4:
-    def __init__(self, file, FFMPEG_PATH="FFMPEG.exe", FFPROBE_PATH="FFPROBE.exe", delete=True, output_extension='mp4', relocate_moov=True, video_codec='h264', audio_codec='aac', audio_bitrate=None, iOS=False, awl=None, swl=None, adl=None, sdl=None):
+    def __init__(self, file, FFMPEG_PATH="FFMPEG.exe", FFPROBE_PATH="FFPROBE.exe", delete=True, output_extension='mp4', relocate_moov=True, video_codec='h264', audio_codec='aac', audio_bitrate=None, iOS=False, awl=None, swl=None, adl=None, sdl=None, processMP4=False):
         #Get path information from the input file
         output_dir, filename = os.path.split(file)
         filename, input_extension = os.path.splitext(filename)
@@ -19,8 +18,8 @@ class MkvtoMp4:
         info = c.probe(file)
         self.height = info.video.video_height
         self.width = info.video.video_width
-        # Make sure input and output extensions are compatible
-        if input_extension in valid_input_extensions and output_extension in valid_output_extensions:
+        # Make sure input and output extensions are compatible. If processMP4 is true, then make sure the input extension is a valid OUTput extension and allow to proceed as well
+        if (input_extension in valid_input_extensions or (processMP4 is True and input_extension in valid_output_extensions)) and output_extension in valid_output_extensions:
             #Video stream
             print "Video codec detected: " + info.video.codec
             vcodec = 'copy' if info.video.codec == video_codec else video_codec
@@ -146,15 +145,17 @@ class MkvtoMp4:
                     print file + " deleted"
                 else:
                     print "Couldn't delete the original file"
+            return True
 
         # If file is already in the correct format:
-        elif input_extension in valid_output_extensions:
+        elif input_extension in valid_output_extensions and processMP4 is False:
             self.output = file
+            return True
 
         # If all else fails
         else:
             print file + " - file not in the correct format"
-            sys.exit()
+            return False
 
     def QTFS(self):
         # Relocate MOOV atom to the very beginning. Can double the time it takes to convert a file but makes streaming faster
