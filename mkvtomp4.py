@@ -15,14 +15,12 @@ class MkvtoMp4:
 
         c = Converter(FFMPEG_PATH, FFPROBE_PATH)
         # Get values for width and height to be passed to the tagging classes for proper HD tags
-        if os.path.isfile(file):
-            info = c.probe(file)
+        info = c.probe(file)
+        # Make sure input and output extensions are compatible. If processMP4 is true, then make sure the input extension is a valid OUTput extension and allow to proceed as well
+        if (input_extension in valid_input_extensions or (processMP4 is True and input_extension in valid_output_extensions)) and output_extension in valid_output_extensions:
+            #Video stream
             self.height = info.video.video_height
             self.width = info.video.video_width
-            self.output = None
-        # Make sure input and output extensions are compatible. If processMP4 is true, then make sure the input extension is a valid OUTput extension and allow to proceed as well
-        elif (input_extension in valid_input_extensions or (processMP4 is True and input_extension in valid_output_extensions)) and output_extension in valid_output_extensions:
-            #Video stream
             print "Video codec detected: " + info.video.codec
             vcodec = 'copy' if info.video.codec == video_codec else video_codec
 
@@ -157,6 +155,8 @@ class MkvtoMp4:
 
         # If file is already in the correct format:
         elif input_extension in valid_output_extensions and processMP4 is False:
+            self.height = info.video.video_height
+            self.width = info.video.video_width
             self.output = file
 
         # If all else fails
