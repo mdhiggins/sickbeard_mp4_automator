@@ -141,7 +141,7 @@ class MkvtoMp4:
             for timecode in conv:
                 pass
                 #print '[{0}] {1}%'.format('#' * (timecode / 10) + ' ' * (10 - (timecode / 10)), timecode, end='\r')
-            print "Conversion complete"
+            print self.output + "created"
 
             # Set permissions of newly created file
             os.chmod(self.output, 0777)
