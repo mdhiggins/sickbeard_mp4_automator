@@ -27,11 +27,10 @@ class MkvtoMp4:
             except: 
                 pass
         
-        info = c.probe(file)
-
         # Make sure input and output extensions are compatible. If processMP4 is true, then make sure the input extension is a valid output extension and allow to proceed as well
         if (input_extension in valid_input_extensions or (processMP4 is True and input_extension in valid_output_extensions)) and output_extension in valid_output_extensions:
             print file + " detected - processing"
+            info = c.probe(file)
             self.setDimensions(info)
 
             #Video stream
@@ -170,7 +169,7 @@ class MkvtoMp4:
         # If file is already in the correct format:
         elif input_extension in valid_output_extensions and processMP4 is False:
             print file + " detected - already correct format, skipping reprocessing"
-            self.setDimensions(info)
+            self.setDimensions(c.probe(file))
             self.output = file
 
         # If all else fails
