@@ -14,13 +14,27 @@ class MkvtoMp4:
         self.relocate_moov = relocate_moov
 
         c = Converter(FFMPEG_PATH, FFPROBE_PATH)
-        # Get values for width and height to be passed to the tagging classes for proper HD tags
+        
+        #If we're processing a file that's going to have the same input and output extension, resolve the potential future naming conflict
+        if processMP4 and input_extension == output_extension:
+            newfile = os.path.join(output_dir, filename + '.tmp.' + input_extension)
+            #Make sure there isn't any leftover temp files for whatever reason
+            self.removeFile(newfile, 0, 0)
+            #Attempt to rename the new input file to a temporary name
+            try:
+                os.rename(file, newfile)
+                file = newfile
+            except: 
+                pass
+        
         info = c.probe(file)
-        # Make sure input and output extensions are compatible. If processMP4 is true, then make sure the input extension is a valid OUTput extension and allow to proceed as well
+
+        # Make sure input and output extensions are compatible. If processMP4 is true, then make sure the input extension is a valid output extension and allow to proceed as well
         if (input_extension in valid_input_extensions or (processMP4 is True and input_extension in valid_output_extensions)) and output_extension in valid_output_extensions:
+            print file + " detected - processing"
+            self.setDimensions(info)
+
             #Video stream
-            self.height = info.video.video_height
-            self.width = info.video.video_width
             print "Video codec detected: " + info.video.codec
             vcodec = 'copy' if info.video.codec == video_codec else video_codec
 
@@ -130,7 +144,7 @@ class MkvtoMp4:
             print options
             self.output = os.path.join(output_dir, filename + "." + output_extension)
             
-            # Avoid any naming conflicts
+            # Avoid any residual naming conflicts for files that already exist
             i = 1
             while os.path.isfile(self.output):
                 self.output = os.path.join(output_dir, filename + "(" + str(i) + ")." + output_extension)
@@ -141,7 +155,7 @@ class MkvtoMp4:
             for timecode in conv:
                 pass
                 #print '[{0}] {1}%'.format('#' * (timecode / 10) + ' ' * (10 - (timecode / 10)), timecode, end='\r')
-            print self.output + "created"
+            print self.output + " created"
 
             # Set permissions of newly created file
             os.chmod(self.output, 0777)
@@ -151,17 +165,17 @@ class MkvtoMp4:
                 if self.removeFile(file):
                     print file + " deleted"
                 else:
-                    print "Couldn't delete the original file"
+                    print "Couldn't delete the original file:" + file
 
         # If file is already in the correct format:
         elif input_extension in valid_output_extensions and processMP4 is False:
-            self.height = info.video.video_height
-            self.width = info.video.video_width
+            print file + " detected - already correct format, skipping reprocessing"
+            self.setDimensions(info)
             self.output = file
 
         # If all else fails
         else:
-            print file + " - file not in the correct format"
+            print file + " - file not in the correct format, ignoring"
             self.output = None
 
     def QTFS(self):
@@ -182,6 +196,11 @@ class MkvtoMp4:
                     print "Error cleaning up temp files and renaming"
             except exceptions.FastStartException:
                 print "QT FastStart did not run - perhaps moov atom was at the start already"
+
+    def setDimensions(self, info):
+        # Get values for width and height to be passed to the tagging classes for proper HD tags
+        self.height = info.video.video_height
+        self.width = info.video.video_width
 
     def removeFile(self, filename, retries=2, delay=10, replacement=None):
         for i in range(retries + 1):
