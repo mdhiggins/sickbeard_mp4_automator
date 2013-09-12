@@ -21,7 +21,7 @@ if len(sys.argv) > 4:
         tagmp4 = Tvdb_mp4(tvdb_id, season, episode)
         tagmp4.setHD(convert.width, convert.height)
         tagmp4.writeTags(convert.output)
-        
+
         if settings.relocate_moov:
             convert.QTFS()
 
@@ -33,8 +33,8 @@ if len(sys.argv) > 4:
             print "Couldn't refresh Sickbeard, check your settings"
 
         if settings.output_dir is not None:
-            output = os.path.join(settings.output_dir, os.path.split(path)[1])
-            if extension in valid_output_extensions and settings.delete is False:  # If the file is already in a valid format, this will duplicate the file in the output directory since no original would be left behind
+            output = os.path.join(settings.output_dir, os.path.split(convert.output)[1])
+            if extension in valid_output_extensions and settings.delete is False and settings.processMP4 is False:  # If the file is already in a valid format, this will duplicate the file in the output directory since no original would be left behind
                 try:
                     shutil.copy(convert.output, output)
                 except (OSError, IOError) as e:
