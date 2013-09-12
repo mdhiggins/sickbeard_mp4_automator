@@ -37,11 +37,13 @@ if len(sys.argv) > 4:
             if extension in valid_output_extensions and settings.delete is False and settings.processMP4 is False:  # If the file is already in a valid format, this will duplicate the file in the output directory since no original would be left behind
                 try:
                     shutil.copy(convert.output, output)
+                    print "Copied %s to %s" % (convert.output, output)
                 except (OSError, IOError) as e:
                     print "Unable to copy %s to %s: %s" % (convert.output, output, e.strerror)
             else:  # Otherwise just move the file like normal, leaving behind the original MKV
                 try:
                     shutil.move(convert.output, output)
+                    print "Moved %s to %s" % (convert.output, output)
                 except (OSError, IOError) as e:
                     print "Unable to move %s to %s: %s" % (convert.output, output, e.strerror)
 else:
