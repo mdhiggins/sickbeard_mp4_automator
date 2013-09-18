@@ -1,3 +1,10 @@
+# Dubious tests
+#
+#? "finale "
+#: releaseGroup: FiNaLe
+#  extension: ""
+
+
 ? Series/Californication/Season 2/Californication.2x05.Vaginatown.HDTV.XviD-0TV.avi
 : series: Californication
   season: 2
@@ -287,10 +294,6 @@
   videoCodec: h264
   releaseGroup: DIMENSION
 
-? "finale "
-: releaseGroup: FiNaLe
-  extension: ""
-
 ? /volume1/TV Series/Drawn Together/Season 1/Drawn Together 1x04 Requiem for a Reality Show.avi
 : series: Drawn Together
   season: 1
@@ -313,6 +316,7 @@
   episodeNumber: 13
   year: 2005
   title: The Wedding of River Song
+  idNumber: bdc64bfe-e36f-4af8-b550-e6fd2dfaa507
 
 ? /mnt/videos/tvshows/Doctor Who/Season 06/E13 - The Wedding of River Song.mkv
 : series: Doctor Who
@@ -348,3 +352,72 @@
   season: 1
   episodeNumber: 4
   title: The Magician
+
+? CSI.S013E18.Sheltered.720p.WEB-DL.DD5.1.H.264.mkv
+: series: CSI
+  season: 13
+  episodeNumber: 18
+  title: Sheltered
+  screenSize: 720p
+  format: WEB-DL
+  audioChannels: "5.1"
+  videoCodec: h264
+
+? Game of Thrones S03E06 1080i HDTV DD5.1 MPEG2-TrollHD.ts
+: series: Game of Thrones
+  season: 3
+  episodeNumber: 6
+  screenSize: 1080p
+  format: HDTV
+  audioChannels: "5.1"
+  videoCodec: MPEG2
+  releaseGroup: TrollHD
+
+? gossip.girl.s01e18.hdtv.xvid-2hd.eng.srt
+: series: gossip girl
+  season: 1
+  episodeNumber: 18
+  format: HDTV
+  videoCodec: XviD
+  releaseGroup: 2HD
+  subtitleLanguage: english
+
+? Wheels.S03E01E02.720p.HDTV.x264-IMMERSE.mkv
+: series: Wheels
+  season: 3
+  episodeNumber: 1
+  episodeList: [1, 2]
+  screenSize: 720p
+  format: HDTV
+  videoCodec: h264
+  releaseGroup: IMMERSE
+
+? Wheels.S03E01-02.720p.HDTV.x264-IMMERSE.mkv
+: series: Wheels
+  season: 3
+  episodeNumber: 1
+  episodeList: [1, 2]
+  screenSize: 720p
+  format: HDTV
+  videoCodec: h264
+  releaseGroup: IMMERSE
+
+? Wheels.S03E01-E02.720p.HDTV.x264-IMMERSE.mkv
+: series: Wheels
+  season: 3
+  episodeNumber: 1
+  episodeList: [1, 2]
+  screenSize: 720p
+  format: HDTV
+  videoCodec: h264
+  releaseGroup: IMMERSE
+
+? Wheels.S03E01-03.720p.HDTV.x264-IMMERSE.mkv
+: series: Wheels
+  season: 3
+  episodeNumber: 1
+  episodeList: [1, 2, 3]
+  screenSize: 720p
+  format: HDTV
+  videoCodec: h264
+  releaseGroup: IMMERSE
