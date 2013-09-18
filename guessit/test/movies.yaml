@@ -326,6 +326,7 @@
   year: 2006
   format: BluRay
   videoCodec: h264
+  videoApi: DXVA
   screenSize: 720p
   audioCodec: AC3
 
@@ -366,3 +367,49 @@
   videoCodec: h264
   audioCodec: DTS
   releaseGroup: D-Z0N3
+
+? The.Kings.Speech.2010.1080p.BluRay.DTS.x264.D Z0N3.mkv
+: title: The Kings Speech
+  year: 2010
+  screenSize: 1080p
+  format: BluRay
+  audioCodec: DTS
+  videoCodec: h264
+  releaseGroup: D-Z0N3
+
+? Street.Kings.2008.BluRay.1080p.DTS.x264.dxva EuReKA.mkv
+: title: Street Kings
+  year: 2008
+  format: BluRay
+  screenSize: 1080p
+  audioCodec: DTS
+  videoCodec: h264
+  videoApi: DXVA
+  releaseGroup: EuReKa
+
+? 2001.A.Space.Odyssey.1968.HDDVD.1080p.DTS.x264.dxva EuReKA.mkv
+: title: 2001 A Space Odyssey
+  year: 1968
+  format: HD-DVD
+  screenSize: 1080p
+  audioCodec: DTS
+  videoCodec: h264
+  videoApi: DXVA
+  releaseGroup: EuReKa
+
+? 2012.2009.720p.BluRay.x264.DTS WiKi.mkv
+: title: "2012"
+  year: 2009
+  screenSize: 720p
+  format: BluRay
+  videoCodec: h264
+  audioCodec: DTS
+  releaseGroup: WiKi
+
+? /share/Download/movie/Dead Man Down (2013) BRRiP XViD DD5_1 Custom NLSubs =-_lt Q_o_Q gt-=_/XD607ebb-BRc59935-5155473f-1c5f49/XD607ebb-BRc59935-5155473f-1c5f49.avi
+: title: Dead Man Down
+  year: 2013
+  format: BluRay
+  videoCodec: XviD
+  audioChannels: "5.1"
+  idNumber: XD607ebb-BRc59935-5155473f-1c5f49

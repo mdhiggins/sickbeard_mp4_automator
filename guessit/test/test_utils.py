@@ -26,7 +26,11 @@ class TestUtils(TestGuessit):
 
     def test_splitpath(self):
         alltests = { ('linux2', 'darwin'): { '/usr/bin/smewt': ['/', 'usr', 'bin', 'smewt'],
-                                             'relative_path/to/my_folder/': ['relative_path', 'to', 'my_folder']
+                                             'relative_path/to/my_folder/': ['relative_path', 'to', 'my_folder'],
+                                             '//some/path': ['/', 'some', 'path'],
+                                             '//some//path': ['/', 'some', 'path'],
+                                             '///some////path': ['/', 'some', 'path']
+
                                              },
                      ('win32',): { r'C:\Program Files\Smewt\smewt.exe': ['C:\\', 'Program Files', 'Smewt', 'smewt.exe'],
                                    r'Documents and Settings\User\config\\': ['Documents and Settings', 'User', 'config'],
