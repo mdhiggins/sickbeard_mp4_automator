@@ -1,5 +1,6 @@
 import os
 import time
+import json
 from converter import Converter
 from extensions import valid_input_extensions, valid_output_extensions, bad_subtitle_codecs, valid_subtitle_extensions
 from qtfaststart import processor, exceptions
@@ -140,7 +141,7 @@ class MkvtoMp4:
                 'subtitle': subtitle_settings,
             }
 
-            print options
+            print json.dumps(options, sort_keys=False, indent=4)
             self.output = os.path.join(output_dir, filename + "." + output_extension)
             
             # Avoid any residual naming conflicts for files that already exist
