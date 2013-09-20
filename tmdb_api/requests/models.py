@@ -18,9 +18,10 @@ from .structures import CaseInsensitiveDict
 from .auth import HTTPBasicAuth
 from .cookies import cookiejar_from_dict, get_cookie_header
 from .packages.urllib3.filepost import encode_multipart_formdata
+from .packages.urllib3.util import parse_url
 from .exceptions import HTTPError, RequestException, MissingSchema, InvalidURL
 from .utils import (
-    stream_untransfer, guess_filename, get_auth_from_url, requote_uri,
+    guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
     iter_slices, guess_json_utf, super_len)
 from .compat import (
@@ -60,7 +61,7 @@ class RequestEncodingMixin(object):
         """Encode parameters in a piece of data.
 
         Will successfully encode parameters when passed as a dict or a list of
-        2-tuples. Order is retained if data is a list of 2-tuples but abritrary
+        2-tuples. Order is retained if data is a list of 2-tuples but arbitrary
         if parameters are supplied as a dict.
         """
 
@@ -99,11 +100,13 @@ class RequestEncodingMixin(object):
         files = to_key_val_list(files or {})
 
         for field, val in fields:
-            if isinstance(val, list):
-                for v in val:
-                    new_fields.append((field, builtin_str(v)))
-            else:
-                new_fields.append((field, builtin_str(val)))
+            if isinstance(val, basestring) or not hasattr(val, '__iter__'):
+                val = [val]
+            for v in val:
+                if v is not None:
+                    new_fields.append(
+                        (field.decode('utf-8') if isinstance(field, bytes) else field,
+                         v.encode('utf-8') if isinstance(v, str) else v))
 
         for (k, v) in files:
             # support for explicit filename
@@ -282,15 +285,27 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             pass
 
         # Support for unicode domain names and paths.
-        scheme, netloc, path, _params, query, fragment = urlparse(url)
+        scheme, auth, host, port, path, query, fragment = parse_url(url)
 
-        if not (scheme and netloc):
+        if not scheme:
             raise MissingSchema("Invalid URL %r: No schema supplied" % url)
 
+        if not host:
+            raise InvalidURL("Invalid URL %r: No host supplied" % url)
+
+        # Only want to apply IDNA to the hostname
         try:
-            netloc = netloc.encode('idna').decode('utf-8')
+            host = host.encode('idna').decode('utf-8')
         except UnicodeError:
             raise InvalidURL('URL has an invalid label.')
+
+        # Carefully reconstruct the network location
+        netloc = auth or ''
+        if netloc:
+            netloc += '@'
+        netloc += host
+        if port:
+            netloc += ':' + str(port)
 
         # Bare domains aren't valid URLs.
         if not path:
@@ -303,8 +318,6 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                 netloc = netloc.encode('utf-8')
             if isinstance(path, str):
                 path = path.encode('utf-8')
-            if isinstance(_params, str):
-                _params = _params.encode('utf-8')
             if isinstance(query, str):
                 query = query.encode('utf-8')
             if isinstance(fragment, str):
@@ -317,7 +330,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             else:
                 query = enc_params
 
-        url = requote_uri(urlunparse([scheme, netloc, path, _params, query, fragment]))
+        url = requote_uri(urlunparse([scheme, netloc, path, None, query, fragment]))
         self.url = url
 
     def prepare_headers(self, headers):
@@ -525,13 +538,13 @@ class Response(object):
 
         def generate():
             while 1:
-                chunk = self.raw.read(chunk_size)
+                chunk = self.raw.read(chunk_size, decode_content=True)
                 if not chunk:
                     break
                 yield chunk
             self._content_consumed = True
 
-        gen = stream_untransfer(generate(), self)
+        gen = generate()
 
         if decode_unicode:
             gen = stream_decode_response_unicode(gen, self)
@@ -575,7 +588,7 @@ class Response(object):
                     raise RuntimeError(
                         'The content for this response was already consumed')
 
-                if self.status_code is 0:
+                if self.status_code == 0:
                     self._content = None
                 else:
                     self._content = bytes().join(self.iter_content(CONTENT_CHUNK_SIZE)) or bytes()
@@ -641,7 +654,7 @@ class Response(object):
     def links(self):
         """Returns the parsed header links of the response, if any."""
 
-        header = self.headers['link']
+        header = self.headers.get('link')
 
         # l = MultiDict()
         l = {}

@@ -1,5 +1,5 @@
 # urllib3/poolmanager.py
-# Copyright 2008-2012 Andrey Petrov and contributors (see CONTRIBUTORS.txt)
+# Copyright 2008-2013 Andrey Petrov and contributors (see CONTRIBUTORS.txt)
 #
 # This module is part of urllib3 and is released under
 # the MIT License: http://www.opensource.org/licenses/mit-license.php
@@ -22,6 +22,9 @@ pool_classes_by_scheme = {
 }
 
 log = logging.getLogger(__name__)
+
+SSL_KEYWORDS = ('key_file', 'cert_file', 'cert_reqs', 'ca_certs',
+                'ssl_version')
 
 
 class PoolManager(RequestMethods):
@@ -67,7 +70,13 @@ class PoolManager(RequestMethods):
         to be overridden for customization.
         """
         pool_cls = pool_classes_by_scheme[scheme]
-        return pool_cls(host, port, **self.connection_pool_kw)
+        kwargs = self.connection_pool_kw
+        if scheme == 'http':
+            kwargs = self.connection_pool_kw.copy()
+            for kw in SSL_KEYWORDS:
+                kwargs.pop(kw, None)
+
+        return pool_cls(host, port, **kwargs)
 
     def clear(self):
         """
@@ -141,6 +150,7 @@ class PoolManager(RequestMethods):
 
         log.info("Redirecting %s -> %s" % (url, redirect_location))
         kw['retries'] = kw.get('retries', 3) - 1  # Persist retries countdown
+        kw['redirect'] = redirect
         return self.urlopen(method, redirect_location, **kw)
 
 
