@@ -32,7 +32,8 @@ class tmdb_mp4:
                 self.date = self.movie.get_release_date()
 
                 # Generate XML tags for Actors/Writers/Directors/Producers
-                self.xml = self.xmlTags()
+                #self.xml = self.xmlTags()
+                self.xml = None
                 break
             except Exception as e:
                 print "Failed to connect to tMDB, trying again in 20 seconds"
@@ -67,7 +68,8 @@ class tmdb_mp4:
                     genre += ", " + g['name']
             video["\xa9gen"] = genre  # Genre(s)
         video["----:com.apple.iTunes:iTunMOVI"] = self.xml  # XML - see xmlTags method
-        rating = self.rating()
+#        rating = self.rating()
+        rating = None
         if rating is not None:
             video["----:com.apple.iTunes:iTunEXTC"] = rating
 

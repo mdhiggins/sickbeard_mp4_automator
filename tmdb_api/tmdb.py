@@ -14,7 +14,7 @@ try:
 except:
     import json as simplejson
 
-import operator
+import fuzzywuzzy.fuzz
 import requests
 
 config = {}
@@ -47,6 +47,7 @@ def configure(api_key, language='en'):
     config['api']['profile.sizes'] = ""
     config['api']['session.id'] = ""
 
+
 class Core(object):
     def getJSON(self, url, language=None):
         language = language or config['language']
@@ -69,18 +70,12 @@ class Core(object):
         config['api']['profile.sizes'] = c['images']['profile_sizes']
         return "ok"
 
-    def imdbtotmdb(self, imdbid):
-        url = "http://api.themoviedb.org/2.1/Movie.imdbLookup/en/json/" + config['apikey'] + "/" + imdbid
-        print url
-        req = self.getJSON(url)
-        return req[0]['id']
-
     def backdrop_sizes(self,img_size):
         size_list = {'s':'w300','m':'w780','l':'w1280','o':'original'}
         return size_list[img_size]
 
     def poster_sizes(self,img_size):
-        size_list = {'s':'w92','m':'185','l':'w500','o':'original'}
+        size_list = {'s':'w92','m':'w185','l':'w500','o':'original'}
         return size_list[img_size]
 
     def profile_sizes(self,img_size):
@@ -101,6 +96,7 @@ class Movies(Core):
     def __init__(self, title="", limit=False, language=None):
         self.limit = limit
         self.update_configuration()
+        self.searched = title
         title = self.escape(title)
         self.movies = self.getJSON(config['urls']['movie.search'] % (title,str(1)), language=language)
         pages = self.movies["total_pages"]
@@ -122,45 +118,39 @@ class Movies(Core):
         for i in self.movies["results"]:
             yield i
 
+    def get_ordered_matches(self):
+        """
+        Return a list of tuples.  Each tuples first element is a percentage similarity
+        between the search term and the tuples second element 'title' value.
+
+        Ordered, descending, by the percentage similarity.
+        """
+        our_results = []
+        for movie in self.iter_results():
+            ratio = fuzzywuzzy.fuzz.ratio(self.searched, movie['title'])
+            our_results.append((ratio, movie))
+        return sorted(our_results, reverse=True)
+
+    def get_best_match(self):
+        """
+        Returns a tuple whose first element is the percent similarity between the search
+        term and the tuple's second element's 'title' value.
+
+        The result is the best-matching result from all the results we get from TMDb.
+        """
+        try:
+            return self.get_ordered_matches()[0]
+        except IndexError:
+            return
+
 class Movie(Core):
     def __init__(self, movie_id, language=None):
         self.movie_id = movie_id
         self.update_configuration()
         self.movies = self.getJSON(config['urls']['movie.info'] % self.movie_id, language=language)
-        self.casts = self.getJSON(config['urls']['movie.casts'] % self.movie_id, language=language)
-        self.releases = self.getJSON(config['urls']['movie.releases'] % self.movie_id, language=language)
 
     def is_adult(self):
         return self.movies['adult']
-
-    def get_mpaa_rating(self, country='US'):
-        for r in self.releases['countries']:
-            if country.lower() == r['iso_3166_1'].lower():
-                return r['certification']
-
-    def get_writers(self):
-        l = []
-        for r in self.casts['crew']:
-            if r['department'] == 'Writing':
-                l.append(r)
-        return l
-
-    def get_directors(self):
-        l = []
-        for r in self.casts['crew']:
-            if r['department'] == 'Directing':
-                l.append(r)
-        return l
-
-    def get_producers(self):
-        l = []
-        for r in self.casts['crew']:
-            if r['department'] == 'Production':
-                l.append(r)
-        return l
-
-    def get_cast(self):
-        return sorted(self.casts['cast'], key=lambda x: x['order'])
 
     def get_collection_id(self):
         return self.movies['belongs_to_collection']["id"]
@@ -170,12 +160,18 @@ class Movie(Core):
 
     # Sizes = s->w300 m->w780 l->w1280 o->original(default)
     def get_collection_backdrop(self,img_size="o"):
-        img_path = self.movies["belongs_to_collection"]["backdrop_path"]
+        try:
+            img_path = self.movies["belongs_to_collection"]["backdrop_path"]
+        except KeyError:
+            return
         return config['api']['base.url']+self.poster_sizes(img_size)+img_path
 
     # Sizes = s->w92 m->w185 l->w500 o->original(default)
     def get_collection_poster(self,img_size="o"):
-        img_path = self.movies["belongs_to_collection"]["poster_path"]
+        try:
+            img_path = self.movies["belongs_to_collection"]["poster_path"]
+        except KeyError:
+            return
         return config['api']['base.url']+self.poster_sizes(img_size)+img_path
 
     def get_budget(self):
@@ -197,8 +193,9 @@ class Movie(Core):
         return self.movies['overview']
 
     def get_production_companies(self):
+        companies = []
         for i in self.movies['production_companies']:
-            companies = {"id":i["id"],"name":i["name"]}
+            companies.append({"id":i["id"],"name":i["name"]})
         return companies
 
     def get_productions_countries(self):
@@ -233,7 +230,9 @@ class Movie(Core):
 
     # Sizes = s->w300 m->w780 l->w1280 o->original(default)
     def get_backdrop(self,img_size="o"):
-        img_path = self.movies["backdrop_path"]
+        img_path = self.movies.get("backdrop_path")
+        if not img_path:
+            return
         return config['api']['base.url']+self.backdrop_sizes(img_size)+img_path
 
     def get_original_title(self):
@@ -250,7 +249,9 @@ class Movie(Core):
 
     # Sizes = s->w92 m->w185 l->w500 o->original(default)
     def get_poster(self,img_size="o"):
-        img_path = self.movies["poster_path"]
+        img_path = self.movies.get("poster_path")
+        if not img_path:
+            return
         return config['api']['base.url']+self.poster_sizes(img_size)+img_path
 
     def get_trailers(self, language=None):
@@ -315,7 +316,9 @@ class Person(Core):
 
     # Sizes = s->w45 m->w185 l->w632 o->original(default)
     def get_profile_image(self,img_size="o"):
-        img_path = self.person["profile_path"]
+        img_path = self.person.get("profile_path")
+        if not img_path:
+            return
         return config['api']['base.url']+self.profile_sizes(img_size)+img_path
 
     def get_biography(self):
@@ -350,7 +353,10 @@ class Person(Core):
 
     #Sizes = s->w92 m->w185 l->w500 o->original(default)
     def get_image(self,img_size="o",image_index=0):
-        img_path = self.person["images"]['profiles'][image_index]['file_path']
+        try:
+            img_path = self.person["images"]['profiles'][image_index]['file_path']
+        except KeyError:
+            return
         return config['api']['base.url']+self.poster_sizes(img_size)+img_path
 
     def cast(self):
@@ -383,7 +389,9 @@ class Cast:
 
     # Sizes = s->w92 m->w185 l->w500 o->original(default)
     def get_poster(self,img_size="o",person_index=0):
-        img_path = self.cast["poster_path"]
+        img_path = self.cast.get("poster_path")
+        if not img_path:
+            return
         return config['api']['base.url']+Core().poster_sizes(img_size)+img_path
 
 class Crew:
@@ -410,5 +418,7 @@ class Crew:
 
     # Sizes = s->w92 m->w185 l->w500 o->original(default)
     def get_poster(self,img_size="o"):
-        img_path = self.crew["poster_path"]
+        img_path = self.crew.get("poster_path")
+        if not img_path:
+            return
         return config['api']['base.url']+Core().poster_sizes(img_size)+img_path

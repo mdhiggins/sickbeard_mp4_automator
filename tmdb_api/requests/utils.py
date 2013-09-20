@@ -11,11 +11,11 @@ that are also useful for external consumption.
 
 import cgi
 import codecs
+import collections
 import os
 import platform
 import re
 import sys
-import zlib
 from netrc import netrc, NetrcParseError
 
 from . import __version__
@@ -23,6 +23,7 @@ from . import certs
 from .compat import parse_http_list as _parse_list_header
 from .compat import quote, urlparse, bytes, str, OrderedDict, urlunparse
 from .cookies import RequestsCookieJar, cookiejar_from_dict
+from .structures import CaseInsensitiveDict
 
 _hush_pyflakes = (RequestsCookieJar,)
 
@@ -134,7 +135,7 @@ def to_key_val_list(value):
     if isinstance(value, (str, bytes, bool, int)):
         raise ValueError('cannot encode objects that are not 2-tuples')
 
-    if isinstance(value, dict):
+    if isinstance(value, collections.Mapping):
         value = value.items()
 
     return list(value)
@@ -346,48 +347,6 @@ def get_unicode_from_response(r):
         return r.content
 
 
-def stream_decompress(iterator, mode='gzip'):
-    """Stream decodes an iterator over compressed data
-
-    :param iterator: An iterator over compressed data
-    :param mode: 'gzip' or 'deflate'
-    :return: An iterator over decompressed data
-    """
-
-    if mode not in ['gzip', 'deflate']:
-        raise ValueError('stream_decompress mode must be gzip or deflate')
-
-    zlib_mode = 16 + zlib.MAX_WBITS if mode == 'gzip' else -zlib.MAX_WBITS
-    dec = zlib.decompressobj(zlib_mode)
-    try:
-        for chunk in iterator:
-            rv = dec.decompress(chunk)
-            if rv:
-                yield rv
-    except zlib.error:
-        # If there was an error decompressing, just return the raw chunk
-        yield chunk
-        # Continue to return the rest of the raw data
-        for chunk in iterator:
-            yield chunk
-    else:
-        # Make sure everything has been returned from the decompression object
-        buf = dec.decompress(bytes())
-        rv = buf + dec.flush()
-        if rv:
-            yield rv
-
-
-def stream_untransfer(gen, resp):
-    ce = resp.headers.get('content-encoding', '').lower()
-    if 'gzip' in ce:
-        gen = stream_decompress(gen, mode='gzip')
-    elif 'deflate' in ce:
-        gen = stream_decompress(gen, mode='deflate')
-
-    return gen
-
-
 # The unreserved URI characters (RFC 3986)
 UNRESERVED_SET = frozenset(
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
@@ -491,11 +450,11 @@ def default_user_agent():
 
 
 def default_headers():
-    return {
+    return CaseInsensitiveDict({
         'User-Agent': default_user_agent(),
         'Accept-Encoding': ', '.join(('gzip', 'deflate', 'compress')),
         'Accept': '*/*'
-    }
+    })
 
 
 def parse_header_links(value):
