@@ -106,7 +106,7 @@ def main():
             print "Processing %s" % (tagmp4.title)
         elif result[0] is 2:
             tmdbid = result[1]
-            tagmp4 = tmdb_mp4(None, tmdbid)
+            tagmp4 = tmdb_mp4(tmdbid, True)
             print "Processing %s" % (tagmp4.title)
         elif result[0] is 3:
             tvdbid = int(result[1])

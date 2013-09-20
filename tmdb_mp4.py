@@ -17,9 +17,7 @@ class tmdb_mp4:
             try:
                 tmdb.configure(tmdb_api_key)
 
-                if tmdbid is False:
-                    tmdbid = tmdb.Movies().imdbtotmdb(imdbid)
-                self.movie = tmdb.Movie(tmdbid)
+                self.movie = tmdb.Movie(imdbid)
 
                 self.HD = None
 
