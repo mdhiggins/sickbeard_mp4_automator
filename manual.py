@@ -153,7 +153,7 @@ def main():
 		if os.path.isdir(path):
 			for r,d,f in os.walk(path):
 				for file in f:
-					if os.path.splitext(file)[1][1:] in valid_input_extensions or valid_output_extensions:
+					if (os.path.splitext(file)[1][1:] in valid_input_extensions) or (os.path.splitext(file)[1][1:] in valid_output_extensions):
 						print "-----------------------------------------------"
 						print "converting %s" % (file)
 						filepath = os.path.join(r, file)
