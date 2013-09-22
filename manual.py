@@ -165,8 +165,8 @@ def main():
 	input_extension = os.path.splitext(path)[1][1:]
 	if input_extension in valid_input_extensions:
 		convert = MkvtoMp4(path, FFMPEG_PATH=settings.ffmpeg, FFPROBE_PATH=settings.ffprobe, delete=settings.delete, output_extension=settings.output_extension, relocate_moov=settings.relocate_moov, iOS=settings.iOS, awl=settings.awl, swl=settings.swl, adl=settings.adl, sdl=settings.sdl, audio_codec=settings.acodec, processMP4=settings.processMP4)
-	if convert.output is not None:
-		tagmp4.setHD(convert.width, convert.height)
+		if convert.output is not None:
+			tagmp4.setHD(convert.width, convert.height)
 		if settings.relocate_moov:
 				convert.QTFS()
 		path = convert.output
