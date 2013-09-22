@@ -138,9 +138,10 @@ def stageFile(args, path):
 			elif guess[0] == "tv":
 				tagmp4 = Tvdb_mp4(int(guess[1]), int(guess[2]), int(guess[3]))
 				print "Processing %s Season %s Episode %s - %s" %(tagmp4.show, str(tagmp4.season), str(tagmp4.episode), tagmp4.title)
-		convertTag(path, tagmp4)
 		else:
 			print "Invalid command line input"
+			return
+		convertTag(path, tagmp4)
     #elif len(sys.argv) == 2:
     #    path = str(sys.argv[1]).replace("\\", "\\\\").replace("\\\\\\\\", "\\\\")
     #    getinfo()
