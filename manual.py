@@ -20,7 +20,7 @@ def mediatype():
 	print "3. TV (via TVDB ID)"
 	print "4. GuessIT"
 	result = raw_input("#: ")
-	if 0 < result <= 4:
+	if 0 < result < 5:
 		return result
 	else:
 		print "Invalid selection"
