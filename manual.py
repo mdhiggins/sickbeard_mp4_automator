@@ -18,9 +18,8 @@ def mediatype():
 	print "1. Movie (via IMDB ID)"
 	print "2. Movie (via TMDB ID)"
 	print "3. TV (via TVDB ID)"
-	print "4. GuessIT"
 	result = raw_input("#: ")
-	if 0 < int(result) < 5:
+	if 0 < int(result) < 4:
 		return result
 	else:
 		print "Invalid selection"
