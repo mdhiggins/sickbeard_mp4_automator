@@ -46,7 +46,10 @@ def tmdbInfo(guessData):
 			print "Matched movie title as: %s %s" % (movie["title"], movie["release_date"])
 			movie = tmdb.Movie(movie["id"])
 			break
-	tmdbid = movie.get_id()
+	if isinstance(movie, dict)
+		tmdbid = movie["id"]
+	else:
+		tmdbid = movie.get_id()
 	return "movie", tmdbid
 
 
@@ -74,6 +77,7 @@ def tagFile(tagInfo, fileInfo, path):
 def moveFile(path):
 	output = os.path.join(settings.output_dir, os.path.split(path)[1])
 	shutil.move(path, output)
+	print "Moved File"
 
 def getIMDBId():
 	print "Enter IMDB ID:"
