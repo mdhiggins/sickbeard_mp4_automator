@@ -187,7 +187,7 @@ def convertInput(results):
 		tvdbid = int(result[1])
 		season = int(result[2])
 		episode = int(result[3])
-		inputs = (None, None, tvdbid, season, episode
+		inputs = (None, None, tvdbid, season, episode)
 	elif results[0] is 1:
 		imdbid = result[1]
 		inputs = (imdbid, None, None, None, None)
