@@ -41,11 +41,14 @@ def tmdbInfo(guessData):
 		#Identify the first movie in the collection that matches exactly the movie title
 		foundname = ''.join(e for e in movie["title"] if e.isalnum())
 		origname = ''.join(e for e in guessData["title"] if e.isalnum())
+		#origname = origname.replace('&', 'and')
 		if foundname.lower() == origname.lower():
 			print "Matched movie title as: %s %s" % (movie["title"], movie["release_date"])
 			movie = tmdb.Movie(movie["id"])
 			break
-	return "movie", movie.get_id()
+	tmdbid = movie["id"]
+	return "movie", tmdbid
+
 
 def tvdbInfo(guessData):
 	seasonNum = guessData["season"]
