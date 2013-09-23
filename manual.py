@@ -178,7 +178,7 @@ def convertArguments(args):
 	elif args[2] == '-tmdb':
 		tmdbid = args[3]
 		inputs = (None, tmdbid, None, None, None)
-	elif: args[2] == '-guess':
+	elif args[2] == '-guess':
 		inputs = None
 	return inputs
 
