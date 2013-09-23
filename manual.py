@@ -46,7 +46,7 @@ def tmdbInfo(guessData):
 			print "Matched movie title as: %s %s" % (movie["title"], movie["release_date"])
 			movie = tmdb.Movie(movie["id"])
 			break
-	tmdbid = movie["id"]
+	tmdbid = movie.get_id()
 	return "movie", tmdbid
 
 
