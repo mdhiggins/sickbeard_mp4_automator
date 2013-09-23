@@ -72,7 +72,7 @@ def tagFile(tagInfo, fileInfo, path):
 	tagInfo.writeTags(path)
 
 def moveFile(path):
-	shutil.move(path, output_directory)
+	shutil.move(path, settings.output_directory)
 
 def getIMDBId():
 	print "Enter IMDB ID:"
