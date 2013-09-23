@@ -159,7 +159,7 @@ def isValidInput(fileName):
 def isValidOutput(fileName):
 	return os.path.splitext(fileName)[1][1:] in valid_output_extensions
 
-def iteratePath(path, inputs)
+def iteratePath(path, inputs):
 	for r,d,f in os.walk(path):
 		for file in f:
 			filepath = os.path.join(r, file)
