@@ -64,7 +64,7 @@ def convertFile(path):
 	return convert
 
 def tagFile(tagInfo, fileInfo, path):
-	if fileInfo.output is not None:
+	if fileInfo is not None:
 		tagInfo.setHD(fileInfo.width, fileInfo.height)
 		if settings.relocate_moov:
 			fileInfo.QTFS()
