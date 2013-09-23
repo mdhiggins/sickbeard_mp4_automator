@@ -199,7 +199,7 @@ def convertInput(results):
 	return inputs
 
 def processFile(filepath, inputs):
-	fileName = os.path.basname(filepath)
+	fileName = os.path.basename(filepath)
 	if isValidInput(fileName):
 		tagInfo = stageFile(filepath, inputs)
 		fileInfo = convertFile(filepath)
