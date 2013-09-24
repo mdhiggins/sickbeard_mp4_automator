@@ -218,6 +218,7 @@ def processFile(filepath, inputs):
 		tagFile(tagInfo, None, filepath)
 		if settings.output_dir is not None:
 			moveFile(filepath)
+	print "--------------------------------"
 
 def main():
 	if len(sys.argv) > 2:
