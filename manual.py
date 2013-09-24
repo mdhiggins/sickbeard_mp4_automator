@@ -213,12 +213,13 @@ def processFile(filepath, inputs):
 		tagFile(tagInfo, fileInfo, None)
 		if (settings.output_dir is not None) or ("-nomove" not in sys.argv):
 			moveFile(fileInfo.output)
+		print "--------------------------------"
 	elif isValidOutput(fileName):
 		tagInfo = stageFile(filepath, inputs)
 		tagFile(tagInfo, None, filepath)
 		if (settings.output_dir is not None) or ("-nomove" not in sys.argv):
 			moveFile(filepath)
-	print "--------------------------------"
+		print "--------------------------------"
 
 def main():
 	if len(sys.argv) > 2:
