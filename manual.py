@@ -20,8 +20,9 @@ def mediatype():
 	print "1. Movie (via IMDB ID)"
 	print "2. Movie (via TMDB ID)"
 	print "3. TV (via TVDB ID)"
+	print "4. GuessIT!"
 	result = raw_input("#: ")
-	if 0 < int(result) < 4:
+	if 0 < int(result) < 5:
 		return result
 	else:
 		print "Invalid selection"
@@ -187,6 +188,7 @@ def convertArguments(args):
 		inputs = None
 	return inputs
 
+# Is there any way to condense this function with convertArguments?
 def convertInput(results):
 	if results[0] is 3:
 		tvdbid = int(result[1])
@@ -209,11 +211,13 @@ def processFile(filepath, inputs):
 		tagInfo = stageFile(filepath, inputs)
 		fileInfo = convertFile(filepath)
 		tagFile(tagInfo, fileInfo, None)
-		moveFile(fileInfo.output)
+		if settings.output_dir is not None:
+			moveFile(fileInfo.output)
 	elif isValidOutput(fileName):
 		tagInfo = stageFile(filepath, inputs)
 		tagFile(tagInfo, None, filepath)
-		moveFile(filepath)
+		if settings.output_dir is not None:
+			moveFile(filepath)
 
 def main():
 	if len(sys.argv) > 2:
