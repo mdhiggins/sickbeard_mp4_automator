@@ -60,7 +60,9 @@ CouchPotato Support
 Manual Script Usage
 --------------
 To run the script manually, simply run the manual.py file and follow the prompts it presents.
-If you wish to run it via the command line (good for batch operations) follow this format
+If you wish to run it via the command line (good for batch operations) follow this format. If
+your autoProcess.ini specifies an output_directory this will move the final result to that dir.
+If you do not want the converted/tagged file to be moved add the -nomove flag at the very end._
 
 Newly added is the ability to let the program guess the movie or TV information.
 If you would like you can use the -guess flag to target a directory structure and convert and/or tag
@@ -87,6 +89,10 @@ Examples:
 manual.py '/media/Futurama.s03e10.mkv' -guess
 or
 manual.py '/media/Iron.Man.3.2013.720p.mkv' -guess
+
+-nomove flag
+This flag overrides moving the file to the output_directory in the autoprocess.ini. It must be added
+at the end of the commandline.
 ```
 
 External Cover Art
