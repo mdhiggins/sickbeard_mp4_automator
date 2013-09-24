@@ -132,7 +132,7 @@ def stageFile(path, inputs):
 		fileName = os.path.basename(path)
 		guess = guessInfo(fileName)
 		if guess[0] == "movie":
-			tagmp4 = tmdb_mp4(None, guess[1])
+			tagmp4 = tmdb_mp4(guess[1], True)
 			print "Processing %s" % (tagmp4.title)
 		elif guess[0] == "tv":
 			tagmp4 = Tvdb_mp4(int(guess[1]), int(guess[2]), int(guess[3]))
@@ -149,7 +149,7 @@ def stageFile(path, inputs):
 		print "Processing %s" % (tagmp4.title)
 	elif inputs[1] is not None:
 		tmdbid = inputs[1]
-		tagmp4 = tmdb_mp4(None, tmdbid)
+		tagmp4 = tmdb_mp4(tmdbid, True)
 		print "Processing %s" % (tagmp4.title)
 	else:
 		print "Invalid command line input"
@@ -249,7 +249,7 @@ def main():
 #			fileName = os.path.basename(path)
 #			guess = guessInfo(fileName)
 #			if guess[0] == "movie":
-#				tagmp4 = tmdb_mp4(None, guess[1])
+#				tagmp4 = tmdb_mp4(guess[1], True)
 #				print "Processing %s" % (tagmp4.title)
 #			elif guess[0] == "tv":
 #				tagmp4 = Tvdb_mp4(int(guess[1]), int(guess[2]), int(guess[3]))
