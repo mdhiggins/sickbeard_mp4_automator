@@ -121,5 +121,6 @@ This project makes use of the following projects:
 - http://imdbpy.sourceforge.net/
 - https://github.com/danielgtaylor/qtfaststart
 - https://github.com/clinton-hall/nzbToMedia
+- https://github.com/wackou/guessit
 
 Enjoy
