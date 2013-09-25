@@ -23,7 +23,7 @@ def mediatype():
 	print "4. GuessIT!"
 	result = raw_input("#: ")
 	if 0 < int(result) < 5:
-		return result
+		return int(result)
 	else:
 		print "Invalid selection"
 		return mediatype()
@@ -118,7 +118,8 @@ def getinfo():
 		episode = getEpisode()
 		return m_type, tvdbid, season, episode
 	elif m_type is 4:
-		guess = guessit.guess_movie_info(file_name)
+		return [m_type]
+		#guess = guessit.guess_movie_info(file_name)
 	elif m_type is 1:
 		imdbid = getIMDBId()
 		return m_type, imdbid
@@ -191,15 +192,15 @@ def convertArguments(args):
 # Is there any way to condense this function with convertArguments?
 def convertInput(results):
 	if results[0] is 3:
-		tvdbid = int(result[1])
-		season = int(result[2])
-		episode = int(result[3])
+		tvdbid = int(results[1])
+		season = int(results[2])
+		episode = int(results[3])
 		inputs = (None, None, tvdbid, season, episode)
 	elif results[0] is 1:
-		imdbid = result[1]
+		imdbid = results[1]
 		inputs = (imdbid, None, None, None, None)
 	elif results[0] is 2:
-		tmdbid = result[1]
+		tmdbid = results[1]
 		inputs = (None, tmdbid, None, None, None)
 	elif results[0] is 4:
 		inputs = None
@@ -241,7 +242,7 @@ def main():
 		path = raw_input("#: ")
 		if path.startswith('"') and path.endswith('"'):
 			path = path[1:-1]
-			result = getinfo()
+		result = getinfo()
 		inputs = convertInput(result)
 		os.chmod(path, 0777)
 		processFile(path, inputs)
