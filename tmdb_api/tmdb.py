@@ -69,12 +69,6 @@ class Core(object):
         config['api']['profile.sizes'] = c['images']['profile_sizes']
         return "ok"
 
-    def imdbtotmdb(self, imdbid):
-        url = "http://api.themoviedb.org/2.1/Movie.imdbLookup/en/json/" + config['apikey'] + "/" + imdbid
-        print url
-        req = self.getJSON(url)
-        return req[0]['id']
-
     def backdrop_sizes(self,img_size):
         size_list = {'s':'w300','m':'w780','l':'w1280','o':'original'}
         return size_list[img_size]
