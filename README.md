@@ -60,7 +60,15 @@ CouchPotato Support
 Manual Script Usage
 --------------
 To run the script manually, simply run the manual.py file and follow the prompts it presents.
-If you wish to run it via the command line (good for batch operations) follow this format:
+If you wish to run it via the command line (good for batch operations) follow this format. If
+your autoProcess.ini specifies an output_directory this will move the final result to that dir.
+If you do not want the converted/tagged file to be moved add the -nomove flag at the very end._
+
+Newly added is the ability to let the program guess the movie or TV information.
+If you would like you can use the -guess flag to target a directory structure and convert and/or tag
+all the valid media files in the structure, this is great for someone who has a lot of already downloaded
+mkv files and wants to do a mass convertion, if the file is already in the valid output format it will just
+re-tag the file and not re-convert:
 
 ```
 Movies (using IMDB ID):
@@ -74,6 +82,17 @@ Example: manual.py 'C:\The Matrix.mkv' -tmdb 603
 TV
 manual.py mp4path -tv tvdbid season episode
 Example: manual.py 'C:\Futurama S03E10.mkv' -tv 73871‎ 3 10
+
+Guess
+manual.py [filepath] -guess
+Examples:
+manual.py '/media/Futurama.s03e10.mkv' -guess
+or
+manual.py '/media/Iron.Man.3.2013.720p.mkv' -guess
+
+-nomove flag
+This flag overrides moving the file to the output_directory in the autoprocess.ini. It must be added
+at the end of the commandline.
 ```
 
 External Cover Art
@@ -102,5 +121,6 @@ This project makes use of the following projects:
 - http://imdbpy.sourceforge.net/
 - https://github.com/danielgtaylor/qtfaststart
 - https://github.com/clinton-hall/nzbToMedia
+- https://github.com/wackou/guessit
 
 Enjoy
