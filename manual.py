@@ -70,10 +70,10 @@ def convertFile(path):
 def tagFile(tagInfo, fileInfo, path):
 	if fileInfo is not None:
 		tagInfo.setHD(fileInfo.width, fileInfo.height)
+		path = fileInfo.output
+		tagInfo.writeTags(path)
 		if settings.relocate_moov:
 			fileInfo.QTFS()
-			path = fileInfo.output
-	tagInfo.writeTags(path)
 
 def moveFile(path):
 	output = os.path.join(settings.output_dir, os.path.split(path)[1])
