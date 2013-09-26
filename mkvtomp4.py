@@ -7,12 +7,15 @@ from qtfaststart import processor, exceptions
 
 
 class MkvtoMp4:
-    def __init__(self, file, FFMPEG_PATH="FFMPEG.exe", FFPROBE_PATH="FFPROBE.exe", delete=True, output_extension='mp4', relocate_moov=True, video_codec='h264', audio_codec='aac', audio_bitrate=None, iOS=False, awl=None, swl=None, adl=None, sdl=None, processMP4=False):
+    def __init__(self, file, FFMPEG_PATH="FFMPEG.exe", FFPROBE_PATH="FFPROBE.exe", delete=True, output_extension='mp4', relocate_moov=True, video_codec='h264', audio_codec='aac', audio_bitrate=None, iOS=False, awl=None, swl=None, adl=None, sdl=None, processMP4=False, reportProgress=False):
         #Get path information from the input file
         output_dir, filename = os.path.split(file)
         filename, input_extension = os.path.splitext(filename)
         input_extension = input_extension[1:]
         self.relocate_moov = relocate_moov
+
+        if reportProgress:
+            import sys
 
         c = Converter(FFMPEG_PATH, FFPROBE_PATH)
         
@@ -153,8 +156,9 @@ class MkvtoMp4:
             conv = c.convert(file, self.output, options, timeout=None)
 
             for timecode in conv:
-                pass
-                #print '[{0}] {1}%'.format('#' * (timecode / 10) + ' ' * (10 - (timecode / 10)), timecode, end='\r')
+                if reportProgress:
+                    sys.stdout.write('[{0}] {1}%\r'.format('#' * (timecode / 10) + ' ' * (10 - (timecode / 10)), timecode))
+                    sys.stdout.flush()
             print self.output + " created"
 
             # Set permissions of newly created file
