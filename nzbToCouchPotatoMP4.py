@@ -58,7 +58,7 @@ if len(sys.argv) > 3:
     for r, d, f in os.walk(path):
         for files in f:
             file = os.path.join(r, files)
-            convert = MkvtoMp4(file, FFMPEG_PATH=settings.ffmpeg, FFPROBE_PATH=settings.ffprobe, delete=settings.delete, output_extension=settings.output_extension, relocate_moov=settings.relocate_moov, iOS=settings.iOS, awl=settings.awl, swl=settings.swl, adl=settings.adl, sdl=settings.sdl, processMP4=settings.processMP4)
+            convert = MkvtoMp4(file, FFMPEG_PATH=settings.ffmpeg, FFPROBE_PATH=settings.ffprobe, delete=settings.delete, output_extension=settings.output_extension, relocate_moov=settings.relocate_moov, iOS=settings.iOS, awl=settings.awl, swl=settings.swl, adl=settings.adl, sdl=settings.sdl, audio_codec=settings.acodec, processMP4=settings.processMP4)
             if convert.output is not None:  # If convert returns True, the output file should be present in a valid format, proceed with trying to tag
                 if imdb_id == "":
                     try:
