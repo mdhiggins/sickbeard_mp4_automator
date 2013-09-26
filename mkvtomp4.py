@@ -33,7 +33,7 @@ class MkvtoMp4:
         
         # Make sure input and output extensions are compatible. If processMP4 is true, then make sure the input extension is a valid output extension and allow to proceed as well
         if (input_extension in valid_input_extensions or (processMP4 is True and input_extension in valid_output_extensions)) and output_extension in valid_output_extensions:
-            print file + " detected - processing"
+            print file + " detected for potential conversion - processing"
             info = c.probe(file)
             self.setDimensions(info)
 
@@ -173,13 +173,13 @@ class MkvtoMp4:
 
         # If file is already in the correct format:
         elif input_extension in valid_output_extensions and processMP4 is False:
-            print file + " detected - already correct format, skipping reprocessing"
+            print file + " detected for potential conversion - already correct format, skipping reprocessing"
             self.setDimensions(c.probe(file))
             self.output = file
 
         # If all else fails
         else:
-            print file + " - file not in the correct format, ignoring"
+            print file + " detected for potential conversion - file not in the correct format, ignoring"
             self.output = None
 
     def QTFS(self):
