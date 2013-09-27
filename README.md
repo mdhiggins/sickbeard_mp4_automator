@@ -75,6 +75,9 @@ TV
 manual.py mp4path -tv tvdbid season episode
 Example: manual.py 'C:\Futurama S03E10.mkv' -tv 73871‎ 3 10
 ```
+You may also simply run `manual.py 'C:\The Matrix.mkv'` and the script will prompt you for the missing information or attempt to guess based on the file name.
+You may run the script with a `-silent` switch, which will let the script guess the tagging information based on the file name, avoiding any need for user input. This is the most ideal option for large batch file operations.
+The script may also be pointed to a directory, where it will process all files in the directory. If you run the script without the `-silent` switch, you will be prompted for each file with options on how to tag, to convert without tagging, or skip.
 
 External Cover Art
 --------------
