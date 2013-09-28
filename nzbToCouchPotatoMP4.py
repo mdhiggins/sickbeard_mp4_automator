@@ -57,21 +57,22 @@ if len(sys.argv) > 3:
     path = str(sys.argv[1])
     for r, d, f in os.walk(path):
         for files in f:
-            file = os.path.join(r, files)
-            convert = MkvtoMp4(file, FFMPEG_PATH=settings.ffmpeg, FFPROBE_PATH=settings.ffprobe, delete=settings.delete, output_extension=settings.output_extension, relocate_moov=settings.relocate_moov, iOS=settings.iOS, awl=settings.awl, swl=settings.swl, adl=settings.adl, sdl=settings.sdl, audio_codec=settings.acodec, processMP4=settings.processMP4)
-            if convert.output is not None:  # If convert returns True, the output file should be present in a valid format, proceed with trying to tag
+            inputfile = os.path.join(r, files)
+            converter = MkvtoMp4(settings)
+            if converter.readSource(inputfile) is not False:
+                output = converter.convert()
                 if imdb_id == "":
                     try:
                         print "Going to guess the following files info: %s" % (sys.argv[2])
                         imdb_id = FILEtoIMDB(os.path.basename(sys.argv[2]))
                     except:
-                        print "Unable to accurately identify movie file %s" % (file)
+                        print "Unable to accurately identify movie file %s" % (inputfile)
                 print "IMDB ID is: %s" % (imdb_id)
-                print "Converting the following file: %s" % (os.path.basename(file))
+                
                 try:
                     imdbmp4 = tmdb_mp4(imdb_id)
-                    imdbmp4.setHD(convert.width, convert.height)
-                    imdbmp4.writeTags(convert.output)
+                    imdbmp4.setHD(output['width'], output['height'])
+                    imdbmp4.writeTags(output['file'])
                 except AttributeError:
                     print "Unable to tag file, Couch Potato probably screwed up passing the IMDB ID"
 

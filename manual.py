@@ -12,9 +12,7 @@ from tmdb_api import tmdb
 from extensions import tmdb_api_key
 
 settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
-
-if settings.output_dir is not None:
-    import shutil
+source = MkvtoMp4(settings)
 
 def mediatype():
     print "Select media type:"
@@ -96,8 +94,9 @@ def guessInfo(fileName):
             return tmdbInfo(guess)
         else:
             return tvdbInfo(guess)
-    except:
+    except Exception as e:
         return None
+        print e
 
 
 def tmdbInfo(guessData):
@@ -129,7 +128,7 @@ def tvdbInfo(guessData):
     return 3, tvdbid, season, episode
 
 
-def processFile(path, tagdata, output_dir=None):
+def processFile(inputfile, tagdata):
     if tagdata is False:
         return # This means the user has elected to skip the file
     elif tagdata is None:
@@ -148,33 +147,13 @@ def processFile(path, tagdata, output_dir=None):
         episode = int(tagdata[3])
         tagmp4 = Tvdb_mp4(tvdbid, season, episode)
         print "Processing %s Season %s Episode %s - %s" % (tagmp4.show, str(tagmp4.season), str(tagmp4.episode), tagmp4.title)
-    convert = MkvtoMp4(path, 
-                    FFMPEG_PATH=settings.ffmpeg, 
-                    FFPROBE_PATH=settings.ffprobe, 
-                    delete=settings.delete, 
-                    output_extension=settings.output_extension, 
-                    relocate_moov=settings.relocate_moov, 
-                    iOS=settings.iOS, 
-                    awl=settings.awl, 
-                    swl=settings.swl, 
-                    adl=settings.adl, 
-                    sdl=settings.sdl, 
-                    audio_codec=settings.acodec, 
-                    processMP4=settings.processMP4, 
-                    reportProgress=True)
-    if convert.output is not None:
+    if source.readSource(inputfile) is not False:
+        output = source.convert(True)
         if tagmp4 is not None:
-            tagmp4.setHD(convert.width, convert.height)
-            tagmp4.writeTags(convert.output)
+            tagmp4.setHD(output['width'], output['height'])
+            tagmp4.writeTags(output['file'])
         if settings.relocate_moov:
-            convert.QTFS()
-        if output_dir is not None:
-            output = os.path.join(settings.output_dir, os.path.split(path)[1])
-            try:
-                shutil.move(convert.output, output)
-                print "File %s moved to %s" % (path, output)
-            except:
-                print "Unable to move file %s to %s" % (path, output)
+            source.QTFS()
 
 def walkDir(dir, silent=False, output_dir=None):
     for r,d,f in os.walk(dir):
@@ -182,36 +161,40 @@ def walkDir(dir, silent=False, output_dir=None):
             filepath = os.path.join(r, file)
             print "Processing file %s" % (filepath)
             try:
-                tagdata = getinfo(filepath, silent)
-                processFile(filepath, tagdata, output_dir)
+                if source.checkSource(filepath) is not False:
+                    tagdata = getinfo(filepath, silent)
+                    processFile(filepath, tagdata)
             except Exception as e:
                 print "An unexpected error occured, processing of this file has failed"
                 print str(e)
 
 def main():
     silent = True if '-silent' in sys.argv else False
-    output_dir = settings.output_dir if settings.output_dir is not None and '-nomove' not in sys.argv else None
-
+    # Override output_dir settings if -nomove switch is used
+    #if '-nomove' in sys.argv: settings.output_dir = None 
     if len(sys.argv) > 2:
         path = str(sys.argv[1])
         # Gather info from command line
         if os.path.isdir(path):
-            walkDir(path, silent, output_dir)
+            walkDir(path, silent)
         elif os.path.isfile(path):
-            if sys.argv[2] == '-tv':
-                tvdbid = int(sys.argv[3])
-                season = int(sys.argv[4])
-                episode = int(sys.argv[5])
-                tagdata = [3, tvdbid, season, episode]
-            elif sys.argv[2] == '-m':
-                imdbid = sys.argv[3]
-                tagdata = [1, imdbid]
-            elif sys.argv[2] == '-tmdb':
-                tmdbid = sys.argv[3]
-                tagdata = [2, tmdbid]
+            if source.checkSource(path) is not False:
+                if sys.argv[2] == '-tv':
+                    tvdbid = int(sys.argv[3])
+                    season = int(sys.argv[4])
+                    episode = int(sys.argv[5])
+                    tagdata = [3, tvdbid, season, episode]
+                elif sys.argv[2] == '-m':
+                    imdbid = sys.argv[3]
+                    tagdata = [1, imdbid]
+                elif sys.argv[2] == '-tmdb':
+                    tmdbid = sys.argv[3]
+                    tagdata = [2, tmdbid]
+                else:
+                    tagdata = getinfo(path, silent)
+                processFile(path, tagdata)
             else:
-                tagdata = getinfo(path, silent)
-            processFile(path, tagdata, output_dir)
+                print "File %s is not in the correct format" % (path)
         else:
             print "Invalid command line input"
     # Ask for the info
@@ -221,10 +204,14 @@ def main():
         if path.startswith('"') and path.endswith('"'):
             path = path[1:-1]
         if os.path.isdir(path):
-            walkDir(path, silent, output_dir)
+            walkDir(path, silent)
         else:
-            tagdata = getinfo(path, silent=silent)
-            processFile(path, tagdata, output_dir)
+            if source.checkSource(path)is not False:
+                tagdata = getinfo(path, silent=silent)
+                processFile(path, tagdata)
+            else:
+                print "File %s is not in the correct format" % (path)
+                main()
 
 if __name__ == '__main__':
     main()
