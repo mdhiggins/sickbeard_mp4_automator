@@ -60,6 +60,8 @@ class MkvtoMp4:
 
     def checkSource(self, inputfile):
         input_dir, filename, input_extension = self.parseFile(inputfile)
+        if os.path.isfile(inputfile) is False:
+            return False
         if (input_extension in valid_input_extensions or (self.processMP4 is True and input_extension in valid_output_extensions)) and self.output_extension in valid_output_extensions:
             return 0
         elif input_extension in valid_output_extensions and self.processMP4 is False:
