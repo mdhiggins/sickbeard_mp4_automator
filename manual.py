@@ -120,13 +120,13 @@ def tmdbInfo(guessData):
 
 
 def tvdbInfo(guessData):
-    seasonNum = guessData["season"]
-    episodeNum = guessData["episodeNumber"]
     series = guessData["series"]
-    print "Guessing %s TVDB info" % (series)
+    season = guessData["season"]
+    episode = guessData["episodeNumber"]
     t = tvdb_api.Tvdb()
-    show = t[series]
-    return 3, show['id'], seasonNum, episodeNum
+    tvdbid = t[series]['id']
+    print "Matched TV episode as %s (TVDB ID:%s) S%sE%s" % (series, tvdbid, season, episode)
+    return 3, tvdbid, season, episode
 
 
 def processFile(path, tagdata, output_dir=None):
@@ -171,7 +171,7 @@ def processFile(path, tagdata, output_dir=None):
         if output_dir is not None:
             output = os.path.join(settings.output_dir, os.path.split(path)[1])
             try:
-                shutil.move(path, output)
+                shutil.move(convert.output, output)
                 print "File %s moved to %s" % (path, output)
             except:
                 print "Unable to move file %s to %s" % (path, output)
