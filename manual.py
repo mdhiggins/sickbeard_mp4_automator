@@ -169,7 +169,7 @@ def processFile(path, tagdata, output_dir=None):
         if settings.relocate_moov:
             convert.QTFS()
         if output_dir is not None:
-            output = os.path.join(settings.output_dir, os.path.split(path)[1])
+            output = os.path.join(settings.output_dir, os.path.split(convert.output)[1])
             try:
                 shutil.move(convert.output, output)
                 print "File %s moved to %s" % (path, output)
