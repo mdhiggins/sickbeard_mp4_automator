@@ -124,7 +124,7 @@ def tvdbInfo(guessData):
     episode = guessData["episodeNumber"]
     t = tvdb_api.Tvdb()
     tvdbid = t[series]['id']
-    print "Matched TV episode as %s (TVDB ID:%s) S%sE%s" % (series, tvdbid, season, episode)
+    print "Matched TV episode as %s (TVDB ID:%s) S%02dE%02d" % (series, tvdbid, int(season), int(episode))
     return 3, tvdbid, season, episode
 
 
