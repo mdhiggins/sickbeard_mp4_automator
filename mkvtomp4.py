@@ -241,9 +241,7 @@ class MkvtoMp4:
                     sys.stdout.flush()
             print outputfile + " created"
         else:
-            print "Got here 2"
             if self.output_dir is not None:
-                print "Got here"
                 try:
                     shutil.copy(self.inputfile, outputfile)
                 except Exception as e:
