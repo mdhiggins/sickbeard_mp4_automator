@@ -272,12 +272,12 @@ class MkvtoMp4:
         input_extension = input_extension[1:]
         return input_dir, filename, input_extension
 
-    def QTFS(self, outputfile=None):
-        if outputfile is None: outputfile = self.output
+    def QTFS(self):
+        outputfile = self.output
         # Relocate MOOV atom to the very beginning. Can double the time it takes to convert a file but makes streaming faster
         if self.parseFile(outputfile)[2] in valid_output_extensions:
             print "Relocating MOOV atom to start of file"
-            tmp = self.inputfile + ".tmp"
+            tmp = outputfile + ".tmp"
             # Clear out the temp file if it exists
             self.removeFile(tmp, 0, 0)
 
