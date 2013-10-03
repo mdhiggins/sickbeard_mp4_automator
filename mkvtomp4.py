@@ -17,6 +17,7 @@ class MkvtoMp4:
         self.output_dir=output_dir
         self.relocate_moov=relocate_moov
         self.processMP4=processMP4
+        self.local = False
         #Video settings
         self.video_codec=video_codec
         #Audio settings
@@ -45,6 +46,7 @@ class MkvtoMp4:
         self.output_dir=readSettings.output_dir
         self.relocate_moov=readSettings.relocate_moov
         self.processMP4=readSettings.processMP4
+        self.local = readSettings.local
         #Video settings
         #self.video_codec=readSettings.vcodec
         #Audio settings
@@ -210,6 +212,7 @@ class MkvtoMp4:
 
     def convert(self, reportProgress=False):
         input_dir, filename, input_extension = self.parseFile(self.inputfile)
+        output_dir = None if self.local else self.output_dir
         output_dir = input_dir if self.output_dir is None else self.output_dir
         outputfile = os.path.join(output_dir, filename + "." + self.output_extension)
         delete = self.delete
@@ -266,11 +269,13 @@ class MkvtoMp4:
                 'width': self.width,
                 'height': self.height }
 
+
     def parseFile(self, path):
         input_dir, filename = os.path.split(path)
         filename, input_extension = os.path.splitext(filename)
         input_extension = input_extension[1:]
         return input_dir, filename, input_extension
+
 
     def QTFS(self, outputfile=None):
         if outputfile is None: outputfile = self.output
@@ -291,6 +296,17 @@ class MkvtoMp4:
                     print "Error cleaning up temp files and renaming"
             except exceptions.FastStartException:
                 print "QT FastStart did not run - perhaps moov atom was at the start already"
+
+
+    def move(self, inputfile=None):
+        if inputfile is None: inputfile = self.output
+        input_dir, filename, input_extension = self.parseFile(inputfile)
+        outputfile = os.path.join(self.output_dir, filename + "." + self.output_extension)
+        try:
+            shutil.move(inputfile, outputfile)
+        except Exception as e:
+            print "Unable to move file to destination %s" % (outputfile)
+            print e
 
     def setDimensions(self, info):
         # Get values for width and height to be passed to the tagging classes for proper HD tags

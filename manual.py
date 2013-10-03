@@ -154,6 +154,8 @@ def processFile(inputfile, tagdata):
             tagmp4.writeTags(output['file'])
         if settings.relocate_moov:
             source.QTFS()
+        if settings.local and settings.output_dir is not None:
+            source.move()
 
 def walkDir(dir, silent=False, output_dir=None):
     for r,d,f in os.walk(dir):
