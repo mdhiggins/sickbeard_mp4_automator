@@ -17,7 +17,6 @@ class ReadSettings:
                         'ffprobe': 'ffprobe.exe',
                         'output_directory': '',
                         'output_extension': 'mp4',
-                        'local_conversion': 'False',
                         'delete_original': 'True',
                         'relocate_moov': 'True',
                         'ios-audio': 'True',
@@ -77,7 +76,6 @@ class ReadSettings:
         else:
             self.output_dir = os.path.normpath(self.raw(self.output_dir))  # Output directory
         self.output_extension = config.get(section, "output_extension")  # Output extension
-        self.local = config.getboolean(section, "local_conversion")
         self.delete = config.getboolean(section, "delete_original")  # Delete original file
         self.relocate_moov = config.getboolean(section, "relocate_moov")  # Relocate MOOV atom to start of file
         self.acodec = config.get(section, "audio-codec").lower()  # Gets the desired audio codec, if no valid codec selected, default to AAC

@@ -23,9 +23,6 @@ if len(sys.argv) > 4:
         if settings.relocate_moov:
             converter.QTFS()
 
-        if settings.local and settings.output_dir is not None:
-            converter.move()
-
         try:
             refresh = json.load(urllib.urlopen(settings.getRefreshURL(tvdb_id)))
             for item in refresh:
