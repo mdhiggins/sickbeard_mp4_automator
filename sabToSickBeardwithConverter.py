@@ -8,6 +8,7 @@ settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
 
 path = str(sys.argv[1])
 converter = MkvtoMp4(settings)
+converter.output_dir = None
 for r, d, f in os.walk(path):
     for files in f:
         inputfile = os.path.join(r, files)
