@@ -16,7 +16,7 @@ if len(sys.argv) > 4:
     episode = int(sys.argv[5])
     converter = MkvtoMp4(settings)
     if MkvtoMp4(settings).validSource(inputfile):
-        output = converter.convert()
+        output = converter.process(inputfile)
         tagmp4 = Tvdb_mp4(tvdb_id, season, episode)
         tagmp4.setHD(output['x'], output['y'])
         tagmp4.writeTags(output['output'])
