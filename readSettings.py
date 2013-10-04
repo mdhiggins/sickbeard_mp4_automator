@@ -81,7 +81,7 @@ class ReadSettings:
             self.copyto = None
         else:
             self.copyto = self.copyto.split('|')
-            for i in xrange(self.copyto):
+            for i in xrange(len(self.copyto)):
                 self.copyto[i] = os.path.normpath(self.copyto[i])
                 if not os.path.isdir(self.copyto[i]):
                     try:
