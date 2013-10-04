@@ -170,7 +170,7 @@ def walkDir(dir, silent=False, output_dir=None):
             filepath = os.path.join(r, file)
             print "Processing file %s" % (filepath)
             try:
-                if MkvtoMp4(settings).valid(filepath):
+                if MkvtoMp4(settings).validSource(filepath):
                     tagdata = getinfo(filepath, silent)
                     processFile(filepath, tagdata)
                 else:
