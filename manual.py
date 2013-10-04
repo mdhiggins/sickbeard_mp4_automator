@@ -3,7 +3,6 @@
 import sys
 import os
 import guessit
-import shutil
 from readSettings import ReadSettings
 from tvdb_mp4 import Tvdb_mp4
 from tmdb_mp4 import tmdb_mp4
@@ -150,19 +149,15 @@ def processFile(inputfile, tagdata):
         tagmp4 = Tvdb_mp4(tvdbid, season, episode)
         print "Processing %s Season %s Episode %s - %s" % (tagmp4.show, str(tagmp4.season), str(tagmp4.episode), tagmp4.title)
     if MkvtoMp4(settings).validSource(inputfile):
-        convert = MkvtoMp4(settings)
-        output = convert.process(inputfile, True)
+        converter = MkvtoMp4(settings)
+        output = converter.process(inputfile, True)
         if tagmp4 is not None:
             tagmp4.setHD(output['x'], output['y'])
             tagmp4.writeTags(output['output'])
             if settings.relocate_moov:
-                convert.QTFS(output['output'])
+                converter.QTFS(output['output'])
         if settings.copyto:
-            for d in settings.copyto:
-                try:
-                    shutil.copy(output['output'], d)
-                except:
-                    print "Unable to copy file to %s" % d
+            converter.replicate(output['output'])
 
 def walkDir(dir, silent=False, output_dir=None):
     for r,d,f in os.walk(dir):

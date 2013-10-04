@@ -78,11 +78,7 @@ if len(sys.argv) > 3:
                 except AttributeError:
                     print "Unable to tag file, Couch Potato probably screwed up passing the IMDB ID"
             if settings.copyto:
-                for d in settings.copyto:
-                    try:
-                        shutil.copy(output['output'], d)
-                    except:
-                        print "Unable to copy file to %s" % d
+                converter.replicate(output['output'])
 
 
 # SABnzbd

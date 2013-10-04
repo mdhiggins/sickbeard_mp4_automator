@@ -3,7 +3,6 @@ import os
 import sys
 import json
 import urllib
-import shutil
 from readSettings import ReadSettings
 from tvdb_mp4 import Tvdb_mp4
 from mkvtomp4 import MkvtoMp4
@@ -25,11 +24,7 @@ if len(sys.argv) > 4:
             converter.QTFS(output['output'])
 
         if settings.copyto:
-            for d in settings.copyto:
-                try:
-                    shutil.copy(output['output'], d)
-                except:
-                    print "Unable to copy file to %s" % d
+            converter.replicate(output['output'])
 
         try:
             refresh = json.load(urllib.urlopen(settings.getRefreshURL(tvdb_id)))
