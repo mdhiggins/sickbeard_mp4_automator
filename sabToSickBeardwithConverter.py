@@ -12,8 +12,8 @@ converter.output_dir = None
 for r, d, f in os.walk(path):
     for files in f:
         inputfile = os.path.join(r, files)
-        if converter.readSource(inputfile) is not False:
-            converter.convert()
+        if MkvtoMp4(settings).validSource(inputfile):
+            converter.process(inputfile)
 
 """Contents of sabToSickbeard.py"""
 if len(sys.argv) < 2:

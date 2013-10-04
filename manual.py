@@ -12,7 +12,6 @@ from tmdb_api import tmdb
 from extensions import tmdb_api_key
 
 settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
-source = MkvtoMp4(settings)
 
 def mediatype():
     print "Select media type:"
@@ -65,6 +64,8 @@ def getinfo(fileName=None, silent=False, guess=True):
                 print "Proceed using guessed identification from filename?"
                 if getYesNo() and guess:
                     return tagdata
+        else:
+            print "Unable to guess based on filename"
     if silent is False:
         m_type = mediatype()
         if m_type is 3:
@@ -95,8 +96,8 @@ def guessInfo(fileName):
         else:
             return tvdbInfo(guess)
     except Exception as e:
-        return None
         print e
+        return None
 
 
 def tmdbInfo(guessData):
@@ -147,13 +148,14 @@ def processFile(inputfile, tagdata):
         episode = int(tagdata[3])
         tagmp4 = Tvdb_mp4(tvdbid, season, episode)
         print "Processing %s Season %s Episode %s - %s" % (tagmp4.show, str(tagmp4.season), str(tagmp4.episode), tagmp4.title)
-    if source.readSource(inputfile) is not False:
-        output = source.convert(True)
+    if MkvtoMp4(settings).validSource(inputfile):
+        convert = MkvtoMp4(settings)
+        output = convert.process(inputfile, True)
         if tagmp4 is not None:
-            tagmp4.setHD(output['width'], output['height'])
-            tagmp4.writeTags(output['file'])
-        if settings.relocate_moov:
-            source.QTFS()
+            tagmp4.setHD(output['x'], output['y'])
+            tagmp4.writeTags(output['output'])
+            if settings.relocate_moov:
+                convert.QTFS(output['output'])
 
 def walkDir(dir, silent=False, output_dir=None):
     for r,d,f in os.walk(dir):
@@ -161,7 +163,7 @@ def walkDir(dir, silent=False, output_dir=None):
             filepath = os.path.join(r, file)
             print "Processing file %s" % (filepath)
             try:
-                if source.checkSource(filepath) is not False:
+                if MkvtoMp4(settings).valid(filepath):
                     tagdata = getinfo(filepath, silent)
                     processFile(filepath, tagdata)
             except Exception as e:
@@ -178,7 +180,7 @@ def main():
         if os.path.isdir(path):
             walkDir(path, silent)
         elif os.path.isfile(path):
-            if source.checkSource(path) is not False:
+            if MkvtoMp4(settings).validSource(path):
                 if sys.argv[2] == '-tv':
                     tvdbid = int(sys.argv[3])
                     season = int(sys.argv[4])
@@ -206,7 +208,7 @@ def main():
         if os.path.isdir(path):
             walkDir(path, silent)
         else:
-            if source.checkSource(path)is not False:
+            if MkvtoMp4(settings).validSource(path):
                 tagdata = getinfo(path, silent=silent)
                 processFile(path, tagdata)
             else:

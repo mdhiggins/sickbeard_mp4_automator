@@ -50,17 +50,17 @@ def NZBtoIMDB(nzbName):
     imdbid = nzbName[a:b]
     return imdbid
 
-settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
-imdb_id = NZBtoIMDB(sys.argv[2])
-
 if len(sys.argv) > 3:
+    settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
+    imdb_id = NZBtoIMDB(sys.argv[2])
+    converter = MkvtoMp4(settings)
     path = str(sys.argv[1])
     for r, d, f in os.walk(path):
         for files in f:
             inputfile = os.path.join(r, files)
-            converter = MkvtoMp4(settings)
-            if converter.readSource(inputfile) is not False:
-                output = converter.convert()
+            
+            if MkvtoMp4(settings).validSource(inputfile):
+                output = converter.process(inputfile)
                 if imdb_id == "":
                     try:
                         print "Going to guess the following files info: %s" % (sys.argv[2])
@@ -71,8 +71,8 @@ if len(sys.argv) > 3:
                 
                 try:
                     imdbmp4 = tmdb_mp4(imdb_id)
-                    imdbmp4.setHD(output['width'], output['height'])
-                    imdbmp4.writeTags(output['file'])
+                    imdbmp4.setHD(output['x'], output['y'])
+                    imdbmp4.writeTags(output['output'])
                 except AttributeError:
                     print "Unable to tag file, Couch Potato probably screwed up passing the IMDB ID"
 

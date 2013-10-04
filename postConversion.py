@@ -9,19 +9,19 @@ from mkvtomp4 import MkvtoMp4
 settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
 
 if len(sys.argv) > 4:
-    path = sys.argv[1]
+    inputfile = sys.argv[1]
     tvdb_id = int(sys.argv[3])
     season = int(sys.argv[4])
     episode = int(sys.argv[5])
     converter = MkvtoMp4(settings)
-    if converter.readSource(path) is not False:
+    if MkvtoMp4(settings).validSource(inputfile):
         output = converter.convert()
         tagmp4 = Tvdb_mp4(tvdb_id, season, episode)
-        tagmp4.setHD(output['width'], output['height'])
-        tagmp4.writeTags(output['file'])
+        tagmp4.setHD(output['x'], output['y'])
+        tagmp4.writeTags(output['output'])
 
         if settings.relocate_moov:
-            converter.QTFS()
+            converter.QTFS(inputfile)
 
         try:
             refresh = json.load(urllib.urlopen(settings.getRefreshURL(tvdb_id)))
