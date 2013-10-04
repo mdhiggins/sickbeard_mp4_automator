@@ -18,19 +18,19 @@ class MkvtoMp4:
         self.output_dir=output_dir
         self.relocate_moov=relocate_moov
         self.processMP4=processMP4
-        #Video settings
+        # Video settings
         self.video_codec=video_codec
-        #Audio settings
+        # Audio settings
         self.audio_codec=audio_codec
         self.audio_bitrate=audio_bitrate
         self.iOS=iOS
         self.awl=awl
         self.adl=adl
-        #Subtitle settings
+        # Subtitle settings
         self.swl=swl
         self.sdl=sdl
 
-        #Import settings
+        # Import settings
         if settings is not None: self.importSettings(settings)
         self.options = None
 
@@ -54,6 +54,7 @@ class MkvtoMp4:
         self.swl=settings.swl
         self.sdl=settings.sdl
 
+    # Process a file from start to finish, with checking to make sure formats are compatible with selected settings
     def process(self, inputfile, reportProgress=False):
         delete = self.delete
         deleted = False
@@ -93,17 +94,19 @@ class MkvtoMp4:
                  'x': dim['x'],
                  'y': dim['y'] }
 
-    #Determine if a source video file is in a valid format
+    # Determine if a source video file is in a valid format
     def validSource(self, inputfile):
         input_dir, filename, input_extension = self.parseFile(inputfile)
+        # Make sure the input_extension is some sort of recognized extension, and that the file actually exists
         if (input_extension in valid_input_extensions or input_extension in valid_output_extensions) and os.path.isfile(inputfile):
             return True
         else:
             return False            
 
-    #Determine if a file meets the criteria for processing
+    # Determine if a file meets the criteria for processing
     def needProcessing(self, inputfile):
         input_dir, filename, input_extension = self.parseFile(inputfile)
+        # Make sure input and output extensions are compatible. If processMP4 is true, then make sure the input extension is a valid output extension and allow to proceed as well
         if (input_extension in valid_input_extensions or (self.processMP4 is True and input_extension in valid_output_extensions)) and self.output_extension in valid_output_extensions:
             return True
         else:
@@ -116,11 +119,11 @@ class MkvtoMp4:
         return { 'y': info.video.video_height,
                  'x': info.video.video_width }
 
+    # Generate a list of options to be passed to FFMPEG based on selected settings and the source file parameters and streams
     def generateOptions(self, inputfile):    
         #Get path information from the input file
         input_dir, filename, input_extension = self.parseFile(inputfile)
 
-        # Make sure input and output extensions are compatible. If processMP4 is true, then make sure the input extension is a valid output extension and allow to proceed as well
         info = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH).probe(inputfile)
        
         #Video stream
@@ -233,6 +236,7 @@ class MkvtoMp4:
         self.options = options
         return options
 
+    # Encode a new file based on selected options, built in naming conflict resolution
     def convert(self, inputfile, options, reportProgress=False):
         input_dir, filename, input_extension = self.parseFile(inputfile)
         output_dir = input_dir if self.output_dir is None else self.output_dir
@@ -263,12 +267,14 @@ class MkvtoMp4:
         os.chmod(outputfile, 0777) # Set permissions of newly created file
         return outputfile
 
+    # Break apart a file path into the directory, filename, and extension
     def parseFile(self, path):
         input_dir, filename = os.path.split(path)
         filename, input_extension = os.path.splitext(filename)
         input_extension = input_extension[1:]
         return input_dir, filename, input_extension
 
+    # Process a file with QTFastStart, removing the original file
     def QTFS(self, inputfile):
         input_dir, filename, input_extension = self.parseFile(inputfile)
         temp_ext = '.QTFS'
@@ -294,6 +300,7 @@ class MkvtoMp4:
                 print "QT FastStart did not run - perhaps moov atom was at the start already"
                 return inputfile
 
+    # Robust file removal function, with options to retry in the event the file is in use, and replace a deleted file
     def removeFile(self, filename, retries=2, delay=10, replacement=None):
         for i in range(retries + 1):
             try:
