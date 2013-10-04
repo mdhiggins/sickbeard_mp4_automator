@@ -22,6 +22,7 @@ General Installation Instructions
     - ffmpeg = Path to FFMPEG.exe
     - ffprobe = Path to FFPROBE.exe
     - output_directory = you may specify an alternate output directory (for example if you want to dump these mp4 files on iTunes and not have them integrated into your sickbeard collection)
+    - copy_to = you may specify additional directories for the final product to be replicated to. This will be the last step performed so the file copied will be fully processed. Directories may be separated with a `|` character
     - output_extension = mp4/m4v (must be one of these 2)
     - delete_original = True/False
     - relocate_moov = True/False - relocates the MOOV atom to the beginning of the file for better streaming
