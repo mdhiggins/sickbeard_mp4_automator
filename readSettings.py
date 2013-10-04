@@ -16,6 +16,7 @@ class ReadSettings:
         mp4_defaults = {'ffmpeg': 'ffmpeg.exe',
                         'ffprobe': 'ffprobe.exe',
                         'output_directory': '',
+                        'copy_to': '',
                         'output_extension': 'mp4',
                         'delete_original': 'True',
                         'relocate_moov': 'True',
@@ -75,6 +76,19 @@ class ReadSettings:
             self.output_dir = None
         else:
             self.output_dir = os.path.normpath(self.raw(self.output_dir))  # Output directory
+        self.copyto = config.get(section, "copy_to")
+        if self.copyto == '':
+            self.copyto = None
+        else:
+            self.copyto = self.copyto.split('|')
+            for i in xrange(self.copyto):
+                self.copyto[i] = os.path.normpath(self.copyto[i])
+                if not os.path.isdir(self.copyto[i]):
+                    try:
+                        os.makedirs(self.copyto[i])
+                    except:
+                        print "Error making directory %s" % (self.copyto[i])
+
         self.output_extension = config.get(section, "output_extension")  # Output extension
         self.delete = config.getboolean(section, "delete_original")  # Delete original file
         self.relocate_moov = config.getboolean(section, "relocate_moov")  # Relocate MOOV atom to start of file

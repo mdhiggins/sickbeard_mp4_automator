@@ -3,6 +3,7 @@ import os
 import sys
 import json
 import urllib
+import shutil
 from readSettings import ReadSettings
 from tvdb_mp4 import Tvdb_mp4
 from mkvtomp4 import MkvtoMp4
@@ -21,7 +22,14 @@ if len(sys.argv) > 4:
         tagmp4.writeTags(output['output'])
 
         if settings.relocate_moov:
-            converter.QTFS(inputfile)
+            converter.QTFS(output['output'])
+
+        if settings.copyto:
+            for d in settings.copyto:
+                try:
+                    shutil.copy(output['output'], d)
+                except:
+                    print "Unable to copy file to %s" % d
 
         try:
             refresh = json.load(urllib.urlopen(settings.getRefreshURL(tvdb_id)))

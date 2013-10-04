@@ -3,6 +3,7 @@ import os
 import sys
 import autoProcessMovie
 import guessit
+import shutil
 from tmdb_api import tmdb
 from tmdb_mp4 import tmdb_mp4
 from readSettings import ReadSettings
@@ -73,8 +74,16 @@ if len(sys.argv) > 3:
                     imdbmp4 = tmdb_mp4(imdb_id)
                     imdbmp4.setHD(output['x'], output['y'])
                     imdbmp4.writeTags(output['output'])
+                    converter.QTFS(output['output'])
                 except AttributeError:
                     print "Unable to tag file, Couch Potato probably screwed up passing the IMDB ID"
+            if settings.copyto:
+                for d in settings.copyto:
+                    try:
+                        shutil.copy(output['output'], d)
+                    except:
+                        print "Unable to copy file to %s" % d
+
 
 # SABnzbd
 if len(sys.argv) == 8:

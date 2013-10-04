@@ -3,6 +3,7 @@
 import sys
 import os
 import guessit
+import shutil
 from readSettings import ReadSettings
 from tvdb_mp4 import Tvdb_mp4
 from tmdb_mp4 import tmdb_mp4
@@ -156,6 +157,12 @@ def processFile(inputfile, tagdata):
             tagmp4.writeTags(output['output'])
             if settings.relocate_moov:
                 convert.QTFS(output['output'])
+        if settings.copyto:
+            for d in settings.copyto:
+                try:
+                    shutil.copy(output['output'], d)
+                except:
+                    print "Unable to copy file to %s" % d
 
 def walkDir(dir, silent=False, output_dir=None):
     for r,d,f in os.walk(dir):
