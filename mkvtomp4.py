@@ -81,11 +81,11 @@ class MkvtoMp4:
                 delete = False
 
         if delete:
-            if self.removeFile(self.inputfile):
-                print self.inputfile + " deleted"
+            if self.removeFile(inputfile):
+                print inputfile + " deleted"
                 deleted = True
             else:
-                print "Couldn't delete the original file:" + self.inputfile
+                print "Couldn't delete the original file:" + inputfile
 
         dim = self.getDimensions(outputfile)
 
@@ -234,7 +234,6 @@ class MkvtoMp4:
             'audio': audio_settings,
             'subtitle': subtitle_settings,
         }
-        self.inputfile = inputfile
         self.options = options
         return options
 
@@ -244,21 +243,21 @@ class MkvtoMp4:
         output_dir = input_dir if self.output_dir is None else self.output_dir
         outputfile = os.path.join(output_dir, filename + "." + self.output_extension)
         #If we're processing a file that's going to have the same input and output filename, resolve the potential future naming conflict
-        if self.inputfile == outputfile:
+        if inputfile == outputfile:
             newfile = os.path.join(input_dir, filename + '.tmp.' + self.input_extension)
             #Make sure there isn't any leftover temp files for whatever reason
             self.removeFile(newfile, 0, 0)
             #Attempt to rename the new input file to a temporary name
             try:
-                os.rename(self.inputfile, newfile)
-                self.inputfile = newfile
+                os.rename(inputfile, newfile)
+                inputfile = newfile
             except: 
                 i = 1
                 while os.path.isfile(outputfile):
                     outputfile = os.path.join(output_dir, filename + "(" + str(i) + ")." + self.output_extension)
                     i += i
 
-        conv = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH).convert(self.inputfile, outputfile, options, timeout=None)
+        conv = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH).convert(inputfile, outputfile, options, timeout=None)
 
         for timecode in conv:
             if reportProgress:
