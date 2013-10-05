@@ -13,6 +13,7 @@ from extensions import tmdb_api_key
 
 settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
 
+
 def mediatype():
     print "Select media type:"
     print "1. Movie (via IMDB ID)"
@@ -89,12 +90,14 @@ def getinfo(fileName=None, silent=False, guess=True):
 
 
 def guessInfo(fileName):
-    guess = guessit.guess_video_info(fileName)
+    guess = guessit.guess_video_info(fileName.decode('utf8', errors='ignore'))
     try:
-        if guess["type"] == "movie":
+        if guess['type'] == 'movie':
             return tmdbInfo(guess)
-        else:
+        elif  guess['type'] == 'episode':
             return tvdbInfo(guess)
+        else:
+            return None
     except Exception as e:
         print e
         return None
@@ -111,12 +114,12 @@ def tmdbInfo(guessData):
         if foundname.lower() == origname.lower():
             print "Matched movie title as: %s %s" % (movie["title"], movie["release_date"])
             movie = tmdb.Movie(movie["id"])
-            break
-    if isinstance(movie, dict):
-        tmdbid = movie["id"]
-    else:
-        tmdbid = movie.get_id()
-    return 2, tmdbid
+            if isinstance(movie, dict):
+                tmdbid = movie["id"]
+            else:
+                tmdbid = movie.get_id()
+            return 2, tmdbid
+    return None
 
 
 def tvdbInfo(guessData):
@@ -159,6 +162,7 @@ def processFile(inputfile, tagdata):
         if settings.copyto:
             converter.replicate(output['output'])
 
+
 def walkDir(dir, silent=False, output_dir=None):
     for r,d,f in os.walk(dir):
         for file in f:
@@ -173,6 +177,7 @@ def walkDir(dir, silent=False, output_dir=None):
             except Exception as e:
                 print "An unexpected error occured, processing of this file has failed"
                 print str(e)
+
 
 def main():
     silent = True if '-silent' in sys.argv else False
