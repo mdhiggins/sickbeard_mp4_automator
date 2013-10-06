@@ -172,7 +172,8 @@ def walkDir(dir, silent=False, output_dir=None):
             print "Processing file %s" % (filepath)
             try:
                 if MkvtoMp4(settings).validSource(filepath):
-                    tagdata = getinfo(filepath, silent)
+                    filename = os.path.basename(filepath)
+                    tagdata = getinfo(filename, silent)
                     processFile(filepath, tagdata)
                 else:
                     print "Skipping %s - unrecognized filetype" % (filepath)
@@ -204,7 +205,8 @@ def main():
                     tmdbid = sys.argv[3]
                     tagdata = [2, tmdbid]
                 else:
-                    tagdata = getinfo(path, silent)
+                    filename = os.path.basename(filepath)
+                    tagdata = getinfo(filename, silent)
                 processFile(path, tagdata)
             else:
                 print "File %s is not in the correct format" % (path)
@@ -220,7 +222,8 @@ def main():
             walkDir(path, silent)
         else:
             if MkvtoMp4(settings).validSource(path):
-                tagdata = getinfo(path, silent=silent)
+                filename = os.path.basename(filepath)
+                tagdata = getinfo(filename, silent=silent)
                 processFile(path, tagdata)
             else:
                 print "File %s is not in the correct format" % (path)
