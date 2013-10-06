@@ -90,7 +90,7 @@ def getinfo(fileName=None, silent=False, guess=True):
 
 
 def guessInfo(fileName):
-    guess = guessit.guess_video_info(fileName.decode('utf8', errors='ignore'))
+    guess = guessit.guess_video_info(fileName.decode('ascii', errors='ignore'))
     try:
         if guess['type'] == 'movie':
             return tmdbInfo(guess)
