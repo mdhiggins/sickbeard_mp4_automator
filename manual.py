@@ -3,6 +3,7 @@
 import sys
 import os
 import guessit
+import locale
 from readSettings import ReadSettings
 from tvdb_mp4 import Tvdb_mp4
 from tmdb_mp4 import tmdb_mp4
@@ -31,12 +32,14 @@ def mediatype():
 
 def getValue(prompt, num=False):
     print prompt + ":"
-    value = raw_input("#: ")
+    value = raw_input("#: ").decode(sys.stdout.encoding)
+    #Strip quotes
+    if value.startswith('"') and value.endswith('"'): value=value[1:-1]
     if num is True and value.isdigit() is False:
         print "Must be a numerical value"
         return getValue(prompt, num)
     else:
-        return str(value)
+        return value
 
 
 def getYesNo():
@@ -90,7 +93,6 @@ def getinfo(fileName=None, silent=False, guess=True):
 
 
 def guessInfo(fileName):
-    fileName = fileName.decode('ascii', errors='ignore')
     guess = guessit.guess_video_info(fileName)
     try:
         if guess['type'] == 'movie':
@@ -107,7 +109,7 @@ def guessInfo(fileName):
 
 def tmdbInfo(guessData):
     tmdb.configure(tmdb_api_key)
-    movies = tmdb.Movies(guessData["title"])
+    movies = tmdb.Movies(guessData["title"].encode('ascii', errors='ignore'))
     for movie in movies.iter_results():
         #Identify the first movie in the collection that matches exactly the movie title
         foundname = ''.join(e for e in movie["title"] if e.isalnum())
@@ -153,6 +155,10 @@ def processFile(inputfile, tagdata):
         episode = int(tagdata[3])
         tagmp4 = Tvdb_mp4(tvdbid, season, episode)
         print "Processing %s Season %s Episode %s - %s" % (tagmp4.show, str(tagmp4.season), str(tagmp4.episode), tagmp4.title)
+    try:
+        inputfile = inputfile.encode(locale.getpreferredencoding(), errors='replace')
+    except:
+        pass
     if MkvtoMp4(settings).validSource(inputfile):
         converter = MkvtoMp4(settings)
         output = converter.process(inputfile, True)
@@ -212,10 +218,7 @@ def main():
             print "Invalid command line input"
     # Ask for the info
     else:
-        print "Enter path to file:"
-        path = raw_input("#: ")
-        if path.startswith('"') and path.endswith('"'):
-            path = path[1:-1]
+        path = getValue("Enter path to file")
         if os.path.isdir(path):
             walkDir(path, silent)
         else:
