@@ -77,8 +77,8 @@ if len(sys.argv) > 3:
                     converter.QTFS(output['output'])
                 except AttributeError:
                     print "Unable to tag file, Couch Potato probably screwed up passing the IMDB ID"
-            if settings.copyto:
-                converter.replicate(output['output'])
+                if settings.copyto:
+                    converter.replicate(output['output'])
 
 
 # SABnzbd
