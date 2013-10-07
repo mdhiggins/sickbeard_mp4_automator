@@ -156,7 +156,7 @@ def processFile(inputfile, tagdata):
         season = int(tagdata[2])
         episode = int(tagdata[3])
         tagmp4 = Tvdb_mp4(tvdbid, season, episode)
-        print "Processing %s Season %s Episode %s - %s" % (tagmp4.show, str(tagmp4.season), str(tagmp4.episode), tagmp4.title)
+        print "Processing %s Season %s Episode %s - %s" % (tagmp4.show.encode(sys.stdout.encoding, errors='ignore'), str(tagmp4.season), str(tagmp4.episode), tagmp4.title.encode(sys.stdout.encoding, errors='ignore'))
     try:
         inputfile = inputfile.encode(locale.getpreferredencoding(), errors='replace')
     except:
