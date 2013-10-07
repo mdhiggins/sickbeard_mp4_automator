@@ -93,6 +93,8 @@ def getinfo(fileName=None, silent=False, guess=True):
 
 
 def guessInfo(fileName):
+    if not settings.fullpathguess:
+        fileName = os.path.basename(fileName)
     guess = guessit.guess_video_info(fileName)
     try:
         if guess['type'] == 'movie':
@@ -183,7 +185,7 @@ def walkDir(dir, silent=False, output_dir=None):
                 else:
                     print "Skipping %s - unrecognized filetype" % (filepath)
             except Exception as e:
-                print "An unexpected error occured, processing of this file has failed"
+                print "An unexpected error occurred, processing of this file has failed"
                 print str(e)
 
 
@@ -218,7 +220,7 @@ def main():
             print "Invalid command line input"
     # Ask for the info
     else:
-        path = getValue("Enter path to file")
+        path = os.path.normpath(getValue("Enter path to file"))
         if os.path.isdir(path):
             walkDir(path, silent)
         else:
