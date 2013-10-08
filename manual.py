@@ -113,7 +113,7 @@ def guessInfo(fileName):
 
 def tmdbInfo(guessData):
     tmdb.configure(tmdb_api_key)
-    movies = tmdb.Movies(guessData["title"].encode('ascii', errors='ignore'))
+    movies = tmdb.Movies(guessData["title"].encode('ascii', errors='ignore'), limit=4)
     for movie in movies.iter_results():
         #Identify the first movie in the collection that matches exactly the movie title
         foundname = ''.join(e for e in movie["title"] if e.isalnum())
