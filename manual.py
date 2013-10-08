@@ -32,9 +32,10 @@ def mediatype():
 
 def getValue(prompt, num=False):
     print prompt + ":"
-    value = raw_input("#: ").decode(sys.stdout.encoding)
-    #Strip quotes
-    if value.startswith('"') and value.endswith('"'): value=value[1:-1]
+    value = raw_input("#: ").strip(' \"')
+    # Remove escape characters in non-windows environments
+    if os.name != 'nt': value = value.replace('\\', '')
+    value = value.decode(sys.stdout.encoding)
     if num is True and value.isdigit() is False:
         print "Must be a numerical value"
         return getValue(prompt, num)
