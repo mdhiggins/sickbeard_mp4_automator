@@ -118,7 +118,7 @@ def tmdbInfo(guessData):
         origname = ''.join(e for e in guessData["title"] if e.isalnum())
         #origname = origname.replace('&', 'and')
         if foundname.lower() == origname.lower():
-            print "Matched movie title as: %s %s" % (movie["title"], movie["release_date"])
+            print "Matched movie title as: %s %s" % (movie["title"].encode(sys.stdout.encoding, errors='ignore'), movie["release_date"])
             movie = tmdb.Movie(movie["id"])
             if isinstance(movie, dict):
                 tmdbid = movie["id"]
