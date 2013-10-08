@@ -61,12 +61,13 @@ class MkvtoMp4:
         delete = self.delete
         deleted = False
         options = None
-        if not self.validSource: return False
+        if not self.validSource(inputfile): return False
 
         if self.needProcessing(inputfile):
             options = self.generateOptions(inputfile)
             if reportProgress: print json.dumps(options, sort_keys=False, indent=4)
             outputfile = self.convert(inputfile, options, reportProgress)
+            if not outputfile: return False
         else:
             outputfile = inputfile
             if self.output_dir is not None:
