@@ -33,6 +33,8 @@ General Installation Instructions
     - `subtitle-language` = same as audio-language but for subtitles
     - `subtitle-language-default` = same as audio-language-default but for subtitles
     - `convert-mp4` = forces the script to reprocess and convert mp4 files as though they were mkvs. Good if you have old mp4's that you want to match your current codec configuration.
+    - `fullpathguess` = True/False - When manually processing a file, enable to guess metadata using the full path versus just the file name. (Files shows placed in a 'Movies' folder will be recognized as movies, not as TV shows for example.)
+    - `tagfile` = True/False - Enable or disable tagging file with appropriate metadata after encoding.
 
 SickBeard Installation Instructions
 --------------

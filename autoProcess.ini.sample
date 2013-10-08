@@ -21,7 +21,9 @@ audio-language=
 audio-default-language=
 subtitle-language=
 subtitle-default-language=
+fullpathguess=True
 convert-mp4=False
+tagfile=True
 
 [CouchPotato]
 host = localhost
