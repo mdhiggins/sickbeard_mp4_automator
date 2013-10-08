@@ -56,6 +56,8 @@ def getYesNo():
 
 
 def getinfo(fileName=None, silent=False, guess=True):
+    '''if type(fileName) is str:
+        fileName = fileName.decode(sys.stdout.encoding)'''
     # Try to guess the file is guessing is enabled
     if fileName is not None and guess:
         tagdata = guessInfo(fileName)
@@ -194,7 +196,7 @@ def main():
     # Override output_dir settings if -nomove switch is used
     #if '-nomove' in sys.argv: settings.output_dir = None 
     if len(sys.argv) > 2:
-        path = str(sys.argv[1])
+        path = str(sys.argv[1]).decode(locale.getpreferredencoding())
         # Gather info from command line
         if os.path.isdir(path):
             walkDir(path, silent)
