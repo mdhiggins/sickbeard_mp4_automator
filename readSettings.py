@@ -27,7 +27,8 @@ class ReadSettings:
                         'audio-default-language': '',
                         'subtitle-default-language': '',
                         'convert-mp4': 'False',
-                        'fullpathguess': 'True'}
+                        'fullpathguess': 'True',
+                        'tagfile': 'True'}
         # Default settings for CouchPotato
         cp_defaults = {'host': 'localhost',
                        'port': '5050',
@@ -128,6 +129,7 @@ class ReadSettings:
                 os.makedirs(self.output_dir)
         self.processMP4 = config.getboolean(section, "convert-mp4")  # Determine whether or not to reprocess mp4 files or just tag them
         self.fullpathguess = config.getboolean(section, "fullpathguess") # Guess using the full path or not
+        self.tagfile = config.getboolean(section, "tagfile") # Tag files with metadata
 
         #Read relevant CouchPotato section information
         section = "CouchPotato"

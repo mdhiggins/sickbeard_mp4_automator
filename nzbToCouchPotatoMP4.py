@@ -62,21 +62,23 @@ if len(sys.argv) > 3:
             
             if MkvtoMp4(settings).validSource(inputfile):
                 output = converter.process(inputfile)
-                if imdb_id == "":
+                # Tag with metadata
+                if settings.tagfile:
+                    if imdb_id == "":
+                        try:
+                            print "Going to guess the following files info: %s" % (sys.argv[2])
+                            imdb_id = FILEtoIMDB(os.path.basename(sys.argv[2]))
+                        except:
+                            print "Unable to accurately identify movie file %s" % (inputfile)
+                    print "IMDB ID is: %s" % (imdb_id)
                     try:
-                        print "Going to guess the following files info: %s" % (sys.argv[2])
-                        imdb_id = FILEtoIMDB(os.path.basename(sys.argv[2]))
-                    except:
-                        print "Unable to accurately identify movie file %s" % (inputfile)
-                print "IMDB ID is: %s" % (imdb_id)
-                
-                try:
-                    imdbmp4 = tmdb_mp4(imdb_id)
-                    imdbmp4.setHD(output['x'], output['y'])
-                    imdbmp4.writeTags(output['output'])
-                    converter.QTFS(output['output'])
-                except AttributeError:
-                    print "Unable to tag file, Couch Potato probably screwed up passing the IMDB ID"
+                        imdbmp4 = tmdb_mp4(imdb_id)
+                        imdbmp4.setHD(output['x'], output['y'])
+                        imdbmp4.writeTags(output['output'])
+                        converter.QTFS(output['output'])
+                    except AttributeError:
+                        print "Unable to tag file, Couch Potato probably screwed up passing the IMDB ID"
+                # Copy to additional locations
                 if settings.copyto:
                     converter.replicate(output['output'])
 
