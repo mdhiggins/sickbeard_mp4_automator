@@ -106,7 +106,6 @@ def guessInfo(fileName):
         else:
             return None
     except Exception as e:
-        print fileName
         print e
         return None
 
@@ -136,11 +135,12 @@ def tvdbInfo(guessData):
     episode = guessData["episodeNumber"]
     t = tvdb_api.Tvdb()
     tvdbid = t[series]['id']
-    print "Matched TV episode as %s (TVDB ID:%s) S%02dE%02d" % (series, tvdbid, int(season), int(episode))
+    print "Matched TV episode as %s (TVDB ID:%d) S%02dE%02d" % (series.encode(sys.stdout.encoding, errors='ignore'), int(tvdbid), int(season), int(episode))
     return 3, tvdbid, season, episode
 
 
 def processFile(inputfile, tagdata):
+    # Gather tagdata
     if tagdata is False:
         return # This means the user has elected to skip the file
     elif tagdata is None:
@@ -148,20 +148,22 @@ def processFile(inputfile, tagdata):
     elif tagdata[0] is 1:
         imdbid = tagdata[1]
         tagmp4 = tmdb_mp4(imdbid)
-        print "Processing %s" % (tagmp4.title)
+        print "Processing %s" % (tagmp4.title.encode(sys.stdout.encoding, errors='ignore'))
     elif tagdata[0] is 2:
         tmdbid = tagdata[1]
         tagmp4 = tmdb_mp4(tmdbid, True)
-        print "Processing %s" % (tagmp4.title)
+        print "Processing %s" % (tagmp4.title.encode(sys.stdout.encoding, errors='ignore'))
     elif tagdata[0] is 3:
         tvdbid = int(tagdata[1])
         season = int(tagdata[2])
         episode = int(tagdata[3])
         tagmp4 = Tvdb_mp4(tvdbid, season, episode)
-        print "Processing %s Season %s Episode %s - %s" % (tagmp4.show.encode(sys.stdout.encoding, errors='ignore'), str(tagmp4.season), str(tagmp4.episode), tagmp4.title.encode(sys.stdout.encoding, errors='ignore'))
-    try:
+        print "Processing %s Season %02d Episode %02d - %s" % (tagmp4.show.encode(sys.stdout.encoding, errors='ignore'), int(tagmp4.season), int(tagmp4.episode), tagmp4.title.encode(sys.stdout.encoding, errors='ignore'))
+    
+    # Process
+    try: 
         inputfile = inputfile.encode(locale.getpreferredencoding(), errors='replace')
-    except:
+    except: 
         pass
     if MkvtoMp4(settings).validSource(inputfile):
         converter = MkvtoMp4(settings)
