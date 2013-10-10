@@ -45,7 +45,8 @@ class Tvdb_mp4:
                 time.sleep(20)
 
     def writeTags(self, mp4Path):
-        print "Tagging file :" + mp4Path.encode(sys.stdout.encoding, errors='ignore')
+        print "Tagging file"
+        #print "Tagging file :" + mp4Path.encode(sys.stdout.encoding, errors='ignore')
         ext = os.path.splitext(mp4Path)[1][1:]
         if ext not in valid_output_extensions:
             print "Error: File is not the correct format"
