@@ -161,6 +161,10 @@ def processFile(inputfile, tagdata):
         print "Processing %s Season %02d Episode %02d - %s" % (tagmp4.show.encode(sys.stdout.encoding, errors='ignore'), int(tagmp4.season), int(tagmp4.episode), tagmp4.title.encode(sys.stdout.encoding, errors='ignore'))
     
     # Process
+    try: 
+        inputfile = inputfile.encode(locale.getpreferredencoding(), errors='replace')
+    except: 
+        pass
     if MkvtoMp4(settings).validSource(inputfile):
         converter = MkvtoMp4(settings)
         output = converter.process(inputfile, True)

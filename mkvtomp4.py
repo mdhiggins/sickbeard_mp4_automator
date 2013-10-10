@@ -1,6 +1,5 @@
 import os
 import time
-import locale
 import json
 import sys
 import shutil
@@ -74,7 +73,7 @@ class MkvtoMp4:
             if self.output_dir is not None:
                 try:                
                     outputfile = os.path.join(self.output_dir, os.path.split(inputfile)[1])
-                    shutil.copy(inputfile, self.output_dir)
+                    shutil.copy(inputfile, outputfile)
                 except Exception as e:
                     print "Error moving file to output directory"
                     print e
@@ -84,10 +83,10 @@ class MkvtoMp4:
 
         if delete:
             if self.removeFile(inputfile):
-                print inputfile.encode(sys.stdout.encoding, errors='ignore') + " deleted"
+                print inputfile + " deleted"
                 deleted = True
             else:
-                print "Couldn't delete the original file:" + inputfile.encode(sys.stdout.encoding, errors='ignore')
+                print "Couldn't delete the original file:" + inputfile
 
         dim = self.getDimensions(outputfile)
 
@@ -102,7 +101,7 @@ class MkvtoMp4:
     def validSource(self, inputfile):
         input_dir, filename, input_extension = self.parseFile(inputfile)
         # Make sure the input_extension is some sort of recognized extension, and that the file actually exists
-        if (input_extension.lower() in valid_input_extensions or input_extension.lower() in valid_output_extensions) and os.path.isfile(inputfile):
+        if (input_extension in valid_input_extensions or input_extension in valid_output_extensions) and os.path.isfile(inputfile):
             return True
         else:
             return False            
@@ -111,54 +110,24 @@ class MkvtoMp4:
     def needProcessing(self, inputfile):
         input_dir, filename, input_extension = self.parseFile(inputfile)
         # Make sure input and output extensions are compatible. If processMP4 is true, then make sure the input extension is a valid output extension and allow to proceed as well
-        if (input_extension.lower() in valid_input_extensions or (self.processMP4 is True and input_extension.lower() in valid_output_extensions)) and self.output_extension in valid_output_extensions:
+        if (input_extension in valid_input_extensions or (self.processMP4 is True and input_extension in valid_output_extensions)) and self.output_extension in valid_output_extensions:
             return True
         else:
             return False
 
-    def safefilename(self, inputfile):
-        if type(inputfile) is str:
-            try:
-                safeinputfile = inputfile.encode(locale.getpreferredencoding())
-            except:
-                safeinputfile = inputfile.encode(locale.getpreferredencoding(), errors='ignore')
-                os.rename(inputfile, safeinputfile)
-            return safeinputfile
-        else:
-            return inputfile
-
-    def undosafefile(self, inputfile, safefilename):
-        if type(safefilename) is str:
-            safefilename = safefilename.decode(locale.getpreferredencoding())
-        if safefilename != inputfile:
-            try:
-                os.rename(safefilename, inputfile)
-                return True
-            except:
-                return False
-
     # Get values for width and height to be passed to the tagging classes for proper HD tags
     def getDimensions(self, inputfile):
-        if self.validSource(inputfile):
-            safefilename = self.safefilename(inputfile)
-
-            info = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH).probe(safefilename)
+        if self.validSource(inputfile): info = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH).probe(inputfile)
         
-            self.undosafefile(inputfile, safefilename)
-
-            return { 'y': info.video.video_height,
-                     'x': info.video.video_width }
-        else:
-            return None
+        return { 'y': info.video.video_height,
+                 'x': info.video.video_width }
 
     # Generate a list of options to be passed to FFMPEG based on selected settings and the source file parameters and streams
-    def generateOptions(self, inputfile):
-        safefilename = self.safefilename(inputfile)
-
+    def generateOptions(self, inputfile):    
         #Get path information from the input file
-        input_dir, filename, input_extension = self.parseFile(safefilename)
+        input_dir, filename, input_extension = self.parseFile(inputfile)
 
-        info = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH).probe(safefilename)
+        info = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH).probe(inputfile)
        
         #Video stream
         print "Video codec detected: " + info.video.codec
@@ -266,44 +235,38 @@ class MkvtoMp4:
             'audio': audio_settings,
             'subtitle': subtitle_settings,
         }
-        self.undosafefile(inputfile, safefilename)
-
+        self.options = options
         return options
 
     # Encode a new file based on selected options, built in naming conflict resolution
     def convert(self, inputfile, options, reportProgress=False):
-        safefilename = self.safefilename(inputfile)
-        input_dir, filename, input_extension = self.parseFile(safefilename)
+        input_dir, filename, input_extension = self.parseFile(inputfile)
         output_dir = input_dir if self.output_dir is None else self.output_dir
         outputfile = os.path.join(output_dir, filename + "." + self.output_extension)
         #If we're processing a file that's going to have the same input and output filename, resolve the potential future naming conflict
-        if safefilename == outputfile:
+        if inputfile == outputfile:
             newfile = os.path.join(input_dir, filename + '.tmp.' + self.input_extension)
             #Make sure there isn't any leftover temp files for whatever reason
             self.removeFile(newfile, 0, 0)
             #Attempt to rename the new input file to a temporary name
             try:
-                os.rename(safefilename, newfile)
-                safefilename = newfile
+                os.rename(inputfile, newfile)
+                inputfile = newfile
             except: 
                 i = 1
                 while os.path.isfile(outputfile):
                     outputfile = os.path.join(output_dir, filename + "(" + str(i) + ")." + self.output_extension)
                     i += i
 
-        conv = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH).convert(safefilename, outputfile, options, timeout=None)
+        conv = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH).convert(inputfile, outputfile, options, timeout=None)
 
         for timecode in conv:
             if reportProgress:
                 sys.stdout.write('[{0}] {1}%\r'.format('#' * (timecode / 10) + ' ' * (10 - (timecode / 10)), timecode))
                 sys.stdout.flush()
-
         print outputfile + " created"
         
         os.chmod(outputfile, 0777) # Set permissions of newly created file
-
-        self.undosafefile(inputfile, safefilename)
-
         return outputfile
 
     # Break apart a file path into the directory, filename, and extension
@@ -330,6 +293,7 @@ class MkvtoMp4:
                 os.chmod(outputfile, 0777)
                 # Cleanup
                 if self.removeFile(inputfile, replacement=outputfile):
+                    print 'Temporary file %s deleted' % (inputfile)
                     return outputfile
                 else:
                     print "Error cleaning up QTFS temp files"
@@ -346,7 +310,7 @@ class MkvtoMp4:
                         shutil.copy(inputfile, d)
                         if reportProgress: print "Copy of file made in %s" % (d)
                     except:
-                        print "Unable to create additional copy of file in %s" % (d))
+                        print "Unable to create additional copy of file in %s" % d
 
     # Robust file removal function, with options to retry in the event the file is in use, and replace a deleted file
     def removeFile(self, filename, retries=2, delay=10, replacement=None):
