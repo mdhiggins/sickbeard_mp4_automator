@@ -57,8 +57,6 @@ def getYesNo():
 
 
 def getinfo(fileName=None, silent=False, guess=True):
-    '''if type(fileName) is str:
-        fileName = fileName.decode(sys.stdout.encoding)'''
     # Try to guess the file is guessing is enabled
     if fileName is not None and guess:
         tagdata = guessInfo(fileName)
@@ -182,7 +180,7 @@ def walkDir(dir, silent=False, output_dir=None):
     for r,d,f in os.walk(dir):
         for file in f:
             filepath = os.path.join(r, file)
-            print "Processing file %s" % (filepath)
+            print "Processing file %s" % (filepath.encode(sys.stdout.encoding, errors='ignore'))
             try:
                 if MkvtoMp4(settings).validSource(filepath):
                     tagdata = getinfo(filepath, silent)
@@ -225,7 +223,7 @@ def main():
             print "Invalid command line input"
     # Ask for the info
     else:
-        path = os.path.normpath(getValue("Enter path to file"))
+        path = getValue("Enter path to file")
         if os.path.isdir(path):
             walkDir(path, silent)
         else:
