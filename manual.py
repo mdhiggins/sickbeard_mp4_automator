@@ -4,6 +4,7 @@ import sys
 import os
 import guessit
 import locale
+import glob
 from readSettings import ReadSettings
 from tvdb_mp4 import Tvdb_mp4
 from tmdb_mp4 import tmdb_mp4
@@ -198,6 +199,10 @@ def main():
     #if '-nomove' in sys.argv: settings.output_dir = None 
     if len(sys.argv) > 2:
         path = str(sys.argv[1]).decode(locale.getpreferredencoding())
+        try:
+            path = glob.glob(path)[0]
+        except:
+            pass
         # Gather info from command line
         if os.path.isdir(path):
             walkDir(path, silent)
