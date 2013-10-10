@@ -36,6 +36,9 @@ class MkvtoMp4:
         if settings is not None: self.importSettings(settings)
         self.options = None
 
+        if not sys.stdout.encoding:
+            sys.stdout.encoding = 'ascii'
+
     def importSettings(self, settings):
         self.FFMPEG_PATH=settings.ffmpeg
         self.FFPROBE_PATH=settings.ffprobe
