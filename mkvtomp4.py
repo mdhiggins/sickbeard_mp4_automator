@@ -346,7 +346,7 @@ class MkvtoMp4:
                         shutil.copy(inputfile, d)
                         if reportProgress: print "Copy of file made in %s" % (d)
                     except:
-                        print "Unable to create additional copy of file in %s" % (d))
+                        print "Unable to create additional copy of file in %s" % (d)
 
     # Robust file removal function, with options to retry in the event the file is in use, and replace a deleted file
     def removeFile(self, filename, retries=2, delay=10, replacement=None):
