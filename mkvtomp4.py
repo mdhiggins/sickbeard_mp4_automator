@@ -9,7 +9,7 @@ from qtfaststart import processor, exceptions
 
 
 class MkvtoMp4:
-    def __init__(self, settings=None, FFMPEG_PATH="FFMPEG.exe", FFPROBE_PATH="FFPROBE.exe", delete=True, output_extension='mp4', output_dir=None, relocate_moov=True, video_codec='h264', audio_codec='aac', audio_bitrate=None, iOS=False, awl=None, swl=None, adl=None, sdl=None, processMP4=False, copyto=None):
+    def __init__(self, settings=None, FFMPEG_PATH="FFMPEG.exe", FFPROBE_PATH="FFPROBE.exe", delete=True, output_extension='mp4', output_dir=None, relocate_moov=True, video_codec='h264', audio_codec='aac', audio_bitrate=None, iOS=False, awl=None, swl=None, adl=None, sdl=None, processMP4=False, copyto=None, moveto=None):
         # Settings
         self.FFMPEG_PATH=FFMPEG_PATH
         self.FFPROBE_PATH=FFPROBE_PATH
@@ -19,6 +19,7 @@ class MkvtoMp4:
         self.relocate_moov=relocate_moov
         self.processMP4=processMP4
         self.copyto=copyto
+        self.moveto=moveto
         # Video settings
         self.video_codec=video_codec
         # Audio settings
@@ -44,6 +45,7 @@ class MkvtoMp4:
         self.relocate_moov=settings.relocate_moov
         self.processMP4=settings.processMP4
         self.copyto=settings.copyto
+        self.moveto=settings.moveto
         #Video settings
         #self.video_codec=settings.vcodec
         #Audio settings
@@ -303,14 +305,20 @@ class MkvtoMp4:
                 return inputfile
 
     # Makes additional copies of the input file in each directory specified in the copy_to option
-    def replicate(self, inputfile, reportProgress=False):
+    def replicate(self, inputfile):
         if self.copyto:
             for d in self.copyto:
                     try:
                         shutil.copy(inputfile, d)
-                        if reportProgress: print "Copy of file made in %s" % (d)
+                        print "Copy of file made in %s" % (d)
                     except:
                         print "Unable to create additional copy of file in %s" % d
+        if self.moveto:
+            try:
+                shutil.move(inputfile, self.moveto)
+                print "File moved to %s" % (self.moveto)
+            except:
+                print "Unable to move file to %s" % (self.moveto)
 
     # Robust file removal function, with options to retry in the event the file is in use, and replace a deleted file
     def removeFile(self, filename, retries=2, delay=10, replacement=None):

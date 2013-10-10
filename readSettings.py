@@ -17,6 +17,7 @@ class ReadSettings:
                         'ffprobe': 'ffprobe.exe',
                         'output_directory': '',
                         'copy_to': '',
+                        'move_to': '',
                         'output_extension': 'mp4',
                         'delete_original': 'True',
                         'relocate_moov': 'True',
@@ -78,7 +79,7 @@ class ReadSettings:
             self.output_dir = None
         else:
             self.output_dir = os.path.normpath(self.raw(self.output_dir))  # Output directory
-        self.copyto = config.get(section, "copy_to")
+        self.copyto = config.get(section, "copy_to") # Directories to make copies of the final product
         if self.copyto == '':
             self.copyto = None
         else:
@@ -90,6 +91,17 @@ class ReadSettings:
                         os.makedirs(self.copyto[i])
                     except:
                         print "Error making directory %s" % (self.copyto[i])
+        self.moveto = config.get(section, "move_to") # Directory to move final product to
+        if self.moveto == '':
+            self.moveto = None
+        else:
+            self.moveto = os.path.normpath(self.moveto)
+            if not os.path.isdir(self.moveto):
+                try:
+                    os.makedirs(self.moveto)
+                except:
+                    print "Error making directory %s" % (self.moveto)
+                    self.moveto = None
 
         self.output_extension = config.get(section, "output_extension")  # Output extension
         self.delete = config.getboolean(section, "delete_original")  # Delete original file
