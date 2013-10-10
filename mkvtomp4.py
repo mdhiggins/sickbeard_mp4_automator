@@ -84,10 +84,10 @@ class MkvtoMp4:
 
         if delete:
             if self.removeFile(inputfile):
-                #print inputfile.encode(sys.stdout.encoding, errors='ignore') + " deleted"
+                print inputfile.encode(sys.stdout.encoding, errors='ignore') + " deleted"
                 deleted = True
             else:
-                print "Couldn't delete the original file"
+                print "Couldn't delete the original file:" + inputfile.encode(sys.stdout.encoding, errors='ignore')
 
         dim = self.getDimensions(outputfile)
 
