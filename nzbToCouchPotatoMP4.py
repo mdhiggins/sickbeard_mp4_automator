@@ -79,8 +79,7 @@ if len(sys.argv) > 3:
                     except AttributeError:
                         print "Unable to tag file, Couch Potato probably screwed up passing the IMDB ID"
                 # Copy to additional locations
-                if settings.copyto:
-                    converter.replicate(output['output'])
+                converter.replicate(output['output'])
 
 
 # SABnzbd

@@ -25,12 +25,10 @@ if len(sys.argv) > 4:
             tagmp4.writeTags(output['output'])
 
             #QTFS (only if file is tagged)
-            if settings.relocate_moov:
-                converter.QTFS(output['output'])
+            converter.QTFS(output['output'])
 
         # Copy to additional locations
-        if settings.copyto:
-            converter.replicate(output['output'])
+        converter.replicate(output['output'])
 
         try:
             refresh = json.load(urllib.urlopen(settings.getRefreshURL(tvdb_id)))

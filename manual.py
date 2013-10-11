@@ -173,8 +173,7 @@ def processFile(inputfile, tagdata):
             tagmp4.writeTags(output['output'])
             if settings.relocate_moov:
                 converter.QTFS(output['output'])
-        if settings.copyto:
-            converter.replicate(output['output'])
+        converter.replicate(output['output'])
 
 
 def walkDir(dir, silent=False, output_dir=None):

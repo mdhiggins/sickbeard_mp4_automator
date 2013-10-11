@@ -20,6 +20,7 @@ class MkvtoMp4:
         self.processMP4=processMP4
         self.copyto=copyto
         self.moveto=moveto
+        self.relocate_moov=relocate_moov
         # Video settings
         self.video_codec=video_codec
         # Audio settings
@@ -46,6 +47,7 @@ class MkvtoMp4:
         self.processMP4=settings.processMP4
         self.copyto=settings.copyto
         self.moveto=settings.moveto
+        self.relocate_moov = settings.relocate_moov
         #Video settings
         #self.video_codec=settings.vcodec
         #Audio settings
@@ -283,7 +285,7 @@ class MkvtoMp4:
         input_dir, filename, input_extension = self.parseFile(inputfile)
         temp_ext = '.QTFS'
         # Relocate MOOV atom to the very beginning. Can double the time it takes to convert a file but makes streaming faster
-        if self.parseFile(inputfile)[2] in valid_output_extensions and os.path.isfile(inputfile):
+        if self.parseFile(inputfile)[2] in valid_output_extensions and os.path.isfile(inputfile) and self.relocate_moov:
             print "Relocating MOOV atom to start of file"
             outputfile = inputfile + temp_ext
 
