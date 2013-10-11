@@ -57,7 +57,7 @@ def getYesNo():
         return getYesNo()
 
 
-def getinfo(fileName=None, silent=False, guess=True):
+def getinfo(fileName=None, silent=False, guess=settings.tagfile):
     # Try to guess the file is guessing is enabled
     if fileName is not None and guess:
         tagdata = guessInfo(fileName)
@@ -173,7 +173,8 @@ def processFile(inputfile, tagdata):
             tagmp4.writeTags(output['output'])
             if settings.relocate_moov:
                 converter.QTFS(output['output'])
-        converter.replicate(output['output'])
+        if settings.copyto:
+            converter.replicate(output['output'])
 
 
 def walkDir(dir, silent=False, output_dir=None):
