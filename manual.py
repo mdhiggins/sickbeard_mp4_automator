@@ -57,22 +57,17 @@ def getYesNo():
         return getYesNo()
 
 
-def getinfo(fileName=None, silent=False, guess=settings.tagfile):
+def getinfo(fileName=None, silent=False, tag=settings.tagfile):
+    tagdata = None
     # Try to guess the file is guessing is enabled
-    if fileName is not None and guess:
-        tagdata = guessInfo(fileName)
-        # If the guess returned something, proceed
-        if tagdata is not None:
-            # If script is running in silent mode, skip confirmation, otherwise confirm.
-            if silent:
-                return tagdata
-            else:
-                print "Proceed using guessed identification from filename?"
-                if getYesNo() and guess:
-                    return tagdata
-        else:
-            print "Unable to guess based on filename"
+    if fileName is not None: tagdata = guessInfo(fileName)
     if silent is False:
+        if tagdata:
+            print "Proceed using guessed identification from filename?"
+            if getYesNo():
+                return tagdata
+        else:
+            print "Unable to determine identity based on filename, must enter manually"
         m_type = mediatype()
         if m_type is 3:
             tvdbid = getValue("Enter TVDB Series ID", True)
@@ -90,8 +85,10 @@ def getinfo(fileName=None, silent=False, guess=settings.tagfile):
         elif m_type is 5:
             return False
     else:
-        # Probably add a setting in the future to control this behavior
-        return None
+        if tagdata and tag: 
+            return tagdata
+        else:
+            return None
 
 
 def guessInfo(fileName):
