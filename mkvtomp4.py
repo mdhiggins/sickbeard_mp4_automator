@@ -198,9 +198,9 @@ class MkvtoMp4:
                     subtitle_settings.update({l: {
                         'map': s.index,
                         'codec': 'mov_text',
-                        'language': s.language,
-                        'forced': s.sub_forced,
-                        'default': s.sub_default
+                        'language': s.language
+                        #'forced': s.sub_forced,
+                        #'default': s.sub_default
                     }})
                     l = l + 1
 
@@ -232,7 +232,7 @@ class MkvtoMp4:
 
         # Collect all options
         options = {
-            'format': 'mp4',
+            'format': 'mov',
             'video': {
                 'codec': vcodec,
                 'map': info.video.index,
