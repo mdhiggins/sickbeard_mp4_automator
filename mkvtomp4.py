@@ -70,7 +70,7 @@ class MkvtoMp4:
         if self.needProcessing(inputfile):
             options = self.generateOptions(inputfile)
             if reportProgress: print json.dumps(options, sort_keys=False, indent=4)
-            outputfile = self.convert(inputfile, options, reportProgress)
+            outputfile, inputfile = self.convert(inputfile, options, reportProgress)
             if not outputfile: return False
         else:
             outputfile = inputfile
@@ -84,6 +84,8 @@ class MkvtoMp4:
                     delete = False
             else:
                 delete = False
+
+
 
         if delete:
             if self.removeFile(inputfile):
@@ -271,7 +273,7 @@ class MkvtoMp4:
         print outputfile + " created"
         
         os.chmod(outputfile, 0777) # Set permissions of newly created file
-        return outputfile
+        return outputfile, inputfile
 
     # Break apart a file path into the directory, filename, and extension
     def parseFile(self, path):
