@@ -249,7 +249,7 @@ class MkvtoMp4:
         outputfile = os.path.join(output_dir, filename + "." + self.output_extension)
         #If we're processing a file that's going to have the same input and output filename, resolve the potential future naming conflict
         if inputfile == outputfile:
-            newfile = os.path.join(input_dir, filename + '.tmp.' + self.input_extension)
+            newfile = os.path.join(input_dir, filename + '.tmp.' + input_extension)
             #Make sure there isn't any leftover temp files for whatever reason
             self.removeFile(newfile, 0, 0)
             #Attempt to rename the new input file to a temporary name
