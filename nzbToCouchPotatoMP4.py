@@ -56,30 +56,38 @@ if len(sys.argv) > 3:
     imdb_id = NZBtoIMDB(sys.argv[2])
     converter = MkvtoMp4(settings)
     path = str(sys.argv[1])
+    moviefile = None
+    maxsize = 0
     for r, d, f in os.walk(path):
         for files in f:
             inputfile = os.path.join(r, files)
             
             if MkvtoMp4(settings).validSource(inputfile):
-                output = converter.process(inputfile)
-                # Tag with metadata
-                if settings.tagfile:
-                    if imdb_id == "":
-                        try:
-                            print "Going to guess the following files info: %s" % (sys.argv[2])
-                            imdb_id = FILEtoIMDB(os.path.basename(sys.argv[2]))
-                        except:
-                            print "Unable to accurately identify movie file %s" % (inputfile)
-                    print "IMDB ID is: %s" % (imdb_id)
-                    try:
-                        imdbmp4 = tmdb_mp4(imdb_id)
-                        imdbmp4.setHD(output['x'], output['y'])
-                        imdbmp4.writeTags(output['output'])
-                        converter.QTFS(output['output'])
-                    except AttributeError:
-                        print "Unable to tag file, Couch Potato probably screwed up passing the IMDB ID"
-                # Copy to additional locations
-                converter.replicate(output['output'])
+                size = os.path.getsize(inputfile)
+                if size > maxsize:
+                    moviefile = inputfile
+                    maxsize = size
+
+    if moviefile:
+        output = converter.process(inputfile)
+        # Tag with metadata
+        if settings.tagfile:
+            if imdb_id == "":
+                try:
+                    print "Going to guess the following files info: %s" % (sys.argv[2])
+                    imdb_id = FILEtoIMDB(os.path.basename(sys.argv[2]))
+                except:
+                    print "Unable to accurately identify movie file %s" % (inputfile)
+            print "IMDB ID is: %s" % (imdb_id)
+            try:
+                imdbmp4 = tmdb_mp4(imdb_id)
+                imdbmp4.setHD(output['x'], output['y'])
+                imdbmp4.writeTags(output['output'])
+                converter.QTFS(output['output'])
+            except AttributeError:
+                print "Unable to tag file, Couch Potato probably screwed up passing the IMDB ID"
+        # Copy to additional locations
+        converter.replicate(output['output'])
 
 
 # SABnzbd
