@@ -69,7 +69,7 @@ if len(sys.argv) > 3:
                     maxsize = size
 
     if moviefile:
-        output = converter.process(inputfile)
+        output = converter.process(moviefile)
         # Tag with metadata
         if settings.tagfile:
             if imdb_id == "":
@@ -77,7 +77,7 @@ if len(sys.argv) > 3:
                     print "Going to guess the following files info: %s" % (sys.argv[2])
                     imdb_id = FILEtoIMDB(os.path.basename(sys.argv[2]))
                 except:
-                    print "Unable to accurately identify movie file %s" % (inputfile)
+                    print "Unable to accurately identify movie file %s" % (moviefile)
             print "IMDB ID is: %s" % (imdb_id)
             try:
                 imdbmp4 = tmdb_mp4(imdb_id)
