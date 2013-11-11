@@ -1,9 +1,9 @@
 #!/usr/bin/env python
+
 import os
 import sys
 import autoProcessMovie
 import guessit
-import shutil
 from tmdb_api import tmdb
 from tmdb_mp4 import tmdb_mp4
 from readSettings import ReadSettings
