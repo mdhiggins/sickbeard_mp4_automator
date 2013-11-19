@@ -14,6 +14,7 @@ output_directory=
 copy_to=
 move_to=
 output_extension=mp4
+output_format=mov
 delete_original=True
 relocate_moov=True
 audio-codec=ac3
@@ -25,6 +26,7 @@ subtitle-default-language=
 fullpathguess=True
 convert-mp4=False
 tagfile=True
+allowMPEG4=False
 
 [CouchPotato]
 host = localhost
