@@ -214,7 +214,7 @@ class MkvtoMp4:
                 if subextension[1:] in valid_subtitle_extensions:
                     x, lang = os.path.splitext(subname)
                     # If subtitle file name and input video name are the same, proceed
-                    if x == filename and len(lang) is 3:
+                    if x == filename and len(lang) is 4:
                         print "External subtitle file detected, language " + lang[1:]
                         if self.swl is None or lang[1:] in self.swl:
                             print "Importing %s subtitle stream" % (fname)
