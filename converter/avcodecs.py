@@ -151,15 +151,15 @@ class SubtitleCodec(BaseCodec):
 
         safe = self._codec_specific_parse_options(safe)
 
-        optlist = ['-c:s:' + stream, self.ffmpeg_codec_name]
-        if 'path' in safe:
-            optlist.extend(['-i', str(safe['path'])])
         if 'source' in safe:
             s = str(safe['source'])
         else:
             s = str('0')
-        if 'map' in safe:
-            optlist.extend(['-map', s + ':' + str(safe['map'])])
+        optlist = ['-map', s + ':' + str(safe['map'])]
+        if 'codec' in safe:
+            optlist.extend(['-c:s:' + stream, self.ffmpeg_codec_name])
+        if 'path' in safe:
+            optlist.extend(['-i', str(safe['path'])])
         if 'default' in safe:
             optlist.extend(['-metadata:s:s:' + stream, "disposition:default=" + str(safe['default'])])
         if 'forced' in safe:
