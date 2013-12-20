@@ -25,6 +25,7 @@ subtitle-language=
 subtitle-default-language=
 fullpathguess=True
 convert-mp4=False
+vremux_only=False
 tagfile=True
 
 [CouchPotato]
