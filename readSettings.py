@@ -19,6 +19,7 @@ class ReadSettings:
                         'copy_to': '',
                         'move_to': '',
                         'output_extension': 'mp4',
+                        'output_format': 'mov',
                         'delete_original': 'True',
                         'relocate_moov': 'True',
                         'ios-audio': 'True',
@@ -104,6 +105,7 @@ class ReadSettings:
                     self.moveto = None
 
         self.output_extension = config.get(section, "output_extension")  # Output extension
+        self.output_format = config.get(section, "output_format")  #format of output
         self.delete = config.getboolean(section, "delete_original")  # Delete original file
         self.relocate_moov = config.getboolean(section, "relocate_moov")  # Relocate MOOV atom to start of file
         self.acodec = config.get(section, "audio-codec").lower()  # Gets the desired audio codec, if no valid codec selected, default to AAC
