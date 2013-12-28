@@ -277,6 +277,7 @@ class MkvtoMp4:
 
     # Break apart a file path into the directory, filename, and extension
     def parseFile(self, path):
+        path = os.path.abspath(path)
         input_dir, filename = os.path.split(path)
         filename, input_extension = os.path.splitext(filename)
         input_extension = input_extension[1:]
