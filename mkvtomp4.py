@@ -9,7 +9,7 @@ from qtfaststart import processor, exceptions
 
 
 class MkvtoMp4:
-    def __init__(self, settings=None, FFMPEG_PATH="FFMPEG.exe", FFPROBE_PATH="FFPROBE.exe", delete=True, output_extension='mp4', output_dir=None, relocate_moov=True, video_codec='h264', audio_codec='aac', audio_bitrate=None, iOS=False, awl=None, swl=None, adl=None, sdl=None, processMP4=False, copyto=None, moveto=None):
+    def __init__(self, settings=None, FFMPEG_PATH="FFMPEG.exe", FFPROBE_PATH="FFPROBE.exe", delete=True, output_extension='mp4', output_dir=None, relocate_moov=True, video_codec='h264', audio_codec='aac', audio_bitrate=None, iOS=False, awl=None, swl=None, adl=None, sdl=None, processMP4=False, copyto=None, moveto=None, output_format='mp4', vremux_only=False):
         # Settings
         self.FFMPEG_PATH=FFMPEG_PATH
         self.FFPROBE_PATH=FFPROBE_PATH
@@ -18,11 +18,13 @@ class MkvtoMp4:
         self.output_dir=output_dir
         self.relocate_moov=relocate_moov
         self.processMP4=processMP4
+        self.output_format = output_format
         self.copyto=copyto
         self.moveto=moveto
         self.relocate_moov=relocate_moov
         # Video settings
         self.video_codec=video_codec
+        self.vremux_only=vremux_only
         # Audio settings
         self.audio_codec=audio_codec
         self.audio_bitrate=audio_bitrate
@@ -45,11 +47,13 @@ class MkvtoMp4:
         self.output_dir=settings.output_dir
         self.relocate_moov=settings.relocate_moov
         self.processMP4=settings.processMP4
+        self.output_format=settings.output_format
         self.copyto=settings.copyto
         self.moveto=settings.moveto
         self.relocate_moov = settings.relocate_moov
         #Video settings
         #self.video_codec=settings.vcodec
+        self.vremux_only = settings.vremux_only
         #Audio settings
         self.audio_codec=settings.acodec
         #self.audio_bitrate=settings.abitrate
@@ -67,12 +71,17 @@ class MkvtoMp4:
         options = None
         if not self.validSource(inputfile): return False
 
+        moveFile = True
         if self.needProcessing(inputfile):
             options = self.generateOptions(inputfile)
-            if reportProgress: print json.dumps(options, sort_keys=False, indent=4)
-            outputfile, inputfile = self.convert(inputfile, options, reportProgress)
-            if not outputfile: return False
-        else:
+            if (self.vremux_only == True) and (options['video']['codec'] != 'copy'):    #do not convert non-copy video jobs when vremux_only is true
+                print "Skipping file that requires video codec conversion"
+            else:
+                if reportProgress: print json.dumps(options, sort_keys=False, indent=4)
+                outputfile, inputfile = self.convert(inputfile, options, reportProgress)
+                if not outputfile: return False
+                moveFile = False
+        if moveFile: 
             outputfile = inputfile
             if self.output_dir is not None:
                 try:                
@@ -158,7 +167,7 @@ class MkvtoMp4:
                             'map': a.index,
                             'codec': 'aac',
                             'channels': 2,
-                            'bitrate': 512,
+                            'bitrate': 192 if a.codec=='mp3' else 512,     #reduce max bitrate when input is mp3 instead of ac3
                             'language': a.language,
                         }})
                         l += 1
@@ -169,7 +178,10 @@ class MkvtoMp4:
 
                 # Bitrate calculations/overrides
                 if self.audio_bitrate is None or self.audio_bitrate > (a.audio_channels * 256):
-                    abitrate = 256 * a.audio_channels
+                    if a.codec=='mp3':  #reduce max bitrate when input is mp3 instead of ac3
+                        abitrate = 96 * a.audio_channels
+                    else:
+                        abitrate = 256 * a.audio_channels
                 else:
                     abitrate = self.audio_bitrate
 
@@ -231,8 +243,10 @@ class MkvtoMp4:
                             print "Ignoring %s external subtitle stream due to language: %s" % (fname, lang)
 
         # Collect all options
+        format = self.output_format
+        if info.video.codec == 'mpeg4': format = 'mp4'  #mpeg4 must be mp4 format, not mov format
         options = {
-            'format': 'mov',
+            'format': format,
             'video': {
                 'codec': vcodec,
                 'map': info.video.index,

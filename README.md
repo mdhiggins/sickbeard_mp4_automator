@@ -25,6 +25,7 @@ General Installation Instructions
     - `copy_to` = you may specify additional directories for the final product to be replicated to. This will be the last step performed so the file copied will be fully processed. Directories may be separated with a `|` character
     - `move_to` = you may specify one final directory to move the completed file. (Use this option for the 'Automatically Add to iTunes' folder)
     - `output_extension` = mp4/m4v (must be one of these 2)
+    - `output_format` = mp4/mov (must be one of these 2)  mov is better for large files in itunes, mp4 for windows / android
     - `delete_original` = True/False
     - `relocate_moov` = True/False - relocates the MOOV atom to the beginning of the file for better streaming
     - `ios-audio` = creates a 2nd copy of an audio stream that will be iOS compatible (AAC Stereo) if the normal output will not be. If a stereo source stream is detected with this option enabled, an AAC stereo stream will be the only one produced (essentially overriding the codec option) to avoid multiple stereo audio stream copies in different codecs.
@@ -34,6 +35,7 @@ General Installation Instructions
     - `subtitle-language` = same as audio-language but for subtitles
     - `subtitle-language-default` = same as audio-language-default but for subtitles
     - `convert-mp4` = forces the script to reprocess and convert mp4 files as though they were mkvs. Good if you have old mp4's that you want to match your current codec configuration.
+    - `vremux-only` = True/False - when True the script will skip processing the file if the source video codec is different then the output codec.  Avoids doing unwanted conversions.
     - `fullpathguess` = True/False - When manually processing a file, enable to guess metadata using the full path versus just the file name. (Files shows placed in a 'Movies' folder will be recognized as movies, not as TV shows for example.)
     - `tagfile` = True/False - Enable or disable tagging file with appropriate metadata after encoding.
 

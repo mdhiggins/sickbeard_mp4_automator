@@ -14,6 +14,7 @@ output_directory=
 copy_to=
 move_to=
 output_extension=mp4
+output_format=mov
 delete_original=True
 relocate_moov=True
 audio-codec=ac3
@@ -24,6 +25,7 @@ subtitle-language=
 subtitle-default-language=
 fullpathguess=True
 convert-mp4=False
+vremux_only=False
 tagfile=True
 
 [CouchPotato]
