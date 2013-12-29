@@ -19,6 +19,7 @@ class ReadSettings:
                         'copy_to': '',
                         'move_to': '',
                         'output_extension': 'mp4',
+                        'output_format': 'mov',
                         'delete_original': 'True',
                         'relocate_moov': 'True',
                         'ios-audio': 'True',
@@ -28,6 +29,7 @@ class ReadSettings:
                         'audio-default-language': '',
                         'subtitle-default-language': '',
                         'convert-mp4': 'False',
+                        'allow-mpeg4': 'False',
                         'fullpathguess': 'True',
                         'tagfile': 'True'}
         # Default settings for CouchPotato
@@ -104,6 +106,7 @@ class ReadSettings:
                     self.moveto = None
 
         self.output_extension = config.get(section, "output_extension")  # Output extension
+        self.output_format = config.get(section, "output_format")  #format of output
         self.delete = config.getboolean(section, "delete_original")  # Delete original file
         self.relocate_moov = config.getboolean(section, "relocate_moov")  # Relocate MOOV atom to start of file
         self.acodec = config.get(section, "audio-codec").lower()  # Gets the desired audio codec, if no valid codec selected, default to AAC
@@ -140,6 +143,7 @@ class ReadSettings:
             if not os.path.isdir(self.output_dir):
                 os.makedirs(self.output_dir)
         self.processMP4 = config.getboolean(section, "convert-mp4")  # Determine whether or not to reprocess mp4 files or just tag them
+        self.allowMPEG4 = config.getboolean(section, "allow-mpeg4")  # Determine with mpeg4 (ie: divx/xvid) is an allowable final codec instead of h264
         self.fullpathguess = config.getboolean(section, "fullpathguess") # Guess using the full path or not
         self.tagfile = config.getboolean(section, "tagfile") # Tag files with metadata
 
