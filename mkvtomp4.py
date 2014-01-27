@@ -9,12 +9,13 @@ from qtfaststart import processor, exceptions
 
 
 class MkvtoMp4:
-    def __init__(self, settings=None, FFMPEG_PATH="FFMPEG.exe", FFPROBE_PATH="FFPROBE.exe", delete=True, output_extension='mp4', output_dir=None, relocate_moov=True, video_codec='h264', audio_codec='aac', audio_bitrate=None, iOS=False, awl=None, swl=None, adl=None, sdl=None, processMP4=False, copyto=None, moveto=None):
+    def __init__(self, settings=None, FFMPEG_PATH="FFMPEG.exe", FFPROBE_PATH="FFPROBE.exe", delete=True, output_extension='mp4', output_dir=None, relocate_moov=True, output_format = 'mov', video_codec='h264', audio_codec='aac', audio_bitrate=None, iOS=False, awl=None, swl=None, adl=None, sdl=None, processMP4=False, copyto=None, moveto=None):
         # Settings
         self.FFMPEG_PATH=FFMPEG_PATH
         self.FFPROBE_PATH=FFPROBE_PATH
         self.delete=delete
         self.output_extension=output_extension
+        self.output_format=output_format
         self.output_dir=output_dir
         self.relocate_moov=relocate_moov
         self.processMP4=processMP4
@@ -42,6 +43,7 @@ class MkvtoMp4:
         self.FFPROBE_PATH=settings.ffprobe
         self.delete=settings.delete
         self.output_extension=settings.output_extension
+        self.output_format=settings.output_format
         self.output_dir=settings.output_dir
         self.relocate_moov=settings.relocate_moov
         self.processMP4=settings.processMP4
@@ -232,7 +234,7 @@ class MkvtoMp4:
 
         # Collect all options
         options = {
-            'format': 'mov',
+            'format': self.output_format,
             'video': {
                 'codec': vcodec,
                 'map': info.video.index,
