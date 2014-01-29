@@ -18,6 +18,7 @@ output_format=mov
 delete_original=True
 relocate_moov=True
 audio-codec=ac3
+video-codec=h264,x264
 ios-audio=True
 audio-language=
 audio-default-language=

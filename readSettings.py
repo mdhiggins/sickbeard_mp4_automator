@@ -25,6 +25,7 @@ class ReadSettings:
                         'ios-audio': 'True',
                         'audio-language': '',
                         'audio-codec': 'ac3',
+                        'video-codec': 'h264, x264',
                         'subtitle-language': '',
                         'audio-default-language': '',
                         'subtitle-default-language': '',
@@ -111,10 +112,23 @@ class ReadSettings:
         self.delete = config.getboolean(section, "delete_original")  # Delete original file
         self.relocate_moov = config.getboolean(section, "relocate_moov")  # Relocate MOOV atom to start of file
         self.acodec = config.get(section, "audio-codec").lower()  # Gets the desired audio codec, if no valid codec selected, default to AAC
-        if self.acodec not in valid_audio_codecs:
-            self.acodec = 'aac'
-            print "Audio codec not valid, defaulting to AAC"
+        if self.acodec == '':
+            self.acodec == ['ac3']
+        else:
+            self.acodec = self.acodec.lower().replace(' ', '').split(',')
+
+        # !!! Leaving this disabled for now, users will be responsible for knowing whicn codecs do and don't work with mp4 files !!!
+        #if self.acodec not in valid_audio_codecs:
+        #    self.acodec = 'aac'
+        #    print "Audio codec not valid, defaulting to AAC"
+        
         self.iOS = config.getboolean(section, "ios-audio")  # Creates a second audio channel in AAC Stereo if the standard output methods are different from this for iOS compatability
+
+        self.vcodec = config.get(section, "video-codec")
+        if self.vcodec == '':
+            self.vcodec == ['h264', 'x264']
+        else:
+            self.vcodec = self.vcodec.lower().replace(' ', '').split(',')
 
         self.awl = config.get(section, 'audio-language')  # List of acceptable languages for audio streams to be carried over from the original file, separated by a comma. Blank for all
         if self.awl == '':

@@ -9,7 +9,25 @@ from qtfaststart import processor, exceptions
 
 
 class MkvtoMp4:
-    def __init__(self, settings=None, FFMPEG_PATH="FFMPEG.exe", FFPROBE_PATH="FFPROBE.exe", delete=True, output_extension='mp4', output_dir=None, relocate_moov=True, output_format = 'mov', video_codec='h264', audio_codec='aac', audio_bitrate=None, iOS=False, awl=None, swl=None, adl=None, sdl=None, processMP4=False, copyto=None, moveto=None):
+    def __init__(   self, settings=None, 
+                    FFMPEG_PATH="FFMPEG.exe", 
+                    FFPROBE_PATH="FFPROBE.exe", 
+                    delete=True, 
+                    output_extension='mp4', 
+                    output_dir=None, 
+                    relocate_moov=True, 
+                    output_format = 'mov', 
+                    video_codec=['h264', 'x264'], 
+                    audio_codec=['ac3'], 
+                    audio_bitrate=None, 
+                    iOS=False, 
+                    awl=None, 
+                    swl=None, 
+                    adl=None, 
+                    sdl=None, 
+                    processMP4=False, 
+                    copyto=None, 
+                    moveto=None):
         # Settings
         self.FFMPEG_PATH=FFMPEG_PATH
         self.FFPROBE_PATH=FFPROBE_PATH
@@ -51,7 +69,7 @@ class MkvtoMp4:
         self.moveto=settings.moveto
         self.relocate_moov = settings.relocate_moov
         #Video settings
-        #self.video_codec=settings.vcodec
+        self.video_codec=settings.vcodec
         #Audio settings
         self.audio_codec=settings.acodec
         #self.audio_bitrate=settings.abitrate
@@ -139,7 +157,7 @@ class MkvtoMp4:
        
         #Video stream
         print "Video codec detected: " + info.video.codec
-        vcodec = 'copy' if info.video.codec == self.video_codec else self.video_codec
+        vcodec = 'copy' if info.video.codec in self.video_codec else self.video_codec[0]
 
         #Audio streams
         audio_settings = {}
@@ -165,9 +183,11 @@ class MkvtoMp4:
                         }})
                         l += 1
                 # If the iOS audio option is enabled and the source audio channel is only stereo, the additional iOS channel will be skipped and a single AAC 2.0 channel will be made regardless of codec preference to avoid multiple stereo channels
-                acodec = 'aac' if self.iOS and a.audio_channels == 2 else self.audio_codec
-                # If desired codec is the same as the source codec, copy to avoid quality loss
-                acodec = 'copy' if a.codec == acodec else acodec
+                if self.iOS and a.audio_channels == 2:
+                    acodec = 'copy' if a.codec == 'aac' else 'aac'
+                else:
+                    # If desired codec is the same as the source codec, copy to avoid quality loss
+                    acodec = 'copy' if a.codec in self.audio_codec else self.audio_codec[0]
 
                 # Bitrate calculations/overrides
                 if self.audio_bitrate is None or self.audio_bitrate > (a.audio_channels * 256):
