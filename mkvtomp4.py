@@ -59,6 +59,7 @@ class MkvtoMp4:
         # Import settings
         if settings is not None: self.importSettings(settings)
         self.options = None
+        self.deletesubs = set()
 
     def importSettings(self, settings):
         self.FFMPEG_PATH=settings.ffmpeg
@@ -118,6 +119,10 @@ class MkvtoMp4:
                 deleted = True
             else:
                 print "Couldn't delete the original file:" + inputfile
+            if self.downloadsubs:
+                for subfile in self.deletesubs:
+                    if self.removeFile(subfile):
+                        print subfile + "deleted"
 
         dim = self.getDimensions(outputfile)
 
@@ -280,6 +285,7 @@ class MkvtoMp4:
                                 }})
                             l = l + 1
                             src = src + 1
+                            self.deletesubs.add(os.path.join(dirName, fname))
                         else:
                             print "Ignoring %s external subtitle stream due to language: %s" % (fname, lang)
 
