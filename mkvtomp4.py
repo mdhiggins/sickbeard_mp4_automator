@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import os
 import time
 import json
@@ -6,6 +7,7 @@ import shutil
 from converter import Converter
 from extensions import valid_input_extensions, valid_output_extensions, bad_subtitle_codecs, valid_subtitle_extensions
 from qtfaststart import processor, exceptions
+from babelfish import Language
 
 
 class MkvtoMp4:
@@ -25,6 +27,7 @@ class MkvtoMp4:
                     swl=None, 
                     adl=None, 
                     sdl=None, 
+                    downloadsubs=True,
                     processMP4=False, 
                     copyto=None, 
                     moveto=None):
@@ -51,6 +54,7 @@ class MkvtoMp4:
         # Subtitle settings
         self.swl=swl
         self.sdl=sdl
+        self.downloadsubs = downloadsubs
 
         # Import settings
         if settings is not None: self.importSettings(settings)
@@ -79,6 +83,7 @@ class MkvtoMp4:
         #Subtitle settings
         self.swl=settings.swl
         self.sdl=settings.sdl
+        self.downloadsubs=settings.downloadsubs
 
     # Process a file from start to finish, with checking to make sure formats are compatible with selected settings
     def process(self, inputfile, reportProgress=False):
@@ -227,25 +232,51 @@ class MkvtoMp4:
                     l = l + 1
 
         # External subtitle import
+
+        # Attempt to download subtitles if they are missing using subliminal
+        languages = set()
+        if self.swl:
+            for alpha3 in self.swl:
+                languages.add(Language(alpha3))
+        elif self.sdl:
+            languages.add(Language(self.sdl))
+        else:
+            self.downloadsubs = False
+
+        if self.downloadsubs:
+            import subliminal
+            import tempfile
+            subliminal.cache_region.configure('dogpile.cache.dbm', arguments={'filename': tempfile.gettempdir() + 'cachefile.dbm'})
+            video = subliminal.scan_video(inputfile)
+            subtitles = subliminal.download_best_subtitles([video], languages)
+            subliminal.save_subtitles(subtitles)
+
         src = 1  # FFMPEG input source number
         for dirName, subdirList, fileList in os.walk(input_dir):
-            # Walk through files in the same directory as input video
             for fname in fileList:
                 subname, subextension = os.path.splitext(fname)
                 # Watch for appropriate file extension
                 if subextension[1:] in valid_subtitle_extensions:
                     x, lang = os.path.splitext(subname)
+                    lang = lang[1:]
+                    # Using bablefish to convert a 2 language code to a 3 language code
+                    if len(lang) is 2:
+                        try:
+                            babel = Language.fromalpha2(lang)
+                            lang = babel.alpha3
+                        except:
+                            pass
                     # If subtitle file name and input video name are the same, proceed
-                    if x == filename and len(lang) is 4:
-                        print "External subtitle file detected, language " + lang[1:]
-                        if self.swl is None or lang[1:] in self.swl:
+                    if x == filename:
+                        print "External subtitle file detected, language " + lang
+                        if self.swl is None or lang in self.swl:
                             print "Importing %s subtitle stream" % (fname)
                             subtitle_settings.update({l: {
-                                'path': os.path.join(input_dir, fname),
+                                'path': os.path.join(dirName, fname),
                                 'source': src,
                                 'map': 0,
                                 'codec': 'mov_text',
-                                'language': lang[1:],
+                                'language': lang,
                                 }})
                             l = l + 1
                             src = src + 1

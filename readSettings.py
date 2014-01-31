@@ -31,7 +31,8 @@ class ReadSettings:
                         'subtitle-default-language': '',
                         'convert-mp4': 'False',
                         'fullpathguess': 'True',
-                        'tagfile': 'True'}
+                        'tagfile': 'True',
+                        'download-subs': 'True'}
         # Default settings for CouchPotato
         cp_defaults = {'host': 'localhost',
                        'port': '5050',
@@ -123,6 +124,7 @@ class ReadSettings:
         #    print "Audio codec not valid, defaulting to AAC"
         
         self.iOS = config.getboolean(section, "ios-audio")  # Creates a second audio channel in AAC Stereo if the standard output methods are different from this for iOS compatability
+        self.downloadsubs = config.getboolean(section, "download-subs")  # Enables downloading of subtitles from the internet sources using subliminal
 
         self.vcodec = config.get(section, "video-codec")
         if self.vcodec == '':
