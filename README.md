@@ -38,6 +38,7 @@ General Installation Instructions
     - `convert-mp4` = forces the script to reprocess and convert mp4 files as though they were mkvs. Good if you have old mp4's that you want to match your current codec configuration.
     - `fullpathguess` = True/False - When manually processing a file, enable to guess metadata using the full path versus just the file name. (Files shows placed in a 'Movies' folder will be recognized as movies, not as TV shows for example.)
     - `tagfile` = True/False - Enable or disable tagging file with appropriate metadata after encoding.
+    - `download-subs` = True/False - When enabled the script will attempt to download subtitles of your specified languages automatically using subliminal and merge them into the final mp4 file. YOU MUST INSTALL SUBLIMINAL AND ITS DEPENDENCIES FOR THIS TO WORK. You may either go into the subliminal directory included in this script and run `setup.py install` or download the latest version from github and install that. Either way should work.
 
 SickBeard Installation Instructions
 --------------
@@ -115,14 +116,15 @@ Credits
 --------------
 This project makes use of the following projects:
 - http://www.sickbeard.com/
-- https://couchpota.to/
+- http://couchpota.to/
 - http://sabnzbd.org/
-- https://github.com/senko/python-video-converter
-- https://github.com/dbr/tvdb_api
-- https://code.google.com/p/mutagen/
+- http://github.com/senko/python-video-converter
+- http://github.com/dbr/tvdb_api
+- http://code.google.com/p/mutagen/
 - http://imdbpy.sourceforge.net/
-- https://github.com/danielgtaylor/qtfaststart
-- https://github.com/clinton-hall/nzbToMedia
-- https://github.com/wackou/guessit
+- http://github.com/danielgtaylor/qtfaststart
+- http://github.com/clinton-hall/nzbToMedia
+- http://github.com/wackou/guessit
+- http://github.com/Diaoul/subliminal
 
 Enjoy
