@@ -129,7 +129,8 @@ class ReadSettings:
         if self.downloadsubs:
             try:
                 import subliminal
-            except:
+            except Exception as e:
+                print e
                 self.downloadsubs = False
                 print "Subliminal is not installed, automatically downloading of subs has been disabled"
 
