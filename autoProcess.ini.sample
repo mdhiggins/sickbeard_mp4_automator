@@ -27,6 +27,7 @@ subtitle-default-language=
 fullpathguess=True
 convert-mp4=False
 tagfile=True
+download-subs=True
 
 [CouchPotato]
 host = localhost
