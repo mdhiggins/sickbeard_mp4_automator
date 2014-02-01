@@ -253,7 +253,7 @@ class MkvtoMp4:
             import tempfile
             subliminal.cache_region.configure('dogpile.cache.dbm', arguments={'filename': tempfile.gettempdir() + 'cachefile.dbm'})
             video = subliminal.scan_video(inputfile)
-            subtitles = subliminal.download_best_subtitles([video], languages)
+            subtitles = subliminal.download_best_subtitles([video], languages, hearing_impaired=True)
             subliminal.save_subtitles(subtitles)
 
         src = 1  # FFMPEG input source number
