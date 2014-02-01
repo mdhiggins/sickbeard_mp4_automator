@@ -196,7 +196,7 @@ def scan_video(path, subtitles=True, embedded_subtitles=True, original=None):
     :raise: ValueError if cannot guess enough information from the path
 
     """
-    if !original:
+    if not original:
         original = path
     dirpath, filename = os.path.split(path)
     logger.info('Scanning video %r in %r', filename, dirpath)
