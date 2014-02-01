@@ -591,5 +591,5 @@ video_codec_list = [
 ]
 
 subtitle_codec_list = [
-    MOVTextCodec
+    MOVTextCodec, Tx3gTextCodec
 ]
