@@ -10,13 +10,14 @@ settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
 
 if len(sys.argv) > 4:
     inputfile = sys.argv[1]
+    original = sys.argv[2]
     tvdb_id = int(sys.argv[3])
     season = int(sys.argv[4])
     episode = int(sys.argv[5])
     converter = MkvtoMp4(settings)
     
     if MkvtoMp4(settings).validSource(inputfile):
-        output = converter.process(inputfile)
+        output = converter.process(inputfile, original=original)
         
         # Tag with metadata
         if settings.tagfile:

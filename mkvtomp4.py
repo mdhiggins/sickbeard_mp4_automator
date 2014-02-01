@@ -87,14 +87,14 @@ class MkvtoMp4:
         self.downloadsubs=settings.downloadsubs
 
     # Process a file from start to finish, with checking to make sure formats are compatible with selected settings
-    def process(self, inputfile, reportProgress=False):
+    def process(self, inputfile, reportProgress=False, original=None):
         delete = self.delete
         deleted = False
         options = None
         if not self.validSource(inputfile): return False
 
         if self.needProcessing(inputfile):
-            options = self.generateOptions(inputfile)
+            options = self.generateOptions(inputfile, original=original)
             if reportProgress: print json.dumps(options, sort_keys=False, indent=4)
             outputfile, inputfile = self.convert(inputfile, options, reportProgress)
             if not outputfile: return False
@@ -159,7 +159,7 @@ class MkvtoMp4:
                  'x': info.video.video_width }
 
     # Generate a list of options to be passed to FFMPEG based on selected settings and the source file parameters and streams
-    def generateOptions(self, inputfile):    
+    def generateOptions(self, inputfile, original=None):    
         #Get path information from the input file
         input_dir, filename, input_extension = self.parseFile(inputfile)
 
@@ -252,7 +252,7 @@ class MkvtoMp4:
             import subliminal
             import tempfile
             subliminal.cache_region.configure('dogpile.cache.dbm', arguments={'filename': tempfile.gettempdir() + 'cachefile.dbm'})
-            video = subliminal.scan_video(inputfile)
+            video = subliminal.scan_video(inputfile, original=original)
             subtitles = subliminal.download_best_subtitles([video], languages, hearing_impaired=True)
             subliminal.save_subtitles(subtitles)
 
