@@ -110,7 +110,6 @@ class Episode(Video):
             raise ValueError('The guess must be an episode guess')
         if 'series' not in guess or 'season' not in guess or 'episodeNumber' not in guess:
             raise ValueError('Insufficient data to process the guess')
-        print guess
         return cls(name, guess['series'], guess['season'], guess['episodeNumber'],
                    release_group=guess.get('releaseGroup'), resolution=guess.get('screenSize'),
                    video_codec=guess.get('videoCodec'), audio_codec=guess.get('audioCodec'),
