@@ -110,6 +110,7 @@ class Episode(Video):
             raise ValueError('The guess must be an episode guess')
         if 'series' not in guess or 'season' not in guess or 'episodeNumber' not in guess:
             raise ValueError('Insufficient data to process the guess')
+        print guess
         return cls(name, guess['series'], guess['season'], guess['episodeNumber'],
                    release_group=guess.get('releaseGroup'), resolution=guess.get('screenSize'),
                    video_codec=guess.get('videoCodec'), audio_codec=guess.get('audioCodec'),
@@ -198,6 +199,9 @@ def scan_video(path, subtitles=True, embedded_subtitles=True, original=None):
     """
     if not original:
         original = path
+
+    print "Video.py original " + original
+
     dirpath, filename = os.path.split(path)
     logger.info('Scanning video %r in %r', filename, dirpath)
     video = Video.fromguess(path, guessit.guess_file_info(original, 'autodetect'))
