@@ -199,8 +199,6 @@ def scan_video(path, subtitles=True, embedded_subtitles=True, original=None):
     if not original:
         original = path
 
-    print "Video.py original " + original
-
     dirpath, filename = os.path.split(path)
     logger.info('Scanning video %r in %r', filename, dirpath)
     video = Video.fromguess(path, guessit.guess_file_info(original, 'autodetect'))
