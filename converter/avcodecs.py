@@ -572,6 +572,13 @@ class MOVTextCodec(SubtitleCodec):
     codec_name = 'mov_text'
     ffmpeg_codec_name = 'mov_text'
 
+class Tx3gTextCodec(SubtitleCodec):
+    """
+    Tx3g video codec.
+    """
+    codec_name = 'tx3g'
+    ffmpeg_codec_name = 'tx3g'
+
 
 audio_codec_list = [
     AudioNullCodec, AudioCopyCodec, VorbisCodec, AacCodec, Mp3Codec, Mp2Codec, Ac3Codec, DtsCodec

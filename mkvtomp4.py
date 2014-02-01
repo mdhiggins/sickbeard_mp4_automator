@@ -280,7 +280,7 @@ class MkvtoMp4:
                                 'path': os.path.join(dirName, fname),
                                 'source': src,
                                 'map': 0,
-                                'codec': 'mov_text',
+                                'codec': 'tx3g',
                                 'language': lang,
                                 }})
                             l = l + 1
