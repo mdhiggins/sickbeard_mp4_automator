@@ -159,7 +159,6 @@ class SubtitleCodec(BaseCodec):
         if 'codec' in safe:
             optlist.extend(['-c:s:' + stream, self.ffmpeg_codec_name])
         if 'path' in safe:
-            optlist.extend(["-sub_charenc", "UTF-8"])
             optlist.extend(['-i', str(safe['path'])])
         if 'default' in safe:
             optlist.extend(['-metadata:s:s:' + stream, "disposition:default=" + str(safe['default'])])
