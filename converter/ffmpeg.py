@@ -389,7 +389,6 @@ class FFMpeg(object):
                 del opts[ind]
 
         cmds.extend(opts)
-        cmds.extend(["-sub_charenc", "utf-8"])
         cmds.extend(['-y', outfile])
 
         if timeout and os.name != 'nt':

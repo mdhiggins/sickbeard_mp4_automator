@@ -169,6 +169,7 @@ class SubtitleCodec(BaseCodec):
         else:
             lang = 'und'
         optlist.extend(['-metadata:s:s:' + stream, "language=" + lang])
+        optlist.extend(["-sub_charenc", "utf-8"])
 
         optlist.extend(self._codec_specific_produce_ffmpeg_list(safe))
         return optlist
