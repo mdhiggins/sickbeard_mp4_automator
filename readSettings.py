@@ -19,7 +19,7 @@ class ReadSettings:
                         'copy_to': '',
                         'move_to': '',
                         'output_extension': 'mp4',
-                        'output_format': 'mov',
+                        'output_format': 'mp4',
                         'delete_original': 'True',
                         'relocate_moov': 'True',
                         'ios-audio': 'True',

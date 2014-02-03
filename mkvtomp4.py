@@ -18,7 +18,7 @@ class MkvtoMp4:
                     output_extension='mp4', 
                     output_dir=None, 
                     relocate_moov=True, 
-                    output_format = 'mov', 
+                    output_format = 'mp4', 
                     video_codec=['h264', 'x264'], 
                     audio_codec=['ac3'], 
                     audio_bitrate=None, 
