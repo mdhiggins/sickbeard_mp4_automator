@@ -30,7 +30,8 @@ class MkvtoMp4:
                     downloadsubs=True,
                     processMP4=False, 
                     copyto=None, 
-                    moveto=None):
+                    moveto=None,
+                    providers=['addic7ed', 'podnapisi', 'thesubdb', 'opensubtitles']):
         # Settings
         self.FFMPEG_PATH=FFMPEG_PATH
         self.FFPROBE_PATH=FFPROBE_PATH
@@ -55,6 +56,7 @@ class MkvtoMp4:
         self.swl=swl
         self.sdl=sdl
         self.downloadsubs = downloadsubs
+        self.subproviders = providers
 
         # Import settings
         if settings is not None: self.importSettings(settings)
@@ -85,6 +87,7 @@ class MkvtoMp4:
         self.swl=settings.swl
         self.sdl=settings.sdl
         self.downloadsubs=settings.downloadsubs
+        self.subproviders=settings.subproviders
 
     # Process a file from start to finish, with checking to make sure formats are compatible with selected settings
     def process(self, inputfile, reportProgress=False, original=None):
@@ -251,13 +254,12 @@ class MkvtoMp4:
         if self.downloadsubs:
             import subliminal
 
-            if original:
-                print "Original " + original
-
-            #subliminal.cache_region.configure('dogpile.cache.dbm', arguments={'filename': tempfile.gettempdir() + 'cachefile.dbm'})
-            subliminal.cache_region.configure('dogpile.cache.memory')
+            try:
+                subliminal.cache_region.configure('dogpile.cache.memory')
+            except:
+                pass
             video = subliminal.scan_video(inputfile, original=original)
-            subtitles = subliminal.download_best_subtitles([video], languages, hearing_impaired=True, providers=['addic7ed', 'podnapisi', 'thesubdb'])
+            subtitles = subliminal.download_best_subtitles([video], languages, hearing_impaired=True, providers=self.subproviders)
             subliminal.save_subtitles(subtitles)
 
         src = 1  # FFMPEG input source number

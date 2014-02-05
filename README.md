@@ -40,6 +40,7 @@ General Installation Instructions
     - `tagfile` = True/False - Enable or disable tagging file with appropriate metadata after encoding.
     - `download-subs` = True/False - When enabled the script will attempt to download subtitles of your specified languages automatically using subliminal and merge them into the final mp4 file. 
     **YOU MUST INSTALL SUBLIMINAL AND ITS DEPENDENCIES FOR THIS TO WORK.** You may either go into the subliminal directory included in this script and run `setup.py install` or download the latest version from github and install that. Either way should work.
+    - `sub-providers` = Comma separated values for potential subtitle providers. Must specify at least 1 provider to enable `download-subs`. Providers include `podnapisi` `thesubdb` `opensubtitles` `tvsubtitles` `addic7ed` 
 
 SickBeard Installation Instructions
 --------------

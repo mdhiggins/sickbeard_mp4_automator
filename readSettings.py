@@ -32,7 +32,8 @@ class ReadSettings:
                         'convert-mp4': 'False',
                         'fullpathguess': 'True',
                         'tagfile': 'True',
-                        'download-subs': 'False'}
+                        'download-subs': 'False',
+                        'sub-providers': 'addic7ed, podnapisi, thesubdb, opensubtitles' }
         # Default settings for CouchPotato
         cp_defaults = {'host': 'localhost',
                        'port': '5050',
@@ -133,6 +134,12 @@ class ReadSettings:
                 print e
                 self.downloadsubs = False
                 print "Subliminal is not installed, automatically downloading of subs has been disabled"
+            self.subproviders = config.get(section, 'sub-providers').lower()
+            if self.subproviders == '':
+                self.downloadsubs = False
+                print "You must specifiy at least one subtitle provider to downlaod subs automatically"
+            else:
+                self.subproviders = self.subproviders.lower().replace(' ', '').split(',')
 
         self.vcodec = config.get(section, "video-codec")
         if self.vcodec == '':
