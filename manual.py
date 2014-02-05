@@ -178,13 +178,12 @@ def walkDir(dir, silent=False, output_dir=None):
     for r,d,f in os.walk(dir):
         for file in f:
             filepath = os.path.join(r, file)
-            print "Processing file %s" % (filepath.encode(sys.stdout.encoding, errors='ignore'))
+            
             try:
                 if MkvtoMp4(settings).validSource(filepath):
+                    print "Processing file %s" % (filepath.encode(sys.stdout.encoding, errors='ignore'))
                     tagdata = getinfo(filepath, silent)
                     processFile(filepath, tagdata)
-                else:
-                    print "Skipping %s - unrecognized filetype" % (filepath)
             except Exception as e:
                 print "An unexpected error occurred, processing of this file has failed"
                 print str(e)
