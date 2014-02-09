@@ -24,7 +24,8 @@ if len(sys.argv) > 4:
             tagmp4.setHD(output['x'], output['y'])
             tagmp4.writeTags(output['output'])
 
-            #QTFS (only if file is tagged)
+        #QTFS
+        if settings.relocate_moov:
             converter.QTFS(output['output'])
 
         # Copy to additional locations
