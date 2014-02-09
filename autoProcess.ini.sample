@@ -39,3 +39,8 @@ apikey =
 delay = 65
 method = renamer
 delete_failed = 0
+
+[Plex]
+host = localhost
+port = 32400
+refresh_plex = False

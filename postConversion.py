@@ -6,6 +6,7 @@ import urllib
 from readSettings import ReadSettings
 from tvdb_mp4 import Tvdb_mp4
 from mkvtomp4 import MkvtoMp4
+from plexRefresh import PlexRefresh
 settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
 
 if len(sys.argv) > 4:
@@ -36,6 +37,9 @@ if len(sys.argv) > 4:
                 print refresh[item]
         except IOError:
             print "Couldn't refresh Sickbeard, check your settings"
+
+        if settings.Plex['refresh_plex']:
+            PlexRefresh(settings)
 
 else:
     print "Not enough command line arguments present " + str(len(sys.argv))

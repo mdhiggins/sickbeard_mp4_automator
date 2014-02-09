@@ -43,8 +43,12 @@ class ReadSettings:
                        'delete_failed': 'False',
                        'ssl': 'False',
                        'web_root': ''}
+        # Default settings for Plex
+        plex_defaults = {'host': 'localhost',
+                         'port': '32400',
+                         'refresh_plex': 'False'}
 
-        defaults = {'SickBeard': sb_defaults, 'CouchPotato': cp_defaults, 'MP4': mp4_defaults}
+        defaults = {'SickBeard': sb_defaults, 'CouchPotato': cp_defaults, 'MP4': mp4_defaults, 'Plex': plex_defaults}
         write = False  # Will be changed to true if a value is missing from the config file and needs to be written
 
         config = ConfigParser.SafeConfigParser()
@@ -187,6 +191,16 @@ class ReadSettings:
                 self.CP['protocol'] = "http://"
         except (ConfigParser.NoOptionError, ValueError):
             self.CP['protocol'] = "http://"
+
+        #Read relevant Plex section information
+        section = "Plex"
+        self.Plex = {}
+        self.Plex['host'] = config.get(section, "host")
+        self.Plex['port'] = config.get(section, "port")
+        try:
+            self.Plex['refresh_plex'] = config.getboolean(section, "refresh_plex")
+        except (ConfigParser.NoOptionError, ValueError):
+            self.Plex['refresh_plex'] = False
 
         #Pass the values on
         self.config = config
