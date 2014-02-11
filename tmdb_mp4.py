@@ -10,9 +10,10 @@ from extensions import valid_output_extensions, valid_poster_extensions, tmdb_ap
 
 
 class tmdb_mp4:
-    def __init__(self, imdbid, tmdbid=False):
+    def __init__(self, imdbid, tmdbid=False, original=None):
         if tmdbid is False and imdbid.startswith('tt') is not True:
             imdbid = 'tt' + imdbid
+        self.original = original
         for i in range(3):
             try:
                 tmdb.configure(tmdb_api_key)
@@ -76,7 +77,8 @@ class tmdb_mp4:
                 video["covr"] = [MP4Cover(cover, MP4Cover.FORMAT_PNG)]  # png poster
             else:
                 video["covr"] = [MP4Cover(cover, MP4Cover.FORMAT_JPEG)]  # jpeg poster
-        video["\xa9too"] = "MP4 Automator MDH"
+        if self.original:
+            video["\xa9too"] = "MDH:" + self.original
         video.pprint()
         MP4(mp4Path).delete(mp4Path)
         for i in range(3):
