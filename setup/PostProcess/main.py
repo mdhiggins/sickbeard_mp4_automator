@@ -24,7 +24,7 @@ class PostProcess(Plugin):
         moviefile = group['renamed_files']
         original = group['files']['movie'][0]
         
-        command = ['python.exe']
+        command = ['python']
         command.append('C:\\Scripts\\CPProcess.py')
         command.append(imdbid)
         command.append(original)
