@@ -21,7 +21,7 @@ if len(sys.argv) > 4:
         
         # Tag with metadata
         if settings.tagfile:
-            tagmp4 = Tvdb_mp4(tvdb_id, season, episode)
+            tagmp4 = Tvdb_mp4(tvdb_id, season, episode, original)
             tagmp4.setHD(output['x'], output['y'])
             tagmp4.writeTags(output['output'])
 

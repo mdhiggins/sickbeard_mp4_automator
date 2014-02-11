@@ -20,7 +20,7 @@ if len(sys.argv) > 2:
             
             # Tag with metadata
             if settings.tagfile:
-                tagmp4 = tmdb_mp4(imdb_id)
+                tagmp4 = tmdb_mp4(imdb_id, original=original)
                 tagmp4.setHD(output['x'], output['y'])
                 tagmp4.writeTags(output['output'])
 
