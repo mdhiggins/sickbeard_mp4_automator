@@ -86,7 +86,9 @@ class Tvdb_mp4:
             else:
                 video["covr"] = [MP4Cover(cover, MP4Cover.FORMAT_JPEG)]  # jpeg poster
         if self.original:
-            video["\xa9too"] = "MDH:" + self.original
+            video["\xa9too"] = "MDH:" + os.path.basename(self.original)
+        else:
+            video["\xa9too"] = "MDH:" + os.path.basename(self.mp4Path)
         MP4(mp4Path).delete(mp4Path)
         for i in range(3):
             try:
