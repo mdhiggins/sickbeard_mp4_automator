@@ -13,13 +13,11 @@ if len(sys.argv) > 3:
     settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
     converter = MkvtoMp4(settings)
     path = str(sys.argv[1])
-    moviefile = None
-    maxsize = 0
     for r, d, f in os.walk(path):
         for files in f:
             inputfile = os.path.join(r, files)
-            
-            if MkvtoMp4(settings).validSource(inputfile):
+            if MkvtoMp4(settings).validSource(inputfile):'
+                print "Processing movie " + inputfile
                 converter.process(moviefile)
 
 
