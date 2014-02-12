@@ -1,9 +1,9 @@
-Sickbeard/CouchPotato MP4 automation script.
+Sick Beard/Couch Potato MP4 automation script.
 ==============
 
-**Automatically converts mkv files downloaded by sickbeard to mp4 files, and tags them with the appropriate metadata from theTVDB. Works as an extra_script, integrated with SAB, as well as a manual post-processing script.**
+**Automatically converts mkv files downloaded by Sick Beard to mp4 files, and tags them with the appropriate metadata from theTVDB. Works as an extra_script, integrated with SAB, as well as a manual post-processing script.**
 
-**Works with CouchPotato as well, tagging with the appropriate metadata from IMDb. Requires SAB**
+**Works with Couch Potato as well, tagging with the appropriate metadata from IMDb. Requires SAB**
 
 - Requires Python 2.7 *(Does NOT work with Python 3)*
 - Requires FFMPEG and FFPROBE
@@ -39,32 +39,34 @@ General Installation Instructions
     - `fullpathguess` = True/False - When manually processing a file, enable to guess metadata using the full path versus just the file name. (Files shows placed in a 'Movies' folder will be recognized as movies, not as TV shows for example.)
     - `tagfile` = True/False - Enable or disable tagging file with appropriate metadata after encoding.
     - `download-subs` = True/False - When enabled the script will attempt to download subtitles of your specified languages automatically using subliminal and merge them into the final mp4 file. 
-    **YOU MUST INSTALL SUBLIMINAL AND ITS DEPENDENCIES FOR THIS TO WORK.** You may either go into the subliminal directory included in this script and run `setup.py install` or download the latest version from github and install that. Either way should work.
+    **YOU MUST INSTALL SUBLIMINAL AND ITS DEPENDENCIES FOR THIS TO WORK.** You must go into the `setup\subliminal` directory included in this script and run `setup.py install` to add support for fetching of subtitles. The version included with this script is modified from the stock version of subliminal, so you must install the included version.
     - `sub-providers` = Comma separated values for potential subtitle providers. Must specify at least 1 provider to enable `download-subs`. Providers include `podnapisi` `thesubdb` `opensubtitles` `tvsubtitles` `addic7ed` 
 
-SickBeard Installation Instructions
+Sick Beard Installation Instructions
 --------------
-1. Open Sickbeard's config.ini in sickbeard and set your "extra_scripts" value in the general section to the full path to "python postConversion.py" using double backslashes (python C:\\Scripts\\postConversion.py). Make sure this is done while Sickbeard is not running or it will be reverted. And make sure python is registered as an environment variable/PATH
+1. Open Sickbeard's config.ini in Sick Beard and set your "extra_scripts" value in the general section to the full path to "python postConversion.py" using double backslashes (python C:\\Scripts\\postConversion.py). Make sure this is done while Sick Beard is not running or it will be reverted. And make sure python is registered as an environment variable/PATH
 2. Set the SickBeard variables in autoProcess.ini:
-    - `host` = Sickbeard host address (localhost)
-    - `port` = sickbeard port (8081)
+    - `host` = Sick Beard host address (localhost)
+    - `port` = Sick Beard port (8081)
     - `ssl` = 0/1
-    - `api_key` = Set this to your sickbeard API key (options -> general, enable API in sickbeard to get this key)
-3. *OPTIONAL* - If you're using SAB, set your post processing script to sabToSickBeardWithConverter.py - this is not completely needed but gives the added benefit of doing the conversion from mkv to mp4 before Sickbeard sees the file in whatever folder you choose to download things to. It saves having to put in all the API information as well, and prevents the one additional refresh needed normally to have sickbeard see the properly converted file. That being said the postConversion script can handle everything on its own, so this step is just for the added benefits listed.
+    - `api_key` = Set this to your Sick Beard API key (options -> general, enable API in Sick Beard to get this key)
+3. **OPTIONAL** - If you're using SAB, set your post processing script to sabToSickBeardWithConverter.py - this is not completely needed but gives the added benefit of doing the conversion from mkv to mp4 before Sick Beard sees the file in whatever folder you choose to download things to. It saves having to put in all the API information as well, and prevents the one additional refresh needed normally to have Sick Beard see the properly converted file. That being said the postConversion script can handle everything on its own, so this step is just for the added benefits listed.
 
-CouchPotato Support
+Couch Potato Support
 --------------
-1. Set your CouchPotato settings to the autoProcess.ini file
-    - `host` = CouchPotato host address (localhost)
-    - `port` = CouchPotato port (5050)
+1. Set your Couch Potato settings to the autoProcess.ini file
+    - `host` = Couch Potato host address (localhost)
+    - `port` = Couch Potato port (5050)
     - `ssl` = 1 if enabled, 0 if not
-    - `api_key` = CouchPotato API Key (required)
-    - `username` = your CouchPotato username
-    - `password` = your CouchPotato password
-2. Point your CouchPotato videos that are sent to SAB to nzbToCouchPotatoMP4.py for post processing; this will convert and tag them
-3. Disable automatic checking of the renamer folder, the script will automatically notify CouchPotato when it is complete to check for new videos to be renamed and relocated. Leaving this on may cause conflicts and CouchPotato may try to relocate/rename the file before processing is completed.
-    - Set `Run Every` to `0`
+    - `api_key` = Couch Potato API Key (required)
+    - `username` = your Couch Potato username
+    - `password` = your Couch Potato password
+2. Copy the PostProcess directory from the setup folder included with this script to the Couch Potato custom_plugins directory. You can find this directory within your Couch Potato setup by opening Couch Potato and navigating to the About page, where the installation directory is displayed. Copy the PostProcess folder (the whole folder, not just the contents) to Couch Potato and restart Couch Potato. You should see in the logs that it was loaded.
+3. Disable automatic checking of the renamer folder, the script will automatically notify Couch Potato when it is complete to check for new videos to be renamed and relocated. Leaving this on may cause conflicts and CouchPotato may try to relocate/rename the file before processing is completed.
+    - Set `Run Every` to `0` 
     - Set `Force Every` to `0`
+    - **WARNING** On Windows there is currently a bug that prevents the script from triggering on its own (will be fixed in the next CP build) so you must set a time interval for CouchPotato to scan the folder, so set Run Every to some non-zero number (>10 preferred)
+4. **OPTIONAL** Point your Couch Potato videos that are sent to SAB to nzbToCouchPotatoMP4.py for post processing; this will convert them before they are passed to Couch Potato. Without this step video files will be converted after being processed by CouchPotato.
 
 Manual Script Usage
 --------------
