@@ -258,9 +258,14 @@ class MkvtoMp4:
                 subliminal.cache_region.configure('dogpile.cache.memory')
             except:
                 pass
-            video = subliminal.scan_video(inputfile, original=original)
-            subtitles = subliminal.download_best_subtitles([video], languages, hearing_impaired=True, providers=self.subproviders)
-            subliminal.save_subtitles(subtitles)
+
+            try:
+                video = subliminal.scan_video(inputfile, original=original)
+                subtitles = subliminal.download_best_subtitles([video], languages, hearing_impaired=True, providers=self.subproviders)
+                subliminal.save_subtitles(subtitles)
+            except Exception as e:
+                print e
+                print "Unable to download subtitle"
 
         src = 1  # FFMPEG input source number
         for dirName, subdirList, fileList in os.walk(input_dir):
