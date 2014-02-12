@@ -16,9 +16,9 @@ if len(sys.argv) > 3:
     for r, d, f in os.walk(path):
         for files in f:
             inputfile = os.path.join(r, files)
-            if MkvtoMp4(settings).validSource(inputfile):'
+            if MkvtoMp4(settings).validSource(inputfile):
                 print "Processing movie " + inputfile
-                converter.process(moviefile)
+                converter.process(inputfile)
 
 
 # SABnzbd
