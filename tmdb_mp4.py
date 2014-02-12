@@ -80,7 +80,7 @@ class tmdb_mp4:
         if self.original:
             video["\xa9too"] = "MDH:" + os.path.basename(self.original)
         else:
-            video["\xa9too"] = "MDH:" + os.path.basename(self.mp4Path)
+            video["\xa9too"] = "MDH:" + os.path.basename(mp4Path)
         video.pprint()
         MP4(mp4Path).delete(mp4Path)
         for i in range(3):

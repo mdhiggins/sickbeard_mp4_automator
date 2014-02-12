@@ -88,7 +88,7 @@ class Tvdb_mp4:
         if self.original:
             video["\xa9too"] = "MDH:" + os.path.basename(self.original)
         else:
-            video["\xa9too"] = "MDH:" + os.path.basename(self.mp4Path)
+            video["\xa9too"] = "MDH:" + os.path.basename(mp4Path)
         MP4(mp4Path).delete(mp4Path)
         for i in range(3):
             try:
