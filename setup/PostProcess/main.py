@@ -13,6 +13,9 @@ import traceback
 log = CPLog(__name__)
 
 
+path = "C:\\Scripts\\"
+
+
 class PostProcess(Plugin):
 
     def __init__(self):
@@ -25,7 +28,7 @@ class PostProcess(Plugin):
         original = group['files']['movie'][0]
         
         command = ['python']
-        command.append('C:\\Scripts\\CPProcess.py')
+        command.append(os.path.join(path, 'CPProcess.py'))
         command.append(imdbid)
         command.append(original)
         for x in moviefile:
