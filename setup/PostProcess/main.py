@@ -13,6 +13,7 @@ import traceback
 log = CPLog(__name__)
 
 
+# Edit to point to the absolute path where the CPProcess.py script resides
 path = "C:\\Scripts\\"
 
 
