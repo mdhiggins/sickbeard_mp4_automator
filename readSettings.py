@@ -2,6 +2,15 @@ import os
 import sys
 import ConfigParser
 from extensions import *
+try:
+    from babelfish import Language
+except:
+    print "Trying to install SetupTools"
+    setup.ez_setup.main()
+    try:
+        from babelfish import Language
+    except:
+        print "Please install SetupTools"
 
 
 class ReadSettings:
