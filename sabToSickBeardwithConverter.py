@@ -15,6 +15,10 @@ for r, d, f in os.walk(path):
     for files in f:
         inputfile = os.path.join(r, files)
         if MkvtoMp4(settings).validSource(inputfile):
+            try:
+            	print "Valid file detected: " + inputfile
+            except:
+            	print "Valid file detected"
             converter.process(inputfile)
 
 """Contents of sabToSickbeard.py"""
