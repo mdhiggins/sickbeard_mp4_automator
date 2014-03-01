@@ -451,6 +451,14 @@ class Ac3Codec(AudioCodec):
     ffmpeg_codec_name = 'ac3'
 
 
+class LibFDKAACCodec(AudioCodec):
+    """
+    LibFDK-AAC audio codec
+    """
+    codec_name = 'libfdk-aac'
+    ffmpeg_codec_name = 'libfdk-aac'
+
+
 class DtsCodec(AudioCodec):
     """
     AC3 audio codec
@@ -574,7 +582,7 @@ class MOVTextCodec(SubtitleCodec):
 
 
 audio_codec_list = [
-    AudioNullCodec, AudioCopyCodec, VorbisCodec, AacCodec, Mp3Codec, Mp2Codec, Ac3Codec, DtsCodec
+    AudioNullCodec, AudioCopyCodec, VorbisCodec, AacCodec, Mp3Codec, Mp2Codec, Ac3Codec, DtsCodec, LibFDKAACCodec
 ]
 
 video_codec_list = [
