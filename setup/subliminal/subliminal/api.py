@@ -90,9 +90,9 @@ def download_best_subtitles(videos, languages, providers=None, provider_configs=
                 if score < min_score:
                     logger.info('No subtitle with score >= %d', min_score)
                     break
-                #if subtitle.hearing_impaired != hearing_impaired:
-                #    logger.debug('Skipping subtitle: hearing impaired != %r', hearing_impaired)
-                #    continue
+                if subtitle.hearing_impaired != hearing_impaired and not hearing_impaired:
+                    logger.debug('Skipping subtitle: hearing impaired != %r', hearing_impaired)
+                    continue
                 if subtitle.language in downloaded_languages:
                     logger.debug('Skipping subtitle: %r already downloaded', subtitle.language)
                     continue
