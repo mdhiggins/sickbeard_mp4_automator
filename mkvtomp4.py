@@ -191,7 +191,7 @@ class MkvtoMp4:
                             'map': a.index,
                             'codec': 'aac',
                             'channels': 2,
-                            'bitrate': 512,
+                            'bitrate': 256,
                             'language': a.language,
                         }})
                         l += 1
