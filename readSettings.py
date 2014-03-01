@@ -122,7 +122,7 @@ class ReadSettings:
             self.output_format = 'mov'
         self.delete = config.getboolean(section, "delete_original")  # Delete original file
         self.relocate_moov = config.getboolean(section, "relocate_moov")  # Relocate MOOV atom to start of file
-        self.acodec = config.get(section, "audio-codec").lower()  # Gets the desired audio codec, if no valid codec selected, default to AAC
+        self.acodec = config.get(section, "audio-codec").lower()  # Gets the desired audio codec, if no valid codec selected, default to AC3
         if self.acodec == '':
             self.acodec == ['ac3']
         else:
@@ -133,7 +133,12 @@ class ReadSettings:
         #    self.acodec = 'aac'
         #    print "Audio codec not valid, defaulting to AAC"
         
-        self.iOS = config.getboolean(section, "ios-audio")  # Creates a second audio channel in AAC Stereo if the standard output methods are different from this for iOS compatability
+        self.iOS = config.get(section, "ios-audio")  # Creates a second audio channel if the standard output methods are different from this for iOS compatability
+        if self.iOS == "" or self.iOS.lower() in ['false', 'no', 'f', '0']:
+            self.iOS = False
+        else:
+            if self.iOS.lower() in ['true', 'yes', 't', '1']:
+                self.iOS = 'aac'
         self.downloadsubs = config.getboolean(section, "download-subs")  # Enables downloading of subtitles from the internet sources using subliminal
 
         if self.downloadsubs:

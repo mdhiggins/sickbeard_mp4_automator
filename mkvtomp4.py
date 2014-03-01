@@ -189,7 +189,7 @@ class MkvtoMp4:
                         print "Creating dual audio channels for iOS compatability for this stream"
                         audio_settings.update({l: {
                             'map': a.index,
-                            'codec': 'aac',
+                            'codec': self.iOS,
                             'channels': 2,
                             'bitrate': 256,
                             'language': a.language,
@@ -197,7 +197,7 @@ class MkvtoMp4:
                         l += 1
                 # If the iOS audio option is enabled and the source audio channel is only stereo, the additional iOS channel will be skipped and a single AAC 2.0 channel will be made regardless of codec preference to avoid multiple stereo channels
                 if self.iOS and a.audio_channels == 2:
-                    acodec = 'copy' if a.codec == 'aac' else 'aac'
+                    acodec = 'copy' if a.codec == self.iOS else self.iOS
                 else:
                     # If desired codec is the same as the source codec, copy to avoid quality loss
                     acodec = 'copy' if a.codec in self.audio_codec else self.audio_codec[0]
