@@ -456,7 +456,7 @@ class LibFDKAACCodec(AudioCodec):
     LibFDK-AAC audio codec
     """
     codec_name = 'libfdk-aac'
-    ffmpeg_codec_name = 'libfdk-aac'
+    ffmpeg_codec_name = 'libfdk_aac'
 
 
 class DtsCodec(AudioCodec):
