@@ -386,14 +386,16 @@ class MkvtoMp4:
                     try:
                         shutil.copy(inputfile, d)
                         print "Copy of file made in %s" % (d)
-                    except:
+                    except Exception as e:
                         print "Unable to create additional copy of file in %s" % d
+                        print e
         if self.moveto:
             try:
                 shutil.move(inputfile, self.moveto)
                 print "File moved to %s" % (self.moveto)
-            except:
+            except Exception as e:
                 print "Unable to move file to %s" % (self.moveto)
+                print e
 
     # Robust file removal function, with options to retry in the event the file is in use, and replace a deleted file
     def removeFile(self, filename, retries=2, delay=10, replacement=None):
