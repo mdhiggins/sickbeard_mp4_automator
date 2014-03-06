@@ -383,6 +383,10 @@ class MkvtoMp4:
     def replicate(self, inputfile):
         if self.copyto:
             for d in self.copyto:
+                try:
+                    print "Attempting to copy file %s to %s" % inputfile, d
+                except:
+                    pass
                     try:
                         shutil.copy(inputfile, d)
                         print "Copy of file made in %s" % (d)
