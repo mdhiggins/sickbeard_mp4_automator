@@ -386,7 +386,7 @@ class MkvtoMp4:
                 try:
                     print "Attempting to copy file %s to %s" % inputfile, d
                 except:
-                    pass
+                    print "Attempting to copy file"
                     try:
                         shutil.copy(inputfile, d)
                         print "Copy of file made in %s" % (d)
