@@ -384,15 +384,15 @@ class MkvtoMp4:
         if self.copyto:
             for d in self.copyto:
                 try:
-                    print "Attempting to copy file %s to %s" % inputfile, d
+                    print "Attempting to copy file %s to %s" % (inputfile, d)
                 except:
                     print "Attempting to copy file"
-                    try:
-                        shutil.copy(inputfile, d)
-                        print "Copy of file made in %s" % (d)
-                    except Exception as e:
-                        print "Unable to create additional copy of file in %s" % d
-                        print e
+                try:
+                    shutil.copy(inputfile, os.path.join(d, inputfile))
+                    print "Copy succeeded"
+                except Exception as e:
+                    print "Unable to create additional copy of file in %s" % (d)
+                    print e
         if self.moveto:
             try:
                 shutil.move(inputfile, self.moveto)
