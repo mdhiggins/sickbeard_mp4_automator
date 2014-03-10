@@ -388,7 +388,7 @@ class MkvtoMp4:
                 except:
                     print "Attempting to copy file"
                 try:
-                    shutil.copy(inputfile, os.path.join(d, inputfile))
+                    shutil.copy(inputfile, d)
                     print "Copy succeeded"
                 except Exception as e:
                     print "Unable to create additional copy of file in %s" % (d)
