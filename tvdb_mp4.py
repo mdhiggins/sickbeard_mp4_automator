@@ -45,7 +45,7 @@ class Tvdb_mp4:
                 print e
                 time.sleep(20)
 
-    def writeTags(self, mp4Path):
+    def writeTags(self, mp4Path, artwork = True):
         print "Tagging file :" + mp4Path
         ext = os.path.splitext(mp4Path)[1][1:]
         if ext not in valid_output_extensions:
@@ -78,13 +78,14 @@ class Tvdb_mp4:
         video["----:com.apple.iTunes:iTunMOVI"] = self.xml  # XML - see xmlTags method
         video["----:com.apple.iTunes:iTunEXTC"] = self.setRating()  # iTunes content rating
 
-        path = self.getArtwork(mp4Path)
-        if path is not None:
-            cover = open(path, 'rb').read()
-            if path.endswith('png'):
-                video["covr"] = [MP4Cover(cover, MP4Cover.FORMAT_PNG)]  # png poster
-            else:
-                video["covr"] = [MP4Cover(cover, MP4Cover.FORMAT_JPEG)]  # jpeg poster
+        if artwork:
+            path = self.getArtwork(mp4Path)
+            if path is not None:
+                cover = open(path, 'rb').read()
+                if path.endswith('png'):
+                    video["covr"] = [MP4Cover(cover, MP4Cover.FORMAT_PNG)]  # png poster
+                else:
+                    video["covr"] = [MP4Cover(cover, MP4Cover.FORMAT_JPEG)]  # jpeg poster
         if self.original:
             video["\xa9too"] = "MDH:" + os.path.basename(self.original)
         else:

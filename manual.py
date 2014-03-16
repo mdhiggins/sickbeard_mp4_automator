@@ -167,7 +167,7 @@ def processFile(inputfile, tagdata):
         output = converter.process(inputfile, True)
         if tagmp4 is not None:
             tagmp4.setHD(output['x'], output['y'])
-            tagmp4.writeTags(output['output'])
+            tagmp4.writeTags(output['output'], settings.artwork)
         if settings.relocate_moov:
             converter.QTFS(output['output'])
         if settings.copyto:

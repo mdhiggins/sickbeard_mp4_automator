@@ -41,6 +41,7 @@ class ReadSettings:
                         'convert-mp4': 'False',
                         'fullpathguess': 'True',
                         'tagfile': 'True',
+                        'download-artwork': 'True',
                         'download-subs': 'False',
                         'sub-providers': 'addic7ed, podnapisi, thesubdb, opensubtitles' }
         # Default settings for CouchPotato
@@ -191,6 +192,7 @@ class ReadSettings:
         self.processMP4 = config.getboolean(section, "convert-mp4")  # Determine whether or not to reprocess mp4 files or just tag them
         self.fullpathguess = config.getboolean(section, "fullpathguess") # Guess using the full path or not
         self.tagfile = config.getboolean(section, "tagfile") # Tag files with metadata
+        self.artwork = config.getboolean(section, "download-artwork") # Download and embed artwork
 
         #Read relevant CouchPotato section information
         section = "CouchPotato"
