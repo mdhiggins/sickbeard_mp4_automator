@@ -27,6 +27,7 @@ subtitle-default-language=
 fullpathguess=True
 convert-mp4=False
 tagfile=True
+download-artwork=True
 download-subs=False
 sub-providers=addic7ed,podnapisi,thesubdb,opensubtitles
 
