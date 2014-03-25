@@ -318,7 +318,10 @@ class MkvtoMp4:
     def convert(self, inputfile, options, reportProgress=False):
         input_dir, filename, input_extension = self.parseFile(inputfile)
         output_dir = input_dir if self.output_dir is None else self.output_dir
-        outputfile = os.path.join(output_dir, filename + "." + self.output_extension)
+        try:
+            outputfile = os.path.join(output_dir, filename + "." + self.output_extension)
+        except UnicodeDecodeError:
+            outputfile = os.path.join(output_dir, filename.decode('utf-8') + "." + self.output_extension)
         #If we're processing a file that's going to have the same input and output filename, resolve the potential future naming conflict
         if inputfile == outputfile:
             newfile = os.path.join(input_dir, filename + '.tmp.' + input_extension)
