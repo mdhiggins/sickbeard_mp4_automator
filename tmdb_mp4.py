@@ -62,8 +62,9 @@ class tmdb_mp4:
             for g in self.genre:
                 if genre is None:
                     genre = g['name']
-                else:
-                    genre += ", " + g['name']
+                    break
+                #else:
+                    #genre += ", " + g['name']
             video["\xa9gen"] = genre  # Genre(s)
         video["----:com.apple.iTunes:iTunMOVI"] = self.xml  # XML - see xmlTags method
         rating = self.rating()

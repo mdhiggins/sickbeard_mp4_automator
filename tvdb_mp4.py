@@ -74,7 +74,8 @@ class Tvdb_mp4:
         if self.HD is not None:
             video["hdvd"] = self.HD
         if self.genre is not None:
-            video["\xa9gen"] = self.genre.replace('|', ',')[1:-1]  # Genre(s)
+            video["\xa9gen"] = self.genre[1:-1].split('|')[0]
+            #video["\xa9gen"] = self.genre.replace('|', ',')[1:-1]  # Genre(s)
         video["----:com.apple.iTunes:iTunMOVI"] = self.xml  # XML - see xmlTags method
         video["----:com.apple.iTunes:iTunEXTC"] = self.setRating()  # iTunes content rating
 
