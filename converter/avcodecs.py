@@ -575,10 +575,18 @@ class Mpeg2Codec(MpegCodec):
 
 class MOVTextCodec(SubtitleCodec):
     """
-    MOV Text video codec.
+    MOV Text subtitle codec.
     """
     codec_name = 'mov_text'
     ffmpeg_codec_name = 'mov_text'
+
+
+class WebVTTCodec(SubtitleCodec):
+    """
+    WebVTT subtitle codec.
+    """
+    codec_name = 'webvtt'
+    ffmpeg_codec_name = 'webvtt'
 
 
 audio_codec_list = [
@@ -592,5 +600,5 @@ video_codec_list = [
 ]
 
 subtitle_codec_list = [
-    MOVTextCodec
+    MOVTextCodec, WebVTTCodec
 ]
