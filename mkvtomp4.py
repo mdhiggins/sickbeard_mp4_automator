@@ -20,7 +20,8 @@ class MkvtoMp4:
                     relocate_moov=True, 
                     output_format = 'mp4', 
                     video_codec=['h264', 'x264'], 
-                    audio_codec=['ac3'], 
+                    audio_codec=['ac3'],
+                    audio_encoder='ac3',
                     audio_bitrate=None, 
                     iOS=False, 
                     awl=None, 
@@ -48,6 +49,7 @@ class MkvtoMp4:
         self.video_codec=video_codec
         # Audio settings
         self.audio_codec=audio_codec
+        self.audio_encoder=audio_encoder
         self.audio_bitrate=audio_bitrate
         self.iOS=iOS
         self.awl=awl
@@ -79,6 +81,7 @@ class MkvtoMp4:
         self.video_codec=settings.vcodec
         #Audio settings
         self.audio_codec=settings.acodec
+        self.audio_encoder=settings.aencoder
         #self.audio_bitrate=settings.abitrate
         self.iOS=settings.iOS
         self.awl=settings.awl
@@ -200,7 +203,7 @@ class MkvtoMp4:
                     acodec = 'copy' if a.codec == 'aac' else self.iOS
                 else:
                     # If desired codec is the same as the source codec, copy to avoid quality loss
-                    acodec = 'copy' if a.codec in self.audio_codec else self.audio_codec[0]
+                    acodec = 'copy' if a.codec in self.audio_codec else self.audio_encoder
 
                 # Bitrate calculations/overrides
                 if self.audio_bitrate is None or self.audio_bitrate > (a.audio_channels * 256):

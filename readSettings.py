@@ -129,6 +129,14 @@ class ReadSettings:
         else:
             self.acodec = self.acodec.lower().replace(' ', '').split(',')
 
+        if '|' in self.acodec[0]:
+            split = self.acodec[0].split('|')
+            self.acodec[0] = split[0]
+            self.aencoder = split[1]
+        else:
+            self.aencoder = self.acodec[0]
+
+
         # !!! Leaving this disabled for now, users will be responsible for knowing whicn codecs do and don't work with mp4 files !!!
         #if self.acodec not in valid_audio_codecs:
         #    self.acodec = 'aac'
