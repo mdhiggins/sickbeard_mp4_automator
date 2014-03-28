@@ -409,7 +409,7 @@ class MkvtoMp4:
         for i in range(retries + 1):
             try:
                 # Make sure file isn't read-only
-                os.chmod(filename, os.lstat(inputfile).st_mode)
+                os.chmod(filename, 0777)
                 os.remove(filename)
                 # Replaces the newly deleted file with another by renaming (replacing an original with a newly created file)
                 if replacement is not None:
