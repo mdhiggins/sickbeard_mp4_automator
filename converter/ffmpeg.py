@@ -389,6 +389,7 @@ class FFMpeg(object):
                 del opts[ind]
 
         cmds.extend(opts)
+        cmds.extend(['-movflags', 'faststart'])
         cmds.extend(['-y', outfile])
 
         if timeout and os.name != 'nt':
