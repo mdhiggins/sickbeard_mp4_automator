@@ -3,7 +3,7 @@ Sick Beard/Couch Potato MP4 automation script.
 
 **Automatically converts mkv files downloaded by Sick Beard to mp4 files, and tags them with the appropriate metadata from theTVDB. Works as an extra_script, integrated with SAB, as well as a manual post-processing script.**
 
-**Works with Couch Potato as well, tagging with the appropriate metadata from IMDb. Requires SAB**
+**Works with Couch Potato as well, tagging with the appropriate metadata from IMDb. Additional SAB scripts provided for conveinence. uTorrent BETA support added as well**
 
 - Requires Python 2.7 *(Does NOT work with Python 3)*
 - Requires FFMPEG and FFPROBE
@@ -68,6 +68,14 @@ Couch Potato Support
     - Set `Force Every` to `0`
     - **WARNING** On Windows there is currently a bug that prevents the script from triggering on its own (will be fixed in the next CP build) so you must set a time interval for CouchPotato to scan the folder, so set Run Every to some non-zero number (>10 preferred)
 4. **OPTIONAL** Point your Couch Potato videos that are sent to SAB to nzbToCouchPotatoMP4.py for post processing; this will convert them before they are passed to Couch Potato. Without this step video files will be converted after being processed by CouchPotato.
+
+uTorrent Support (BETA)
+--------------
+- `uTorrentToSickbeardwithConverter.py` is the file you'll be using here. This script will allow post processing of torrent files with conversion and will forward the converted files to Sickbeard for final post processing.
+- Currently the script will not touch the actual download but will instead make copies (the script will obey settings regarding output directory, copyto, moveto etc) and process those copies, so you can continue to seed your torrents.
+- uTorrent must be set up with the following post command options: ```#Args: %L %T %D %K %F```
+- Picture: http://i.imgur.com/7eADkCI.png
+
 
 Manual Script Usage
 --------------
