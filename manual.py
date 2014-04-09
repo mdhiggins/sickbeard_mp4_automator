@@ -180,7 +180,10 @@ def walkDir(dir, silent=False, output_dir=None):
             
             try:
                 if MkvtoMp4(settings).validSource(filepath):
-                    print "Processing file %s" % (filepath.encode(sys.stdout.encoding, errors='ignore'))
+                    try:
+                        print "Processing file %s" % (filepath.encode(sys.stdout.encoding, errors='ignore'))
+                    except:
+                        print "Processing file %s" % (filepath.encode('utf-8', errors='ignore'))
                     tagdata = getinfo(filepath, silent)
                     processFile(filepath, tagdata)
             except Exception as e:
