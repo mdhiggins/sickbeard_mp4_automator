@@ -1,7 +1,6 @@
 #!/usr/bin/env python
  
-import pycurl
-import json
+import pycurl, StringIO, urllib, json
 from readSettings import ReadSettings
 
 
