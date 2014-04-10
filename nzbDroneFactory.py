@@ -35,8 +35,6 @@ def scan(directory,status=0):
         host = config.get("NzbDrone", "host")
         port = config.get("NzbDrone", "port")
         apikey = config.get("NzbDrone", "api_key")
-        username = config.get("NzbDrone", "username")
-        password = config.get("NzbDrone", "password")
         try:
             ssl = int(config.get("NzbDrone", "ssl"))
         except (ConfigParser.NoOptionError, ValueError):
@@ -60,12 +58,6 @@ def scan(directory,status=0):
         c.setopt(pycurl.HTTPHEADER, ['{0} : {1}'.format('X-Api-Key', apikey)]) 
         c.setopt(pycurl.POST, 1)
         c.setopt(pycurl.POSTFIELDS, postData)
-        #Optional username/password if needed        
-        #if username and password:
-        #    c.setopt(pycurl.USERPWD, '{0}:{1}'.format(username, password)
-        #else:
-        #    randomtxt = "without this i had syntax error"          
-        #perform the request
         try:
             c.perform()
         except pycurl.error, error:
@@ -74,26 +66,23 @@ def scan(directory,status=0):
             sys.exit(2)
 
         # Handle the response
-        print contents.getvalue() + "\n==============================\n" #result of API call
+	contentasjson = contents.getvalue()
+        print contentasjson + "\n==============================\n" #result of API call
         responseCode = c.getinfo(pycurl.HTTP_CODE);
         print 'Response code: ' + str(responseCode);
         isSuccesResponse = responseCode < 400;
-        pyobj = json.loads(contents.getvalue())
-        print 'Status: ' + str(pyobj['Response']['Status'])
-        print 'Code: ' + str(pyobj['Response']['Code'])
-        
+        pyobj = json.load(contentasjson)
         # Print information to read on Sabnzbd if went succesfull            
         if (isSuccesResponse):
-            print 'Name: ' + str(pyobj['Response']['name'])
-            print 'StartedOn: ' + str(pyobj['Response']['startedOn'])
-            print 'StateChangeTime: ' + str(pyobj['Response']['stateChangeTime'])
-            print 'SendUpdatesToClient: ' + str(pyobj['Response']['sendUpdatesToClient'])
-            print 'State: ' + str(pyobj['Response']['state'])
-            print 'SeriesID: ' + str(pyobj['Response']['id'])
-            #exit succesfull
+            print 'Name: ' + str(pyobj['name'])
+            print 'StartedOn: ' + str(pyobj['startedOn'])
+            print 'StateChangeTime: ' + str(pyobj['stateChangeTime'])
+            print 'SendUpdatesToClient: ' + str(pyobj['sendUpdatesToClient'])
+            print 'State: ' + str(pyobj['state'])
+            print 'SeriesID: ' + str(pyobj['id'])
+            # TODO: Tagging of file
             sys.exit(0)                
         else:
-            print 'Errors: ' + str(pyobj['Response']['Errors']) # Not sure what the correct error response is, did not test it
             sys.exit(2)
                      
 

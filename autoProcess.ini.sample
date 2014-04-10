@@ -10,8 +10,6 @@ api_key=
 [NzbDrone]
 host=localhost
 port=8082
-username=
-password=
 web_root=
 ssl=0
 api_key=
