@@ -54,7 +54,7 @@ def scan(directory,status=0):
         data = {'name': 'downloadedepisodesscan','path': directory }
         postData = json.dumps(data)
         c = pycurl.Curl()
-        c.setopt(pycurl.URL, '{0}{1}:{2}/{3}/api/command'.format(protocol,host,port,webroot))
+        c.setopt(pycurl.URL, '{0}{1}:{2}/{3}/api/command'.format(protocol,host,port,web_root))
         c.setopt(pycurl.HTTPHEADER, ['{0} : {1}'.format('X-Api-Key', apikey)]) 
         c.setopt(pycurl.POST, 1)
         c.setopt(pycurl.POSTFIELDS, postData)
