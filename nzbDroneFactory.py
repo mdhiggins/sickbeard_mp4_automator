@@ -1,11 +1,16 @@
 #!/usr/bin/env python
  
-import pycurl, StringIO, urllib, json
+import pycurl
+import StringIO
+import urllib
+import json
+import ConfigParser
+import os
+import sys
 from readSettings import ReadSettings
 
-
   
-#directory is the path, prob supported in future, status for sanity checking = unneccesary atm
+#directory is the path, prob supported in future, status for sanity checking = unnecessary atm
 def scan(directory,status=0):
 
         # Do voodoo with the status, e.g. return earlier.. not sure how..
@@ -29,7 +34,7 @@ def scan(directory,status=0):
 
         host = config.get("NzbDrone", "host")
         port = config.get("NzbDrone", "port")
-        apikey = config.get("NzbDrone", "apikey")
+        apikey = config.get("NzbDrone", "api_key")
         username = config.get("NzbDrone", "username")
         password = config.get("NzbDrone", "password")
         try:
@@ -53,10 +58,11 @@ def scan(directory,status=0):
         c.setopt(pycurl.HTTPHEADER, ['{0} : {1}'.format('X-Api-Key', apikey)]) 
         c.setopt(pycurl.POST, 1)
         c.setopt(pycurl.POSTFIELDS, postData)
-        #Optional username/password if needed
-        if username and password:
-            c.setopt(pycurl.USERPWD, '{0}:{1}'.format(username, password)
-
+        #Optional username/password if needed        
+        #if username and password:
+        #    c.setopt(pycurl.USERPWD, '{0}:{1}'.format(username, password)
+        #else:
+        #    randomtxt = "without this i had syntax error"          
         #perform the request
         try:
             c.perform()
