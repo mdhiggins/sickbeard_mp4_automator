@@ -1,7 +1,7 @@
 #!/usr/bin/env python
  
 import pycurl
-import StringIO
+import cStringIO
 import urllib
 import json
 import ConfigParser
@@ -50,11 +50,13 @@ def scan(directory,status=0):
             protocol = "https://"
         else:
             protocol = "http://"
+	#Prepare catching the response
+	contents = cStringIO.StringIO()
         #create data structure
         data = {'name': 'downloadedepisodesscan','path': directory }
         postData = json.dumps(data)
         c = pycurl.Curl()
-        c.setopt(pycurl.URL, '{0}{1}:{2}/{3}/api/command'.format(protocol,host,port,web_root))
+        c.setopt(pycurl.URL, '{0}{1}:{2}{3}/api/command'.format(protocol,host,port,web_root))
         c.setopt(pycurl.HTTPHEADER, ['{0} : {1}'.format('X-Api-Key', apikey)]) 
         c.setopt(pycurl.POST, 1)
         c.setopt(pycurl.POSTFIELDS, postData)
@@ -69,10 +71,11 @@ def scan(directory,status=0):
         except pycurl.error, error:
             errno, errstr = error
             print 'An error occurred: ', errstr
+            sys.exit(2)
 
         # Handle the response
         print contents.getvalue() + "\n==============================\n" #result of API call
-        responseCode = curl.getinfo(pycurl.HTTP_CODE);
+        responseCode = c.getinfo(pycurl.HTTP_CODE);
         print 'Response code: ' + str(responseCode);
         isSuccesResponse = responseCode < 400;
         pyobj = json.loads(contents.getvalue())
@@ -91,7 +94,7 @@ def scan(directory,status=0):
             sys.exit(0)                
         else:
             print 'Errors: ' + str(pyobj['Response']['Errors']) # Not sure what the correct error response is, did not test it
-            sys.exit(1)
+            sys.exit(2)
                      
 
 
