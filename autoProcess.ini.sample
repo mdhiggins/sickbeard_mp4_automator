@@ -7,6 +7,13 @@ web_root=
 ssl=0
 api_key=
 
+[NzbDrone]
+host=localhost
+port=8082
+web_root=
+ssl=0
+api_key=
+
 [MP4]
 ffmpeg=ffmpeg.exe
 ffprobe=ffprobe.exe
