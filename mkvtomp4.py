@@ -31,6 +31,7 @@ class MkvtoMp4:
                     processMP4=False, 
                     copyto=None, 
                     moveto=None,
+                    embedsubs=True,
                     providers=['addic7ed', 'podnapisi', 'thesubdb', 'opensubtitles']):
         # Settings
         self.FFMPEG_PATH=FFMPEG_PATH
@@ -57,6 +58,7 @@ class MkvtoMp4:
         self.sdl=sdl
         self.downloadsubs = downloadsubs
         self.subproviders = providers
+        self.embedsubs = embedsubs
 
         # Import settings
         if settings is not None: self.importSettings(settings)
@@ -88,6 +90,7 @@ class MkvtoMp4:
         self.sdl=settings.sdl
         self.downloadsubs=settings.downloadsubs
         self.subproviders=settings.subproviders
+        self.embedsubs=settings.embedsubs
 
     # Process a file from start to finish, with checking to make sure formats are compatible with selected settings
     def process(self, inputfile, reportProgress=False, original=None):
@@ -224,7 +227,7 @@ class MkvtoMp4:
             print "Subtitle stream detected: " + s.codec + " " + s.language + " [Stream " + str(s.index) + "]"
 
             # Make sure its not an image based codec
-            if s.codec not in bad_subtitle_codecs:
+            if s.codec not in bad_subtitle_codecs and self.embedsubs:
                 # Set undefined language to default language if specified
                 if self.sdl is not None and s.language == 'und':
                     s.language = self.sdl
@@ -283,7 +286,7 @@ class MkvtoMp4:
                         except:
                             pass
                     # If subtitle file name and input video name are the same, proceed
-                    if x == filename:
+                    if x == filename and self.embedsubs:
                         print "External subtitle file detected, language " + lang
                         if self.swl is None or lang in self.swl:
                             print "Importing %s subtitle stream" % (fname)

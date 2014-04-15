@@ -36,6 +36,7 @@ convert-mp4=False
 tagfile=True
 download-artwork=True
 download-subs=False
+embed-subs=True
 sub-providers=addic7ed,podnapisi,thesubdb,opensubtitles
 
 [CouchPotato]

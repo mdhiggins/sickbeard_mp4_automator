@@ -43,6 +43,7 @@ class ReadSettings:
                         'tagfile': 'True',
                         'download-artwork': 'True',
                         'download-subs': 'False',
+                        'embed-subs': 'True',
                         'sub-providers': 'addic7ed, podnapisi, thesubdb, opensubtitles' }
         # Default settings for CouchPotato
         cp_defaults = {'host': 'localhost',
@@ -155,6 +156,8 @@ class ReadSettings:
             print "You must specifiy at least one subtitle provider to downlaod subs automatically"
         else:
             self.subproviders = self.subproviders.lower().replace(' ', '').split(',')
+
+        self.embedsubs = config.getboolean(section, 'embed-subs')
 
         self.vcodec = config.get(section, "video-codec")
         if self.vcodec == '':
