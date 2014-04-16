@@ -54,7 +54,7 @@ Sick Beard Installation Instructions
     - `api_key` = Set this to your Sick Beard API key (options -> general, enable API in Sick Beard to get this key)
 3. **OPTIONAL** - If you're using SAB, set your post processing script to sabToSickBeardWithConverter.py - this is not completely needed but gives the added benefit of doing the conversion from mkv to mp4 before Sick Beard sees the file in whatever folder you choose to download things to. It saves having to put in all the API information as well, and prevents the one additional refresh needed normally to have Sick Beard see the properly converted file. That being said the postConversion script can handle everything on its own, so this step is just for the added benefits listed.
 
-NzbDrone Support (Beta)
+NzbDrone Support (Beta, Tagging Not Supported)
 --------------
 1. Set your NzbDrone settings to the autoProcess.ini file
     - `host` = NzbDrone host address (localhost)    #Settings/General/Start-Up
@@ -64,7 +64,7 @@ NzbDrone Support (Beta)
     - `web_root` = URL base empty or e.g. /nzbdrone #Settings/General/Start-Up
 2. Browse to the [Download Client] tab and enable advanced settings [Show].
 3. Set the {Drone Factory Interval} to 0 to disable it. (Sabnzbd will trigger a specific path re-scan, allowing the mp4 conversion to be completed before NzbDrone starts moving stuff around).
-4. Add a category for NzbDrone downloads ( e.g. nzbdrone) and set the script too nzbToNzbDroneMp4.py
+4. Add a category for NzbDrone downloads ( e.g. nzbdrone) and set the script to nzbToNzbDroneMp4.py
 
 Couch Potato Support
 --------------
