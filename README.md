@@ -70,7 +70,7 @@ Couch Potato Support
 --------------
 1. Set your Couch Potato settings to the autoProcess.ini file
     - `host` = Couch Potato host address (localhost)
-    - `port` = Couch Potato port (8082)
+    - `port` = Couch Potato port (5050)
     - `ssl` = 1 if enabled, 0 if not
     - `api_key` = Couch Potato API Key (required)
     - `username` = your Couch Potato username
