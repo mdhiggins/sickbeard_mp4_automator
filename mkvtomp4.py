@@ -326,7 +326,7 @@ class MkvtoMp4:
         except UnicodeDecodeError:
             outputfile = os.path.join(output_dir, filename.decode('utf-8') + "." + self.output_extension)
         #If we're processing a file that's going to have the same input and output filename, resolve the potential future naming conflict
-        if inputfile == outputfile:
+        if os.path.abspath(inputfile) == os.path.abspath(outputfile):
             newfile = os.path.join(input_dir, filename + '.tmp.' + input_extension)
             #Make sure there isn't any leftover temp files for whatever reason
             self.removeFile(newfile, 0, 0)
