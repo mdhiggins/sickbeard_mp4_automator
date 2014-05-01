@@ -348,7 +348,7 @@ class MkvtoMp4:
                 sys.stdout.flush()
         print outputfile + " created"
         
-        os.chmod(outputfile, os.lstat(inputfile).st_mode) # Set permissions of newly created file
+        os.chmod(outputfile, 0777) # Set permissions of newly created file
         return outputfile, inputfile
 
     # Break apart a file path into the directory, filename, and extension
@@ -373,7 +373,7 @@ class MkvtoMp4:
 
             try:
                 processor.process(inputfile, outputfile)
-                os.chmod(outputfile, os.lstat(inputfile).st_mode)
+                os.chmod(outputfile, 0777)
                 # Cleanup
                 if self.removeFile(inputfile, replacement=outputfile):
                     print 'Temporary file %s deleted' % (inputfile)
