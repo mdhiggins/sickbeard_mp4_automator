@@ -76,6 +76,15 @@ class Mp4Format(BaseFormat):
     ffmpeg_format_name = 'mp4'
 
 
+class SrtFormat(BaseFormat):
+    """
+    Mp4 container format, the default Format for H.264
+    video content.
+    """
+    format_name = 'srt'
+    ffmpeg_format_name = 'srt'
+
+
 class MpegFormat(BaseFormat):
     """
     MPEG(TS) container, used mainly for MPEG 1/2 video codecs.
@@ -86,5 +95,5 @@ class MpegFormat(BaseFormat):
 
 format_list = [
     OggFormat, AviFormat, MkvFormat, WebmFormat, FlvFormat,
-    MovFormat, Mp4Format, MpegFormat
+    MovFormat, Mp4Format, SrtFormat, MpegFormat
 ]

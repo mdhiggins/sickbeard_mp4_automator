@@ -226,11 +226,12 @@ class MkvtoMp4:
         for s in info.subtitle:
             print "Subtitle stream detected: " + s.codec + " " + s.language + " [Stream " + str(s.index) + "]"
 
+            # Set undefined language to default language if specified
+            if self.sdl is not None and s.language == 'und':
+                s.language = self.sdl
             # Make sure its not an image based codec
             if s.codec not in bad_subtitle_codecs and self.embedsubs:
-                # Set undefined language to default language if specified
-                if self.sdl is not None and s.language == 'und':
-                    s.language = self.sdl
+                
                 # Proceed if no whitelist is set, or if the language is in the whitelist
                 if self.swl is None or s.language in self.swl:
                     subtitle_settings.update({l: {
@@ -241,6 +242,34 @@ class MkvtoMp4:
                         #'default': s.sub_default
                     }})
                     l = l + 1
+            else:
+                if self.swl is None or s.language in self.swl:
+                    ripsub = {1: {
+                        'map': s.index,
+                        'codec': 'srt',
+                        'language': s.language
+                    }}
+                    options = {
+                        'format': 'srt',
+                        'subtitle': ripsub,
+                    }
+                    input_dir, filename, input_extension = self.parseFile(inputfile)
+                    output_dir = input_dir if self.output_dir is None else self.output_dir
+                    outputfile = os.path.join(output_dir, filename + "." + s.language + ".srt")
+                    
+                    i = 2
+                    while os.path.isfile(outputfile):
+                        outputfile = os.path.join(output_dir, filename + "." + s.language + "." + str(i) + ".srt")
+                        i += i
+                    print "Ripping " + s.language + " subtitle from file"
+                    conv = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH).convert(inputfile, outputfile, options, timeout=None)
+                    for timecode in conv:
+                            pass
+
+                    try:
+                        print outputfile + " created"
+                    except:
+                        print "File created"
 
         # External subtitle import
 

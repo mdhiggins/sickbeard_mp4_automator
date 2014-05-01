@@ -589,6 +589,13 @@ class WebVTTCodec(SubtitleCodec):
     ffmpeg_codec_name = 'webvtt'
 
 
+class SrtCodec(SubtitleCodec):
+    """
+    SRT subtitle codec.
+    """
+    codec_name = 'srt'
+    ffmpeg_codec_name = 'srt'
+
 audio_codec_list = [
     AudioNullCodec, AudioCopyCodec, VorbisCodec, AacCodec, Mp3Codec, Mp2Codec, Ac3Codec, DtsCodec, LibFDKAACCodec
 ]
@@ -600,5 +607,5 @@ video_codec_list = [
 ]
 
 subtitle_codec_list = [
-    MOVTextCodec, WebVTTCodec
+    MOVTextCodec, WebVTTCodec, SrtCodec
 ]

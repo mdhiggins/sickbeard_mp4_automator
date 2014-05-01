@@ -72,14 +72,8 @@ class Converter(object):
         if format_options is None:
             raise ConverterError('Unknown container format error')
 
-        if 'audio' not in opt and 'video' not in opt:
-            raise ConverterError('Neither audio nor video streams requested')
-
-        if 'audio' not in opt or twopass == 1:
-            opt['audio'] = {0: {'codec': None}}
-
-        if 'video' not in opt:
-            opt['video'] = {'codec': None}
+        if 'audio' not in opt and 'video' not in opt and 'subtitle' not in opt:
+            raise ConverterError('Neither audio nor video nor subtitle streams requested')
 
         if 'audio' in opt:
             y = opt['audio']
