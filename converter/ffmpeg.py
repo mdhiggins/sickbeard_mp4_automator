@@ -390,6 +390,7 @@ class FFMpeg(object):
 
         cmds.extend(opts)
         cmds.extend(['-movflags', 'faststart'])
+        cmds.extend(['-threads', 'auto'])
         cmds.extend(['-y', outfile])
 
         if timeout and os.name != 'nt':
