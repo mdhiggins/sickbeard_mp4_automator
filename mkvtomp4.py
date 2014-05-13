@@ -288,6 +288,7 @@ class MkvtoMp4:
 
         if self.downloadsubs:
             import subliminal
+            print "Attempting to download subtitles, please wait"
 
             try:
                 subliminal.cache_region.configure('dogpile.cache.memory')
@@ -295,7 +296,7 @@ class MkvtoMp4:
                 pass
 
             try:
-                video = subliminal.scan_video(inputfile, subtitles=True, embedded_subtitles=True, original=original)
+                video = subliminal.scan_video(os.path.abspath(inputfile), subtitles=True, embedded_subtitles=True, original=original)
                 subtitles = subliminal.download_best_subtitles([video], languages, hearing_impaired=False, providers=self.subproviders)
                 subliminal.save_subtitles(subtitles)
             except Exception as e:
