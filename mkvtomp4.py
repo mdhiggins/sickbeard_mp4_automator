@@ -121,7 +121,10 @@ class MkvtoMp4:
 
         if delete:
             if self.removeFile(inputfile):
-                print inputfile + " deleted"
+                try:
+                    print inputfile + " deleted"
+                except:
+                    print "Original file deleted"
                 deleted = True
             else:
                 print "Couldn't delete the original file:" + inputfile
