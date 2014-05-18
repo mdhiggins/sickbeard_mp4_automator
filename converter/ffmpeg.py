@@ -389,7 +389,7 @@ class FFMpeg(object):
                 del opts[ind]
 
         cmds.extend(opts)
-        cmds.extend(['-movflags', 'faststart'])
+        #cmds.extend(['-movflags', 'faststart'])
         cmds.extend(['-threads', 'auto'])
         cmds.extend(['-y', outfile])
 
