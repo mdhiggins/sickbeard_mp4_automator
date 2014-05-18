@@ -174,7 +174,7 @@ class tmdb_mp4:
         #Pulls down all the poster metadata for the correct season and sorts them into the Poster object
         if poster is None:
             try:
-                poster = urllib.urlretrieve(self.movie.get_poster(), os.path.join(tempfile.gettempdir(),"poster.jpg"))[0]
+                poster = urllib.urlretrieve(self.movie.get_poster("l"), os.path.join(tempfile.gettempdir(),"poster.jpg"))[0]
             except:
                 poster = None
         return poster
