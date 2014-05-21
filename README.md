@@ -96,32 +96,70 @@ To run the script manually, simply run the manual.py file and follow the prompts
 If you wish to run it via the command line (good for batch operations) follow this format:
 
 ```
+Help output
+manual.py -h
+usage: manual.py [-h] [-i INPUT] [-a] [-tv TVDBID] [-s SEASON] [-e EPISODE]
+                 [-imdb IMDBID] [-tmdb TMDBID] [-nm] [-nc] [-nd]
+
+Manual conversion and tagging script for sickbeard_mp4_automator
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -i INPUT, --input INPUT
+                        The source that will be converted. May be a file or a
+                        directory
+  -a, --auto            Enable auto mode, the script will not prompt you for
+                        any further input, good for batch files. It will guess
+                        the metadata using guessit
+  -tv TVDBID, --tvdbid TVDBID
+                        Set the TVDB ID for a tv show
+  -s SEASON, --season SEASON
+                        Specifiy the season number
+  -e EPISODE, --episode EPISODE
+                        Specify the episode number
+  -imdb IMDBID, --imdbid IMDBID
+                        Specify the IMDB ID for a movie
+  -tmdb TMDBID, --tmdbid TMDBID
+                        Specify theMovieDB ID for a movie
+  -nm, --nomove         Overrides and disables the custom moving of file
+                        options that come from output_dir and move-to
+  -nc, --nocopy         Overrides and disables the custom copying of file
+                        options that come from output_dir and move-to
+  -nd, --nodelete       Overrides and disables deleting of original files
+```
+
+Examples
+```
 Movies (using IMDB ID):
-manual.py mp4path -m imdbid
-Example: manual.py 'C:\The Matrix.mkv' -m tt0133093
+manual.py -i mp4path -m imdbid
+Example: manual.py -i 'C:\The Matrix.mkv' -imdb tt0133093
 
 Movies (using TMDB ID)
-manual.py mp4path -tmdb tmdbid
-Example: manual.py 'C:\The Matrix.mkv' -tmdb 603
+manual.py -i mp4path -tmdb tmdbid
+Example: manual.py -i 'C:\The Matrix.mkv' -tmdb 603
 
 TV
-manual.py mp4path -tv tvdbid season episode
-Example: manual.py 'C:\Futurama S03E10.mkv' -tv 73871‎ 3 10
+manual.py -i mp4path -tv tvdbid -s season -e episode
+Example: manual.py -i 'C:\Futurama S03E10.mkv' -tv 73871‎ -s 3 -e 10
 
-Silent Single File (will gather movie ID or TV show ID / season / spisode from the file name if possible)
-manual.py mp4path -silent
-Example: manual.py 'C:\Futurama S03E10.mkv' -silent
+Auto Single File (will gather movie ID or TV show ID / season / spisode from the file name if possible)
+manual.py -i mp4path -silent
+Example: manual.py -i 'C:\Futurama S03E10.mkv' -a
 
 Directory (you will be prompted at each file for the type of file and ID)
-manual.py directory_path
-Example: manual.py C:\Movies
+manual.py -i directory_path
+Example: manual.py -i C:\Movies
 
 Automated Directory (The script will attempt to figure out appropriate tagging based on file name)
-manual.py directory_path -silent
-Example: manual.py C:\Movies -silent
+manual.py -i directory_path -a
+Example: manual.py -i C:\Movies -a
+
+Process a directory but manually specific TVDB ID (Good for shows that don't correctly match using the guess)
+manual.py -i directory -a -tv tvdbid
+Example: manual.py -i C:\TV\Futurama\ -a -tv 73871
 ```
-You may also simply run `manual.py 'C:\The Matrix.mkv'` and the script will prompt you for the missing information or attempt to guess based on the file name.
-You may run the script with a `-silent` switch, which will let the script guess the tagging information based on the file name, avoiding any need for user input. This is the most ideal option for large batch file operations.
+You may also simply run `manual.py -i 'C:\The Matrix.mkv'` and the script will prompt you for the missing information or attempt to guess based on the file name.
+You may run the script with a `--auto` or `-a` switch, which will let the script guess the tagging information based on the file name, avoiding any need for user input. This is the most ideal option for large batch file operations.
 The script may also be pointed to a directory, where it will process all files in the directory. If you run the script without the `-silent` switch, you will be prompted for each file with options on how to tag, to convert without tagging, or skip.
 
 External Cover Art

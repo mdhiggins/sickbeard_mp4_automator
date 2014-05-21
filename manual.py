@@ -5,6 +5,7 @@ import os
 import guessit
 import locale
 import glob
+import argparse
 from readSettings import ReadSettings
 from tvdb_mp4 import Tvdb_mp4
 from tmdb_mp4 import tmdb_mp4
@@ -57,10 +58,10 @@ def getYesNo():
         return getYesNo()
 
 
-def getinfo(fileName=None, silent=False, tag=settings.tagfile):
+def getinfo(fileName=None, silent=False, tag=settings.tagfile, tvdbid=None):
     tagdata = None
     # Try to guess the file is guessing is enabled
-    if fileName is not None: tagdata = guessInfo(fileName)
+    if fileName is not None: tagdata = guessInfo(fileName, tvdbid)
     if silent is False:
         if tagdata:
             print "Proceed using guessed identification from filename?"
@@ -91,7 +92,7 @@ def getinfo(fileName=None, silent=False, tag=settings.tagfile):
             return None
 
 
-def guessInfo(fileName):
+def guessInfo(fileName, tvdbid=None):
     if not settings.fullpathguess:
         fileName = os.path.basename(fileName)
     guess = guessit.guess_video_info(fileName)
@@ -99,7 +100,7 @@ def guessInfo(fileName):
         if guess['type'] == 'movie':
             return tmdbInfo(guess)
         elif  guess['type'] == 'episode':
-            return tvdbInfo(guess)
+            return tvdbInfo(guess, tvdbid)
         else:
             return None
     except Exception as e:
@@ -126,12 +127,14 @@ def tmdbInfo(guessData):
     return None
 
 
-def tvdbInfo(guessData):
+def tvdbInfo(guessData, tvdbid=None):
+    
     series = guessData["series"]
     season = guessData["season"]
     episode = guessData["episodeNumber"]
     t = tvdb_api.Tvdb()
-    tvdbid = t[series]['id']
+    #tvdbid = t[series]['id']
+    tvdbid = str(tvdbid) if tvdbid else t[series]['id']
     print "Matched TV episode as %s (TVDB ID:%d) S%02dE%02d" % (series.encode(sys.stdout.encoding, errors='ignore'), int(tvdbid), int(season), int(episode))
     return 3, tvdbid, season, episode
 
@@ -173,7 +176,7 @@ def processFile(inputfile, tagdata):
         converter.replicate(output['output'])
 
 
-def walkDir(dir, silent=False, output_dir=None):
+def walkDir(dir, silent=False, output_dir=None, tvdbid=None):
     for r,d,f in os.walk(dir):
         for file in f:
             filepath = os.path.join(r, file)
@@ -183,8 +186,11 @@ def walkDir(dir, silent=False, output_dir=None):
                     try:
                         print "Processing file %s" % (filepath.encode(sys.stdout.encoding, errors='ignore'))
                     except:
-                        print "Processing file %s" % (filepath.encode('utf-8', errors='ignore'))
-                    tagdata = getinfo(filepath, silent)
+                        try:
+                            print "Processing file %s" % (filepath.encode('utf-8', errors='ignore'))
+                        except:
+                            print "Processing file"
+                    tagdata = getinfo(filepath, silent, tvdbid=tvdbid)
                     processFile(filepath, tagdata)
             except Exception as e:
                 print "An unexpected error occurred, processing of this file has failed"
@@ -192,50 +198,65 @@ def walkDir(dir, silent=False, output_dir=None):
 
 
 def main():
-    silent = True if '-silent' in sys.argv else False
-    # Override output_dir settings if -nomove switch is used
-    #if '-nomove' in sys.argv: settings.output_dir = None 
-    if len(sys.argv) > 2:
-        path = str(sys.argv[1]).decode(locale.getpreferredencoding())
+    parser = argparse.ArgumentParser(description="Manual conversion and tagging script for sickbeard_mp4_automator")
+    parser.add_argument('-i', '--input', help='The source that will be converted. May be a file or a directory')
+    parser.add_argument('-a', '--auto', action="store_true", help="Enable auto mode, the script will not prompt you for any further input, good for batch files. It will guess the metadata using guessit")
+    parser.add_argument('-tv', '--tvdbid', help="Set the TVDB ID for a tv show")
+    parser.add_argument('-s', '--season', help="Specifiy the season number")
+    parser.add_argument('-e', '--episode', help="Specify the episode number")
+    parser.add_argument('-imdb', '--imdbid', help="Specify the IMDB ID for a movie")
+    parser.add_argument('-tmdb', '--tmdbid', help="Specify theMovieDB ID for a movie")
+    parser.add_argument('-nm', '--nomove', action='store_true', help="Overrides and disables the custom moving of file options that come from output_dir and move-to")
+    parser.add_argument('-nc', '--nocopy', action='store_true', help="Overrides and disables the custom copying of file options that come from output_dir and move-to")
+    parser.add_argument('-nd', '--nodelete', action='store_true', help="Overrides and disables deleting of original files")
+
+    args = vars(parser.parse_args())
+
+    #Setup the silent mode
+    silent = args['auto']
+
+    #Settings overrides
+    if (args['nomove']):
+        settings.output_dir = None;
+        settings.moveto = None;
+    if (args['nocopy']):
+        settings.copyto = None;
+    if (args['nodelete']):
+        settings.delete = False;
+
+    #Establish the path we will be working with
+    if (args['input']):
+        path = str(args['input']).decode(locale.getpreferredencoding())
         try:
             path = glob.glob(path)[0]
         except:
             pass
-        # Gather info from command line
-        if os.path.isdir(path):
-            walkDir(path, silent)
-        elif os.path.isfile(path):
-            if MkvtoMp4(settings).validSource(path):
-                if sys.argv[2] == '-tv':
-                    tvdbid = int(sys.argv[3])
-                    season = int(sys.argv[4])
-                    episode = int(sys.argv[5])
-                    tagdata = [3, tvdbid, season, episode]
-                elif sys.argv[2] == '-m':
-                    imdbid = sys.argv[3]
-                    tagdata = [1, imdbid]
-                elif sys.argv[2] == '-tmdb':
-                    tmdbid = sys.argv[3]
-                    tagdata = [2, tmdbid]
-                else:
-                    tagdata = getinfo(path, silent)
-                processFile(path, tagdata)
-            else:
-                print "File %s is not in the correct format" % (path)
-        else:
-            print "Invalid command line input"
-    # Ask for the info
     else:
         path = getValue("Enter path to file")
-        if os.path.isdir(path):
-            walkDir(path, silent)
-        else:
-            if MkvtoMp4(settings).validSource(path):
-                tagdata = getinfo(path, silent=silent)
-                processFile(path, tagdata)
+
+    if os.path.isdir(path):
+        tvdbid = int(args['tvdbid']) if args['tvdbid'] else None
+        walkDir(path, silent, tvdbid=tvdbid)
+    elif (os.path.isfile(path) and MkvtoMp4(settings).validSource(path)):
+        if (args['tvdbid'] and not (args['imdbid'] or args['tmdbid'])):
+            tvdbid = int(args['tvdbid']) if args['tvdbid'] else None
+            season = int(args['season']) if args['season'] else None
+            episode = int(args['episode']) if args['episode'] else None
+            if (tvdbid and season and episode):
+                tagdata = [3, tvdbid, season, episode]
             else:
-                print "File %s is not in the correct format" % (path)
-                main()
+                tagdata = getinfo(path, silent=silent, tvdbid=tvdbid)
+        elif ((args['imdbid'] or args['tmdbid']) and not args['tvdbid']):
+            if (args['imdbid']):
+                imdbid = int(args['imdbid'])
+                tagdata = [1, imdbid]
+            elif (args['tmdbid']):
+                tmdbid = int(args['tmdbid'])
+                tagdata = [2, tmdbid]
+        processFile(path, tagdata)
+    else:
+        print "File %s is not in the correct format" % (path)
+
 
 if __name__ == '__main__':
     main()
