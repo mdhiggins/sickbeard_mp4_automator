@@ -139,7 +139,7 @@ def tvdbInfo(guessData, tvdbid=None):
     return 3, tvdbid, season, episode
 
 
-def processFile(inputfile, tagdata):
+def processFile(inputfile, tagdata, relativePath=None):
     # Gather tagdata
     if tagdata is False:
         return # This means the user has elected to skip the file
@@ -173,14 +173,14 @@ def processFile(inputfile, tagdata):
             tagmp4.writeTags(output['output'], settings.artwork)
         if settings.relocate_moov:
             converter.QTFS(output['output'])
-        converter.replicate(output['output'])
+        converter.replicate(output['output'], relativePath=relativePath)
 
 
-def walkDir(dir, silent=False, output_dir=None, tvdbid=None):
+def walkDir(dir, silent=False, preserveRelative=False, tvdbid=None):
     for r,d,f in os.walk(dir):
         for file in f:
             filepath = os.path.join(r, file)
-            
+            relative = os.path.split(os.path.relpath(filepath , dir))[0] if preserveRelative else None
             try:
                 if MkvtoMp4(settings).validSource(filepath):
                     try:
@@ -191,7 +191,7 @@ def walkDir(dir, silent=False, output_dir=None, tvdbid=None):
                         except:
                             print "Processing file"
                     tagdata = getinfo(filepath, silent, tvdbid=tvdbid)
-                    processFile(filepath, tagdata)
+                    processFile(filepath, tagdata, relativePath=relative)
             except Exception as e:
                 print "An unexpected error occurred, processing of this file has failed"
                 print str(e)
@@ -209,6 +209,7 @@ def main():
     parser.add_argument('-nm', '--nomove', action='store_true', help="Overrides and disables the custom moving of file options that come from output_dir and move-to")
     parser.add_argument('-nc', '--nocopy', action='store_true', help="Overrides and disables the custom copying of file options that come from output_dir and move-to")
     parser.add_argument('-nd', '--nodelete', action='store_true', help="Overrides and disables deleting of original files")
+    parser.add_argument('-pr', '--preserveRelative', action='store_true', help="Preserves relative directories when processing multiple files using the copy-to or move-to functionality")
 
     args = vars(parser.parse_args())
 
@@ -236,7 +237,7 @@ def main():
 
     if os.path.isdir(path):
         tvdbid = int(args['tvdbid']) if args['tvdbid'] else None
-        walkDir(path, silent, tvdbid=tvdbid)
+        walkDir(path, silent, tvdbid=tvdbid, preserveRelative=args['preserveRelative'])
     elif (os.path.isfile(path) and MkvtoMp4(settings).validSource(path)):
         if (args['tvdbid'] and not (args['imdbid'] or args['tmdbid'])):
             tvdbid = int(args['tvdbid']) if args['tvdbid'] else None

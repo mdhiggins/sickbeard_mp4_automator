@@ -419,9 +419,13 @@ class MkvtoMp4:
                 return inputfile
 
     # Makes additional copies of the input file in each directory specified in the copy_to option
-    def replicate(self, inputfile):
+    def replicate(self, inputfile, relativePath=None):
         if self.copyto:
             for d in self.copyto:
+                if (relativePath):
+                    d = os.path.join(d, relativePath)
+                    if not os.path.exists(d):
+                        os.makedirs(d)
                 try:
                     print "Attempting to copy file %s to %s" % (inputfile, d)
                 except:
@@ -433,11 +437,14 @@ class MkvtoMp4:
                     print "Unable to create additional copy of file in %s" % (d)
                     print e
         if self.moveto:
+            moveto = os.path.join(self.moveto, relativePath) if relativePath else self.moveto
+            if not os.path.exists(moveto):
+                os.makedirs(moveto)
             try:
-                shutil.move(inputfile, self.moveto)
-                print "File moved to %s" % (self.moveto)
+                shutil.move(inputfile, moveto)
+                print "File moved to %s" % (moveto)
             except Exception as e:
-                print "Unable to move file to %s" % (self.moveto)
+                print "Unable to move file to %s" % (moveto)
                 print e
 
     # Robust file removal function, with options to retry in the event the file is in use, and replace a deleted file

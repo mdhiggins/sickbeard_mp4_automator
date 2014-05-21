@@ -126,6 +126,10 @@ optional arguments:
   -nc, --nocopy         Overrides and disables the custom copying of file
                         options that come from output_dir and move-to
   -nd, --nodelete       Overrides and disables deleting of original files
+  -pr, --preserveRelative
+                        Preserves relative directories when processing
+                        multiple files using the copy-to or move-to
+                        functionality
 ```
 
 Examples
