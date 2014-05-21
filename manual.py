@@ -253,6 +253,8 @@ def main():
             elif (args['tmdbid']):
                 tmdbid = int(args['tmdbid'])
                 tagdata = [2, tmdbid]
+        else:
+            tagdata = getinfo(path, silent=silent)
         processFile(path, tagdata)
     else:
         print "File %s is not in the correct format" % (path)
