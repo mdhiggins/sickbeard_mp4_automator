@@ -241,8 +241,9 @@ class ReadSettings:
         host = config.get(section, "host")  # Server Address
         port = config.get(section, "port")  # Server Port
         api_key = config.get(section, "api_key")  # Sickbeard API key
+        web_root = config.get(section, "web_root")  # Sickbeard webroot
 
-        sickbeard_url = protocol + host + ":" + port + "/api/" + api_key + "/?cmd=show.refresh&tvdbid=" + str(tvdb_id)
+        sickbeard_url = protocol + host + ":" + port + web_root +"/api/" + api_key + "/?cmd=show.refresh&tvdbid=" + str(tvdb_id)
         return sickbeard_url
 
     def writeConfig(self, config, cfgfile):
