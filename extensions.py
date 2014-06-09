@@ -4,5 +4,5 @@ valid_audio_codecs = ['aac', 'ac3', 'dts']
 valid_poster_extensions = ['jpg', 'png']
 valid_subtitle_extensions = ['srt']
 valid_formats = ['mp4', 'mov']
-bad_subtitle_codecs = ['pgssub', 'dvdsub']
+bad_subtitle_codecs = ['pgssub', 'dvdsub', 's_hdmv/pgs']
 tmdb_api_key = "45e408d2851e968e6e4d0353ce621c66"

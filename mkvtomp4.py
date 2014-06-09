@@ -233,7 +233,7 @@ class MkvtoMp4:
             if self.sdl is not None and s.language == 'und':
                 s.language = self.sdl
             # Make sure its not an image based codec
-            if s.codec not in bad_subtitle_codecs and self.embedsubs:
+            if s.codec.lower() not in bad_subtitle_codecs and self.embedsubs:
                 
                 # Proceed if no whitelist is set, or if the language is in the whitelist
                 if self.swl is None or s.language in self.swl:
