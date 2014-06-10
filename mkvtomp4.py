@@ -274,8 +274,6 @@ class MkvtoMp4:
                     except:
                         print "File created"
 
-        # External subtitle import
-
         # Attempt to download subtitles if they are missing using subliminal
         languages = set()
         if self.swl:
@@ -303,38 +301,40 @@ class MkvtoMp4:
                 print e
                 print "Unable to download subtitle"
 
-        src = 1  # FFMPEG input source number
-        for dirName, subdirList, fileList in os.walk(input_dir):
-            for fname in fileList:
-                subname, subextension = os.path.splitext(fname)
-                # Watch for appropriate file extension
-                if subextension[1:] in valid_subtitle_extensions:
-                    x, lang = os.path.splitext(subname)
-                    lang = lang[1:]
-                    # Using bablefish to convert a 2 language code to a 3 language code
-                    if len(lang) is 2:
-                        try:
-                            babel = Language.fromalpha2(lang)
-                            lang = babel.alpha3
-                        except:
-                            pass
-                    # If subtitle file name and input video name are the same, proceed
-                    if x == filename and self.embedsubs:
-                        print "External subtitle file detected, language " + lang
-                        if self.swl is None or lang in self.swl:
-                            print "Importing %s subtitle stream" % (fname)
-                            subtitle_settings.update({l: {
-                                'path': os.path.join(dirName, fname),
-                                'source': src,
-                                'map': 0,
-                                'codec': 'mov_text',
-                                'language': lang,
-                                }})
-                            l = l + 1
-                            src = src + 1
-                            self.deletesubs.add(os.path.join(dirName, fname))
-                        else:
-                            print "Ignoring %s external subtitle stream due to language: %s" % (fname, lang)
+        # External subtitle import
+        if self.embedsubs: #Don't bother if we're not embeddeding any subtitles
+            src = 1  # FFMPEG input source number
+            for dirName, subdirList, fileList in os.walk(input_dir):
+                for fname in fileList:
+                    subname, subextension = os.path.splitext(fname)
+                    # Watch for appropriate file extension
+                    if subextension[1:] in valid_subtitle_extensions:
+                        x, lang = os.path.splitext(subname)
+                        lang = lang[1:]
+                        # Using bablefish to convert a 2 language code to a 3 language code
+                        if len(lang) is 2:
+                            try:
+                                babel = Language.fromalpha2(lang)
+                                lang = babel.alpha3
+                            except:
+                                pass
+                        # If subtitle file name and input video name are the same, proceed
+                        if x == filename:
+                            print "External subtitle file detected, language " + lang
+                            if self.swl is None or lang in self.swl:
+                                print "Importing %s subtitle stream" % (fname)
+                                subtitle_settings.update({l: {
+                                    'path': os.path.join(dirName, fname),
+                                    'source': src,
+                                    'map': 0,
+                                    'codec': 'mov_text',
+                                    'language': lang,
+                                    }})
+                                l = l + 1
+                                src = src + 1
+                                self.deletesubs.add(os.path.join(dirName, fname))
+                            else:
+                                print "Ignoring %s external subtitle stream due to language: %s" % (fname, lang)
 
         # Collect all options
         options = {
