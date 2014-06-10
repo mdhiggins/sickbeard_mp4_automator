@@ -245,7 +245,7 @@ class MkvtoMp4:
                         #'default': s.sub_default
                     }})
                     l = l + 1
-            else:
+            elif s.codec.lower() not in bad_subtitle_codecs and not self.embedsubs:
                 if self.swl is None or s.language in self.swl:
                     ripsub = {1: {
                         'map': s.index,
