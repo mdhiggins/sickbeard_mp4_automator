@@ -135,7 +135,10 @@ def tvdbInfo(guessData, tvdbid=None):
     t = tvdb_api.Tvdb()
     #tvdbid = t[series]['id']
     tvdbid = str(tvdbid) if tvdbid else t[series]['id']
-    print "Matched TV episode as %s (TVDB ID:%d) S%02dE%02d" % (series.encode(sys.stdout.encoding, errors='ignore'), int(tvdbid), int(season), int(episode))
+    try:
+        print "Matched TV episode as %s (TVDB ID:%d) S%02dE%02d" % (series.encode(sys.stdout.encoding, errors='ignore'), int(tvdbid), int(season), int(episode))
+    except:
+        print "Matched TV episode"
     return 3, tvdbid, season, episode
 
 
@@ -148,17 +151,26 @@ def processFile(inputfile, tagdata, relativePath=None):
     elif tagdata[0] is 1:
         imdbid = tagdata[1]
         tagmp4 = tmdb_mp4(imdbid)
-        print "Processing %s" % (tagmp4.title.encode(sys.stdout.encoding, errors='ignore'))
+        try:
+            print "Processing %s" % (tagmp4.title.encode(sys.stdout.encoding, errors='ignore'))
+        except:
+            print "Processing movie"
     elif tagdata[0] is 2:
         tmdbid = tagdata[1]
         tagmp4 = tmdb_mp4(tmdbid, True)
-        print "Processing %s" % (tagmp4.title.encode(sys.stdout.encoding, errors='ignore'))
+        try:
+            print "Processing %s" % (tagmp4.title.encode(sys.stdout.encoding, errors='ignore'))
+        except:
+            print "Processing movie"
     elif tagdata[0] is 3:
         tvdbid = int(tagdata[1])
         season = int(tagdata[2])
         episode = int(tagdata[3])
         tagmp4 = Tvdb_mp4(tvdbid, season, episode)
-        print "Processing %s Season %02d Episode %02d - %s" % (tagmp4.show.encode(sys.stdout.encoding, errors='ignore'), int(tagmp4.season), int(tagmp4.episode), tagmp4.title.encode(sys.stdout.encoding, errors='ignore'))
+        try:
+            print "Processing %s Season %02d Episode %02d - %s" % (tagmp4.show.encode(sys.stdout.encoding, errors='ignore'), int(tagmp4.season), int(tagmp4.episode), tagmp4.title.encode(sys.stdout.encoding, errors='ignore'))
+        except:
+            print "Processing TV episode"
     
     # Process
     try: 
@@ -220,10 +232,13 @@ def main():
     if (args['nomove']):
         settings.output_dir = None;
         settings.moveto = None;
+        print "No-move enabled"
     if (args['nocopy']):
         settings.copyto = None;
+        print "No-copy enabled"
     if (args['nodelete']):
         settings.delete = False;
+        print "No-delete enabled"
 
     #Establish the path we will be working with
     if (args['input']):
@@ -258,7 +273,10 @@ def main():
             tagdata = getinfo(path, silent=silent)
         processFile(path, tagdata)
     else:
-        print "File %s is not in the correct format" % (path)
+        try:
+            print "File %s is not in the correct format" % (path)
+        except:
+            print "File is not in the correct format"
 
 
 if __name__ == '__main__':
