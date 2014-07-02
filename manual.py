@@ -222,6 +222,7 @@ def main():
     parser.add_argument('-nc', '--nocopy', action='store_true', help="Overrides and disables the custom copying of file options that come from output_dir and move-to")
     parser.add_argument('-nd', '--nodelete', action='store_true', help="Overrides and disables deleting of original files")
     parser.add_argument('-pr', '--preserveRelative', action='store_true', help="Preserves relative directories when processing multiple files using the copy-to or move-to functionality")
+    parser.add_argument('-cmp4', '--convertmp4', action='store_true', help="Overrides convert-mp4 setting in autoProcess.ini enabling the reprocessing of mp4 files")
 
     args = vars(parser.parse_args())
 
@@ -230,15 +231,18 @@ def main():
 
     #Settings overrides
     if (args['nomove']):
-        settings.output_dir = None;
-        settings.moveto = None;
+        settings.output_dir = None
+        settings.moveto = None
         print "No-move enabled"
     if (args['nocopy']):
-        settings.copyto = None;
+        settings.copyto = None
         print "No-copy enabled"
     if (args['nodelete']):
-        settings.delete = False;
+        settings.delete = False
         print "No-delete enabled"
+    if (args['convertmp4']):
+        settings.processMP4 = True
+        print "Reprocessing of MP4 files enabled"
 
     #Establish the path we will be working with
     if (args['input']):
