@@ -17,7 +17,12 @@ class PostProcess(Plugin):
 
     
     def callscript(self, message = None, group = None):
-        imdbid = group['library']['identifier']
+        log.info('MP4 Automator Post Processing script initialized')
+        try:
+            imdbid = group['library']['identifier']
+        except:
+            imdbid = group['identifier']
+
         moviefile = group['renamed_files']
         original = group['files']['movie'][0]
         
