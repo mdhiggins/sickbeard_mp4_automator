@@ -1,5 +1,5 @@
 from .main import PostProcess
 
 
-def start():
+def autoload():
     return PostProcess()
