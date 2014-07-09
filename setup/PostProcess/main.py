@@ -3,6 +3,7 @@ from couchpotato.core.logger import CPLog
 from couchpotato.core.plugins.base import Plugin
 from subprocess import Popen, PIPE
 import traceback
+import os
 
 log = CPLog(__name__)
 
