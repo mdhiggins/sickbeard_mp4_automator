@@ -56,7 +56,8 @@ class ReadSettings:
                        'delete_failed': 'False',
                        'ssl': 'False',
                        'web_root': ''}
-        utorrent_defaults = { 'label', '' }
+        # Default uTorrent settings
+        utorrent_defaults = { 'label': '' }
 
         defaults = {'SickBeard': sb_defaults, 'CouchPotato': cp_defaults, 'MP4': mp4_defaults, 'uTorrent': utorrent_defaults}
         write = False  # Will be changed to true if a value is missing from the config file and needs to be written
