@@ -88,7 +88,8 @@ uTorrent Support (BETA)
 - Currently the script will not touch the actual download but will instead make copies (the script will obey settings regarding output directory, copyto, moveto etc) and process those copies, so you can continue to seed your torrents.
 - uTorrent must be set up with the following post command options: ```#Args: %L %T %D %K %F```
 - Picture: http://i.imgur.com/7eADkCI.png
-
+- Set your uTorrent Label whitelist in autoProcess.ini
+    - Set `label` to match your uTorrent label, files without this corrrect label will be ignored. If no label is set, all torrents will be processed.
 
 Manual Script Usage
 --------------

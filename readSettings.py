@@ -56,8 +56,9 @@ class ReadSettings:
                        'delete_failed': 'False',
                        'ssl': 'False',
                        'web_root': ''}
+        utorrent_defaults = { 'label', '' }
 
-        defaults = {'SickBeard': sb_defaults, 'CouchPotato': cp_defaults, 'MP4': mp4_defaults}
+        defaults = {'SickBeard': sb_defaults, 'CouchPotato': cp_defaults, 'MP4': mp4_defaults, 'uTorrent': utorrent_defaults}
         write = False  # Will be changed to true if a value is missing from the config file and needs to be written
 
         config = ConfigParser.SafeConfigParser()
@@ -223,6 +224,12 @@ class ReadSettings:
                 self.CP['protocol'] = "http://"
         except (ConfigParser.NoOptionError, ValueError):
             self.CP['protocol'] = "http://"
+
+        #Read relevant uTorrent section information
+        section = "uTorrent"
+        self.uTorrentLabel = config.get(section, "label").lower()
+        if self.uTorrentLabel == "":
+            self.uTorrentLabel = None;
 
         #Pass the values on
         self.config = config

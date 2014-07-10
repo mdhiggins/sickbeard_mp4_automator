@@ -50,3 +50,6 @@ apikey =
 delay = 65
 method = renamer
 delete_failed = 0
+
+[uTorrent]
+label=
