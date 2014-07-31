@@ -73,7 +73,7 @@ def scan(directory,status=0):
         responseCode = c.getinfo(pycurl.HTTP_CODE);
         print 'Response code: ' + str(responseCode);
         isSuccesResponse = responseCode < 400;
-        pyobj = jsons.load(contentasjson)
+        pyobj = json.loads(contentasjson)
         # Print information to read on Sabnzbd if went succesfull            
         if (isSuccesResponse):
             print 'Name: ' + str(pyobj['name'])
