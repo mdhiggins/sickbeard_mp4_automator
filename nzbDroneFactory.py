@@ -58,6 +58,8 @@ def scan(directory,status=0):
         c.setopt(pycurl.HTTPHEADER, ['{0} : {1}'.format('X-Api-Key', apikey)]) 
         c.setopt(pycurl.POST, 1)
         c.setopt(pycurl.POSTFIELDS, postData)
+        c.setopt(pycurl.WRITEFUNCTION, contents.write)
+        
         try:
             c.perform()
         except pycurl.error, error:
@@ -71,7 +73,7 @@ def scan(directory,status=0):
         responseCode = c.getinfo(pycurl.HTTP_CODE);
         print 'Response code: ' + str(responseCode);
         isSuccesResponse = responseCode < 400;
-        pyobj = json.load(contentasjson)
+        pyobj = jsons.load(contentasjson)
         # Print information to read on Sabnzbd if went succesfull            
         if (isSuccesResponse):
             print 'Name: ' + str(pyobj['name'])
