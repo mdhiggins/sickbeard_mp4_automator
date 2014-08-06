@@ -98,8 +98,8 @@ class Tvdb_mp4:
                 video.save()
                 print "Tags written successfully"
                 break
-            except IOError:
-                print IOError
+            except IOError as e:
+                print e
                 time.sleep(5)
 
     def setHD(self, width, height):
