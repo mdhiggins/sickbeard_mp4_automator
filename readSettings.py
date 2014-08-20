@@ -164,7 +164,7 @@ class ReadSettings:
 
         #Setup variable for maximum audio channels
         self.maxchannels = config.get(section, 'max-audio-channels')
-        if self.maxchannels == ""
+        if self.maxchannels == "":
             self.maxchannels = None
         else:
             try:
