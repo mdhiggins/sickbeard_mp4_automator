@@ -27,6 +27,7 @@ relocate_moov=True
 audio-codec=ac3
 video-codec=h264,x264
 ios-audio=True
+max-audio-channels=
 audio-language=
 audio-default-language=
 subtitle-language=

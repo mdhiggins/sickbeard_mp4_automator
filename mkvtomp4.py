@@ -23,6 +23,7 @@ class MkvtoMp4:
                     audio_codec=['ac3'], 
                     audio_bitrate=None, 
                     iOS=False, 
+                    maxchannels=None,
                     awl=None, 
                     swl=None, 
                     adl=None, 
@@ -51,6 +52,7 @@ class MkvtoMp4:
         self.audio_codec=audio_codec
         self.audio_bitrate=audio_bitrate
         self.iOS=iOS
+        self.maxchannels=maxchannels
         self.awl=awl
         self.adl=adl
         # Subtitle settings
@@ -83,6 +85,7 @@ class MkvtoMp4:
         self.audio_codec=settings.acodec
         #self.audio_bitrate=settings.abitrate
         self.iOS=settings.iOS
+        self.maxchannels=settings.maxchannels
         self.awl=settings.awl
         self.adl=settings.adl
         #Subtitle settings
@@ -214,10 +217,18 @@ class MkvtoMp4:
                 else:
                     abitrate = self.audio_bitrate
 
+                # Audio channel adjustments
+                if self.maxchannels and a.audio_channels > self.maxchannels:
+                    audio_channels = self.maxchannels
+                    if acodec == 'copy':
+                        acodec = self.audio_codec[0]
+                else:
+                    audio_channels = a.audio_channels
+
                 audio_settings.update({l: {
                     'map': a.index,
                     'codec': acodec,
-                    'channels': a.audio_channels,
+                    'channels': audio_channels,
                     'bitrate': abitrate,
                     'language': a.language,
                 }})

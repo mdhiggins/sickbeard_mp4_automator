@@ -32,6 +32,7 @@ class ReadSettings:
                         'delete_original': 'True',
                         'relocate_moov': 'True',
                         'ios-audio': 'True',
+                        'max-audio-channels': '',
                         'audio-language': '',
                         'audio-codec': 'ac3',
                         'video-codec': 'h264, x264',
@@ -160,6 +161,20 @@ class ReadSettings:
             self.subproviders = self.subproviders.lower().replace(' ', '').split(',')
 
         self.embedsubs = config.getboolean(section, 'embed-subs')
+
+        #Setup variable for maximum audio channels
+        self.maxchannels = config.get(section, 'max-audio-channels')
+        if self.maxchannels == ""
+            self.maxchannels = None
+        else:
+            try:
+                self.maxchannels = int(self.maxchannels)
+            except:
+                print "Invalid number of audio channels specified"
+                self.maxchannels = None
+        if self.maxchannels is not None and self.maxchannels < 1:
+            print "Must have at least 1 audio channel"
+            self.maxchannels = None
 
         self.vcodec = config.get(section, "video-codec")
         if self.vcodec == '':
