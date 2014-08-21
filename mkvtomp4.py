@@ -211,12 +211,6 @@ class MkvtoMp4:
                     # If desired codec is the same as the source codec, copy to avoid quality loss
                     acodec = 'copy' if a.codec in self.audio_codec else self.audio_codec[0]
 
-                # Bitrate calculations/overrides
-                if self.audio_bitrate is None or self.audio_bitrate > (a.audio_channels * 256):
-                    abitrate = 256 * a.audio_channels
-                else:
-                    abitrate = self.audio_bitrate
-
                 # Audio channel adjustments
                 if self.maxchannels and a.audio_channels > self.maxchannels:
                     audio_channels = self.maxchannels
@@ -224,6 +218,12 @@ class MkvtoMp4:
                         acodec = self.audio_codec[0]
                 else:
                     audio_channels = a.audio_channels
+
+                # Bitrate calculations/overrides
+                if self.audio_bitrate is None or self.audio_bitrate > (a.audio_channels * 256):
+                    abitrate = 256 * audio_channels
+                else:
+                    abitrate = self.audio_bitrate
 
                 audio_settings.update({l: {
                     'map': a.index,
