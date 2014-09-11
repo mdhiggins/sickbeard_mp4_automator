@@ -128,8 +128,12 @@ def tmdbInfo(guessData):
 
 
 def tvdbInfo(guessData, tvdbid=None):
-    
     series = guessData["series"]
+    if 'year' in guessData:
+        try:
+            series = series + " (" + str(guessData["year"]) + ")"
+        except:
+            pass
     season = guessData["season"]
     episode = guessData["episodeNumber"]
     t = tvdb_api.Tvdb()
