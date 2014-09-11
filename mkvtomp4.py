@@ -131,10 +131,10 @@ class MkvtoMp4:
                 deleted = True
             else:
                 print "Couldn't delete the original file:" + inputfile
-            if self.downloadsubs:
-                for subfile in self.deletesubs:
-                    if self.removeFile(subfile):
-                        print subfile + "deleted"
+        if self.downloadsubs:
+            for subfile in self.deletesubs:
+                if self.removeFile(subfile):
+                    print subfile + "deleted"
 
         dim = self.getDimensions(outputfile)
 
@@ -343,7 +343,8 @@ class MkvtoMp4:
                                     }})
                                 l = l + 1
                                 src = src + 1
-                                self.deletesubs.add(os.path.join(dirName, fname))
+                                if embedsubs:
+                                    self.deletesubs.add(os.path.join(dirName, fname))
                             else:
                                 print "Ignoring %s external subtitle stream due to language: %s" % (fname, lang)
 
