@@ -343,8 +343,7 @@ class MkvtoMp4:
                                     }})
                                 l = l + 1
                                 src = src + 1
-                                if embedsubs:
-                                    self.deletesubs.add(os.path.join(dirName, fname))
+                                self.deletesubs.add(os.path.join(dirName, fname))
                             else:
                                 print "Ignoring %s external subtitle stream due to language: %s" % (fname, lang)
 
