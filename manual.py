@@ -185,8 +185,11 @@ def processFile(inputfile, tagdata, relativePath=None):
         converter = MkvtoMp4(settings)
         output = converter.process(inputfile, True)
         if tagmp4 is not None:
-            tagmp4.setHD(output['x'], output['y'])
-            tagmp4.writeTags(output['output'], settings.artwork)
+            try:
+                tagmp4.setHD(output['x'], output['y'])
+                tagmp4.writeTags(output['output'], settings.artwork)
+            except:
+                print "There was an error tagging the file"
         if settings.relocate_moov:
             converter.QTFS(output['output'])
         converter.replicate(output['output'], relativePath=relativePath)
