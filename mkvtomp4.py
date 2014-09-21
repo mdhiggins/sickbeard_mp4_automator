@@ -305,7 +305,7 @@ class MkvtoMp4:
                 pass
 
             try:
-                video = subliminal.scan_video(os.path.abspath(inputfile), subtitles=True, embedded_subtitles=True, original=original)
+                video = subliminal.scan_video(os.path.abspath(inputfile.decode(sys.getfilesystemencoding())), subtitles=True, embedded_subtitles=True, original=original)
                 subtitles = subliminal.download_best_subtitles([video], languages, hearing_impaired=False, providers=self.subproviders)
                 subliminal.save_subtitles(subtitles)
             except Exception as e:
@@ -365,11 +365,7 @@ class MkvtoMp4:
     def convert(self, inputfile, options, reportProgress=False):
         input_dir, filename, input_extension = self.parseFile(inputfile)
         output_dir = input_dir if self.output_dir is None else self.output_dir
-        try:
-            outputfile = os.path.join(output_dir, filename + "." + self.output_extension)
-        except UnicodeDecodeError:
-            outputfile = os.path.join(output_dir, filename.decode('utf-8') + "." + self.output_extension)
-        #If we're processing a file that's going to have the same input and output filename, resolve the potential future naming conflict
+        outputfile = os.path.join(output_dir.decode(sys.getfilesystemencoding()), filename.decode(sys.getfilesystemencoding()) + "." + self.output_extension).encode(sys.getfilesystemencoding())
         if os.path.abspath(inputfile) == os.path.abspath(outputfile):
             newfile = os.path.join(input_dir, filename + '.tmp.' + input_extension)
             #Make sure there isn't any leftover temp files for whatever reason
@@ -390,7 +386,10 @@ class MkvtoMp4:
             if reportProgress:
                 sys.stdout.write('[{0}] {1}%\r'.format('#' * (timecode / 10) + ' ' * (10 - (timecode / 10)), timecode))
                 sys.stdout.flush()
-        print outputfile + " created"
+        try:
+            print outputfile + " created"
+        except:
+            pass
         
         os.chmod(outputfile, 0777) # Set permissions of newly created file
         return outputfile, inputfile
@@ -410,7 +409,7 @@ class MkvtoMp4:
         # Relocate MOOV atom to the very beginning. Can double the time it takes to convert a file but makes streaming faster
         if self.parseFile(inputfile)[2] in valid_output_extensions and os.path.isfile(inputfile) and self.relocate_moov:
             print "Relocating MOOV atom to start of file"
-            outputfile = inputfile + temp_ext
+            outputfile = inputfile.decode(sys.getfilesystemencoding()) + temp_ext
 
             # Clear out the temp file if it exists
             self.removeFile(outputfile, 0, 0)
@@ -420,7 +419,6 @@ class MkvtoMp4:
                 os.chmod(outputfile, 0777)
                 # Cleanup
                 if self.removeFile(inputfile, replacement=outputfile):
-                    print 'Temporary file %s deleted' % (inputfile)
                     return outputfile
                 else:
                     print "Error cleaning up QTFS temp files"
