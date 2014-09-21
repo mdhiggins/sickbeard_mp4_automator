@@ -104,7 +104,10 @@ class MkvtoMp4:
 
         if self.needProcessing(inputfile):
             options = self.generateOptions(inputfile, original=original)
-            if reportProgress: print json.dumps(options, sort_keys=False, indent=4)
+            try:
+                if reportProgress: print json.dumps(options, sort_keys=False, indent=4)
+            except:
+                pass
             outputfile, inputfile = self.convert(inputfile, options, reportProgress)
             if not outputfile: return False
         else:
@@ -134,7 +137,10 @@ class MkvtoMp4:
         if self.downloadsubs:
             for subfile in self.deletesubs:
                 if self.removeFile(subfile):
-                    print subfile + "deleted"
+                    try:
+                        print subfile + "deleted"
+                    except:
+                        pass
 
         dim = self.getDimensions(outputfile)
 
@@ -333,7 +339,10 @@ class MkvtoMp4:
                         if x == filename:
                             print "External subtitle file detected, language " + lang
                             if self.swl is None or lang in self.swl:
-                                print "Importing %s subtitle stream" % (fname)
+                                try:
+                                    print "Importing %s subtitle stream" % (fname)
+                                except:
+                                    print "Importing subtitle stream"
                                 subtitle_settings.update({l: {
                                     'path': os.path.join(dirName, fname),
                                     'source': src,
