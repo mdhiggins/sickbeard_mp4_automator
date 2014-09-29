@@ -21,7 +21,7 @@ class MkvtoMp4:
                     output_format = 'mp4', 
                     video_codec=['h264', 'x264'], 
                     audio_codec=['ac3'], 
-                    audio_bitrate=None, 
+                    audio_bitrate=256, 
                     iOS=False, 
                     maxchannels=None,
                     awl=None, 
@@ -83,7 +83,7 @@ class MkvtoMp4:
         self.video_codec=settings.vcodec
         #Audio settings
         self.audio_codec=settings.acodec
-        #self.audio_bitrate=settings.abitrate
+        self.audio_bitrate=settings.abitrate
         self.iOS=settings.iOS
         self.maxchannels=settings.maxchannels
         self.awl=settings.awl
@@ -226,10 +226,10 @@ class MkvtoMp4:
                     audio_channels = a.audio_channels
 
                 # Bitrate calculations/overrides
-                if self.audio_bitrate is None or self.audio_bitrate > (a.audio_channels * 256):
-                    abitrate = 256 * audio_channels
+                if self.audio_bitrate is 0:
+                    abitrate = a.bitrate
                 else:
-                    abitrate = self.audio_bitrate
+                    abitrate = a.audio_channels * self.audio_bitrate
 
                 audio_settings.update({l: {
                     'map': a.index,

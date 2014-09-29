@@ -30,6 +30,7 @@ ios-audio=True
 max-audio-channels=
 audio-language=
 audio-default-language=
+audio-channel-bitrate=
 subtitle-language=
 subtitle-default-language=
 fullpathguess=True

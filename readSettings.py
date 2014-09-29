@@ -35,6 +35,7 @@ class ReadSettings:
                         'max-audio-channels': '',
                         'audio-language': '',
                         'audio-codec': 'ac3',
+                        'audio-channel-bitrate': '256',
                         'video-codec': 'h264, x264',
                         'subtitle-language': '',
                         'audio-default-language': '',
@@ -132,6 +133,15 @@ class ReadSettings:
             self.acodec == ['ac3']
         else:
             self.acodec = self.acodec.lower().replace(' ', '').split(',')
+
+        self.abitrate = config.get(section, "audio-channel-bitrate")
+        try:
+            self.abitrate = int(self.audio_bitrate)
+        except:
+            self.abitrate = 256
+            print "Audio bitrate was invalid, defaulting to 256 per channel"
+        if self.abitrate > 256:
+            print "Warning - audio bitrates >256 may create errors with common codecs"
 
         # !!! Leaving this disabled for now, users will be responsible for knowing whicn codecs do and don't work with mp4 files !!!
         #if self.acodec not in valid_audio_codecs:
