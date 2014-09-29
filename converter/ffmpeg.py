@@ -143,7 +143,7 @@ class MediaStreamInfo(object):
                 elif '.' in val:
                     self.video_fps = self.parse_float(val)
             if key == 'bit_rate':
-                self.audio_bitrate = self.parse_int(val)
+                self.audio_bitrate = self.parse_int(val) / 1000
 
         if self.type == 'video':
             if key == 'r_frame_rate':
