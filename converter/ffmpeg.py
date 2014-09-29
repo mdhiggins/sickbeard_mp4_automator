@@ -86,6 +86,7 @@ class MediaStreamInfo(object):
         self.video_fps = None
         self.audio_channels = None
         self.audio_samplerate = None
+        self.audio_bitrate = None
         self.sub_forced = None
         self.sub_default = None
         self.language = 'und'
@@ -141,6 +142,8 @@ class MediaStreamInfo(object):
                         self.video_fps = float(n) / float(d)
                 elif '.' in val:
                     self.video_fps = self.parse_float(val)
+            if key == 'bit_rate':
+                self.audio_bitrate = self.parse_int(val)
 
         if self.type == 'video':
             if key == 'r_frame_rate':

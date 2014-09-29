@@ -227,7 +227,7 @@ class MkvtoMp4:
 
                 # Bitrate calculations/overrides
                 if self.audio_bitrate is 0:
-                    abitrate = a.bitrate
+                    abitrate = a.audio_bitrate
                 else:
                     abitrate = a.audio_channels * self.audio_bitrate
 
