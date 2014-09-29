@@ -136,7 +136,7 @@ class ReadSettings:
 
         self.abitrate = config.get(section, "audio-channel-bitrate")
         try:
-            self.abitrate = int(self.audio_bitrate)
+            self.abitrate = int(self.abitrate)
         except:
             self.abitrate = 256
             print "Audio bitrate was invalid, defaulting to 256 per channel"
