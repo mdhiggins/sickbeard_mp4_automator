@@ -6,6 +6,7 @@ import guessit
 import locale
 import glob
 import argparse
+import struct
 from readSettings import ReadSettings
 from tvdb_mp4 import Tvdb_mp4
 from tmdb_mp4 import tmdb_mp4
@@ -250,6 +251,8 @@ def main():
     if (args['convertmp4']):
         settings.processMP4 = True
         print "Reprocessing of MP4 files enabled"
+
+    print struct.calcsize("P") * 8
 
     #Establish the path we will be working with
     if (args['input']):

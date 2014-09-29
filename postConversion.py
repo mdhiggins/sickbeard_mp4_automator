@@ -3,6 +3,7 @@ import os
 import sys
 import json
 import urllib
+import struct
 from readSettings import ReadSettings
 from tvdb_mp4 import Tvdb_mp4
 from mkvtomp4 import MkvtoMp4
@@ -15,6 +16,8 @@ if len(sys.argv) > 4:
     season = int(sys.argv[4])
     episode = int(sys.argv[5])
     converter = MkvtoMp4(settings)
+    
+    print struct.calcsize("P") * 8
     
     if MkvtoMp4(settings).validSource(inputfile):
         output = converter.process(inputfile, original=original)
