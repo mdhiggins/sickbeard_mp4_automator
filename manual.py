@@ -131,15 +131,15 @@ def tmdbInfo(guessData):
 def tvdbInfo(guessData, tvdbid=None):
     series = guessData["series"]
     if 'year' in guessData:
-        try:
-            series = series + " (" + str(guessData["year"]) + ")"
-        except:
-            pass
+        fullseries = series + " (" + str(guessData["year"]) + ")"
     season = guessData["season"]
     episode = guessData["episodeNumber"]
     t = tvdb_api.Tvdb()
     #tvdbid = t[series]['id']
-    tvdbid = str(tvdbid) if tvdbid else t[series]['id']
+    try:
+        tvdbid = str(tvdbid) if tvdbid else t[fullseries]['id']
+    except:
+        tvdbid = t[series]['id']
     try:
         print "Matched TV episode as %s (TVDB ID:%d) S%02dE%02d" % (series.encode(sys.stdout.encoding, errors='ignore'), int(tvdbid), int(season), int(episode))
     except:
