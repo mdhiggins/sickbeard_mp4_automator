@@ -278,7 +278,7 @@ def main():
                 tagdata = getinfo(path, silent=silent, tvdbid=tvdbid)
         elif ((args['imdbid'] or args['tmdbid']) and not args['tvdbid']):
             if (args['imdbid']):
-                imdbid = int(args['imdbid'])
+                imdbid = args['imdbid']
                 tagdata = [1, imdbid]
             elif (args['tmdbid']):
                 tmdbid = int(args['tmdbid'])
