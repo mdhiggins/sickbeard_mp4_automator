@@ -36,6 +36,7 @@ subtitle-default-language=
 fullpathguess=True
 convert-mp4=False
 tagfile=True
+tag-language=en
 download-artwork=True
 download-subs=False
 embed-subs=True
