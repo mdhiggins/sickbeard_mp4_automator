@@ -10,10 +10,10 @@ from extensions import valid_output_extensions, valid_poster_extensions
 
 
 class Tvdb_mp4:
-    def __init__(self, show, season, episode, original=None):
+    def __init__(self, show, season, episode, original=None, language='en'):
         for i in range(3):
             try:
-                self.tvdb_show = Tvdb(interactive=False, cache=False, banners=True, actors=True, forceConnect=True)
+                self.tvdb_show = Tvdb(interactive=False, cache=False, banners=True, actors=True, forceConnect=True, language=language)
                 self.show = show
                 self.season = season
                 self.episode = episode

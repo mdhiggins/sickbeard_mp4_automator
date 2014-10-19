@@ -2,6 +2,7 @@ import os
 import sys
 import ConfigParser
 from extensions import *
+from babelfish import Language
 try:
     from babelfish import Language
 except:
@@ -43,6 +44,7 @@ class ReadSettings:
                         'convert-mp4': 'False',
                         'fullpathguess': 'True',
                         'tagfile': 'True',
+                        'tag-language': 'en',
                         'download-artwork': 'True',
                         'download-subs': 'False',
                         'embed-subs': 'True',
@@ -192,23 +194,23 @@ class ReadSettings:
         else:
             self.vcodec = self.vcodec.lower().replace(' ', '').split(',')
 
-        self.awl = config.get(section, 'audio-language')  # List of acceptable languages for audio streams to be carried over from the original file, separated by a comma. Blank for all
+        self.awl = config.get(section, 'audio-language').strip().lower()  # List of acceptable languages for audio streams to be carried over from the original file, separated by a comma. Blank for all
         if self.awl == '':
             self.awl = None
         else:
             self.awl = self.awl.replace(' ', '').split(',')
 
-        self.swl = config.get(section, 'subtitle-language')  # List of acceptable languages for subtitle streams to be carried over from the original file, separated by a comma. Blank for all
+        self.swl = config.get(section, 'subtitle-language').strip().lower()  # List of acceptable languages for subtitle streams to be carried over from the original file, separated by a comma. Blank for all
         if self.swl == '':
             self.swl = None
         else:
             self.swl = self.swl.replace(' ', '').split(',')
 
-        self.adl = config.get(section, 'audio-default-language').strip()  # What language to default an undefinied audio language tag to. If blank, it will remain undefined. This is useful for single language releases which tend to leave things tagged as und
+        self.adl = config.get(section, 'audio-default-language').strip().lower()  # What language to default an undefinied audio language tag to. If blank, it will remain undefined. This is useful for single language releases which tend to leave things tagged as und
         if self.adl == "" or len(self.adl) > 3:
             self.adl = None
 
-        self.sdl = config.get(section, 'subtitle-default-language').strip()  # What language to default an undefinied subtitle language tag to. If blank, it will remain undefined. This is useful for single language releases which tend to leave things tagged as und
+        self.sdl = config.get(section, 'subtitle-default-language').strip().lower()  # What language to default an undefinied subtitle language tag to. If blank, it will remain undefined. This is useful for single language releases which tend to leave things tagged as und
         if self.sdl == ""or len(self.sdl) > 3:
             self.sdl = None
         # Prevent incompatible combination of settings
@@ -222,6 +224,16 @@ class ReadSettings:
         self.processMP4 = config.getboolean(section, "convert-mp4")  # Determine whether or not to reprocess mp4 files or just tag them
         self.fullpathguess = config.getboolean(section, "fullpathguess") # Guess using the full path or not
         self.tagfile = config.getboolean(section, "tagfile") # Tag files with metadata
+        self.taglanguage = config.get(section, "tag-language").strip().lower() # Language to tag files
+        if len(self.taglanguage) > 2:
+            try:
+                self.taglanguage = Language(self.taglanguage)
+            except:
+                print "Unable to set tag language, defaulting to English"
+                self.taglanguage = 'en'
+        elif len(self.taglanguage) < 2:
+            print "Unable to set tag language, defaulting to English"
+            self.taglanguage = 'en'
         self.artwork = config.getboolean(section, "download-artwork") # Download and embed artwork
 
         #Read relevant CouchPotato section information

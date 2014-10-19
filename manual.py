@@ -155,14 +155,14 @@ def processFile(inputfile, tagdata, relativePath=None):
         tagmp4 = None # No tag data specified but convert the file anyway
     elif tagdata[0] is 1:
         imdbid = tagdata[1]
-        tagmp4 = tmdb_mp4(imdbid)
+        tagmp4 = tmdb_mp4(imdbid, language=settings.taglanguage)
         try:
             print "Processing %s" % (tagmp4.title.encode(sys.stdout.encoding, errors='ignore'))
         except:
             print "Processing movie"
     elif tagdata[0] is 2:
         tmdbid = tagdata[1]
-        tagmp4 = tmdb_mp4(tmdbid, True)
+        tagmp4 = tmdb_mp4(tmdbid, True, language=settings.taglanguage)
         try:
             print "Processing %s" % (tagmp4.title.encode(sys.stdout.encoding, errors='ignore'))
         except:
@@ -171,7 +171,7 @@ def processFile(inputfile, tagdata, relativePath=None):
         tvdbid = int(tagdata[1])
         season = int(tagdata[2])
         episode = int(tagdata[3])
-        tagmp4 = Tvdb_mp4(tvdbid, season, episode)
+        tagmp4 = Tvdb_mp4(tvdbid, season, episode, language=settings.taglanguage)
         try:
             print "Processing %s Season %02d Episode %02d - %s" % (tagmp4.show.encode(sys.stdout.encoding, errors='ignore'), int(tagmp4.season), int(tagmp4.episode), tagmp4.title.encode(sys.stdout.encoding, errors='ignore'))
         except:
