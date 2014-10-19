@@ -227,7 +227,8 @@ class ReadSettings:
         self.taglanguage = config.get(section, "tag-language").strip().lower() # Language to tag files
         if len(self.taglanguage) > 2:
             try:
-                self.taglanguage = Language(self.taglanguage)
+                babel = Language.fromalpha3(self.taglanguage)
+                self.taglanguage = babel.alpha2
             except:
                 print "Unable to set tag language, defaulting to English"
                 self.taglanguage = 'en'
