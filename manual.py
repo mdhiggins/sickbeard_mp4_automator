@@ -141,7 +141,7 @@ def tvdbInfo(guessData, tvdbid=None):
     except:
         tvdbid = t[series]['id']
     try:
-        print "Matched TV episode as %s (TVDB ID:%d) S%02dE%02d" % (t[series]['title'].encode(sys.stdout.encoding, errors='ignore'), int(tvdbid), int(season), int(episode))
+        print "Matched TV episode as %s (TVDB ID:%d) S%02dE%02d" % (t[series]['seriesname'].encode(sys.stdout.encoding, errors='ignore'), int(tvdbid), int(season), int(episode))
     except:
         print "Matched TV episode"
     return 3, tvdbid, season, episode
