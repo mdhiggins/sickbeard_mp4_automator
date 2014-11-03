@@ -7,8 +7,9 @@ try:
     from babelfish import Language
 except:
     print "Trying to install SetupTools"
-    setup.ez_setup.main()
     try:
+        import setup
+        setup.ez_setup.main()
         from babelfish import Language
     except:
         print "Please install SetupTools"
