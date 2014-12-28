@@ -33,17 +33,16 @@ def _sendRequest(session, host='http://localhost:8080/', username=None, password
     return False
     
 path = str(sys.argv[3])
-settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")    
+settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
 
 if settings.uTorrentLabel.lower() == sys.argv[1].lower() or not settings.uTorrentLabel:
 
     try:
         import requests
+        torrent_hash = sys.argv[6]
         web_ui = settings.uTorrentWebUI
     except:
         web_ui = False
-
-    torrent_hash = sys.argv[6]
     
     # Run a uTorrent action before conversion.
     if web_ui:
