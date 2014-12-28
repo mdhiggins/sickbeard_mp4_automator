@@ -88,11 +88,18 @@ Couch Potato Support
 uTorrent Support (BETA)
 --------------
 - `uTorrentToSickbeardwithConverter.py` is the file you'll be using here. This script will allow post processing of torrent files with conversion and will forward the converted files to Sickbeard for final post processing.
-- Currently the script will not touch the actual download but will instead make copies (the script will obey settings regarding output directory, copyto, moveto etc) and process those copies, so you can continue to seed your torrents.
-- uTorrent must be set up with the following post command options: ```#Args: %L %T %D %K %F```
+- ** YOU MUST INSTALL THE PYTHON REQUESTS LIBRARY FOR THIS TO COMMUNICATE WITH UTORRENT. ** Run "pip install requests" to install. TODO: Better instructions.
+- uTorrent Web UI should also be enabled.
+- uTorrent must be set up with the following post command options: ```#Args: %L %S %D %K %F %S %I```
 - Picture: http://i.imgur.com/7eADkCI.png
-- Set your uTorrent Label whitelist in autoProcess.ini
+- Set your uTorrent settings in autoProcess.ini
     - Set `label` to match your uTorrent label, files without this corrrect label will be ignored. If no label is set, all torrents will be processed.
+    - Set `webui` to True/False. If True the script can change the state of the torrent.
+    - Set `action_before` to stop/pause or any other action from http://help.utorrent.com/customer/portal/articles/1573952-actions---webapi
+    - Set `action_after` to start/stop/pause/unpause/remove/removedata or any other action from http://help.utorrent.com/customer/portal/articles/1573952-actions---webapi
+    - Set `hostname` to your uTorrent Web UI URL, eg http://localhost:8080/ including the trailing slash.
+    - Set `username` to your uTorrent Web UI username
+    - Set `password` to your uTorrent Web UI password
 
 Manual Script Usage
 --------------
