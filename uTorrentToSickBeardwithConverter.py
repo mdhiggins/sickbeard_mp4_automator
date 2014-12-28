@@ -23,7 +23,7 @@ def _sendRequest(session, host='http://localhost:8080/', username=None, password
     try:
         response = session.post(host + "gui/", auth=(username, password), params=params, files=files, timeout=30)
     except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError), e:
-        print "[uTorrent] Problem sending command " + fnct +  " - " + ex(e)
+        print "[uTorrent] Problem sending command " + fnct +  " - " + str(e)
         return False
     
     if response.status_code == 200:
