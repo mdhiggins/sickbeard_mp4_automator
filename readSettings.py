@@ -62,7 +62,13 @@ class ReadSettings:
                        'ssl': 'False',
                        'web_root': ''}
         # Default uTorrent settings
-        utorrent_defaults = { 'label': '' }
+        utorrent_defaults = { 'label': '',
+                              'webui': 'False',
+                              'action_before': 'stop',
+                              'action_after': 'removedata',
+                              'host': 'http://localhost:8080/',
+                              'username': '',
+                              'password': ''}
 
         defaults = {'SickBeard': sb_defaults, 'CouchPotato': cp_defaults, 'MP4': mp4_defaults, 'uTorrent': utorrent_defaults}
         write = False  # Will be changed to true if a value is missing from the config file and needs to be written
@@ -268,6 +274,12 @@ class ReadSettings:
         #Read relevant uTorrent section information
         section = "uTorrent"
         self.uTorrentLabel = config.get(section, "label").lower()
+        self.uTorrentWebUI = config.getboolean(section, "webui")
+        self.uTorrentActionBefore = config.get(section, "action_before").lower()
+        self.uTorrentActionAfter = config.get(section, "action_after").lower()
+        self.uTorrentHost = config.get(section, "host").lower()
+        self.uTorrentUsername = config.get(section, "username")
+        self.uTorrentPassword = config.get(section, "password")
         if self.uTorrentLabel == "":
             self.uTorrentLabel = None;
 

@@ -56,3 +56,9 @@ delete_failed = 0
 
 [uTorrent]
 label=
+webui=False
+action_before=stop
+action_after=removedata
+host=http://localhost:8080/
+username=
+password=
