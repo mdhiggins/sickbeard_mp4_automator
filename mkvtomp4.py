@@ -19,7 +19,8 @@ class MkvtoMp4:
                     output_dir=None, 
                     relocate_moov=True, 
                     output_format = 'mp4', 
-                    video_codec=['h264', 'x264'], 
+                    video_codec=['h264', 'x264'],
+                    video_bitrate=None, 
                     audio_codec=['ac3'], 
                     audio_bitrate=256, 
                     iOS=False, 
@@ -48,6 +49,7 @@ class MkvtoMp4:
         self.relocate_moov=relocate_moov
         # Video settings
         self.video_codec=video_codec
+        self.video_bitrate=video_bitrate
         # Audio settings
         self.audio_codec=audio_codec
         self.audio_bitrate=audio_bitrate
@@ -81,6 +83,7 @@ class MkvtoMp4:
         self.relocate_moov = settings.relocate_moov
         #Video settings
         self.video_codec=settings.vcodec
+        self.video_bitrate=settings.vbitrate
         #Audio settings
         self.audio_codec=settings.acodec
         self.audio_bitrate=settings.abitrate
@@ -185,7 +188,12 @@ class MkvtoMp4:
        
         #Video stream
         print "Video codec detected: " + info.video.codec
-        vcodec = 'copy' if info.video.codec in self.video_codec else self.video_codec[0]
+        if self.video_bitrate is not None and info.format.bitrate > self.video_bitrate:
+            vcodec = self.video_codec
+            vbitrate = self.video_bitrate
+        else:
+            vcodec = 'copy' if info.video.codec in self.video_codec else self.video_codec[0]
+            vbitrate = info.format.bitrate
 
         #Audio streams
         audio_settings = {}
@@ -362,7 +370,7 @@ class MkvtoMp4:
             'video': {
                 'codec': vcodec,
                 'map': info.video.index,
-                'bitrate': info.format.bitrate
+                'bitrate': vbitrate
             },
             'audio': audio_settings,
             'subtitle': subtitle_settings,

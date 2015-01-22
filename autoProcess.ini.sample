@@ -26,6 +26,7 @@ delete_original=True
 relocate_moov=True
 audio-codec=ac3
 video-codec=h264,x264
+video-bitrate=
 ios-audio=True
 max-audio-channels=
 audio-language=

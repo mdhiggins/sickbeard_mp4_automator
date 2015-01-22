@@ -39,6 +39,7 @@ class ReadSettings:
                         'audio-codec': 'ac3',
                         'audio-channel-bitrate': '256',
                         'video-codec': 'h264, x264',
+                        'video-bitrate': '',
                         'subtitle-language': '',
                         'audio-default-language': '',
                         'subtitle-default-language': '',
@@ -200,6 +201,16 @@ class ReadSettings:
             self.vcodec == ['h264', 'x264']
         else:
             self.vcodec = self.vcodec.lower().replace(' ', '').split(',')
+
+        self.vbitrate = config.get(section, "video-bitrate")
+        if self.vbitrate == '':
+            self.vbitrate = None
+        else:
+            try:
+                self.vbitrate = int(self.vbitrate)
+            except:
+                print "Invalid video bitrate, defaulting to no video bitrate cap"
+                self.vbitrate = None
 
         self.awl = config.get(section, 'audio-language').strip().lower()  # List of acceptable languages for audio streams to be carried over from the original file, separated by a comma. Blank for all
         if self.awl == '':
