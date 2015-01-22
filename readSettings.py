@@ -207,7 +207,7 @@ class ReadSettings:
             self.vbitrate = None
         else:
             try:
-                self.vbitrate = int(self.vbitrate)
+                self.vbitrate = int(self.vbitrate)*1000
             except:
                 print "Invalid video bitrate, defaulting to no video bitrate cap"
                 self.vbitrate = None
