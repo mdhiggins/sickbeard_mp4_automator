@@ -192,7 +192,7 @@ class MkvtoMp4:
             vcodec = self.video_codec[0]
             vbitrate = self.video_bitrate
         else:
-            vcodec = 'copy' if info.video.codec in self.video_codec else self.video_codec[0]
+            vcodec = 'copy' if info.video.codec.lower() in self.video_codec else self.video_codec[0]
             vbitrate = info.format.bitrate
 
         #Audio streams
@@ -205,7 +205,7 @@ class MkvtoMp4:
                 print "Undefined language detected, defaulting to " + self.adl
                 a.language = self.adl
             # Proceed if no whitelist is set, or if the language is in the whitelist
-            if self.awl is None or a.language in self.awl:
+            if self.awl is None or a.language.lower() in self.awl:
                 # Create iOS friendly audio stream if the default audio stream has too many channels (iOS only likes AAC stereo)
                 if self.iOS:
                     if a.audio_channels > 2:
@@ -223,7 +223,7 @@ class MkvtoMp4:
                     acodec = 'copy' if a.codec == 'aac' else self.iOS
                 else:
                     # If desired codec is the same as the source codec, copy to avoid quality loss
-                    acodec = 'copy' if a.codec in self.audio_codec else self.audio_codec[0]
+                    acodec = 'copy' if a.codec.lower() in self.audio_codec else self.audio_codec[0]
 
                 # Audio channel adjustments
                 if self.maxchannels and a.audio_channels > self.maxchannels:
@@ -261,7 +261,7 @@ class MkvtoMp4:
             if s.codec.lower() not in bad_subtitle_codecs and self.embedsubs:
                 
                 # Proceed if no whitelist is set, or if the language is in the whitelist
-                if self.swl is None or s.language in self.swl:
+                if self.swl is None or s.language.lower() in self.swl:
                     subtitle_settings.update({l: {
                         'map': s.index,
                         'codec': 'mov_text',
@@ -271,7 +271,7 @@ class MkvtoMp4:
                     }})
                     l = l + 1
             elif s.codec.lower() not in bad_subtitle_codecs and not self.embedsubs:
-                if self.swl is None or s.language in self.swl:
+                if self.swl is None or s.language.lower() in self.swl:
                     ripsub = {1: {
                         'map': s.index,
                         'codec': 'srt',
