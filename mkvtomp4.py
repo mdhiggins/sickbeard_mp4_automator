@@ -221,19 +221,20 @@ class MkvtoMp4:
                 # If the iOS audio option is enabled and the source audio channel is only stereo, the additional iOS channel will be skipped and a single AAC 2.0 channel will be made regardless of codec preference to avoid multiple stereo channels
                 if self.iOS and a.audio_channels <= 2:
                     acodec = 'copy' if a.codec == 'aac' else self.iOS
+                    audio_channels = a.audio_channels
+                    abitrate = a.audio_channels * 128
                 else:
                     # If desired codec is the same as the source codec, copy to avoid quality loss
                     acodec = 'copy' if a.codec.lower() in self.audio_codec else self.audio_codec[0]
-
-                # Audio channel adjustments
-                if self.maxchannels and a.audio_channels > self.maxchannels:
-                    audio_channels = self.maxchannels
-                    if acodec == 'copy':
-                        acodec = self.audio_codec[0]
-                    abitrate = self.maxchannels * self.audio_bitrate
-                else:
-                    audio_channels = a.audio_channels
-                    abitrate = a.audio_channels * self.audio_bitrate
+                    # Audio channel adjustments
+                    if self.maxchannels and a.audio_channels > self.maxchannels:
+                        audio_channels = self.maxchannels
+                        if acodec == 'copy':
+                            acodec = self.audio_codec[0]
+                        abitrate = self.maxchannels * self.audio_bitrate
+                    else:
+                        audio_channels = a.audio_channels
+                        abitrate = a.audio_channels * self.audio_bitrate
 
                 # Bitrate calculations/overrides
                 if self.audio_bitrate is 0:
