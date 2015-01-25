@@ -235,10 +235,9 @@ class MkvtoMp4:
                     else:
                         audio_channels = a.audio_channels
                         abitrate = a.audio_channels * self.audio_bitrate
-
-                # Bitrate calculations/overrides
-                if self.audio_bitrate is 0:
-                    abitrate = a.audio_bitrate
+                    # Bitrate calculations/overrides
+                    if self.audio_bitrate is 0:
+                        abitrate = a.audio_bitrate
                     
                 audio_settings.update({l: {
                     'map': a.index,
