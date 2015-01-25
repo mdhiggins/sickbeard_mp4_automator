@@ -34,6 +34,7 @@ class ReadSettings:
                         'delete_original': 'True',
                         'relocate_moov': 'True',
                         'ios-audio': 'True',
+                        'ios-first-track-only': 'False',
                         'max-audio-channels': '',
                         'audio-language': '',
                         'audio-codec': 'ac3',
@@ -164,7 +165,8 @@ class ReadSettings:
         else:
             if self.iOS.lower() in ['true', 'yes', 't', '1']:
                 self.iOS = 'aac'
-        self.downloadsubs = config.getboolean(section, "download-subs")  # Enables downloading of subtitles from the internet sources using subliminal
+        self.iOSFirst = config.getboolean(section, "ios-first-track-only")  # Enables the iOS audio option only for the first track
+        self.downloadsubs = config.getboolean(section, "download-subs")  #  Enables downloading of subtitles from the internet sources using subliminal
 
         if self.downloadsubs:
             try:

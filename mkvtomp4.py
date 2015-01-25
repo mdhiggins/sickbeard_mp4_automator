@@ -24,6 +24,7 @@ class MkvtoMp4:
                     audio_codec=['ac3'], 
                     audio_bitrate=256, 
                     iOS=False, 
+                    iOSFirst=False,
                     maxchannels=None,
                     awl=None, 
                     swl=None, 
@@ -54,6 +55,7 @@ class MkvtoMp4:
         self.audio_codec=audio_codec
         self.audio_bitrate=audio_bitrate
         self.iOS=iOS
+        self.iOSFirst=iOSFirst
         self.maxchannels=maxchannels
         self.awl=awl
         self.adl=adl
@@ -88,6 +90,7 @@ class MkvtoMp4:
         self.audio_codec=settings.acodec
         self.audio_bitrate=settings.abitrate
         self.iOS=settings.iOS
+        self.iOSFirst=settings.iOSFirst
         self.maxchannels=settings.maxchannels
         self.awl=settings.awl
         self.adl=settings.adl
@@ -238,7 +241,11 @@ class MkvtoMp4:
                     # Bitrate calculations/overrides
                     if self.audio_bitrate is 0:
                         abitrate = a.audio_bitrate
-                    
+                
+                # If the iOSFirst option is enabled, disable the iOS option after the first audio stream is processed
+                if self.iOS and self.iOSFirst:
+                    self.iOS = False
+
                 audio_settings.update({l: {
                     'map': a.index,
                     'codec': acodec,
