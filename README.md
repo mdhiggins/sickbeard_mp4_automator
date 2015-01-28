@@ -1,7 +1,7 @@
 Sick Beard/Couch Potato MP4 automation script.
 ==============
 
-**Automatically converts mkv files downloaded by Sick Beard to mp4 files, and tags them with the appropriate metadata from theTVDB. Works as an extra_script, integrated with SAB, as well as a manual post-processing script.**
+**Automatically converts mkv files downloaded by Sick Beard to mp4 files, and tags them with the appropriate metadata from theTVDB. Works as an extra_script, integrated with SAB, as well as a manual post-processing script. Can add converted files to iTunes automatically.**
 
 **Works with Couch Potato as well, tagging with the appropriate metadata from IMDb. Additional SAB scripts provided for conveinence. uTorrent BETA support added as well**
 
@@ -26,6 +26,7 @@ General Installation Instructions
     - `move_to` = you may specify one final directory to move the completed file. (Use this option for the 'Automatically Add to iTunes' folder)
     - `output_extension` = mp4/m4v (must be one of these 2)
     - `output_format` = mp4/mov (must be one of these 2, mov provides better compatability with iTunes/Apple, mp4 works better with other mobile devices)
+    - `add_to_itunes` = True/False - silently adds file to iTunes after processing (conversion, moving, copying, deleting) without copying file again or immediately launching it in iTunes
     - `delete_original` = True/False
     - `relocate_moov` = True/False - relocates the MOOV atom to the beginning of the file for better streaming
     - `ios-audio` = creates a 2nd copy of an audio stream that will be iOS compatible (AAC Stereo) if the normal output will not be. If a stereo source stream is detected with this option enabled, an AAC stereo stream will be the only one produced (essentially overriding the codec option) to avoid multiple stereo audio stream copies in different codecs.
@@ -144,6 +145,11 @@ optional arguments:
                         functionality
   -cmp4, --convertmp4   Overrides convert-mp4 setting in autoProcess.ini 
                         enabling the reprocessing of mp4 files
+  -ati, --addtoitunes   Overrides Add to iTunes setting in autoProcess.ini 
+                        enabling silent Add to iTunes after processing
+  -nati, --noaddtoitunes Overrides Add to iTunes setting in autoProcess.ini 
+                        disabling silent Add to iTunes after processing (overrides 
+                        all other settings on command line and in config)
 ```
 
 Examples
@@ -175,6 +181,10 @@ Example: manual.py -i C:\Movies -a
 Process a directory but manually specific TVDB ID (Good for shows that don't correctly match using the guess)
 manual.py -i directory -a -tv tvdbid
 Example: manual.py -i C:\TV\Futurama\ -a -tv 73871
+
+Convert show and add to itunes
+manual.py -i mp4path -ati
+Example: manual.py -i C:\TV\Futurama\ -ati
 ```
 You may also simply run `manual.py -i 'C:\The Matrix.mkv'` and the script will prompt you for the missing information or attempt to guess based on the file name.
 You may run the script with a `--auto` or `-a` switch, which will let the script guess the tagging information based on the file name, avoiding any need for user input. This is the most ideal option for large batch file operations.

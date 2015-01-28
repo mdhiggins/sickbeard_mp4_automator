@@ -235,7 +235,7 @@ def main():
     parser.add_argument('-pr', '--preserveRelative', action='store_true', help="Preserves relative directories when processing multiple files using the copy-to or move-to functionality")
     parser.add_argument('-cmp4', '--convertmp4', action='store_true', help="Overrides convert-mp4 setting in autoProcess.ini enabling the reprocessing of mp4 files")
     parser.add_argument('-ati', '--addtoitunes', action='store_true', help="Overrides Add to iTunes setting in autoProcess.ini enabling silent Add to iTunes after processing")
-    parser.add_argument('-nati', '--noaddtoitunes', action='store_true', help="Overrides Add to iTunes setting in autoProcess.ini disabling silent Add to iTunes after processing (overrides all over settings on command line and in config)")
+    parser.add_argument('-nati', '--noaddtoitunes', action='store_true', help="Overrides Add to iTunes setting in autoProcess.ini disabling silent Add to iTunes after processing (overrides all other settings on command line and in config)")
 
     args = vars(parser.parse_args())
 
