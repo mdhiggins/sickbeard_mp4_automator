@@ -33,7 +33,7 @@ if len(sys.argv) > 2:
 
             #Add to iTunes
             if settings.add_to_itunes:
-                converter.add_to_itunes(output['output'])
+                converter.addToItunes(output['output'])
 
 else:
     print "Not enough command line arguments present " + str(len(sys.argv))

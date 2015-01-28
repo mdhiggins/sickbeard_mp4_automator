@@ -495,7 +495,7 @@ class MkvtoMp4:
                     print e
 
     # Adds file to iTunes using AppleScript so that "Copy to iTunes" is respected and not file has to be moved
-    def add_to_itunes(self, inputfile):
+    def addToItunes(self, inputfile):
         print "Add to iTunes"
 
         try:

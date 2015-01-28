@@ -37,7 +37,7 @@ if len(sys.argv) > 4:
 
         # Add to iTunes
         if settings.add_to_itunes:
-            converter.add_to_itunes(['output'])
+            converter.addToItunes(output['output'])
 
         try:
             refresh = json.load(urllib.urlopen(settings.getRefreshURL(tvdb_id)))

@@ -196,7 +196,7 @@ def processFile(inputfile, tagdata, relativePath=None):
             converter.QTFS(output['output'])
         converter.replicate(output['output'], relativePath=relativePath)
         if settings.add_to_itunes:
-            converter.add_to_itunes(['output'])
+            converter.addToItunes(output['output'])
 
 
 def walkDir(dir, silent=False, preserveRelative=False, tvdbid=None):
@@ -234,6 +234,8 @@ def main():
     parser.add_argument('-nd', '--nodelete', action='store_true', help="Overrides and disables deleting of original files")
     parser.add_argument('-pr', '--preserveRelative', action='store_true', help="Preserves relative directories when processing multiple files using the copy-to or move-to functionality")
     parser.add_argument('-cmp4', '--convertmp4', action='store_true', help="Overrides convert-mp4 setting in autoProcess.ini enabling the reprocessing of mp4 files")
+    parser.add_argument('-ati', '--addtoitunes', action='store_true', help="Overrides Add to iTunes setting in autoProcess.ini enabling silent Add to iTunes after processing")
+    parser.add_argument('-nati', '--noaddtoitunes', action='store_true', help="Overrides Add to iTunes setting in autoProcess.ini disabling silent Add to iTunes after processing (overrides all over settings on command line and in config)")
 
     args = vars(parser.parse_args())
 
@@ -254,6 +256,12 @@ def main():
     if (args['convertmp4']):
         settings.processMP4 = True
         print "Reprocessing of MP4 files enabled"
+    if (args['addtoitunes']):
+        settings.add_to_itunes = True
+        print "Will add to iTunes after processing"
+    if (args['noaddtoitunes']):
+        settings.add_to_itunes = False
+        print "Will not add to iTunes after processing (overrides all over settings)"
 
     print struct.calcsize("P") * 8
 
