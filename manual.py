@@ -195,6 +195,8 @@ def processFile(inputfile, tagdata, relativePath=None):
         if settings.relocate_moov:
             converter.QTFS(output['output'])
         converter.replicate(output['output'], relativePath=relativePath)
+        if settings.add_to_itunes:
+            converter.add_to_itunes(['output'])
 
 
 def walkDir(dir, silent=False, preserveRelative=False, tvdbid=None):

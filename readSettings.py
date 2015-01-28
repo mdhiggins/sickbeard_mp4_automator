@@ -29,6 +29,7 @@ class ReadSettings:
                         'output_directory': '',
                         'copy_to': '',
                         'move_to': '',
+                        'add_to_itunes': 'False',
                         'output_extension': 'mp4',
                         'output_format': 'mp4',
                         'delete_original': 'True',
@@ -132,7 +133,7 @@ class ReadSettings:
                 except:
                     print "Error making directory %s" % (self.moveto)
                     self.moveto = None
-
+        self.add_to_itunes = config.getboolean(section, "add_to_itunes")
         self.output_extension = config.get(section, "output_extension")  # Output extension
         self.output_format = config.get(section, "output_format") # Output format
         if self.output_format not in valid_formats:

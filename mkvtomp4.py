@@ -4,10 +4,14 @@ import time
 import json
 import sys
 import shutil
+import subprocess
 from converter import Converter
 from extensions import valid_input_extensions, valid_output_extensions, bad_subtitle_codecs, valid_subtitle_extensions
 from qtfaststart import processor, exceptions
 from babelfish import Language
+import addToItunes
+
+DEFAULT_ADD_TO_ITUNES_SCRIPT_PATH = addToItunes.where()
 
 
 class MkvtoMp4:
@@ -83,6 +87,7 @@ class MkvtoMp4:
         self.copyto=settings.copyto
         self.moveto=settings.moveto
         self.relocate_moov = settings.relocate_moov
+        self.add_to_itunes=settings.add_to_itunes
         #Video settings
         self.video_codec=settings.vcodec
         self.video_bitrate=settings.vbitrate
@@ -100,6 +105,7 @@ class MkvtoMp4:
         self.downloadsubs=settings.downloadsubs
         self.subproviders=settings.subproviders
         self.embedsubs=settings.embedsubs
+
 
     # Process a file from start to finish, with checking to make sure formats are compatible with selected settings
     def process(self, inputfile, reportProgress=False, original=None):
@@ -487,6 +493,16 @@ class MkvtoMp4:
                 except Exception as e:
                     print "Unable to move file to %s" % (moveto)
                     print e
+
+    # Adds file to iTunes using AppleScript so that "Copy to iTunes" is respected and not file has to be moved
+    def add_to_itunes(self, inputfile):
+        print "Add to iTunes"
+
+        try:
+            subprocess.call(['osascript', DEFAULT_ADD_TO_ITUNES_SCRIPT_PATH, inputfile])
+        except Exception as e:
+            print 'Exception on adding to iTunes!'
+            print e
 
     # Robust file removal function, with options to retry in the event the file is in use, and replace a deleted file
     def removeFile(self, filename, retries=2, delay=10, replacement=None):

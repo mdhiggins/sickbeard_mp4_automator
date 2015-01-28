@@ -31,6 +31,10 @@ if len(sys.argv) > 2:
             # Copy to additional locations
             converter.replicate(output['output'])
 
+            #Add to iTunes
+            if settings.add_to_itunes:
+                converter.add_to_itunes(output['output'])
+
 else:
     print "Not enough command line arguments present " + str(len(sys.argv))
     sys.exit()
