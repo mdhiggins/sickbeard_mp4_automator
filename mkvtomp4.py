@@ -459,7 +459,10 @@ class MkvtoMp4:
 
     # Makes additional copies of the input file in each directory specified in the copy_to option
     def replicate(self, inputfile, relativePath=None):
+        replicateResults = {'inputfile': inputfile}
         if self.copyto:
+            copyResults = []
+            replicateResults['copyto'] = copyResults
             for d in self.copyto:
                 if (relativePath):
                     d = os.path.join(d, relativePath)
@@ -471,10 +474,12 @@ class MkvtoMp4:
                     print "Attempting to copy file"
                 try:
                     shutil.copy(inputfile, d)
+                    copyResults.append(d)
                     print "Copy succeeded"
                 except Exception as e:
                     try:
                         shutil.copy(inputfile.decode(sys.getfilesystemencoding()), d)
+                        copyResults.append(d)
                         print "Copy succeeded"
                     except Exception as e:
                         print "Unable to create additional copy of file in %s" % (d)
@@ -485,23 +490,34 @@ class MkvtoMp4:
                 os.makedirs(moveto)
             try:
                 shutil.move(inputfile, moveto)
+                replicateResults['moveto'] = moveto
                 print "File moved to %s" % (moveto)
             except Exception as e:
                 try:
                     shutil.move(inputfile.decode(sys.getfilesystemencoding()), moveto)
+                    replicateResults['moveto'] = moveto
                     print "File moved"
                 except Exception as e:
                     print "Unable to move file to %s" % (moveto)
                     print e
+        return replicateResults
 
     # Adds file to iTunes using AppleScript so that "Copy to iTunes" is respected and not file has to be moved
-    def addToItunes(self, inputfile):
-        print "Add to iTunes"
-
+    def addToItunes(self, outputresults):
+        outputlocation = ''
+        # Checking that there is only an input file (file )
+        if not ('moveto' in outputresults.keys()):
+            outputlocation = outputresults['inputfile']
+        else:
+            outputlocation = outputresults['moveto']
+        if not os.path.exists(outputlocation):
+            print 'The file you are trying to add to iTunes at ' + str(outputlocation) + ' does not exist'
+            return
         try:
-            subprocess.call(['osascript', DEFAULT_ADD_TO_ITUNES_SCRIPT_PATH, inputfile])
+            subprocess.call(['osascript', DEFAULT_ADD_TO_ITUNES_SCRIPT_PATH, outputlocation])
+            print 'Added to iTunes'
         except Exception as e:
-            print 'Exception on adding to iTunes!'
+            print 'Exception on adding to iTunes this file %s' % (outputlocation)
             print e
 
     # Robust file removal function, with options to retry in the event the file is in use, and replace a deleted file

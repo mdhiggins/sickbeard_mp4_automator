@@ -194,9 +194,9 @@ def processFile(inputfile, tagdata, relativePath=None):
                 print "There was an error tagging the file"
         if settings.relocate_moov:
             converter.QTFS(output['output'])
-        converter.replicate(output['output'], relativePath=relativePath)
+        conversionResults = converter.replicate(output['output'], relativePath=relativePath)
         if settings.add_to_itunes:
-            converter.addToItunes(output['output'])
+            converter.addToItunes(conversionResults)
 
 
 def walkDir(dir, silent=False, preserveRelative=False, tvdbid=None):

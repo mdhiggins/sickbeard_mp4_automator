@@ -33,11 +33,11 @@ if len(sys.argv) > 4:
             converter.QTFS(output['output'])
 
         # Copy to additional locations
-        converter.replicate(output['output'])
+        conversionResults = converter.replicate(output['output'])
 
         # Add to iTunes
         if settings.add_to_itunes:
-            converter.addToItunes(output['output'])
+            converter.addToItunes(conversionResults)
 
         try:
             refresh = json.load(urllib.urlopen(settings.getRefreshURL(tvdb_id)))

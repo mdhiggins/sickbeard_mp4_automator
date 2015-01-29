@@ -29,11 +29,11 @@ if len(sys.argv) > 2:
                 converter.QTFS(output['output'])
 
             # Copy to additional locations
-            converter.replicate(output['output'])
+            conversionResults = converter.replicate(output['output'])
 
             #Add to iTunes
             if settings.add_to_itunes:
-                converter.addToItunes(output['output'])
+                converter.addToItunes(conversionResults)
 
 else:
     print "Not enough command line arguments present " + str(len(sys.argv))
