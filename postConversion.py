@@ -36,7 +36,7 @@ if len(sys.argv) > 4:
         conversionResults = converter.replicate(output['output'])
 
         # Add to iTunes
-        if settings.add_to_itunes:
+        if settings.add_to_itunes and (os.name == 'posix'):
             converter.addToItunes(conversionResults)
 
         try:

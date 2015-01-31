@@ -504,6 +504,9 @@ class MkvtoMp4:
 
     # Adds file to iTunes using AppleScript so that "Copy to iTunes" is respected and not file has to be moved
     def addToItunes(self, outputresults):
+        if os.name != 'posix':
+            print "You can't add file to iTunes this way unless you are using OSX"
+            return
         outputlocation = ''
         # Checking that there is only an input file (file )
         if not ('moveto' in outputresults.keys()):
