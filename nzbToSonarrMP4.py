@@ -10,7 +10,7 @@
 ##############################################################################
 ### OPTIONS                                                                ###
 
-# Change to MP4 Automator folder, no quotes and a trailing /
+# Change to full path to MP4 Automator folder. No quotes and a trailing /
 #MP4_FOLDER=~/sickbeard_mp4_automator/
 
 ### NZBGET POST-PROCESSING SCRIPT                                          ###
@@ -83,6 +83,7 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
         sys.exit(POSTPROCESS_NONE)
 
     # All checks done, now launching the script.
+    #print os.environ['NZBPO_MP4_FOLDER']+"autoProcess.ini"
     settings = ReadSettings(os.path.dirname(sys.argv[0]), os.environ['NZBPO_MP4_FOLDER']+"autoProcess.ini")
 
     path = os.environ['NZBPP_DIRECTORY']
@@ -103,6 +104,7 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
                     	print "[INFO] Successfully converted!"
                     except:
                         print "[WARNING] File conversion failed"
+                        raise
                         sys.exit(POSTPROCESS_ERROR)
             #else:
             #	print "Possible sample file detected: " + inputfile + " skipping file"
@@ -121,10 +123,11 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
     else:
         protocol="http://"
     url = protocol+host+":"+port+"/api/command"
-    payload = {'name': 'downloadedepisodesscan'}
+    payload = {'name': 'downloadedepisodesscan','path': path}
     headers = {'X-Api-Key': apikey}
     r = requests.post(url, data=json.dumps(payload), headers=headers)
-    print "[INFO] Sonarr folder scan is "+r.headers['state']
+    rstate = r.json()
+    print "[INFO] Sonarr update is "+rstate['state']+"."
     
     sys.exit(POSTPROCESS_SUCCESS)
 
