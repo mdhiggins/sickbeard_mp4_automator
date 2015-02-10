@@ -63,6 +63,12 @@ class ReadSettings:
                        'delete_failed': 'False',
                        'ssl': 'False',
                        'web_root': ''}
+        # Default settings for Sonarr
+        sonarr_defaults = {'host': 'localhost',
+                       'port': '8989',
+                       'apikey': '',
+                       'ssl': 'False',
+                       'web_root': ''}
         # Default uTorrent settings
         utorrent_defaults = { 'label': '',
                               'webui': 'False',
@@ -72,7 +78,7 @@ class ReadSettings:
                               'username': '',
                               'password': ''}
 
-        defaults = {'SickBeard': sb_defaults, 'CouchPotato': cp_defaults, 'MP4': mp4_defaults, 'uTorrent': utorrent_defaults}
+        defaults = {'SickBeard': sb_defaults, 'CouchPotato': cp_defaults, 'Sonarr': sonarr_defaults, 'MP4': mp4_defaults, 'uTorrent': utorrent_defaults}
         write = False  # Will be changed to true if a value is missing from the config file and needs to be written
 
         config = ConfigParser.SafeConfigParser()
@@ -295,6 +301,15 @@ class ReadSettings:
         self.uTorrentPassword = config.get(section, "password")
         if self.uTorrentLabel == "":
             self.uTorrentLabel = None;
+
+        #Read relevant Sonarr section information
+        section = "Sonarr"
+        self.Sonarr = {}
+        self.Sonarr['host'] = config.get(section, "host")
+        self.Sonarr['port'] = config.get(section, "port")
+        self.Sonarr['apikey'] = config.get(section, "apikey")
+        self.Sonarr['ssl'] = config.get(section, "ssl")
+        self.Sonarr['web_root'] = config.get(section, "web_root")
 
         #Pass the values on
         self.config = config

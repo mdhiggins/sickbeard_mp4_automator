@@ -58,17 +58,20 @@ Sick Beard Installation Instructions
     - `api_key` = Set this to your Sick Beard API key (options -> general, enable API in Sick Beard to get this key)
 3. **OPTIONAL** - If you're using SAB, set your post processing script to sabToSickBeardWithConverter.py - this is not completely needed but gives the added benefit of doing the conversion from mkv to mp4 before Sick Beard sees the file in whatever folder you choose to download things to. It saves having to put in all the API information as well, and prevents the one additional refresh needed normally to have Sick Beard see the properly converted file. That being said the postConversion script can handle everything on its own, so this step is just for the added benefits listed.
 
-NzbDrone Support (Beta, Tagging Not Supported)
+NZBGet to Sonarr Support (Beta, Tagging Not Supported)
 --------------
-1. Set your NzbDrone settings to the autoProcess.ini file
-    - `host` = NzbDrone host address (localhost)    #Settings/General/Start-Up
-    - `port` = NzbDrone port (8989)                 #Settings/General/Start-Up
+1. Set your Sonarr settings in the autoProcess.ini file
+    - `host` = Sonarr host address (localhost)    #Settings/General/Start-Up
+    - `port` = Sonarr port (8989)                 #Settings/General/Start-Up
     - `ssl` = 1 if enabled, 0 if not                #Settings/General/Security
-    - `api_key` = NzbDrone API Key (required)       #Settings/General/Security
-    - `web_root` = URL base empty or e.g. /nzbdrone #Settings/General/Start-Up
-2. Browse to the [Download Client] tab and enable advanced settings [Show].
-3. Set the {Drone Factory Interval} to 0 to disable it. (Sabnzbd will trigger a specific path re-scan, allowing the mp4 conversion to be completed before NzbDrone starts moving stuff around).
-4. Add a category for NzbDrone downloads ( e.g. nzbdrone) and set the script to nzbToNzbDroneMp4.py
+    - `apikey` = Sonarr API Key (required)       #Settings/General/Security
+    - `web_root` = URL base empty or e.g. /tv #Settings/General/Start-Up
+2. Browse to the Settings>Download Client tab and enable advanced settings [Show].
+3. Set the {Drone Factory Interval} to 0 to disable it. (NZBGet will trigger a specific path re-scan, allowing the mp4 conversion to be completed before Sonarr starts moving stuff around).
+4. Copy the script nzbToSonarrMP4.py to NZBGet's script folder. (default location is ~/downloads/scripts/)
+5. In NZBGet's web GUI, go to [Settings] and the newly created {NZBTOSONARRMP4} option. Fill in the MP4 automator folder path with the full path. (default ~/sickbeard_mp4_automator/) I suggest the full path and requires the trailing backslash "/".
+6. Add a category for Sonarr downloads ( e.g. sonarr or tv) and set the script to nzbToSonarrMP4.py
+7. Save and reload NZBGet.
 
 Couch Potato Support
 --------------

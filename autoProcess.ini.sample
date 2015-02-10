@@ -7,9 +7,9 @@ web_root=
 ssl=0
 api_key=
 
-[NzbDrone]
+[Sonarr]
 host=localhost
-port=8082
+port=8989
 web_root=
 ssl=0
 api_key=
