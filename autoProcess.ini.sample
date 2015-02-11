@@ -12,7 +12,7 @@ host=localhost
 port=8989
 web_root=
 ssl=0
-api_key=
+apikey=
 
 [MP4]
 ffmpeg=ffmpeg.exe
