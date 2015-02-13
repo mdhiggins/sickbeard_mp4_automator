@@ -7,6 +7,7 @@ Sick Beard/Couch Potato MP4 automation script.
 
 - Requires Python 2.7 *(Does NOT work with Python 3)*
 - Requires FFMPEG and FFPROBE
+- Some scripts require the python module <i>REQUESTS</i>.
 - Works on Windows, OSX, and Linux (Linux users make sure you're using a build of FFMPEG with the non open-source codecs, see here: https://ffmpeg.org/trac/ffmpeg/wiki/UbuntuCompilationGuide)
 
 Default Settings
@@ -60,7 +61,8 @@ Sick Beard Installation Instructions
 
 NZBGet to Sonarr Support (Beta, Tagging Not Supported)
 --------------
-1. Set your Sonarr settings in the autoProcess.ini file
+1. ** YOU MUST INSTALL THE PYTHON REQUESTS LIBRARY ** Run "pip install requests" or "easy_install requests"
+2. Set your Sonarr settings in the autoProcess.ini file
     - `host` = Sonarr host address (localhost)    #Settings/General/Start-Up
     - `port` = Sonarr port (8989)                 #Settings/General/Start-Up
     - `ssl` = 1 if enabled, 0 if not                #Settings/General/Security
