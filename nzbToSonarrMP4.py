@@ -16,10 +16,34 @@
 ### NZBGET POST-PROCESSING SCRIPT                                          ###
 ##############################################################################
 
-import os, sys, re, requests, json
-sys.path.append(os.environ['NZBPO_MP4_FOLDER'])
-from readSettings import ReadSettings
-from mkvtomp4 import MkvtoMp4
+import os, sys, re, json
+
+#Exit if missing requests module
+try:
+    import requests
+except ImportError:
+    pass
+    print "[ERROR] Python module REQUESTS is required. Install with 'pip install requests' then try again."
+    sys.exit(0)
+
+#Sanity checks for path string
+MP4folder = os.environ['NZBPO_MP4_FOLDER'].replace('"','')
+MP4folder = MP4folder.replace("'","")
+if not(MP4folder.endswith("/")):
+    MP4folder += "/"
+#DEBUG#print MP4folder+" the original is "+os.environ['NZBPO_MP4_FOLDER']
+
+if MP4folder != os.environ['NZBPO_MP4_FOLDER']:
+    print "[WARNING] MP4 Folder path option is in an invalid format but was corrected."
+
+sys.path.append(MP4folder)
+try:
+    from readSettings import ReadSettings
+    from mkvtomp4 import MkvtoMp4
+except ImportError:
+    pass
+    print "[ERROR] Wrong path to sickbeard_mp4_automator: "+os.environ['NZBPO_MP4_FOLDER']
+    sys.exit(0)
 
 # NZBGet V11+
 # Check if the script is called from nzbget 11.0 or later
@@ -83,8 +107,7 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
         sys.exit(POSTPROCESS_NONE)
 
     # All checks done, now launching the script.
-    #print os.environ['NZBPO_MP4_FOLDER']+"autoProcess.ini"
-    settings = ReadSettings(os.path.dirname(sys.argv[0]), os.environ['NZBPO_MP4_FOLDER']+"autoProcess.ini")
+    settings = ReadSettings(os.path.dirname(sys.argv[0]), MP4folder+"autoProcess.ini")
 
     path = os.environ['NZBPP_DIRECTORY']
     converter = MkvtoMp4(settings)
@@ -103,7 +126,7 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
                     	converter.process(inputfile)
                     	print "[INFO] Successfully converted!"
                     except:
-                        print "[WARNING] File conversion failed"
+                        print "[WARNING] File conversion failed!"
                         raise
                         sys.exit(POSTPROCESS_ERROR)
             #else:
@@ -114,9 +137,12 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
     host=settings.Sonarr['host']
     port=settings.Sonarr['port']
     apikey = settings.Sonarr['apikey']
+    if apikey == '':
+        print "[WARNING] Your Sonarr API Key can not be blank. Update autoProcess.ini"
+        sys.exit(POSTPROCESS_ERROR)
     try:
         ssl=int(settings.Sonarr['ssl'])
-    except (ConfigParser.NoOptionError,ValueError):
+    except:
         ssl=0
     if ssl:
         protocol="https://"
@@ -124,11 +150,15 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
         protocol="http://"
     url = protocol+host+":"+port+"/api/command"
     payload = {'name': 'downloadedepisodesscan','path': path}
+    print "[INFO] Requesting Sonarr to scan folder '"+path+"'"
     headers = {'X-Api-Key': apikey}
-    r = requests.post(url, data=json.dumps(payload), headers=headers)
-    rstate = r.json()
-    print "[INFO] Sonarr update is "+rstate['state']+"."
-    
+    try:
+        r = requests.post(url, data=json.dumps(payload), headers=headers)
+        rstate = r.json()
+        print "[INFO] Sonarr responds as "+rstate['state']+"."
+    except:
+        print "[WARNING] Update to Sonarr failed, check if Sonarr is running, autoProcess.ini for errors, or check install of python modules requests."
+        sys.exit(POSTPROCESS_ERROR)
     sys.exit(POSTPROCESS_SUCCESS)
 
 else:
