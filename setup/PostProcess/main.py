@@ -34,6 +34,7 @@ class PostProcess(Plugin):
         for x in moviefile:
             command.append(x)
 
+        log.info("Command generated: %s", command)
         try:
             p = Popen(command, stdout=PIPE)
             res = p.wait()
@@ -42,6 +43,7 @@ class PostProcess(Plugin):
                 return True
             else:
                 log.info('PostProcess Script returned an error code: %s', str(res))
+                log.info(p.stdout.read())
 
         except:
             log.error('Failed to call script: %s', (traceback.format_exc()))
