@@ -3,7 +3,6 @@ from couchpotato.core.logger import CPLog
 from couchpotato.core.plugins.base import Plugin
 from subprocess import Popen, PIPE
 import traceback
-import copy
 import os
 
 log = CPLog(__name__)
@@ -32,28 +31,22 @@ class PostProcess(Plugin):
         command.append(os.path.join(path, 'CPProcess.py'))
         command.append(imdbid)
         command.append(original)
-
-        success = False;
-
         for x in moviefile:
-            final = copy.copy(command)
-            final.append(x)
+            command.append(x)
 
-            log.info("Command generated: %s", command)
-            try:
-                p = Popen(final, stdout=PIPE)
-                res = p.wait()
-                if res == 0:
-                    success = True
-                    log.info('PostProcess Script was called successfully')
-                else:
-                    log.info('PostProcess Script returned an error code: %s', str(res))
-                    log.info(p.stdout.read())
-            except:
-                log.error('Failed to call script: %s', (traceback.format_exc()))
+        log.info("Command generated: %s", command)
+        try:
+            p = Popen(command, stdout=PIPE)
+            res = p.wait()
+            if res == 0:
+                log.info('PostProcess Script was called successfully')
+                return True
+            else:
+                log.info('PostProcess Script returned an error code: %s', str(res))
+                log.info(p.stdout.read())
 
-        if (success):
-            log.info('PostProcess Script was called successfully')
-            return True
-        else:
-            return False
+        except:
+            log.error('Failed to call script: %s', (traceback.format_exc()))
+
+
+        return False
