@@ -415,7 +415,10 @@ class MkvtoMp4:
         except:
             pass
         
-        os.chmod(outputfile, 0777) # Set permissions of newly created file
+        try:
+            os.chmod(outputfile, 0777) # Set permissions of newly created file
+        except:
+            pass
         return outputfile, inputfile
 
     # Break apart a file path into the directory, filename, and extension
@@ -440,7 +443,10 @@ class MkvtoMp4:
 
             try:
                 processor.process(inputfile, outputfile)
-                os.chmod(outputfile, 0777)
+                try:
+                    os.chmod(outputfile, 0777)
+                except:
+                    pass
                 # Cleanup
                 if self.removeFile(inputfile, replacement=outputfile):
                     return outputfile
@@ -494,6 +500,9 @@ class MkvtoMp4:
             try:
                 # Make sure file isn't read-only
                 os.chmod(filename, 0777)
+            except:
+                pass
+            try:
                 os.remove(filename)
                 # Replaces the newly deleted file with another by renaming (replacing an original with a newly created file)
                 if replacement is not None:
