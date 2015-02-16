@@ -42,6 +42,7 @@ download-artwork=True
 download-subs=False
 embed-subs=True
 sub-providers=addic7ed,podnapisi,thesubdb,opensubtitles
+permissions=0777
 
 [CouchPotato]
 host = localhost

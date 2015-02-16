@@ -35,7 +35,8 @@ class MkvtoMp4:
                     copyto=None, 
                     moveto=None,
                     embedsubs=True,
-                    providers=['addic7ed', 'podnapisi', 'thesubdb', 'opensubtitles']):
+                    providers=['addic7ed', 'podnapisi', 'thesubdb', 'opensubtitles'],
+                    permissions=0777):
         # Settings
         self.FFMPEG_PATH=FFMPEG_PATH
         self.FFPROBE_PATH=FFPROBE_PATH
@@ -48,6 +49,7 @@ class MkvtoMp4:
         self.copyto=copyto
         self.moveto=moveto
         self.relocate_moov=relocate_moov
+        self.permissions=permissions
         # Video settings
         self.video_codec=video_codec
         self.video_bitrate=video_bitrate
@@ -83,6 +85,7 @@ class MkvtoMp4:
         self.copyto=settings.copyto
         self.moveto=settings.moveto
         self.relocate_moov = settings.relocate_moov
+        self.permissions = settings.permissions
         #Video settings
         self.video_codec=settings.vcodec
         self.video_bitrate=settings.vbitrate
@@ -416,7 +419,7 @@ class MkvtoMp4:
             pass
         
         try:
-            os.chmod(outputfile, 0777) # Set permissions of newly created file
+            os.chmod(outputfile, self.permissions) # Set permissions of newly created file
         except:
             pass
         return outputfile, inputfile
@@ -444,7 +447,7 @@ class MkvtoMp4:
             try:
                 processor.process(inputfile, outputfile)
                 try:
-                    os.chmod(outputfile, 0777)
+                    os.chmod(outputfile, self.permissions)
                 except:
                     pass
                 # Cleanup

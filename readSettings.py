@@ -51,7 +51,8 @@ class ReadSettings:
                         'download-artwork': 'True',
                         'download-subs': 'False',
                         'embed-subs': 'True',
-                        'sub-providers': 'addic7ed, podnapisi, thesubdb, opensubtitles' }
+                        'sub-providers': 'addic7ed, podnapisi, thesubdb, opensubtitles',
+                        'permissions': '777' }
         # Default settings for CouchPotato
         cp_defaults = {'host': 'localhost',
                        'port': '5050',
@@ -189,6 +190,12 @@ class ReadSettings:
             self.subproviders = self.subproviders.lower().replace(' ', '').split(',')
 
         self.embedsubs = config.getboolean(section, 'embed-subs')
+
+        self.permissions = config.get(section, 'permissions')
+        try:
+            self.permissions = int(self.permissions, 8)
+        except:
+            self.permissions = 0777
 
         #Setup variable for maximum audio channels
         self.maxchannels = config.get(section, 'max-audio-channels')
