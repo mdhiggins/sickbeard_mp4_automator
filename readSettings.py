@@ -195,6 +195,7 @@ class ReadSettings:
         try:
             self.permissions = int(self.permissions, 8)
         except:
+            print "Error defaulting to 777 permissions"
             self.permissions = 0777
 
         #Setup variable for maximum audio channels
