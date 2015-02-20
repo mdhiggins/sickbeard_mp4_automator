@@ -1,8 +1,8 @@
 from couchpotato.core.event import addEvent
 from couchpotato.core.logger import CPLog
 from couchpotato.core.plugins.base import Plugin
-from subprocess import Popen, PIPE
 import traceback
+import sys
 import os
 
 log = CPLog(__name__)
@@ -18,7 +18,21 @@ class PostProcess(Plugin):
 
     
     def callscript(self, message = None, group = None):
-        log.info('MP4 Automator Post Processing script initialized')
+
+        log.info('MP4 Automator Post Processing script initialized version 2')
+
+        sys.path.append(path)
+        try:
+            from readSettings import ReadSettings
+            from mkvtomp4 import MkvtoMp4
+            from tmdb_mp4 import tmdb_mp4
+        except ImportError:
+            log.error('Path to script folder appears to be invalid.')
+            return False
+
+        settings = ReadSettings(path, "autoProcess.ini")
+        converter = MkvtoMp4(settings)
+        
         try:
             imdbid = group['library']['identifier']
         except:
@@ -27,26 +41,34 @@ class PostProcess(Plugin):
         moviefile = group['renamed_files']
         original = group['files']['movie'][0]
         
-        command = ['python']
-        command.append(os.path.join(path, 'CPProcess.py'))
-        command.append(imdbid)
-        command.append(original)
-        for x in moviefile:
-            command.append(x)
+        success = False
 
-        log.info("Command generated: %s", command)
-        try:
-            p = Popen(command, stdout=PIPE)
-            res = p.wait()
-            if res == 0:
-                log.info('PostProcess Script was called successfully')
-                return True
-            else:
-                log.info('PostProcess Script returned an error code: %s', str(res))
-                log.info(p.stdout.read())
+        for inputfile in moviefile:
+            try:
+                log.info('Processing file: %s', inputfile)
+                if MkvtoMp4(settings).validSource(inputfile):
+                    log.info('File is valid')
+                    output = converter.process(inputfile, original=original)
+                    
+                    # Tag with metadata
+                    if settings.tagfile:
+                        log.info('Tagging file with IMDB ID %s', imdbid)
+                        tagmp4 = tmdb_mp4(imdbid, original=original, language=settings.taglanguage)
+                        tagmp4.setHD(output['x'], output['y'])
+                        tagmp4.writeTags(output['output'], settings.artwork)
 
-        except:
-            log.error('Failed to call script: %s', (traceback.format_exc()))
+                    #QTFS
+                    if settings.relocate_moov:
+                        converter.QTFS(output['output'])
 
+                    # Copy to additional locations
+                    converter.replicate(output['output'])
 
-        return False
+                    success = True
+                else:
+                    log.info('File is invalid')
+            except:
+                log.error('File processing failed: %s', (traceback.format_exc()))
+
+        return success
+    
