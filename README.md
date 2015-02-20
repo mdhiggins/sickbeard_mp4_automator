@@ -88,8 +88,7 @@ Couch Potato Support
 3. Disable automatic checking of the renamer folder, the script will automatically notify Couch Potato when it is complete to check for new videos to be renamed and relocated. Leaving this on may cause conflicts and CouchPotato may try to relocate/rename the file before processing is completed.
     - Set `Run Every` to `0` 
     - Set `Force Every` to `0`
-    - **WARNING** On Windows there is currently a bug that prevents the script from triggering on its own (will be fixed in the next CP build) so you must set a time interval for CouchPotato to scan the folder, so set Run Every to some non-zero number (>10 preferred)
-4. **OPTIONAL** Point your Couch Potato videos that are sent to SAB to nzbToCouchPotatoMP4.py for post processing; this will convert them before they are passed to Couch Potato. Without this step video files will be converted after being processed by CouchPotato.
+4. Point your Couch Potato videos that are sent to SAB to nzbToCouchPotatoMP4.py for post processing with conversion prior to CP begin notified of completion. Use nzbToCouchPotato.py to have CouchPotato handle all the processing once it has renamed and moved the files.
 
 uTorrent Support (BETA)
 --------------
