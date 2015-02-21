@@ -16,7 +16,7 @@ from mkvtomp4 import MkvtoMp4
 # 7 Status of post processing. 0 = OK, 1=failed verification, 2=failed unpack, 3=1+2
 
 settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
-categories = ['sickbeard', 'couchpotato']
+categories = ['sickbeard', 'couchpotato', 'sonarr']
 category = str(sys.argv[5])
 
 if category.lower() not in categories:
@@ -54,3 +54,38 @@ if category.lower() == categories[0]:
 # Send to CouchPotato        
 elif category.lower() == categories[1]:
     autoProcessMovie.process(sys.argv[1], sys.argv[2], sys.argv[7])
+# Send to Sonarr
+elif category.lower() == categories[2]:
+    # Import requests
+    try:
+        import requests
+    except ImportError:
+        print "[ERROR] Python module REQUESTS is required. Install with 'pip install requests' then try again."
+        sys.exit(0)
+
+    host=settings.Sonarr['host']
+    port=settings.Sonarr['port']
+    apikey = settings.Sonarr['apikey']
+    if apikey == '':
+        print "[WARNING] Your Sonarr API Key can not be blank. Update autoProcess.ini"
+        sys.exit(POSTPROCESS_ERROR)
+    try:
+        ssl=int(settings.Sonarr['ssl'])
+    except:
+        ssl=0
+    if ssl:
+        protocol="https://"
+    else:
+        protocol="http://"
+    url = protocol+host+":"+port+"/api/command"
+    payload = {'name': 'downloadedepisodesscan','path': path}
+    print "[INFO] Requesting Sonarr to scan folder '"+path+"'"
+    headers = {'X-Api-Key': apikey}
+    try:
+        r = requests.post(url, data=json.dumps(payload), headers=headers)
+        rstate = r.json()
+        print "[INFO] Sonarr responds as "+rstate['state']+"."
+    except:
+        print "[WARNING] Update to Sonarr failed, check if Sonarr is running, autoProcess.ini for errors, or check install of python modules requests."
+        sys.exit(POSTPROCESS_ERROR)
+    sys.exit(POSTPROCESS_SUCCESS)

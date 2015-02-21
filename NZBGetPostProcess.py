@@ -23,14 +23,6 @@ import os, sys, re, json
 import autoProcessMovie
 import autoProcessTV
 
-#Exit if missing requests module
-try:
-    import requests
-except ImportError:
-    pass
-    print "[ERROR] Python module REQUESTS is required. Install with 'pip install requests' then try again."
-    sys.exit(0)
-
 #Sanity checks for path string
 MP4folder = os.environ['NZBPO_MP4_FOLDER'].replace('"','')
 MP4folder = MP4folder.replace("'","")
@@ -161,6 +153,14 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
     elif (category.lower() == cateories[2]):
         #DEBUG#print "Sonarr Processing Activated"
         #Example:curl http://localhost:8989/api/command -X POST -d '{"name": "downloadedepisodesscan"}' --header "X-Api-Key:XXXXXXXXXXX"
+
+        #Exit if missing requests module
+        try:
+            import requests
+        except ImportError:
+            print "[ERROR] Python module REQUESTS is required. Install with 'pip install requests' then try again."
+            sys.exit(0)
+
         host=settings.Sonarr['host']
         port=settings.Sonarr['port']
         apikey = settings.Sonarr['apikey']
