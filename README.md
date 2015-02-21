@@ -59,7 +59,7 @@ Sick Beard Installation Instructions
     - `api_key` = Set this to your Sick Beard API key (options -> general, enable API in Sick Beard to get this key)
 3. **OPTIONAL** - If you're using SAB, set your post processing script to sabToSickBeardWithConverter.py - this is not completely needed but gives the added benefit of doing the conversion from mkv to mp4 before Sick Beard sees the file in whatever folder you choose to download things to. It saves having to put in all the API information as well, and prevents the one additional refresh needed normally to have Sick Beard see the properly converted file. That being said the postConversion script can handle everything on its own, so this step is just for the added benefits listed.
 
-NZBGet to Sonarr Support (Beta, Tagging Not Supported)
+Sonarr Support (Tagging Not Supported)
 --------------
 1. ** YOU MUST INSTALL THE PYTHON REQUESTS LIBRARY ** Run "pip install requests" or "easy_install requests"
 2. Set your Sonarr settings in the autoProcess.ini file
@@ -70,10 +70,7 @@ NZBGet to Sonarr Support (Beta, Tagging Not Supported)
     - `web_root` = URL base empty or e.g. /tv #Settings/General/Start-Up
 2. Browse to the Settings>Download Client tab and enable advanced settings [Show].
 3. Set the {Drone Factory Interval} to 0 to disable it. (NZBGet will trigger a specific path re-scan, allowing the mp4 conversion to be completed before Sonarr starts moving stuff around).
-4. Copy the script nzbToSonarrMP4.py to NZBGet's script folder. (default location is ~/downloads/scripts/)
-5. In NZBGet's web GUI, go to [Settings] and the newly created {NZBTOSONARRMP4} option. Fill in the MP4 automator folder path with the full path. (default ~/sickbeard_mp4_automator/) I suggest the full path and requires the trailing backslash "/".
-6. Add a category for Sonarr downloads ( e.g. sonarr or tv) and set the script to nzbToSonarrMP4.py
-7. Save and reload NZBGet.
+    - Sonarr does not currently support post processing scripts so tagging is not currently supported.
 
 Couch Potato Support
 --------------
@@ -87,8 +84,22 @@ Couch Potato Support
 2. Copy the PostProcess directory from the setup folder included with this script to the Couch Potato custom_plugins directory. You can find this directory within your Couch Potato setup by opening Couch Potato and navigating to the About page, where the installation directory is displayed. Copy the PostProcess folder (the whole folder, not just the contents) to Couch Potato and restart Couch Potato. You should see in the logs that it was loaded. Also you'll need to open up the main.py file and set the path variable to the directory where your CPProcess.py script resides, which by default points to C:\\Scripts\\. Use double backslashes. If you make any changes here make sure to delete the `.pyc` files.
 3. Disable automatic checking of the renamer folder, the script will automatically notify Couch Potato when it is complete to check for new videos to be renamed and relocated. Leaving this on may cause conflicts and CouchPotato may try to relocate/rename the file before processing is completed.
     - Set `Run Every` to `0` 
-    - Set `Force Every` to `0`
-4. Point your Couch Potato videos that are sent to SAB to nzbToCouchPotatoMP4.py for post processing with conversion prior to CP begin notified of completion. Use nzbToCouchPotato.py to have CouchPotato handle all the processing once it has renamed and moved the files.
+4. Point your Couch Potato videos that are sent to SAB to SABPostProcess.py for post processing with conversion prior to CP begin notified of completion. Similarly use NZBGetPostProcess.py for NZBGet. Make sure you configure your SAB/NZBGet categories so that they match with the categories configured for the script.
+
+NZBGet
+--------------
+1. Copy the script NZBGetPostProcess.py to NZBGet's script folder. (default location is ~/downloads/scripts/)
+2. In NZBGet's web GUI, go to [Settings] and the newly created {NZBGETPOSTPROCESS} option. Fill in the MP4 automator folder path with the full path. (default ~/sickbeard_mp4_automator/) I suggest the full path and requires the trailing backslash "/".
+3. You may change or set your appropriate category names to correspond with the application you wish to send the files to (CouchPotato, Sickbeard, Sonarr). Make sure these categories match.
+4. You may set the `convert` option to enable conversion before the file is passed on to the next step.
+5. Save and reload NZBGet
+
+SAB
+--------------
+1. Point SABNZBD's script directory to the root directory where you have extract the script.
+2. Make sure your categories are set and match the categories specified in the SABNZBD section of autoProcess.ini. Set the script for each category to `SABPostProcess.py`
+3. Press save for each category
+4. You may set the `convert` option to enable conversion before the file is passed on to the next step.
 
 uTorrent Support (BETA)
 --------------
