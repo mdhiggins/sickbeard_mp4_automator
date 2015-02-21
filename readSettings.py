@@ -22,7 +22,8 @@ class ReadSettings:
         sb_defaults = {'host': 'localhost',
                        'port': '8081',
                        'ssl': "False",
-                       'api_key': '', }
+                       'api_key': '',
+                       'convert': 'True' }
        # Default MP4 conversion settings
         mp4_defaults = {'ffmpeg': 'ffmpeg.exe',
                         'ffprobe': 'ffprobe.exe',
@@ -63,7 +64,8 @@ class ReadSettings:
                        'method': 'renamer',
                        'delete_failed': 'False',
                        'ssl': 'False',
-                       'web_root': ''}
+                       'web_root': '',
+                       'convert': 'True' }
         # Default settings for Sonarr
         sonarr_defaults = {'host': 'localhost',
                        'port': '8989',
@@ -282,6 +284,8 @@ class ReadSettings:
         self.CP['delay'] = config.get(section, "delay")
         self.CP['method'] = config.get(section, "method")
         self.CP['web_root'] = config.get(section, "web_root")
+        self.CP['convert'] = config.getboolean(section, "convert")
+
         try:
             self.CP['delay'] = float(self.CP['delay'])
         except ValueError:
@@ -318,6 +322,11 @@ class ReadSettings:
         self.Sonarr['apikey'] = config.get(section, "apikey")
         self.Sonarr['ssl'] = config.get(section, "ssl")
         self.Sonarr['web_root'] = config.get(section, "web_root")
+
+        #Read Sickbeard section information
+        section = "Sickbeard"
+        self.Sickbeard = {}
+        self.Sickbeard['convert'] = config.get(section, "convert")
 
         #Pass the values on
         self.config = config

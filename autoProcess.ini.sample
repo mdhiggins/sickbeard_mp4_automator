@@ -6,6 +6,7 @@ password=
 web_root=
 ssl=0
 api_key=
+convert=True
 
 [Sonarr]
 host=localhost
@@ -55,6 +56,7 @@ apikey =
 delay = 65
 method = renamer
 delete_failed = 0
+convert=True
 
 [uTorrent]
 label=

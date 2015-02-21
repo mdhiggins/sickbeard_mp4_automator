@@ -13,10 +13,15 @@
 # Change to full path to MP4 Automator folder. No quotes and a trailing /
 #MP4_FOLDER=~/sickbeard_mp4_automator/
 
+# Convert file before passing to destination (True, False)
+#SHOULDCONVERT=False
+
 ### NZBGET POST-PROCESSING SCRIPT                                          ###
 ##############################################################################
 
 import os, sys, re, json
+import autoProcessMovie
+import autoProcessTV
 
 #Exit if missing requests module
 try:
@@ -45,11 +50,17 @@ except ImportError:
     print "[ERROR] Wrong path to sickbeard_mp4_automator: "+os.environ['NZBPO_MP4_FOLDER']
     sys.exit(0)
 
-# NZBGet V11+
-# Check if the script is called from nzbget 11.0 or later
+#Determine if conversion will take place
+shouldConvert = (os.environ['SHOULDCONVERT'].lower() in ("yes", "true", "t", "1"))
+
 if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5] < '11.0':
     print "[INFO] Script triggered from NZBGet (11.0 or later)."
 
+    path = os.environ['NZBPP_DIRECTORY'] # Path to NZB directory
+	nzb = os.environ['NZBPP_NZBFILENAME'] # Original NZB name
+    category = os.environ['NZBPP_CATEGORY'] # NZB Category to determine destination
+    #DEBUG#print "Category is %s", category
+    categories = ['sickbeard', 'couchpotato', 'sonarr']
     # NZBGet argv: all passed as environment variables.
     clientAgent = "nzbget"
     # Exit codes used by NZBGet
@@ -106,60 +117,76 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
         status = 1
         sys.exit(POSTPROCESS_NONE)
 
+    # Make sure one of the appropriate cateories is set
+    if category.lower() not in cateories:
+        print "[INFO] Post-Process: No valid category detected. Category was %s.", (category)
+        status = 1
+        sys.exit(POSTPROCESS_NONE)
+
     # All checks done, now launching the script.
     settings = ReadSettings(os.path.dirname(sys.argv[0]), MP4folder+"autoProcess.ini")
 
-    path = os.environ['NZBPP_DIRECTORY']
-    converter = MkvtoMp4(settings)
-    converter.output_dir = None
-    for r, d, f in os.walk(path):
-        for files in f:
-            inputfile = os.path.join(r, files)
-            #Ignores files under 50MB
-            if os.path.getsize(inputfile) > 50000000:
-                if MkvtoMp4(settings).validSource(inputfile):
-                    try:
-                        print "[INFO] Valid file detected: " + inputfile
-                    except:
-                        print "[INFO] Valid file detected"
-                    try:
-                    	converter.process(inputfile)
-                    	print "[INFO] Successfully converted!"
-                    except:
-                        print "[WARNING] File conversion failed!"
-                        raise
-                        sys.exit(POSTPROCESS_ERROR)
-            #else:
-            #	print "Possible sample file detected: " + inputfile + " skipping file"
+    if shouldConvert:
+        converted = 0
+        attempted = 0
+        converter = MkvtoMp4(settings)
+        converter.output_dir = None
+        for r, d, f in os.walk(path):
+            for files in f:
+                attempted += 1
+                inputfile = os.path.join(r, files)
+                #DEBUG#print inputfile
+                #Ignores files under 50MB
+                if os.path.getsize(inputfile) > 50000000:
+                    if MkvtoMp4(settings).validSource(inputfile):
+                        try:
+                            print "[INFO] Valid file detected: " + inputfile
+                        except:
+                            print "[INFO] Valid file detected"
+                        try:
+                            converter.process(inputfile)
+                            print "[INFO] Successfully converted!"
+                            converted += 1
+                        except:
+                            print "[WARNING] File conversion failed!"
+        #DEBUG#print "%d of %d files converted", (converted, attempted)
 
-    #Send Folder Scan command to Sonarr
-    #Example:curl http://localhost:8989/api/command -X POST -d '{"name": "downloadedepisodesscan"}' --header "X-Api-Key:XXXXXXXXXXX"
-    host=settings.Sonarr['host']
-    port=settings.Sonarr['port']
-    apikey = settings.Sonarr['apikey']
-    if apikey == '':
-        print "[WARNING] Your Sonarr API Key can not be blank. Update autoProcess.ini"
-        sys.exit(POSTPROCESS_ERROR)
-    try:
-        ssl=int(settings.Sonarr['ssl'])
-    except:
-        ssl=0
-    if ssl:
-        protocol="https://"
-    else:
-        protocol="http://"
-    url = protocol+host+":"+port+"/api/command"
-    payload = {'name': 'downloadedepisodesscan','path': path}
-    print "[INFO] Requesting Sonarr to scan folder '"+path+"'"
-    headers = {'X-Api-Key': apikey}
-    try:
-        r = requests.post(url, data=json.dumps(payload), headers=headers)
-        rstate = r.json()
-        print "[INFO] Sonarr responds as "+rstate['state']+"."
-    except:
-        print "[WARNING] Update to Sonarr failed, check if Sonarr is running, autoProcess.ini for errors, or check install of python modules requests."
-        sys.exit(POSTPROCESS_ERROR)
-    sys.exit(POSTPROCESS_SUCCESS)
+    # Couc
+    if (category.lower() == cateories[0]):
+        #DEBUG#print "Sickbeard Processing Activated"
+        autoProcessTV.processEpisode(path, nzb)
+    elif (category.lower() == cateories[1]):
+        #DEBUG#print "CouchPotato Processing Activated"
+        autoProcessMovie.process(path, nzb, status)
+    elif (category.lower() == cateories[2]):
+        #DEBUG#print "Sonarr Processing Activated"
+        #Example:curl http://localhost:8989/api/command -X POST -d '{"name": "downloadedepisodesscan"}' --header "X-Api-Key:XXXXXXXXXXX"
+        host=settings.Sonarr['host']
+        port=settings.Sonarr['port']
+        apikey = settings.Sonarr['apikey']
+        if apikey == '':
+            print "[WARNING] Your Sonarr API Key can not be blank. Update autoProcess.ini"
+            sys.exit(POSTPROCESS_ERROR)
+        try:
+            ssl=int(settings.Sonarr['ssl'])
+        except:
+            ssl=0
+        if ssl:
+            protocol="https://"
+        else:
+            protocol="http://"
+        url = protocol+host+":"+port+"/api/command"
+        payload = {'name': 'downloadedepisodesscan','path': path}
+        print "[INFO] Requesting Sonarr to scan folder '"+path+"'"
+        headers = {'X-Api-Key': apikey}
+        try:
+            r = requests.post(url, data=json.dumps(payload), headers=headers)
+            rstate = r.json()
+            print "[INFO] Sonarr responds as "+rstate['state']+"."
+        except:
+            print "[WARNING] Update to Sonarr failed, check if Sonarr is running, autoProcess.ini for errors, or check install of python modules requests."
+            sys.exit(POSTPROCESS_ERROR)
+        sys.exit(POSTPROCESS_SUCCESS)
 
 else:
     print "[ERROR] This script can only be called from NZBGet (11.0 or later)."
