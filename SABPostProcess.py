@@ -21,6 +21,7 @@ category = str(sys.argv[5])
 
 if category.lower() not in categories:
     print "Error, no valid category detected"
+    sys.exit()
 
 path = str(sys.argv[1])
 nzb = str(sys.argv[2])
@@ -42,7 +43,7 @@ else:
     print "Passing without conversion"
 
 # Send to Sickbeard
-if category.lower() == categories[0]:
+if (category.lower() == categories[0]):
     if len(sys.argv) < 2:
         print "No folder supplied - is this being called from SABnzbd?"
         sys.exit()
@@ -52,10 +53,10 @@ if category.lower() == categories[0]:
         autoProcessTV.processEpisode(path)
 
 # Send to CouchPotato        
-elif category.lower() == categories[1]:
-    autoProcessMovie.process(sys.argv[1], sys.argv[2], sys.argv[7])
+elif (category.lower() == categories[1]):
+    autoProcessMovie.process(path, nzb, sys.argv[7])
 # Send to Sonarr
-elif category.lower() == categories[2]:
+elif (category.lower() == categories[2]):
     # Import requests
     try:
         import requests
