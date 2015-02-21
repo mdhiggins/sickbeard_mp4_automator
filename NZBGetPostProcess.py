@@ -146,7 +146,7 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
     # Couc
     if (category.lower() == cateories[0]):
         #DEBUG#print "Sickbeard Processing Activated"
-        autoProcessTV.processEpisode(path, nzb, settings)
+        autoProcessTV.processEpisode(path, settings, nzb)
     elif (category.lower() == cateories[1]):
         #DEBUG#print "CouchPotato Processing Activated"
         autoProcessMovie.process(path, nzb, status, settings)

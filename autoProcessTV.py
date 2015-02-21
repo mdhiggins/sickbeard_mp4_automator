@@ -41,7 +41,7 @@ class AuthURLOpener(urllib.FancyURLopener):
         return urllib.FancyURLopener.open(self, url)
 
 
-def processEpisode(dirName, nzbName=None, settings):
+def processEpisode(dirName, settings, nzbName=None):
     
     host = settings.Sickbeard['host']
     port = settings.Sickbeard['port']

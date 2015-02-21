@@ -48,9 +48,9 @@ if (category.lower() == categories[0]):
         print "No folder supplied - is this being called from SABnzbd?"
         sys.exit()
     elif len(sys.argv) >= 3:
-        autoProcessTV.processEpisode(path, nzb, settings)
+        autoProcessTV.processEpisode(path, settings, nzb)
     else:
-        autoProcessTV.processEpisode(path, settings=settings)
+        autoProcessTV.processEpisode(path, settings)
 
 # Send to CouchPotato        
 elif (category.lower() == categories[1]):
