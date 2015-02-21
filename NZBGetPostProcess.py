@@ -16,12 +16,20 @@
 # Convert file before passing to destination (True, False)
 #SHOULDCONVERT=False
 
+# Category for Couchpotato
+#CP_CAT=Movies
+
+# Category for Sonarr - Enter None if you don't use it.
+#SONARR_CAT=None
+
+# Category for Sickbeard - Enter None if you don't use it.
+#SICK_CAT=None
+
 ### NZBGET POST-PROCESSING SCRIPT                                          ###
 ##############################################################################
 
 import os, sys, re, json
-import autoProcessMovie
-import autoProcessTV
+
 
 #Sanity checks for path string
 MP4folder = os.environ['NZBPO_MP4_FOLDER'].replace('"','')
@@ -37,6 +45,8 @@ sys.path.append(MP4folder)
 try:
     from readSettings import ReadSettings
     from mkvtomp4 import MkvtoMp4
+    import autoProcessMovie
+    import autoProcessTV
 except ImportError:
     pass
     print "[ERROR] Wrong path to sickbeard_mp4_automator: "+os.environ['NZBPO_MP4_FOLDER']
@@ -52,7 +62,15 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
     nzb = os.environ['NZBPP_NZBFILENAME'] # Original NZB name
     category = os.environ['NZBPP_CATEGORY'] # NZB Category to determine destination
     #DEBUG#print "Category is %s", category
-    categories = ['sickbeard', 'couchpotato', 'sonarr']
+    couchcat = os.environ['NZBPO_CP_CAT']
+    sonarrcat = os.environ['NZBPO_SONARR_CAT'].lower()
+    sickcat = os.environ['NZBPO_SICK_CAT'].lower()
+    if sonarrcat != 'none':
+        categories = [couchcat, sonarrcat]
+    elif sickcat != 'none':
+        categories = [couchcat, sickcat]
+    else:
+        categories = [couchcat]
     # NZBGet argv: all passed as environment variables.
     clientAgent = "nzbget"
     # Exit codes used by NZBGet
@@ -110,13 +128,13 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
         sys.exit(POSTPROCESS_NONE)
 
     # Make sure one of the appropriate cateories is set
-    if category.lower() not in cateories:
+    if category.lower() not in categories:
         print "[INFO] Post-Process: No valid category detected. Category was %s.", (category)
         status = 1
         sys.exit(POSTPROCESS_NONE)
 
     # All checks done, now launching the script.
-    settings = ReadSettings(os.path.dirname(sys.argv[0]), MP4folder+"autoProcess.ini")
+    settings = ReadSettings(MP4folder, "autoProcess.ini")
 
     if shouldConvert:
         converted = 0
@@ -143,29 +161,29 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
                             print "[WARNING] File conversion failed!"
         #DEBUG#print "%d of %d files converted", (converted, attempted)
 
-    # Couc
-    if (category.lower() == cateories[0]):
+    if (category.lower() == sickcat):
         #DEBUG#print "Sickbeard Processing Activated"
         autoProcessTV.processEpisode(path, settings, nzb)
-    elif (category.lower() == cateories[1]):
+        sys.exit(POSTPROCESS_SUCCESS)
+    elif (category.lower() == couchcat):
         #DEBUG#print "CouchPotato Processing Activated"
         autoProcessMovie.process(path, settings, nzb, status)
-    elif (category.lower() == cateories[2]):
+        sys.exit(POSTPROCESS_SUCCESS)
+    elif (category.lower() == sonarrcat):
         #DEBUG#print "Sonarr Processing Activated"
-        #Example:curl http://localhost:8989/api/command -X POST -d '{"name": "downloadedepisodesscan"}' --header "X-Api-Key:XXXXXXXXXXX"
 
         #Exit if missing requests module
         try:
             import requests
         except ImportError:
             print "[ERROR] Python module REQUESTS is required. Install with 'pip install requests' then try again."
-            sys.exit(0)
+            sys.exit(POSTPROCESS_ERROR)
 
         host=settings.Sonarr['host']
         port=settings.Sonarr['port']
         apikey = settings.Sonarr['apikey']
         if apikey == '':
-            print "[WARNING] Your Sonarr API Key can not be blank. Update autoProcess.ini"
+            print "[WARNING] Your Sonarr API Key can not be blank. Update autoProcess.ini at %s" % MP4folder
             sys.exit(POSTPROCESS_ERROR)
         try:
             ssl=int(settings.Sonarr['ssl'])
@@ -178,9 +196,9 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
         url = protocol+host+":"+port+"/api/command"
         payload = {'name': 'downloadedepisodesscan','path': path}
         print "[INFO] Requesting Sonarr to scan folder '"+path+"'"
-        headers = {'X-Api-Key': apikey}
+        #headers = {'X-Api-Key': apikey}
         try:
-            r = requests.post(url, data=json.dumps(payload), headers=headers)
+            r = requests.post(url, data=json.dumps(payload), headers={'X-Api-Key': apikey})#headers=headers)
             rstate = r.json()
             print "[INFO] Sonarr responds as "+rstate['state']+"."
         except:
