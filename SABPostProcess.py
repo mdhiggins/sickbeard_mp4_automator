@@ -48,13 +48,13 @@ if (category.lower() == categories[0]):
         print "No folder supplied - is this being called from SABnzbd?"
         sys.exit()
     elif len(sys.argv) >= 3:
-        autoProcessTV.processEpisode(path, nzb)
+        autoProcessTV.processEpisode(path, nzb, settings)
     else:
-        autoProcessTV.processEpisode(path)
+        autoProcessTV.processEpisode(path, settings=settings)
 
 # Send to CouchPotato        
 elif (category.lower() == categories[1]):
-    autoProcessMovie.process(path, nzb, sys.argv[7])
+    autoProcessMovie.process(path, nzb, sys.argv[7], settings)
 # Send to Sonarr
 elif (category.lower() == categories[2]):
     # Import requests

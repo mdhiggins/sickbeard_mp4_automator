@@ -326,7 +326,14 @@ class ReadSettings:
         #Read Sickbeard section information
         section = "SickBeard"
         self.Sickbeard = {}
-        self.Sickbeard['convert'] = config.get(section, "convert")
+        self.Sickbeard['convert'] = config.get(section, "convert") # Convert
+        self.Sickbeard['host'] = config.get(section, "host")  # Server Address
+        self.Sickbeard['port'] = config.get(section, "port")  # Server Port
+        self.Sickbeard['api_key'] = config.get(section, "api_key")  # Sickbeard API key
+        self.Sickbeard['web_root'] = config.get(section, "web_root")  # Sickbeard webroot
+        self.Sickbeard['ssl'] = config.getboolean(section, "ssl") # SSL
+        self.Sickbeard['user'] = config.get(section, "username")
+        self.Sickbeard['pass'] = config.get(section, "password")
 
         #Pass the values on
         self.config = config

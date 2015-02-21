@@ -146,10 +146,10 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
     # Couc
     if (category.lower() == cateories[0]):
         #DEBUG#print "Sickbeard Processing Activated"
-        autoProcessTV.processEpisode(path, nzb)
+        autoProcessTV.processEpisode(path, nzb, settings)
     elif (category.lower() == cateories[1]):
         #DEBUG#print "CouchPotato Processing Activated"
-        autoProcessMovie.process(path, nzb, status)
+        autoProcessMovie.process(path, nzb, status, settings)
     elif (category.lower() == cateories[2]):
         #DEBUG#print "Sonarr Processing Activated"
         #Example:curl http://localhost:8989/api/command -X POST -d '{"name": "downloadedepisodesscan"}' --header "X-Api-Key:XXXXXXXXXXX"
