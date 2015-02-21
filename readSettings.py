@@ -324,7 +324,7 @@ class ReadSettings:
         self.Sonarr['web_root'] = config.get(section, "web_root")
 
         #Read Sickbeard section information
-        section = "Sickbeard"
+        section = "SickBeard"
         self.Sickbeard = {}
         self.Sickbeard['convert'] = config.get(section, "convert")
 
