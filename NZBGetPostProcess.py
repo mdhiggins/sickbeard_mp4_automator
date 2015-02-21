@@ -43,7 +43,7 @@ except ImportError:
     sys.exit(0)
 
 #Determine if conversion will take place
-shouldConvert = (os.environ['SHOULDCONVERT'].lower() in ("yes", "true", "t", "1"))
+shouldConvert = (os.environ['NZBPO_SHOULDCONVERT'].lower() in ("yes", "true", "t", "1"))
 
 if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5] < '11.0':
     print "[INFO] Script triggered from NZBGet (11.0 or later)."
