@@ -54,7 +54,7 @@ if (category.lower() == categories[0]):
 
 # Send to CouchPotato        
 elif (category.lower() == categories[1]):
-    autoProcessMovie.process(path, nzb, sys.argv[7], settings)
+    autoProcessMovie.process(path, settings, nzb, sys.argv[7])
 # Send to Sonarr
 elif (category.lower() == categories[2]):
     # Import requests

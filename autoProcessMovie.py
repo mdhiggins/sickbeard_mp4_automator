@@ -26,7 +26,7 @@ class AuthURLOpener(urllib.FancyURLopener):
         return urllib.FancyURLopener.open(self, url)
 
 
-def process(dirName, nzbName=None, status=0, settings):
+def process(dirName, settings, nzbName=None, status=0):
 
     status = int(status)
 

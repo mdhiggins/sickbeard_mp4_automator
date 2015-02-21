@@ -149,7 +149,7 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
         autoProcessTV.processEpisode(path, settings, nzb)
     elif (category.lower() == cateories[1]):
         #DEBUG#print "CouchPotato Processing Activated"
-        autoProcessMovie.process(path, nzb, status, settings)
+        autoProcessMovie.process(path, settings, nzb, status)
     elif (category.lower() == cateories[2]):
         #DEBUG#print "Sonarr Processing Activated"
         #Example:curl http://localhost:8989/api/command -X POST -d '{"name": "downloadedepisodesscan"}' --header "X-Api-Key:XXXXXXXXXXX"
