@@ -49,7 +49,7 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
     print "[INFO] Script triggered from NZBGet (11.0 or later)."
 
     path = os.environ['NZBPP_DIRECTORY'] # Path to NZB directory
-	nzb = os.environ['NZBPP_NZBFILENAME'] # Original NZB name
+    nzb = os.environ['NZBPP_NZBFILENAME'] # Original NZB name
     category = os.environ['NZBPP_CATEGORY'] # NZB Category to determine destination
     #DEBUG#print "Category is %s", category
     categories = ['sickbeard', 'couchpotato', 'sonarr']
