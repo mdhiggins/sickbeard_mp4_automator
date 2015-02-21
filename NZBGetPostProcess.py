@@ -109,8 +109,8 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
         status = 1
         sys.exit(POSTPROCESS_NONE)
 
-    # Make sure one of the appropriate cateories is set
-    if category.lower() not in cateories:
+    # Make sure one of the appropriate categories is set
+    if category.lower() not in categories:
         print "[INFO] Post-Process: No valid category detected. Category was %s.", (category)
         status = 1
         sys.exit(POSTPROCESS_NONE)
