@@ -22,8 +22,7 @@ class ReadSettings:
         sb_defaults = {'host': 'localhost',
                        'port': '8081',
                        'ssl': "False",
-                       'api_key': '',
-                       'convert': 'True' }
+                       'api_key': '' }
        # Default MP4 conversion settings
         mp4_defaults = {'ffmpeg': 'ffmpeg.exe',
                         'ffprobe': 'ffprobe.exe',
@@ -64,8 +63,7 @@ class ReadSettings:
                        'method': 'renamer',
                        'delete_failed': 'False',
                        'ssl': 'False',
-                       'web_root': '',
-                       'convert': 'True' }
+                       'web_root': '' }
         # Default settings for Sonarr
         sonarr_defaults = {'host': 'localhost',
                        'port': '8989',
@@ -80,8 +78,13 @@ class ReadSettings:
                               'host': 'http://localhost:8080/',
                               'username': '',
                               'password': ''}
+        # Default SAB settings
+        sab_defaults = {    'convert': 'True',
+                            'Sickbeard-category': 'sickbeard',
+                            'Couchpotato-category': 'couchpotato',
+                            'Sonarr-category': 'sonarr' }
 
-        defaults = {'SickBeard': sb_defaults, 'CouchPotato': cp_defaults, 'Sonarr': sonarr_defaults, 'MP4': mp4_defaults, 'uTorrent': utorrent_defaults}
+        defaults = {'SickBeard': sb_defaults, 'CouchPotato': cp_defaults, 'Sonarr': sonarr_defaults, 'MP4': mp4_defaults, 'uTorrent': utorrent_defaults, 'SABNZBD': sab_defaults}
         write = False  # Will be changed to true if a value is missing from the config file and needs to be written
 
         config = ConfigParser.SafeConfigParser()
@@ -284,7 +287,6 @@ class ReadSettings:
         self.CP['delay'] = config.get(section, "delay")
         self.CP['method'] = config.get(section, "method")
         self.CP['web_root'] = config.get(section, "web_root")
-        self.CP['convert'] = config.getboolean(section, "convert")
 
         try:
             self.CP['delay'] = float(self.CP['delay'])
@@ -326,7 +328,6 @@ class ReadSettings:
         #Read Sickbeard section information
         section = "SickBeard"
         self.Sickbeard = {}
-        self.Sickbeard['convert'] = config.get(section, "convert") # Convert
         self.Sickbeard['host'] = config.get(section, "host")  # Server Address
         self.Sickbeard['port'] = config.get(section, "port")  # Server Port
         self.Sickbeard['api_key'] = config.get(section, "api_key")  # Sickbeard API key
@@ -334,6 +335,13 @@ class ReadSettings:
         self.Sickbeard['ssl'] = config.getboolean(section, "ssl") # SSL
         self.Sickbeard['user'] = config.get(section, "username")
         self.Sickbeard['pass'] = config.get(section, "password")
+
+        section = "SABNZBD"
+        self.SAB = {}
+        self.SAB['convert'] = config.getboolean(section, "convert") # Convert
+        self.SAB['cp'] = config.get(section, "Couchpotato-category").lower()
+        self.SAB['sb'] = config.get(section, "Sickbeard-category").lower()
+        self.SAB['sonarr'] = config.get(section, "Sonarr-category").lower()
 
         #Pass the values on
         self.config = config

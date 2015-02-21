@@ -6,7 +6,6 @@ password=
 web_root=
 ssl=0
 api_key=
-convert=True
 
 [Sonarr]
 host=localhost
@@ -56,7 +55,6 @@ apikey =
 delay = 65
 method = renamer
 delete_failed = 0
-convert=True
 
 [uTorrent]
 label=
@@ -66,3 +64,9 @@ action_after=removedata
 host=http://localhost:8080/
 username=
 password=
+
+[SABNZBD]
+convert=True
+Sickbeard-category=sickbeard
+Couchpotato-category=couchpotato
+Sonarr-category=sonarr

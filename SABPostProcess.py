@@ -16,7 +16,7 @@ from mkvtomp4 import MkvtoMp4
 # 7 Status of post processing. 0 = OK, 1=failed verification, 2=failed unpack, 3=1+2
 
 settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
-categories = ['sickbeard', 'couchpotato', 'sonarr']
+categories = [settings.SAB['sb'], settings.SAB['cp'], settings.SAB['sonarr']]
 category = str(sys.argv[5])
 
 if category.lower() not in categories:
@@ -26,7 +26,7 @@ if category.lower() not in categories:
 path = str(sys.argv[1])
 nzb = str(sys.argv[2])
 
-if settings.Sickbeard['convert']:
+if settings.SAB['convert']:
     print "Converting before passing"
     converter = MkvtoMp4(settings)
     converter.output_dir = None
