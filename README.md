@@ -1,4 +1,4 @@
-Sick Beard/Couch Potato MP4 automation script.
+MP4 Conversion/Tagging Automation Script.
 ==============
 
 **Automatically converts media files downloaded by various to mp4 files, and tags them with the appropriate metadata from theTVDB or TMDB.**
