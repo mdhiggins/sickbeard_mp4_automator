@@ -1,13 +1,21 @@
 Sick Beard/Couch Potato MP4 automation script.
 ==============
 
-**Automatically converts mkv files downloaded by Sick Beard to mp4 files, and tags them with the appropriate metadata from theTVDB. Works as an extra_script, integrated with SAB, as well as a manual post-processing script.**
+**Automatically converts media files downloaded by various to mp4 files, and tags them with the appropriate metadata from theTVDB or TMDB.**
+**Programs currently supported include:
+- Sickbeard
+- CouchPotato
+- Sonarr (tagging not supported, see below)
+- SABNZBD
+- NZBGet
+**
 
-**Works with Couch Potato as well, tagging with the appropriate metadata from IMDb. Additional SAB scripts provided for conveinence. uTorrent BETA support added as well**
-
-- Requires Python 2.7 *(Does NOT work with Python 3)*
-- Requires FFMPEG and FFPROBE
+Requirements
+--------------
+- Python 2.7 *(Does NOT work with Python 3)*
+- FFMPEG and FFPROBE binaries
 - Some scripts require the python module <i>REQUESTS</i>.
+- Python setup_tools
 - Works on Windows, OSX, and Linux (Linux users make sure you're using a build of FFMPEG with the non open-source codecs, see here: https://ffmpeg.org/trac/ffmpeg/wiki/UbuntuCompilationGuide)
 
 Default Settings
@@ -208,6 +216,10 @@ Naming example:
 input mkv - The.Matrix.1999.mkv
 subtitle srt - The.Matrix.1999.eng.srt
 ```
+
+Common Errors
+--------------
+- `ImportError: No module named pkg_resources` - you need to install setuptools for python. See here: https://pypi.python.org/pypi/setuptools#installation-instructions
 
 Credits
 --------------
