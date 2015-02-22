@@ -3,14 +3,14 @@ Sick Beard/Couch Potato MP4 automation script.
 
 **Automatically converts media files downloaded by various to mp4 files, and tags them with the appropriate metadata from theTVDB or TMDB.**
 
-**Programs currently supported include:
+Programs currently supported include:
 - Sickbeard
 - CouchPotato
 - Sonarr (tagging not supported, see below)
 - SABNZBD
 - NZBGet
 - uTorrent
-**
+
 
 Requirements
 --------------
@@ -100,7 +100,7 @@ NZBGet
 --------------
 1. Copy the script NZBGetPostProcess.py to NZBGet's script folder. (default location is ~/downloads/scripts/)
 2. In NZBGet's web GUI, go to [Settings] and the newly created {NZBGETPOSTPROCESS} option. Fill in the MP4 automator folder path with the full path. (default ~/sickbeard_mp4_automator/) I suggest the full path and requires the trailing backslash "/".
-3. You may change or set your appropriate category names to correspond with the application you wish to send the files to (CouchPotato, Sickbeard, Sonarr). Make sure these categories match.
+3. You may change or set your appropriate category names to correspond with the application you wish to send the files to (CouchPotato, Sickbeard, Sonarr) in this same settings area. Make sure these categories match.
 4. You may set the `convert` option to enable conversion before the file is passed on to the next step.
 5. Save and reload NZBGet
 
@@ -111,7 +111,7 @@ SAB
 3. Press save for each category
 4. You may set the `convert` option to enable conversion before the file is passed on to the next step.
 
-uTorrent Support (BETA)
+uTorrent Support
 --------------
 - `uTorrentToSickbeardwithConverter.py` is the file you'll be using here. This script will allow post processing of torrent files with conversion and will forward the converted files to Sickbeard for final post processing.
 - ** YOU MUST INSTALL THE PYTHON REQUESTS LIBRARY FOR THIS TO COMMUNICATE WITH UTORRENT. ** Run "pip install requests" to install. TODO: Better instructions.
