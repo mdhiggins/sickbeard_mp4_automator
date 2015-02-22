@@ -2,6 +2,7 @@ Sick Beard/Couch Potato MP4 automation script.
 ==============
 
 **Automatically converts media files downloaded by various to mp4 files, and tags them with the appropriate metadata from theTVDB or TMDB.**
+
 **Programs currently supported include:
 - Sickbeard
 - CouchPotato
