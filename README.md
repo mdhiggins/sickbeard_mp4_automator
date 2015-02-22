@@ -8,6 +8,7 @@ Sick Beard/Couch Potato MP4 automation script.
 - Sonarr (tagging not supported, see below)
 - SABNZBD
 - NZBGet
+- uTorrent
 **
 
 Requirements
