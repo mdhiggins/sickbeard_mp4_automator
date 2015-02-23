@@ -314,7 +314,6 @@ class ReadSettings:
         self.uTorrent['sb'] = config.get(section, "sickbeard-label").lower()
         self.uTorrent['sonarr'] = config.get(section, "sonarr-label").lower()
         self.uTorrent['convert'] = config.getboolean(section, "convert")
-        self.uTorrentLabel = config.get(section, "label").lower()
         self.uTorrentWebUI = config.getboolean(section, "webui")
         self.uTorrentActionBefore = config.get(section, "action_before").lower()
         self.uTorrentActionAfter = config.get(section, "action_after").lower()
