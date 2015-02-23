@@ -55,16 +55,16 @@ try:
 except:
     web_ui = False
 
-if settings.uTorrent['convert']:
-    # Run a uTorrent action before conversion.
-    if web_ui:
-        session = requests.Session()
-        if session:
-            auth,session = _authToken(session, settings.uTorrentHost, settings.uTorrentUsername, settings.uTorrentPassword)
-            if auth and settings.uTorrentActionBefore:
-                params = {'token': auth, 'action': settings.uTorrentActionBefore, 'hash': torrent_hash}
-                _sendRequest(session, settings.uTorrentHost, settings.uTorrentUsername, settings.uTorrentPassword, params, None, "Stop")
+# Run a uTorrent action before conversion.
+if web_ui:
+    session = requests.Session()
+    if session:
+        auth,session = _authToken(session, settings.uTorrentHost, settings.uTorrentUsername, settings.uTorrentPassword)
+        if auth and settings.uTorrentActionBefore:
+            params = {'token': auth, 'action': settings.uTorrentActionBefore, 'hash': torrent_hash}
+            _sendRequest(session, settings.uTorrentHost, settings.uTorrentUsername, settings.uTorrentPassword, params, None, "Stop")
 
+if settings.uTorrent['convert']:
     # Perform conversion.
     delete_dir = False
     settings.delete = False
@@ -88,11 +88,6 @@ if settings.uTorrent['convert']:
                     converter.process(inputfile, reportProgress=True)
 
     path = converter.output_dir
-    # Run a uTorrent action after conversion.
-    if web_ui: 
-        if session and auth and settings.uTorrentActionAfter:
-            params = {'token': auth, 'action': settings.uTorrentActionAfter, 'hash': torrent_hash}
-            _sendRequest(session, settings.uTorrentHost, settings.uTorrentUsername, settings.uTorrentPassword, params, None, "Remove Data")
 
 if label == categories[0]:
     autoProcessMovie.process(path, settings)
@@ -134,4 +129,11 @@ elif label == categories[2]:
     except:
         print "[WARNING] Update to Sonarr failed, check if Sonarr is running, autoProcess.ini for errors, or check install of python modules requests."
         sys.exit()
-    sys.exit()
+
+# Run a uTorrent action after conversion.
+if web_ui: 
+    if session and auth and settings.uTorrentActionAfter:
+        params = {'token': auth, 'action': settings.uTorrentActionAfter, 'hash': torrent_hash}
+        _sendRequest(session, settings.uTorrentHost, settings.uTorrentUsername, settings.uTorrentPassword, params, None, "Remove Data")
+
+sys.exit()
