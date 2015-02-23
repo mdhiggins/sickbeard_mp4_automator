@@ -102,7 +102,7 @@ if label == categories[0]:
         except:
             print "Unable to delete temporary conversion directory"
 elif label == categories[1]:
-    autoProcessTV.processEpisode(path)
+    autoProcessTV.processEpisode(path, settings)
     if os.path.exists(settings.output_dir) and delete_dir:
         try:
             os.rmdir(converter.output_dir)
