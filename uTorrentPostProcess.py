@@ -77,15 +77,15 @@ if settings.uTorrent['convert']:
     converter = MkvtoMp4(settings)
         
     if str(sys.argv[4]) == 'single':
-        inputfile = os.path.join(path,str(sys.argv[5]))
+        inputfile = os.path.join(path, str(sys.argv[5]))
         if MkvtoMp4(settings).validSource(inputfile):
-            converter.process(inputfile)
+            converter.process(inputfile, reportProgress=True)
     else:
         for r, d, f in os.walk(path):
             for files in f:
                 inputfile = os.path.join(r, files)
                 if MkvtoMp4(settings).validSource(inputfile):
-                    converter.process(inputfile)
+                    converter.process(inputfile, reportProgress=True)
 
     path = converter.output_dir
     # Run a uTorrent action after conversion.
