@@ -62,14 +62,13 @@ elif (category.lower() == categories[2]):
         import requests
     except ImportError:
         print "[ERROR] Python module REQUESTS is required. Install with 'pip install requests' then try again."
-        sys.exit(0)
+        sys.exit()
 
     host=settings.Sonarr['host']
     port=settings.Sonarr['port']
     apikey = settings.Sonarr['apikey']
     if apikey == '':
         print "[WARNING] Your Sonarr API Key can not be blank. Update autoProcess.ini"
-        sys.exit(POSTPROCESS_ERROR)
     try:
         ssl=int(settings.Sonarr['ssl'])
     except:
@@ -88,5 +87,4 @@ elif (category.lower() == categories[2]):
         print "[INFO] Sonarr responds as "+rstate['state']+"."
     except:
         print "[WARNING] Update to Sonarr failed, check if Sonarr is running, autoProcess.ini for errors, or check install of python modules requests."
-        sys.exit(POSTPROCESS_ERROR)
-    sys.exit(POSTPROCESS_SUCCESS)
+    
