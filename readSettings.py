@@ -320,8 +320,6 @@ class ReadSettings:
         self.uTorrentHost = config.get(section, "host").lower()
         self.uTorrentUsername = config.get(section, "username")
         self.uTorrentPassword = config.get(section, "password")
-        if self.uTorrentLabel == "":
-            self.uTorrentLabel = None;
 
         #Read relevant Sonarr section information
         section = "Sonarr"
