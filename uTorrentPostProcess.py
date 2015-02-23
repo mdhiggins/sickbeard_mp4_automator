@@ -62,7 +62,7 @@ if web_ui:
         auth,session = _authToken(session, settings.uTorrentHost, settings.uTorrentUsername, settings.uTorrentPassword)
         if auth and settings.uTorrentActionBefore:
             params = {'token': auth, 'action': settings.uTorrentActionBefore, 'hash': torrent_hash}
-            _sendRequest(session, settings.uTorrentHost, settings.uTorrentUsername, settings.uTorrentPassword, params, None, "Stop")
+            _sendRequest(session, settings.uTorrentHost, settings.uTorrentUsername, settings.uTorrentPassword, params, None, "Before Function")
 
 if settings.uTorrent['convert']:
     # Perform conversion.
@@ -134,6 +134,6 @@ elif label == categories[2]:
 if web_ui: 
     if session and auth and settings.uTorrentActionAfter:
         params = {'token': auth, 'action': settings.uTorrentActionAfter, 'hash': torrent_hash}
-        _sendRequest(session, settings.uTorrentHost, settings.uTorrentUsername, settings.uTorrentPassword, params, None, "Remove Data")
+        _sendRequest(session, settings.uTorrentHost, settings.uTorrentUsername, settings.uTorrentPassword, params, None, "After Function")
 
 sys.exit()
