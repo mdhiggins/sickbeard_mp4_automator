@@ -71,7 +71,10 @@ class ReadSettings:
                        'ssl': 'False',
                        'web_root': ''}
         # Default uTorrent settings
-        utorrent_defaults = { 'label': '',
+        utorrent_defaults = { 'couchpotato-label': 'couchpotato',
+                              'sickbeard-label': 'sickbeard',
+                              'sonarr-label': 'sonarr',
+                              'convert': 'True',
                               'webui': 'False',
                               'action_before': 'stop',
                               'action_after': 'removedata',
@@ -306,6 +309,11 @@ class ReadSettings:
 
         #Read relevant uTorrent section information
         section = "uTorrent"
+        self.uTorrent = {}
+        self.uTorrent['cp'] = config.get(section, "couchpotato-label").lower()
+        self.uTorrent['sb'] = config.get(section, "sickbeard-label").lower()
+        self.uTorrent['sonarr'] = config.get(section, "sonarr-label").lower()
+        self.uTorrent['convert'] = config.getboolean(section, "convert")
         self.uTorrentLabel = config.get(section, "label").lower()
         self.uTorrentWebUI = config.getboolean(section, "webui")
         self.uTorrentActionBefore = config.get(section, "action_before").lower()

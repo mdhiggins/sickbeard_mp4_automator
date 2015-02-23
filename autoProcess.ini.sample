@@ -57,7 +57,10 @@ method = renamer
 delete_failed = 0
 
 [uTorrent]
-label=
+convert=
+couchpotato-label=couchpotato
+sickbeard-label=sickbeard
+sonarr-label=sonarr
 webui=False
 action_before=stop
 action_after=removedata
