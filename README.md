@@ -113,13 +113,12 @@ SAB
 
 uTorrent Support
 --------------
-- `uTorrentToSickbeardwithConverter.py` is the file you'll be using here. This script will allow post processing of torrent files with conversion and will forward the converted files to Sickbeard for final post processing.
-- ** YOU MUST INSTALL THE PYTHON REQUESTS LIBRARY FOR THIS TO COMMUNICATE WITH UTORRENT. ** Run "pip install requests" to install. TODO: Better instructions.
-- uTorrent Web UI should also be enabled.
-- uTorrent must be set up with the following post command options: ```#Args: %L %S %D %K %F %S %I```
-- Picture: http://i.imgur.com/7eADkCI.png
-- Set your uTorrent settings in autoProcess.ini
-    - Set `label` to match your uTorrent label, files without this corrrect label will be ignored. If no label is set, all torrents will be processed.
+1. ** YOU MUST INSTALL THE PYTHON REQUESTS LIBRARY ** Run "pip install requests" or "easy_install requests"
+2. `uTorrentPostProcess.py` is the file you'll be using here. This script will allow post processing of torrent files with optional conversion and will forward the converted files to either Sickbeard, CouchPotato, or Sonarr depending on the corresponding label of the torrent.
+3. Enable uTorrent Web UI.
+4. uTorrent must be set up with the following post command options: ```#Args: %L %S %D %K %F %S %I``` Picture: http://i.imgur.com/7eADkCI.png
+5. Set your uTorrent settings in autoProcess.ini
+    - Set `sickbeard-label` `couchpotato-label` and `sonarr-label` to match your appropriate uTorrent label. Files without this corrrect label will be ignored.
     - Set `webui` to True/False. If True the script can change the state of the torrent.
     - Set `action_before` to stop/pause or any other action from http://help.utorrent.com/customer/portal/articles/1573952-actions---webapi
     - Set `action_after` to start/stop/pause/unpause/remove/removedata or any other action from http://help.utorrent.com/customer/portal/articles/1573952-actions---webapi
