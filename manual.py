@@ -190,8 +190,9 @@ def processFile(inputfile, tagdata, relativePath=None):
             try:
                 tagmp4.setHD(output['x'], output['y'])
                 tagmp4.writeTags(output['output'], settings.artwork)
-            except:
+            except Exception as e:
                 print "There was an error tagging the file"
+                print e
         if settings.relocate_moov:
             converter.QTFS(output['output'])
         converter.replicate(output['output'], relativePath=relativePath)

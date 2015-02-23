@@ -22,7 +22,7 @@ class ReadSettings:
         sb_defaults = {'host': 'localhost',
                        'port': '8081',
                        'ssl': "False",
-                       'api_key': '', }
+                       'api_key': '' }
        # Default MP4 conversion settings
         mp4_defaults = {'ffmpeg': 'ffmpeg.exe',
                         'ffprobe': 'ffprobe.exe',
@@ -51,7 +51,8 @@ class ReadSettings:
                         'download-artwork': 'True',
                         'download-subs': 'False',
                         'embed-subs': 'True',
-                        'sub-providers': 'addic7ed, podnapisi, thesubdb, opensubtitles' }
+                        'sub-providers': 'addic7ed, podnapisi, thesubdb, opensubtitles',
+                        'permissions': '777' }
         # Default settings for CouchPotato
         cp_defaults = {'host': 'localhost',
                        'port': '5050',
@@ -62,7 +63,7 @@ class ReadSettings:
                        'method': 'renamer',
                        'delete_failed': 'False',
                        'ssl': 'False',
-                       'web_root': ''}
+                       'web_root': '' }
         # Default settings for Sonarr
         sonarr_defaults = {'host': 'localhost',
                        'port': '8989',
@@ -70,15 +71,23 @@ class ReadSettings:
                        'ssl': 'False',
                        'web_root': ''}
         # Default uTorrent settings
-        utorrent_defaults = { 'label': '',
+        utorrent_defaults = { 'couchpotato-label': 'couchpotato',
+                              'sickbeard-label': 'sickbeard',
+                              'sonarr-label': 'sonarr',
+                              'convert': 'True',
                               'webui': 'False',
                               'action_before': 'stop',
                               'action_after': 'removedata',
                               'host': 'http://localhost:8080/',
                               'username': '',
                               'password': ''}
+        # Default SAB settings
+        sab_defaults = {    'convert': 'True',
+                            'Sickbeard-category': 'sickbeard',
+                            'Couchpotato-category': 'couchpotato',
+                            'Sonarr-category': 'sonarr' }
 
-        defaults = {'SickBeard': sb_defaults, 'CouchPotato': cp_defaults, 'Sonarr': sonarr_defaults, 'MP4': mp4_defaults, 'uTorrent': utorrent_defaults}
+        defaults = {'SickBeard': sb_defaults, 'CouchPotato': cp_defaults, 'Sonarr': sonarr_defaults, 'MP4': mp4_defaults, 'uTorrent': utorrent_defaults, 'SABNZBD': sab_defaults}
         write = False  # Will be changed to true if a value is missing from the config file and needs to be written
 
         config = ConfigParser.SafeConfigParser()
@@ -190,6 +199,13 @@ class ReadSettings:
 
         self.embedsubs = config.getboolean(section, 'embed-subs')
 
+        self.permissions = config.get(section, 'permissions')
+        try:
+            self.permissions = int(self.permissions, 8)
+        except:
+            print "Error defaulting to 777 permissions"
+            self.permissions = 0777
+
         #Setup variable for maximum audio channels
         self.maxchannels = config.get(section, 'max-audio-channels')
         if self.maxchannels == "":
@@ -274,6 +290,7 @@ class ReadSettings:
         self.CP['delay'] = config.get(section, "delay")
         self.CP['method'] = config.get(section, "method")
         self.CP['web_root'] = config.get(section, "web_root")
+
         try:
             self.CP['delay'] = float(self.CP['delay'])
         except ValueError:
@@ -292,15 +309,17 @@ class ReadSettings:
 
         #Read relevant uTorrent section information
         section = "uTorrent"
-        self.uTorrentLabel = config.get(section, "label").lower()
+        self.uTorrent = {}
+        self.uTorrent['cp'] = config.get(section, "couchpotato-label").lower()
+        self.uTorrent['sb'] = config.get(section, "sickbeard-label").lower()
+        self.uTorrent['sonarr'] = config.get(section, "sonarr-label").lower()
+        self.uTorrent['convert'] = config.getboolean(section, "convert")
         self.uTorrentWebUI = config.getboolean(section, "webui")
         self.uTorrentActionBefore = config.get(section, "action_before").lower()
         self.uTorrentActionAfter = config.get(section, "action_after").lower()
         self.uTorrentHost = config.get(section, "host").lower()
         self.uTorrentUsername = config.get(section, "username")
         self.uTorrentPassword = config.get(section, "password")
-        if self.uTorrentLabel == "":
-            self.uTorrentLabel = None;
 
         #Read relevant Sonarr section information
         section = "Sonarr"
@@ -310,6 +329,24 @@ class ReadSettings:
         self.Sonarr['apikey'] = config.get(section, "apikey")
         self.Sonarr['ssl'] = config.get(section, "ssl")
         self.Sonarr['web_root'] = config.get(section, "web_root")
+
+        #Read Sickbeard section information
+        section = "SickBeard"
+        self.Sickbeard = {}
+        self.Sickbeard['host'] = config.get(section, "host")  # Server Address
+        self.Sickbeard['port'] = config.get(section, "port")  # Server Port
+        self.Sickbeard['api_key'] = config.get(section, "api_key")  # Sickbeard API key
+        self.Sickbeard['web_root'] = config.get(section, "web_root")  # Sickbeard webroot
+        self.Sickbeard['ssl'] = config.getboolean(section, "ssl") # SSL
+        self.Sickbeard['user'] = config.get(section, "username")
+        self.Sickbeard['pass'] = config.get(section, "password")
+
+        section = "SABNZBD"
+        self.SAB = {}
+        self.SAB['convert'] = config.getboolean(section, "convert") # Convert
+        self.SAB['cp'] = config.get(section, "Couchpotato-category").lower()
+        self.SAB['sb'] = config.get(section, "Sickbeard-category").lower()
+        self.SAB['sonarr'] = config.get(section, "Sonarr-category").lower()
 
         #Pass the values on
         self.config = config

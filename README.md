@@ -1,13 +1,23 @@
-Sick Beard/Couch Potato MP4 automation script.
+MP4 Conversion/Tagging Automation Script.
 ==============
 
-**Automatically converts mkv files downloaded by Sick Beard to mp4 files, and tags them with the appropriate metadata from theTVDB. Works as an extra_script, integrated with SAB, as well as a manual post-processing script.**
+**Automatically converts media files downloaded by various to mp4 files, and tags them with the appropriate metadata from theTVDB or TMDB.**
 
-**Works with Couch Potato as well, tagging with the appropriate metadata from IMDb. Additional SAB scripts provided for conveinence. uTorrent BETA support added as well**
+Programs currently supported include:
+- Sickbeard
+- CouchPotato
+- Sonarr (tagging not supported, see below)
+- SABNZBD
+- NZBGet
+- uTorrent
 
-- Requires Python 2.7 *(Does NOT work with Python 3)*
-- Requires FFMPEG and FFPROBE
+
+Requirements
+--------------
+- Python 2.7 *(Does NOT work with Python 3)*
+- FFMPEG and FFPROBE binaries
 - Some scripts require the python module <i>REQUESTS</i>.
+- Python setup_tools
 - Works on Windows, OSX, and Linux (Linux users make sure you're using a build of FFMPEG with the non open-source codecs, see here: https://ffmpeg.org/trac/ffmpeg/wiki/UbuntuCompilationGuide)
 
 Default Settings
@@ -59,7 +69,7 @@ Sick Beard Installation Instructions
     - `api_key` = Set this to your Sick Beard API key (options -> general, enable API in Sick Beard to get this key)
 3. **OPTIONAL** - If you're using SAB, set your post processing script to sabToSickBeardWithConverter.py - this is not completely needed but gives the added benefit of doing the conversion from mkv to mp4 before Sick Beard sees the file in whatever folder you choose to download things to. It saves having to put in all the API information as well, and prevents the one additional refresh needed normally to have Sick Beard see the properly converted file. That being said the postConversion script can handle everything on its own, so this step is just for the added benefits listed.
 
-NZBGet to Sonarr Support (Beta, Tagging Not Supported)
+Sonarr Support (Tagging Not Supported)
 --------------
 1. ** YOU MUST INSTALL THE PYTHON REQUESTS LIBRARY ** Run "pip install requests" or "easy_install requests"
 2. Set your Sonarr settings in the autoProcess.ini file
@@ -70,10 +80,7 @@ NZBGet to Sonarr Support (Beta, Tagging Not Supported)
     - `web_root` = URL base empty or e.g. /tv #Settings/General/Start-Up
 2. Browse to the Settings>Download Client tab and enable advanced settings [Show].
 3. Set the {Drone Factory Interval} to 0 to disable it. (NZBGet will trigger a specific path re-scan, allowing the mp4 conversion to be completed before Sonarr starts moving stuff around).
-4. Copy the script nzbToSonarrMP4.py to NZBGet's script folder. (default location is ~/downloads/scripts/)
-5. In NZBGet's web GUI, go to [Settings] and the newly created {NZBTOSONARRMP4} option. Fill in the MP4 automator folder path with the full path. (default ~/sickbeard_mp4_automator/) I suggest the full path and requires the trailing backslash "/".
-6. Add a category for Sonarr downloads ( e.g. sonarr or tv) and set the script to nzbToSonarrMP4.py
-7. Save and reload NZBGet.
+    - Sonarr does not currently support post processing scripts so tagging is not currently supported.
 
 Couch Potato Support
 --------------
@@ -87,19 +94,31 @@ Couch Potato Support
 2. Copy the PostProcess directory from the setup folder included with this script to the Couch Potato custom_plugins directory. You can find this directory within your Couch Potato setup by opening Couch Potato and navigating to the About page, where the installation directory is displayed. Copy the PostProcess folder (the whole folder, not just the contents) to Couch Potato and restart Couch Potato. You should see in the logs that it was loaded. Also you'll need to open up the main.py file and set the path variable to the directory where your CPProcess.py script resides, which by default points to C:\\Scripts\\. Use double backslashes. If you make any changes here make sure to delete the `.pyc` files.
 3. Disable automatic checking of the renamer folder, the script will automatically notify Couch Potato when it is complete to check for new videos to be renamed and relocated. Leaving this on may cause conflicts and CouchPotato may try to relocate/rename the file before processing is completed.
     - Set `Run Every` to `0` 
-    - Set `Force Every` to `0`
-    - **WARNING** On Windows there is currently a bug that prevents the script from triggering on its own (will be fixed in the next CP build) so you must set a time interval for CouchPotato to scan the folder, so set Run Every to some non-zero number (>10 preferred)
-4. **OPTIONAL** Point your Couch Potato videos that are sent to SAB to nzbToCouchPotatoMP4.py for post processing; this will convert them before they are passed to Couch Potato. Without this step video files will be converted after being processed by CouchPotato.
+4. Point your Couch Potato videos that are sent to SAB to SABPostProcess.py for post processing with conversion prior to CP begin notified of completion. Similarly use NZBGetPostProcess.py for NZBGet. Make sure you configure your SAB/NZBGet categories so that they match with the categories configured for the script.
 
-uTorrent Support (BETA)
+NZBGet
 --------------
-- `uTorrentToSickbeardwithConverter.py` is the file you'll be using here. This script will allow post processing of torrent files with conversion and will forward the converted files to Sickbeard for final post processing.
-- ** YOU MUST INSTALL THE PYTHON REQUESTS LIBRARY FOR THIS TO COMMUNICATE WITH UTORRENT. ** Run "pip install requests" to install. TODO: Better instructions.
-- uTorrent Web UI should also be enabled.
-- uTorrent must be set up with the following post command options: ```#Args: %L %S %D %K %F %S %I```
-- Picture: http://i.imgur.com/7eADkCI.png
-- Set your uTorrent settings in autoProcess.ini
-    - Set `label` to match your uTorrent label, files without this corrrect label will be ignored. If no label is set, all torrents will be processed.
+1. Copy the script NZBGetPostProcess.py to NZBGet's script folder. (default location is ~/downloads/scripts/)
+2. In NZBGet's web GUI, go to [Settings] and the newly created {NZBGETPOSTPROCESS} option. Fill in the MP4 automator folder path with the full path. (default ~/sickbeard_mp4_automator/) I suggest the full path and requires the trailing backslash "/".
+3. You may change or set your appropriate category names to correspond with the application you wish to send the files to (CouchPotato, Sickbeard, Sonarr) in this same settings area. Make sure these categories match.
+4. You may set the `convert` option to enable conversion before the file is passed on to the next step.
+5. Save and reload NZBGet
+
+SAB
+--------------
+1. Point SABNZBD's script directory to the root directory where you have extract the script.
+2. Make sure your categories are set and match the categories specified in the SABNZBD section of autoProcess.ini. Set the script for each category to `SABPostProcess.py`
+3. Press save for each category
+4. You may set the `convert` option to enable conversion before the file is passed on to the next step.
+
+uTorrent Support
+--------------
+1. ** YOU MUST INSTALL THE PYTHON REQUESTS LIBRARY ** Run "pip install requests" or "easy_install requests"
+2. `uTorrentPostProcess.py` is the file you'll be using here. This script will allow post processing of torrent files with optional conversion and will forward the converted files to either Sickbeard, CouchPotato, or Sonarr depending on the corresponding label of the torrent.
+3. Enable uTorrent Web UI.
+4. uTorrent must be set up with the following post command options: ```#Args: %L %S %D %K %F %S %I``` Picture: http://i.imgur.com/7eADkCI.png
+5. Set your uTorrent settings in autoProcess.ini
+    - Set `sickbeard-label` `couchpotato-label` and `sonarr-label` to match your appropriate uTorrent label. Files without this corrrect label will be ignored.
     - Set `webui` to True/False. If True the script can change the state of the torrent.
     - Set `action_before` to stop/pause or any other action from http://help.utorrent.com/customer/portal/articles/1573952-actions---webapi
     - Set `action_after` to start/stop/pause/unpause/remove/removedata or any other action from http://help.utorrent.com/customer/portal/articles/1573952-actions---webapi
@@ -198,6 +217,10 @@ Naming example:
 input mkv - The.Matrix.1999.mkv
 subtitle srt - The.Matrix.1999.eng.srt
 ```
+
+Common Errors
+--------------
+- `ImportError: No module named pkg_resources` - you need to install setuptools for python. See here: https://pypi.python.org/pypi/setuptools#installation-instructions
 
 Credits
 --------------

@@ -12,7 +12,7 @@ host=localhost
 port=8989
 web_root=
 ssl=0
-api_key=
+apikey=
 
 [MP4]
 ffmpeg=ffmpeg.exe
@@ -42,6 +42,7 @@ download-artwork=True
 download-subs=False
 embed-subs=True
 sub-providers=addic7ed,podnapisi,thesubdb,opensubtitles
+permissions=0777
 
 [CouchPotato]
 host = localhost
@@ -56,10 +57,19 @@ method = renamer
 delete_failed = 0
 
 [uTorrent]
-label=
+convert=
+couchpotato-label=couchpotato
+sickbeard-label=sickbeard
+sonarr-label=sonarr
 webui=False
 action_before=stop
 action_after=removedata
 host=http://localhost:8080/
 username=
 password=
+
+[SABNZBD]
+convert=True
+Sickbeard-category=sickbeard
+Couchpotato-category=couchpotato
+Sonarr-category=sonarr

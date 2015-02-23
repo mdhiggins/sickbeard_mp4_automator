@@ -41,35 +41,19 @@ class AuthURLOpener(urllib.FancyURLopener):
         return urllib.FancyURLopener.open(self, url)
 
 
-def processEpisode(dirName, nzbName=None):
-
-    config = ConfigParser.ConfigParser()
-    configFilename = os.path.join(os.path.dirname(sys.argv[0]), "autoProcess.ini")
-    print "Loading config from", configFilename
+def processEpisode(dirName, settings, nzbName=None):
     
-    if not os.path.isfile(configFilename):
-        print "ERROR: You need an autoProcess.ini file - did you rename and edit the .sample?"
-        sys.exit(-1)
-    
+    host = settings.Sickbeard['host']
+    port = settings.Sickbeard['port']
+    username = settings.Sickbeard['user']
+    password = settings.Sickbeard['pass']
     try:
-        fp = open(configFilename, "r")
-        config.readfp(fp)
-        fp.close()
-    except IOError, e:
-        print "Could not read configuration file: ", str(e)
-        sys.exit(1)
-    
-    host = config.get("SickBeard", "host")
-    port = config.get("SickBeard", "port")
-    username = config.get("SickBeard", "username")
-    password = config.get("SickBeard", "password")
-    try:
-        ssl = int(config.get("SickBeard", "ssl"))
+        ssl = int(settings.Sickbeard['ssl'])
     except (ConfigParser.NoOptionError, ValueError):
         ssl = 0
     
     try:
-        web_root = config.get("SickBeard", "web_root")
+        web_root = settings.Sickbeard['web_root']
     except ConfigParser.NoOptionError:
         web_root = ""
     

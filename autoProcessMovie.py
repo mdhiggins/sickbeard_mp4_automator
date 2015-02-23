@@ -26,10 +26,9 @@ class AuthURLOpener(urllib.FancyURLopener):
         return urllib.FancyURLopener.open(self, url)
 
 
-def process(dirName, nzbName=None, status=0):
+def process(dirName, settings, nzbName=None, status=0):
 
     status = int(status)
-    settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
 
     host = settings.CP['host']
     port = settings.CP['port']
