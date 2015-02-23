@@ -109,20 +109,20 @@ elif label == categories[1]:
         except:
             print "Unable to delete temporary conversion directory"
 elif label == categories[2]:
-    host=settings.Sonarr['host']
-    port=settings.Sonarr['port']
+    host = settings.Sonarr['host']
+    port = settings.Sonarr['port']
     apikey = settings.Sonarr['apikey']
     if apikey == '':
         print "[WARNING] Your Sonarr API Key can not be blank. Update autoProcess.ini"
-        sys.exit(POSTPROCESS_ERROR)
+        sys.exit()
     try:
-        ssl=int(settings.Sonarr['ssl'])
+        ssl = int(settings.Sonarr['ssl'])
     except:
-        ssl=0
+        ssl = 0
     if ssl:
-        protocol="https://"
+        protocol = "https://"
     else:
-        protocol="http://"
+        protocol = "http://"
     url = protocol+host+":"+port+"/api/command"
     payload = {'name': 'downloadedepisodesscan','path': path}
     print "[INFO] Requesting Sonarr to scan folder '"+path+"'"
@@ -133,5 +133,5 @@ elif label == categories[2]:
         print "[INFO] Sonarr responds as "+rstate['state']+"."
     except:
         print "[WARNING] Update to Sonarr failed, check if Sonarr is running, autoProcess.ini for errors, or check install of python modules requests."
-        sys.exit(POSTPROCESS_ERROR)
-    sys.exit(POSTPROCESS_SUCCESS)
+        sys.exit()
+    sys.exit()
