@@ -89,7 +89,7 @@ if settings.uTorrent['convert']:
 
     path = converter.output_dir
 else
-    newpath = os.path.join(path, 'converted')
+    newpath = os.path.join(path, 'tempcopy')
     if not os.path.exists(newpath):
         os.mkdir(newpath)
     if str(sys.argv[4]) == 'single':
