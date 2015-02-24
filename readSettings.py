@@ -313,7 +313,10 @@ class ReadSettings:
         self.uTorrent['cp'] = config.get(section, "couchpotato-label").lower()
         self.uTorrent['sb'] = config.get(section, "sickbeard-label").lower()
         self.uTorrent['sonarr'] = config.get(section, "sonarr-label").lower()
-        self.uTorrent['convert'] = config.getboolean(section, "convert")
+        try:
+            self.uTorrent['convert'] = config.getboolean(section, "convert")
+        except:
+            self.uTorrent['convert'] = False
         self.uTorrentWebUI = config.getboolean(section, "webui")
         self.uTorrentActionBefore = config.get(section, "action_before").lower()
         self.uTorrentActionAfter = config.get(section, "action_after").lower()
@@ -343,7 +346,10 @@ class ReadSettings:
 
         section = "SABNZBD"
         self.SAB = {}
-        self.SAB['convert'] = config.getboolean(section, "convert") # Convert
+        try:
+            self.SAB['convert'] = config.getboolean(section, "convert") # Convert
+        except:
+            self.SAB['convert'] = False
         self.SAB['cp'] = config.get(section, "Couchpotato-category").lower()
         self.SAB['sb'] = config.get(section, "Sickbeard-category").lower()
         self.SAB['sonarr'] = config.get(section, "Sonarr-category").lower()
