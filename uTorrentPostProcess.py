@@ -88,6 +88,19 @@ if settings.uTorrent['convert']:
                     converter.process(inputfile, reportProgress=True)
 
     path = converter.output_dir
+else
+    newpath = os.path.join(path, 'converted')
+    if not os.path.exists(newpath):
+        os.mkdir(newpath)
+    if str(sys.argv[4]) == 'single':
+        inputfile = os.path.join(path, str(sys.argv[5]))
+        shutil.copy(inputfile, newpath)
+    else:
+        for r, d, f in os.walk(path):
+            for files in f:
+                inputfile = os.path.join(r, files)
+                shutil.copy(inputfile, newpath)
+    path = newpath
 
 if label == categories[0]:
     autoProcessMovie.process(path, settings)
