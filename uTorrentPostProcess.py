@@ -109,11 +109,6 @@ if label == categories[0]:
     autoProcessMovie.process(path, settings)
 elif label == categories[1]:
     autoProcessTV.processEpisode(path, settings)
-    if os.path.exists(settings.output_dir) and delete_dir:
-        try:
-            os.rmdir(converter.output_dir)
-        except:
-            print "Unable to delete temporary conversion directory"
 elif label == categories[2]:
     host = settings.Sonarr['host']
     port = settings.Sonarr['port']
