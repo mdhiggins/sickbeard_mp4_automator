@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+import shutil
 import autoProcessTV, autoProcessMovie
 from readSettings import ReadSettings
 from mkvtomp4 import MkvtoMp4
