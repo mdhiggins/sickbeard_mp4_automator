@@ -56,6 +56,8 @@ try:
 except:
     web_ui = False
 
+delete_dir = False
+
 # Run a uTorrent action before conversion.
 if web_ui:
     session = requests.Session()
@@ -67,13 +69,12 @@ if web_ui:
 
 if settings.uTorrent['convert']:
     # Perform conversion.
-    delete_dir = False
     settings.delete = False
     if not settings.output_dir:
         settings.output_dir = os.path.join(path, 'converted')
         if not os.path.exists(settings.output_dir):
             os.mkdir(settings.output_dir)
-        delete_dir = True
+        delete_dir = os.path.join(path, 'converted')
 
     converter = MkvtoMp4(settings)
         
@@ -102,14 +103,10 @@ else:
                 inputfile = os.path.join(r, files)
                 shutil.copy(inputfile, newpath)
     path = newpath
+    delete_dir = newpath
 
 if label == categories[0]:
     autoProcessMovie.process(path, settings)
-    if os.path.exists(settings.output_dir) and delete_dir:
-        try:
-            os.rmdir(converter.output_dir)
-        except:
-            print "Unable to delete temporary conversion directory"
 elif label == categories[1]:
     autoProcessTV.processEpisode(path, settings)
     if os.path.exists(settings.output_dir) and delete_dir:
@@ -149,5 +146,11 @@ if web_ui:
     if session and auth and settings.uTorrentActionAfter:
         params = {'token': auth, 'action': settings.uTorrentActionAfter, 'hash': torrent_hash}
         _sendRequest(session, settings.uTorrentHost, settings.uTorrentUsername, settings.uTorrentPassword, params, None, "After Function")
+
+if delete_dir:
+    try:
+        os.rmdir(converter.output_dir)
+    except:
+        print "Unable to delete temporary directory"
 
 sys.exit()
