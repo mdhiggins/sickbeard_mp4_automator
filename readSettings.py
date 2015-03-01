@@ -22,7 +22,10 @@ class ReadSettings:
         sb_defaults = {'host': 'localhost',
                        'port': '8081',
                        'ssl': "False",
-                       'api_key': '' }
+                       'api_key': '',
+                       'web_root': '',
+                       'user': '',
+                       'pass': '' }
        # Default MP4 conversion settings
         mp4_defaults = {'ffmpeg': 'ffmpeg.exe',
                         'ffprobe': 'ffprobe.exe',
