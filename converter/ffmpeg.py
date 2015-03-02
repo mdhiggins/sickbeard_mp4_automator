@@ -443,7 +443,7 @@ class FFMpeg(object):
                 del opts[ind]
 
         cmds.extend(opts)
-        cmds.extend(['threads', 'auto'])
+        cmds.extend(['-threads', 'auto'])
         cmds.extend(['-y', outfile])
 
         if timeout:
