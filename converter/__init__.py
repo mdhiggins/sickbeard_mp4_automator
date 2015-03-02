@@ -138,9 +138,6 @@ class Converter(object):
             if not isinstance(x, dict) or 'codec' not in x:
                 raise ConverterError('Invalid video codec specification')
 
-            if 'map' not in x:
-                raise ConverterError('Must specify a map value')
-
             c = x['codec']
             if c not in self.video_codecs:
                 raise ConverterError('Requested unknown video codec ' + str(c))

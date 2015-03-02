@@ -91,7 +91,7 @@ class AudioCodec(BaseCodec):
         if 'source' in safe:
             s = str(safe['source'])
         else:
-            s = str('0')
+            s = str(0)
 
         safe = self._codec_specific_parse_options(safe)
         optlist = []
@@ -161,7 +161,7 @@ class SubtitleCodec(BaseCodec):
         if 'source' in safe:
             s = str(safe['source'])
         else:
-            s = str('0')
+            s = str(0)
 
         safe = self._codec_specific_parse_options(safe)
 
@@ -413,7 +413,7 @@ class AudioCopyCodec(BaseCodec):
         if 'source' in safe:
             s = str(safe['source'])
         else:
-            s = str('0')
+            s = str(0)
         if 'map' in safe:
             optlist.extend(['-map', s + ':' + str(safe['map'])])
         if 'language' in safe:
@@ -443,7 +443,7 @@ class VideoCopyCodec(BaseCodec):
         if 'source' in safe:
             s = str(safe['source'])
         else:
-            s = str('0')
+            s = str(0)
         if 'map' in safe:
             optlist.extend(['-map', s + ':' + str(safe['map'])])
         return optlist
@@ -464,7 +464,7 @@ class SubtitleCopyCodec(BaseCodec):
         if 'source' in safe:
             s = str(safe['source'])
         else:
-            s = str('0')
+            s = str(0)
         if 'map' in safe:
             optlist.extend(['-map', s + ':' + str(safe['map'])])
         optlist.extend(['-c:s:' + stream, copy])
