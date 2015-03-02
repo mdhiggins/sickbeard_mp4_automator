@@ -196,7 +196,7 @@ class MkvtoMp4:
 
         #Video stream
         print "Video codec detected: " + info.video.codec
-        if self.video_bitrate is not None and info.video.bitrate > self.video_bitrate:
+        if self.video_bitrate is not None and info.format.bitrate > self.video_bitrate:
             vcodec = self.video_codec[0]
             vbitrate = self.video_bitrate
         else:
