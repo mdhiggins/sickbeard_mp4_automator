@@ -428,6 +428,9 @@ class FFMpeg(object):
         ...    pass # can be used to inform the user about conversion progress
 
         """
+        if os.name == 'nt':
+            timeout = 0
+
         if not os.path.exists(infile):
             raise FFMpegError("Input file doesn't exist: " + infile)
 
