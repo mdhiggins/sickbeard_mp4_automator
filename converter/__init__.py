@@ -89,8 +89,11 @@ class Converter(object):
                 if not isinstance(x, dict) or 'codec' not in x:
                     raise ConverterError('Invalid audio codec specification')
 
-                if 'map' not in x:
-                    raise ConverterError('Must specify a map value')
+                if 'path' in x and 'source' not in x:
+                    raise ConverterError('Cannot specify audio path without FFMPEG source number')
+
+                if 'source' in x and 'path' not in x:
+                    raise ConverterError('Cannot specify alternate input source without a path')
 
                 c = x['codec']
                 if c not in self.audio_codecs:
@@ -116,9 +119,6 @@ class Converter(object):
                 if not isinstance(x, dict) or 'codec' not in x:
                     raise ConverterError('Invalid subtitle codec specification')
 
-                if 'map' not in x:
-                    raise ConverterError('Must specify a map value')
-
                 if 'path' in x and 'source' not in x:
                     raise ConverterError('Cannot specify subtitle path without FFMPEG source number')
 
@@ -127,11 +127,11 @@ class Converter(object):
 
                 c = x['codec']
                 if c not in self.subtitle_codecs:
-                    raise ConverterError('Requested unknown audio codec ' + str(c))
+                    raise ConverterError('Requested unknown subtitle codec ' + str(c))
 
                 subtitle_options.extend(self.subtitle_codecs[c]().parse_options(x, n))
-                if audio_options is None:
-                    raise ConverterError('Unknown audio codec error')
+                if subtitle_options is None:
+                    raise ConverterError('Unknown subtitle codec error')
 
         if 'video' in opt:
             x = opt['video']

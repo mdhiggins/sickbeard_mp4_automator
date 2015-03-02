@@ -58,12 +58,13 @@ class AudioCodec(BaseCodec):
         'channels': int,
         'bitrate': int,
         'samplerate': int,
+        'source': int,
+        'path' : str,
         'map': int
     }
 
-    def parse_options(self, opt, stream):
+    def parse_options(self, opt, stream=None):
         super(AudioCodec, self).parse_options(opt)
-        stream = str(stream)
         safe = self.safe_options(opt)
 
         if 'channels' in safe:
@@ -86,22 +87,39 @@ class AudioCodec(BaseCodec):
             if len(l) > 3:
                 del safe['language']
 
-        safe = self._codec_specific_parse_options(safe)
-
-        optlist = ['-c:a:' + stream, self.ffmpeg_codec_name]
-        if 'map' in safe:
-            optlist.extend(['-map', '0:' + str(safe['map'])])
-        if 'channels' in safe:
-            optlist.extend(['-ac:a:' + stream, str(safe['channels'])])
-        if 'bitrate' in safe:
-            optlist.extend(['-b:a:' + stream, str(safe['bitrate']) + 'k'])
-        if 'samplerate' in safe:
-            optlist.extend(['-r:a:' + stream, str(safe['samplerate'])])
-        if 'language' in safe:
-                lang = str(safe['language'])
+        if 'source' in safe:
+            s = str(safe['source'])
         else:
-            lang = 'und'
-        optlist.extend(['-metadata:s:a:' + stream, "language=" + lang])
+            s = str('0')
+
+        safe = self._codec_specific_parse_options(safe)
+        optlist = []
+        if stream:
+            optlist.extend(['-c:a:' + stream, self.ffmpeg_codec_name])
+            stream = str(stream)
+            if 'path' in safe:
+                optlist.extend(['-i', str(safe['path'])])
+            if 'map' in safe:
+                optlist.extend(['-map', s + ':' + str(safe['map'])])
+            if 'channels' in safe:
+                optlist.extend(['-ac:a:' + stream, str(safe['channels'])])
+            if 'bitrate' in safe:
+                optlist.extend(['-b:a:' + stream, str(safe['bitrate']) + 'k'])
+            if 'samplerate' in safe:
+                optlist.extend(['-r:a:' + stream, str(safe['samplerate'])])
+            if 'language' in safe:
+                    lang = str(safe['language'])
+            else:
+                lang = 'und' # Never leave blank if not specified, always set to und for undefined
+            optlist.extend(['-metadata:s:a:' + stream, "language=" + lang])
+        else:
+            optlist.extend(['-acodec', self.ffmpeg_codec_name])
+            if 'channels' in safe:
+                optlist.extend(['-ac', str(safe['channels'])])
+            if 'bitrate' in safe:
+                optlist.extend(['-ab', str(safe['bitrate']) + 'k'])
+            if 'samplerate' in safe:
+                optlist.extend(['-ar', str(safe['samplerate'])])
 
         optlist.extend(self._codec_specific_produce_ffmpeg_list(safe))
         return optlist
@@ -129,7 +147,7 @@ class SubtitleCodec(BaseCodec):
         'path' : str
     }
 
-    def parse_options(self, opt, stream):
+    def parse_options(self, opt, stream=None):
         super(SubtitleCodec, self).parse_options(opt)
         stream = str(stream)
         safe = self.safe_options(opt)
@@ -149,26 +167,32 @@ class SubtitleCodec(BaseCodec):
             if len(l) > 3:
                 del safe['language']
 
-        safe = self._codec_specific_parse_options(safe)
-
         if 'source' in safe:
             s = str(safe['source'])
         else:
             s = str('0')
-        optlist = ['-map', s + ':' + str(safe['map'])]
-        if 'codec' in safe:
+
+        safe = self._codec_specific_parse_options(safe)
+
+        optlist[]
+        if stream:
             optlist.extend(['-c:s:' + stream, self.ffmpeg_codec_name])
-        if 'path' in safe:
-            optlist.extend(['-i', str(safe['path'])])
-        if 'default' in safe:
-            optlist.extend(['-metadata:s:s:' + stream, "disposition:default=" + str(safe['default'])])
-        if 'forced' in safe:
-            optlist.extend(['-metadata:s:s:' + stream, "disposition:forced=" + str(safe['forced'])])
-        if 'language' in safe:
-                lang = str(safe['language'])
+            stream = str(stream)
+            if 'map' in safe:
+                optlist.extend(['-map', s + ':' + str(safe['map'])])
+            if 'path' in safe:
+                optlist.extend(['-i', str(safe['path'])])
+            if 'default' in safe:
+                optlist.extend(['-metadata:s:s:' + stream, "disposition:default=" + str(safe['default'])])
+            if 'forced' in safe:
+                optlist.extend(['-metadata:s:s:' + stream, "disposition:forced=" + str(safe['forced'])])
+            if 'language' in safe:
+                    lang = str(safe['language'])
+            else:
+                lang = 'und' # Never leave blank if not specified, always set to und for undefined
+            optlist.extend(['-metadata:s:s:' + stream, "language=" + lang])
         else:
-            lang = 'und'
-        optlist.extend(['-metadata:s:s:' + stream, "language=" + lang])
+            optlist.extend(['-scodec', self.ffmpeg_codec_name])
 
         optlist.extend(self._codec_specific_produce_ffmpeg_list(safe))
         return optlist
