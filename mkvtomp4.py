@@ -192,8 +192,6 @@ class MkvtoMp4:
 
         info = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH).probe(inputfile)
 
-        print info
-
         #Video stream
         print "Video codec detected: " + info.video.codec
         if self.video_bitrate is not None and info.format.bitrate > self.video_bitrate:
@@ -210,7 +208,7 @@ class MkvtoMp4:
             print a
             print "Audio stream detected: " + a.codec + " " + a.metadata['language'] + " [Stream " + str(a.index) + "]"
             # Set undefined language to default language if specified
-            if self.adl is not None and (a.metadata['language'] == 'und' or a.metadata['language'] is None):
+            if self.adl is not None and (a.metadata['language'] == 'und' or a.metadata['language'] is None or a.metadata['language'].strip() == ""):
                 print "Undefined language detected, defaulting to " + self.adl
                 a.metadata['language'] = self.adl
             # Proceed if no whitelist is set, or if the language is in the whitelist
