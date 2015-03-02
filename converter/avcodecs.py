@@ -727,6 +727,6 @@ video_codec_list = [
 ]
 
 subtitle_codec_list = [
-    SubtitleNullCodec, SubtitleCopyCodec, MOVTextCodec, SSA, SubRip, DVDSub,
+    SubtitleNullCodec, SubtitleCopyCodec, MOVTextCodec, SrtCodec, SSA, SubRip, DVDSub,
     DVBSub
 ]
