@@ -174,7 +174,7 @@ class SubtitleCodec(BaseCodec):
 
         safe = self._codec_specific_parse_options(safe)
 
-        optlist[]
+        optlist = []
         if stream:
             optlist.extend(['-c:s:' + stream, self.ffmpeg_codec_name])
             stream = str(stream)
