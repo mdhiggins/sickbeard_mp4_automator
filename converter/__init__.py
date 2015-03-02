@@ -1,13 +1,10 @@
 #!/usr/bin/python
 
-
 import os
-import os.path
 
-from avcodecs import video_codec_list, audio_codec_list, subtitle_codec_list
-from formats import format_list
-
-from ffmpeg import FFMpeg, FFMpegError, FFMpegConvertError
+from converter.avcodecs import video_codec_list, audio_codec_list, subtitle_codec_list
+from converter.formats import format_list
+from converter.ffmpeg import FFMpeg, FFMpegError, FFMpegConvertError
 
 
 class ConverterError(Exception):
@@ -27,7 +24,7 @@ class Converter(object):
         """
 
         self.ffmpeg = FFMpeg(ffmpeg_path=ffmpeg_path,
-            ffprobe_path=ffprobe_path)
+                             ffprobe_path=ffprobe_path)
         self.video_codecs = {}
         self.audio_codecs = {}
         self.subtitle_codecs = {}
@@ -40,7 +37,7 @@ class Converter(object):
         for cls in video_codec_list:
             name = cls.codec_name
             self.video_codecs[name] = cls
-            
+
         for cls in subtitle_codec_list:
             name = cls.codec_name
             self.subtitle_codecs[name] = cls
@@ -152,6 +149,7 @@ class Converter(object):
             if video_options is None:
                 raise ConverterError('Unknown video codec error')
 
+        # aggregate all options
         optlist = video_options + audio_options + subtitle_options + format_options
 
         if twopass == 1:
@@ -174,6 +172,7 @@ class Converter(object):
               avcodecs.AudioCodec for list of supported options
             * video (optional, dict) - video codec and options; see
               avcodecs.VideoCodec for list of supported options
+            * map (optional, int) - can be used to map all content of stream 0
 
         Multiple audio/video streams are not supported. The output has to
         have at least an audio or a video stream (or both).
@@ -193,7 +192,7 @@ class Converter(object):
         timeout is handled (using signals) has special restriction when
         using threads.
 
-        >>> conv = c.convert('test1.ogg', '/tmp/output.mkv', {
+        >>> conv = Converter().convert('test1.ogg', '/tmp/output.mkv', {
         ...    'format': 'mkv',
         ...    'audio': { 'codec': 'aac' },
         ...    'video': { 'codec': 'h264' }
@@ -217,7 +216,8 @@ class Converter(object):
             raise ConverterError('Source file has no audio or video streams')
 
         if info.video and 'video' in options:
-            v = options['video']
+            options = options.copy()
+            v = options['video'] = options['video'].copy()
             v['src_width'] = info.video.video_width
             v['src_height'] = info.video.video_height
 
@@ -226,30 +226,40 @@ class Converter(object):
 
         if twopass:
             optlist1 = self.parse_options(options, 1)
-            for timecode in self.ffmpeg.convert(infile, outfile, optlist,
-                    timeout=timeout):
+            for timecode in self.ffmpeg.convert(infile, outfile, optlist1,
+                                                timeout=timeout):
                 yield int((50.0 * timecode) / info.format.duration)
 
             optlist2 = self.parse_options(options, 2)
             for timecode in self.ffmpeg.convert(infile, outfile, optlist2,
-                    timeout=timeout):
+                                                timeout=timeout):
                 yield int(50.0 + (50.0 * timecode) / info.format.duration)
         else:
             optlist = self.parse_options(options, twopass)
             for timecode in self.ffmpeg.convert(infile, outfile, optlist,
-                    timeout=timeout):
+                                                timeout=timeout):
                 yield int((100.0 * timecode) / info.format.duration)
 
-    def probe(self, fname):
+    def probe(self, fname, posters_as_video=True):
         """
         Examine the media file. See the documentation of
         converter.FFMpeg.probe() for details.
-        """
-        return self.ffmpeg.probe(fname)
 
-    def thumbnail(self, fname, time, outfile, size=None):
+        :param posters_as_video: Take poster images (mainly for audio files) as
+            A video stream, defaults to True
+        """
+        return self.ffmpeg.probe(fname, posters_as_video)
+
+    def thumbnail(self, fname, time, outfile, size=None, quality=FFMpeg.DEFAULT_JPEG_QUALITY):
         """
         Create a thumbnail of the media file. See the documentation of
         converter.FFMpeg.thumbnail() for details.
         """
-        return self.ffmpeg.thumbnail(fname, time, outfile, size)
+        return self.ffmpeg.thumbnail(fname, time, outfile, size, quality)
+
+    def thumbnails(self, fname, option_list):
+        """
+        Create one or more thumbnail of the media file. See the documentation
+        of converter.FFMpeg.thumbnails() for details.
+        """
+        return self.ffmpeg.thumbnails(fname, option_list)
