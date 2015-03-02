@@ -651,6 +651,14 @@ class MOVTextCodec(SubtitleCodec):
     ffmpeg_codec_name = 'mov_text'
 
 
+class SrtCodec(SubtitleCodec):
+    """
+    SRT subtitle codec.
+    """
+    codec_name = 'srt'
+    ffmpeg_codec_name = 'srt'
+
+
 class SSA(SubtitleCodec):
     """
     SSA (SubStation Alpha) subtitle.
