@@ -434,7 +434,16 @@ class FFMpeg(object):
             raise FFMpegError("Input file doesn't exist: " + infile)
 
         cmds = [self.ffmpeg_path, '-i', infile]
+
+        # Move additional inputs to the front of the line
+        for ind, command in enumerate(opts):
+            if command == '-i':
+                cmds.extend(['-i', opts[ind + 1]])
+                del opts[ind]
+                del opts[ind]
+
         cmds.extend(opts)
+        cmds.extend(['threads', 'auto'])
         cmds.extend(['-y', outfile])
 
         if timeout:
