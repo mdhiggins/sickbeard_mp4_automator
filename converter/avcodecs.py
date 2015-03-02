@@ -461,7 +461,7 @@ class SubtitleCopyCodec(BaseCodec):
     def parse_options(self, opt, stream=0):
         safe = self.safe_options(opt)
         stream = str(stream)
-            if 'source' in safe:
+        if 'source' in safe:
             s = str(safe['source'])
         else:
             s = str('0')
