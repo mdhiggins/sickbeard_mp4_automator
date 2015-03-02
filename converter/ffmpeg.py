@@ -171,6 +171,8 @@ class MediaStreamInfo(object):
         if key.startswith('TAG:'):
             key = key.split('TAG:')[1].lower()
             value = val
+            print key
+            print val
             self.metadata[key] = value
 
         if self.type == 'audio':
