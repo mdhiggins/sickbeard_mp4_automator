@@ -207,13 +207,14 @@ class MkvtoMp4:
         audio_settings = {}
         l = 0
         for a in info.audio:
-            print "Audio stream detected: " + a.codec + " " + a.metadata.language + " [Stream " + str(a.index) + "]"
+            print a
+            print "Audio stream detected: " + a.codec + " " + a.metadata['language'] + " [Stream " + str(a.index) + "]"
             # Set undefined language to default language if specified
-            if self.adl is not None and (a.metadata.language == 'und' or a.metadata.language is None):
+            if self.adl is not None and (a.metadata['language'] == 'und' or a.metadata['language'] is None):
                 print "Undefined language detected, defaulting to " + self.adl
-                a.metadata.language = self.adl
+                a.metadata['language'] = self.adl
             # Proceed if no whitelist is set, or if the language is in the whitelist
-            if self.awl is None or a.metadata.language.lower() in self.awl:
+            if self.awl is None or a.metadata['language'].lower() in self.awl:
                 # Create iOS friendly audio stream if the default audio stream has too many channels (iOS only likes AAC stereo)
                 if self.iOS:
                     if a.audio_channels > 2:
@@ -223,7 +224,7 @@ class MkvtoMp4:
                             'codec': self.iOS,
                             'channels': 2,
                             'bitrate': 256,
-                            'language': a.metadata.language,
+                            'language': a.metadata['language'],
                         }})
                         l += 1
                 # If the iOS audio option is enabled and the source audio channel is only stereo, the additional iOS channel will be skipped and a single AAC 2.0 channel will be made regardless of codec preference to avoid multiple stereo channels
@@ -256,7 +257,7 @@ class MkvtoMp4:
                     'codec': acodec,
                     'channels': audio_channels,
                     'bitrate': abitrate,
-                    'language': a.metadata.language,
+                    'language': a.metadata['language'],
                 }})
                 l = l + 1
 
@@ -264,30 +265,30 @@ class MkvtoMp4:
         subtitle_settings = {}
         l = 0
         for s in info.subtitle:
-            print "Subtitle stream detected: " + s.codec + " " + s.metadata.language + " [Stream " + str(s.index) + "]"
+            print "Subtitle stream detected: " + s.codec + " " + s.metadata['language'] + " [Stream " + str(s.index) + "]"
 
             # Set undefined language to default language if specified
-            if self.sdl is not None and s.metadata.language == 'und':
-                s.metadata.language = self.sdl
+            if self.sdl is not None and s.metadata['language'] == 'und':
+                s.metadata['language'] = self.sdl
             # Make sure its not an image based codec
             if s.codec.lower() not in bad_subtitle_codecs and self.embedsubs:
                 
                 # Proceed if no whitelist is set, or if the language is in the whitelist
-                if self.swl is None or s.metadata.language.lower() in self.swl:
+                if self.swl is None or s.metadata['language'].lower() in self.swl:
                     subtitle_settings.update({l: {
                         'map': s.index,
                         'codec': 'mov_text',
-                        'language': s.metadata.language
+                        'language': s.metadata['language']
                         #'forced': s.sub_forced,
                         #'default': s.sub_default
                     }})
                     l = l + 1
             elif s.codec.lower() not in bad_subtitle_codecs and not self.embedsubs:
-                if self.swl is None or s.metadata.language.lower() in self.swl:
+                if self.swl is None or s.metadata['language'].lower() in self.swl:
                     ripsub = {1: {
                         'map': s.index,
                         'codec': 'srt',
-                        'language': s.metadata.language
+                        'language': s.metadata['language']
                     }}
                     options = {
                         'format': 'srt',
@@ -295,13 +296,13 @@ class MkvtoMp4:
                     }
                     input_dir, filename, input_extension = self.parseFile(inputfile)
                     output_dir = input_dir if self.output_dir is None else self.output_dir
-                    outputfile = os.path.join(output_dir, filename + "." + s.metadata.language + ".srt")
+                    outputfile = os.path.join(output_dir, filename + "." + s.metadata['language'] + ".srt")
                     
                     i = 2
                     while os.path.isfile(outputfile):
-                        outputfile = os.path.join(output_dir, filename + "." + s.metadata.language + "." + str(i) + ".srt")
+                        outputfile = os.path.join(output_dir, filename + "." + s.metadata['language'] + "." + str(i) + ".srt")
                         i += i
-                    print "Ripping " + s.metadata.language + " subtitle from file"
+                    print "Ripping " + s.metadata['language'] + " subtitle from file"
                     conv = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH).convert(inputfile, outputfile, options, timeout=None)
                     for timecode in conv:
                             pass
