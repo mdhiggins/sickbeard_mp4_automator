@@ -208,7 +208,7 @@ class MkvtoMp4:
             print a
             print "Audio stream detected: " + a.codec + " " + a.metadata['language'] + " [Stream " + str(a.index) + "]"
             # Set undefined language to default language if specified
-            if self.adl is not None and a.metadata['language'] == 'und':
+            if self.adl is not None and (a.metadata['language'] == 'und' or a.metadata['language'] is None or a.metadata['language'].strip() == ""):
                 print "Undefined language detected, defaulting to " + self.adl
                 a.metadata['language'] = self.adl
             # Proceed if no whitelist is set, or if the language is in the whitelist
