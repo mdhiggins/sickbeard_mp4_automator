@@ -25,7 +25,7 @@
 # Category for Sickbeard
 #SICK_CAT=Sickbeard
 
-# Category for Bypassing any further processing but still converting
+# Category for bypassing any further processing but still converting
 #BYPASS_CAT=Bypass
 
 ### NZBGET POST-PROCESSING SCRIPT                                          ###
