@@ -205,7 +205,11 @@ class MkvtoMp4:
         audio_settings = {}
         l = 0
         for a in info.audio:
-            print a
+            try:
+                if a.metadata['language'].strip() == "" or a.metadata['language'] is None:
+                    a.metadata['language'] = 'und'
+            except KeyError:
+                a.metadata['language'] = 'und'
             print "Audio stream detected: " + a.codec + " " + a.metadata['language'] + " [Stream " + str(a.index) + "]"
             # Set undefined language to default language if specified
             if self.adl is not None and (a.metadata['language'] == 'und' or a.metadata['language'] is None or a.metadata['language'].strip() == ""):
@@ -263,6 +267,11 @@ class MkvtoMp4:
         subtitle_settings = {}
         l = 0
         for s in info.subtitle:
+            try:
+                if s.metadata['language'].strip() == "" or s.metadata['language'] is None:
+                    s.metadata['language'] = 'und'
+            except KeyError:
+                s.metadata['language'] = 'und'
             print "Subtitle stream detected: " + s.codec + " " + s.metadata['language'] + " [Stream " + str(s.index) + "]"
 
             # Set undefined language to default language if specified
