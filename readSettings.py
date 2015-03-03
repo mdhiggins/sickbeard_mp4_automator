@@ -77,6 +77,7 @@ class ReadSettings:
         utorrent_defaults = { 'couchpotato-label': 'couchpotato',
                               'sickbeard-label': 'sickbeard',
                               'sonarr-label': 'sonarr',
+                              'bypass-label': 'bypass',
                               'convert': 'True',
                               'webui': 'False',
                               'action_before': 'stop',
@@ -88,7 +89,8 @@ class ReadSettings:
         sab_defaults = {    'convert': 'True',
                             'Sickbeard-category': 'sickbeard',
                             'Couchpotato-category': 'couchpotato',
-                            'Sonarr-category': 'sonarr' }
+                            'Sonarr-category': 'sonarr',
+                            'Bypass-category': 'bypass' }
 
         defaults = {'SickBeard': sb_defaults, 'CouchPotato': cp_defaults, 'Sonarr': sonarr_defaults, 'MP4': mp4_defaults, 'uTorrent': utorrent_defaults, 'SABNZBD': sab_defaults}
         write = False  # Will be changed to true if a value is missing from the config file and needs to be written
@@ -316,6 +318,7 @@ class ReadSettings:
         self.uTorrent['cp'] = config.get(section, "couchpotato-label").lower()
         self.uTorrent['sb'] = config.get(section, "sickbeard-label").lower()
         self.uTorrent['sonarr'] = config.get(section, "sonarr-label").lower()
+        self.uTorrent['bypass'] = config.get(section, "bypass-label").lower()
         try:
             self.uTorrent['convert'] = config.getboolean(section, "convert")
         except:
@@ -356,6 +359,7 @@ class ReadSettings:
         self.SAB['cp'] = config.get(section, "Couchpotato-category").lower()
         self.SAB['sb'] = config.get(section, "Sickbeard-category").lower()
         self.SAB['sonarr'] = config.get(section, "Sonarr-category").lower()
+        self.SAB['bypass'] = config.get(section, "Bypass-category").lower()
 
         #Pass the values on
         self.config = config

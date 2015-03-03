@@ -37,7 +37,7 @@ path = str(sys.argv[3])
 settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
 label = sys.argv[1].lower()
 
-categories = [settings.uTorrent['cp'], settings.uTorrent['sb'], settings.uTorrent['sonarr']]
+categories = [settings.uTorrent['cp'], settings.uTorrent['sb'], settings.uTorrent['sonarr'], settings.uTorrent['bypass']]
 
 if label not in categories:
     print "No valid label detected"
@@ -135,6 +135,8 @@ elif label == categories[2]:
     except:
         print "[WARNING] Update to Sonarr failed, check if Sonarr is running, autoProcess.ini for errors, or check install of python modules requests."
         sys.exit()
+elif label == categories[3]:
+    print "Bypassing any further processing as per category"
 
 # Run a uTorrent action after conversion.
 if web_ui: 

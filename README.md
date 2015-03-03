@@ -100,7 +100,7 @@ NZBGet
 --------------
 1. Copy the script NZBGetPostProcess.py to NZBGet's script folder. (default location is ~/downloads/scripts/)
 2. In NZBGet's web GUI, go to [Settings] and the newly created {NZBGETPOSTPROCESS} option. Fill in the MP4 automator folder path with the full path. (default ~/sickbeard_mp4_automator/) I suggest the full path and requires the trailing backslash "/".
-3. You may change or set your appropriate category names to correspond with the application you wish to send the files to (CouchPotato, Sickbeard, Sonarr) in this same settings area. Make sure these categories match.
+3. You may change or set your appropriate category names to correspond with the application you wish to send the files to (CouchPotato, Sickbeard, Sonarr, Bypass) in this same settings area. Make sure these categories match. The Bypass category is for those that wish to convert the file without additional post processing.
 4. You may set the `convert` option to enable conversion before the file is passed on to the next step.
 5. Save and reload NZBGet
 
@@ -108,13 +108,14 @@ SAB
 --------------
 1. Point SABNZBD's script directory to the root directory where you have extract the script.
 2. Make sure your categories are set and match the categories specified in the SABNZBD section of autoProcess.ini. Set the script for each category to `SABPostProcess.py`
-3. Press save for each category
-4. You may set the `convert` option to enable conversion before the file is passed on to the next step.
+3. Bypass category can be used for users that just want to convert the files without passing them for additional processing
+4. Press save for each category
+5. You may set the `convert` option to enable conversion before the file is passed on to the next step.
 
 uTorrent Support
 --------------
 1. ** YOU MUST INSTALL THE PYTHON REQUESTS LIBRARY ** Run "pip install requests" or "easy_install requests"
-2. `uTorrentPostProcess.py` is the file you'll be using here. This script will allow post processing of torrent files with optional conversion and will forward the converted files to either Sickbeard, CouchPotato, or Sonarr depending on the corresponding label of the torrent.
+2. `uTorrentPostProcess.py` is the file you'll be using here. This script will allow post processing of torrent files with optional conversion and will forward the converted files to either Sickbeard, CouchPotato, Sonarr, or Bypass depending on the corresponding label of the torrent. Bypass is used when only conversion is desired and you don't want to pass the file for further processing.
 3. Enable uTorrent Web UI.
 4. uTorrent must be set up with the following post command options: ```#Args: %L %S %D %K %F %S %I``` Picture: http://i.imgur.com/7eADkCI.png
 5. Set your uTorrent settings in autoProcess.ini

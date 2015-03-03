@@ -25,6 +25,9 @@
 # Category for Sickbeard
 #SICK_CAT=Sickbeard
 
+# Category for Bypassing any further processing but still converting
+#BYPASS_CAT=Bypass
+
 ### NZBGET POST-PROCESSING SCRIPT                                          ###
 ##############################################################################
 
@@ -66,6 +69,7 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
     couchcat = os.environ['NZBPO_CP_CAT'].lower()
     sonarrcat = os.environ['NZBPO_SONARR_CAT'].lower()
     sickcat = os.environ['NZBPO_SICK_CAT'].lower()
+    sickcat = os.environ['NZBPO_BYPASS_CAT'].lower()
     
     categories = [sickcat, couchcat, sonarrcat]
     
@@ -203,6 +207,9 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
             print "[WARNING] Update to Sonarr failed, check if Sonarr is running, autoProcess.ini for errors, or check install of python modules requests."
             sys.exit(POSTPROCESS_ERROR)
         sys.exit(POSTPROCESS_SUCCESS)
+    elif (category.lower() == categories[3]):
+        #DEBUG#print "Bypass Further Processing"
+        pass
 
 else:
     print "[ERROR] This script can only be called from NZBGet (11.0 or later)."

@@ -16,8 +16,8 @@ from mkvtomp4 import MkvtoMp4
 # 7 Status of post processing. 0 = OK, 1=failed verification, 2=failed unpack, 3=1+2
 
 settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
-categories = [settings.SAB['sb'], settings.SAB['cp'], settings.SAB['sonarr']]
-category = str(sys.argv[5])
+categories = [settings.SAB['sb'], settings.SAB['cp'], settings.SAB['sonarr'], settings.SAB['bypass']]
+category = str(sys.argv[5]).lower()
 
 if category.lower() not in categories:
     print "Error, no valid category detected"
@@ -43,7 +43,7 @@ else:
     print "Passing without conversion"
 
 # Send to Sickbeard
-if (category.lower() == categories[0]):
+if (category == categories[0]):
     if len(sys.argv) < 2:
         print "No folder supplied - is this being called from SABnzbd?"
         sys.exit()
@@ -53,16 +53,18 @@ if (category.lower() == categories[0]):
         autoProcessTV.processEpisode(path, settings)
 
 # Send to CouchPotato        
-elif (category.lower() == categories[1]):
+elif (category == categories[1]):
     autoProcessMovie.process(path, settings, nzb, sys.argv[7])
 # Send to Sonarr
-elif (category.lower() == categories[2]):
+elif (category == categories[2]):
     # Import requests
     try:
         import requests
     except ImportError:
         print "[ERROR] Python module REQUESTS is required. Install with 'pip install requests' then try again."
         sys.exit()
+elif (category == categories[3]):
+    print "Bypassing any further processing as per category"
 
     host=settings.Sonarr['host']
     port=settings.Sonarr['port']
