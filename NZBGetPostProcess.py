@@ -23,7 +23,10 @@
 #SONARR_CAT=Sonarr
 
 # Category for Sickbeard
-#SICK_CAT=Sickbeard
+#SICKBEARD_CAT=Sickbeard
+
+# Category for Sickrage
+#SICKRAGE_CAT=Sickrage
 
 # Category for bypassing any further processing but still converting
 #BYPASS_CAT=Bypass
@@ -50,6 +53,7 @@ try:
     from mkvtomp4 import MkvtoMp4
     import autoProcessMovie
     import autoProcessTV
+    import autoProcessTVSR
 except ImportError:
     pass
     print "[ERROR] Wrong path to sickbeard_mp4_automator: "+os.environ['NZBPO_MP4_FOLDER']
@@ -68,10 +72,11 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
     
     couchcat = os.environ['NZBPO_CP_CAT'].lower()
     sonarrcat = os.environ['NZBPO_SONARR_CAT'].lower()
-    sickcat = os.environ['NZBPO_SICK_CAT'].lower()
-    sickcat = os.environ['NZBPO_BYPASS_CAT'].lower()
+    sickbeardcat = os.environ['NZBPO_SICKBEARD_CAT'].lower()
+    sickragecat = os.environ['NZBPO_SICKRAGE_CAT'].lower()
+    bypass = os.environ['NZBPO_BYPASS_CAT'].lower()
     
-    categories = [sickcat, couchcat, sonarrcat]
+    categories = [sickbeardcat, couchcat, sonarrcat, sickragecat, bypass]
     
     # NZBGet argv: all passed as environment variables.
     clientAgent = "nzbget"
@@ -208,6 +213,9 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
             sys.exit(POSTPROCESS_ERROR)
         sys.exit(POSTPROCESS_SUCCESS)
     elif (category.lower() == categories[3]):
+        #DEBUG#print "Sickrage Processing Activated"
+        autoProcessTVSR.processEpisode(path, settings, nzb)
+    elif (category.lower() == categories[4]):
         #DEBUG#print "Bypass Further Processing"
         pass
 

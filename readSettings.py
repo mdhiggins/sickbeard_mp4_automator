@@ -76,6 +76,7 @@ class ReadSettings:
         # Default uTorrent settings
         utorrent_defaults = { 'couchpotato-label': 'couchpotato',
                               'sickbeard-label': 'sickbeard',
+                              'sickrage-label': 'sickrage',
                               'sonarr-label': 'sonarr',
                               'bypass-label': 'bypass',
                               'convert': 'True',
@@ -88,6 +89,7 @@ class ReadSettings:
         # Default SAB settings
         sab_defaults = {    'convert': 'True',
                             'Sickbeard-category': 'sickbeard',
+                            'Sickrage-category': 'sickrage',
                             'Couchpotato-category': 'couchpotato',
                             'Sonarr-category': 'sonarr',
                             'Bypass-category': 'bypass' }
@@ -317,6 +319,7 @@ class ReadSettings:
         self.uTorrent = {}
         self.uTorrent['cp'] = config.get(section, "couchpotato-label").lower()
         self.uTorrent['sb'] = config.get(section, "sickbeard-label").lower()
+        self.uTorrent['sr'] = config.get(section, "sickrage-label").lower()
         self.uTorrent['sonarr'] = config.get(section, "sonarr-label").lower()
         self.uTorrent['bypass'] = config.get(section, "bypass-label").lower()
         try:
@@ -358,6 +361,7 @@ class ReadSettings:
             self.SAB['convert'] = False
         self.SAB['cp'] = config.get(section, "Couchpotato-category").lower()
         self.SAB['sb'] = config.get(section, "Sickbeard-category").lower()
+        self.SAB['sr'] = config.get(section, "Sickrage-category").lower()
         self.SAB['sonarr'] = config.get(section, "Sonarr-category").lower()
         self.SAB['bypass'] = config.get(section, "Bypass-category").lower()
 

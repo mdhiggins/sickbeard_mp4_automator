@@ -2,7 +2,7 @@
 
 import os
 import sys
-import autoProcessTV, autoProcessMovie
+import autoProcessTV, autoProcessMovie, autoProcessTVSR
 from readSettings import ReadSettings
 from mkvtomp4 import MkvtoMp4
 
@@ -16,7 +16,7 @@ from mkvtomp4 import MkvtoMp4
 # 7 Status of post processing. 0 = OK, 1=failed verification, 2=failed unpack, 3=1+2
 
 settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
-categories = [settings.SAB['sb'], settings.SAB['cp'], settings.SAB['sonarr'], settings.SAB['bypass']]
+categories = [settings.SAB['sb'], settings.SAB['cp'], settings.SAB['sonarr'], settings.SAB['sr'], settings.SAB['bypass']]
 category = str(sys.argv[5]).lower()
 
 if category.lower() not in categories:
@@ -63,8 +63,6 @@ elif (category == categories[2]):
     except ImportError:
         print "[ERROR] Python module REQUESTS is required. Install with 'pip install requests' then try again."
         sys.exit()
-elif (category == categories[3]):
-    print "Bypassing any further processing as per category"
 
     host=settings.Sonarr['host']
     port=settings.Sonarr['port']
@@ -89,4 +87,14 @@ elif (category == categories[3]):
         print "[INFO] Sonarr responds as "+rstate['state']+"."
     except:
         print "[WARNING] Update to Sonarr failed, check if Sonarr is running, autoProcess.ini for errors, or check install of python modules requests."
+elif (category == categories[3]):
+    if len(sys.argv) < 2:
+        print "No folder supplied - is this being called from SABnzbd?"
+        sys.exit()
+    elif len(sys.argv) >= 3:
+        autoProcessTVSR.processEpisode(path, settings, nzb)
+    else:
+        autoProcessTVSR.processEpisode(path, settings)
+elif (category == categories[4]):
+    print "Bypassing any further processing as per category"
     
