@@ -92,8 +92,9 @@ Couch Potato Support
     - `username` = your Couch Potato username
     - `password` = your Couch Potato password
 2. Copy the PostProcess directory from the setup folder included with this script to the Couch Potato custom_plugins directory. You can find this directory within your Couch Potato setup by opening Couch Potato and navigating to the About page, where the installation directory is displayed. Copy the PostProcess folder (the whole folder, not just the contents) to Couch Potato and restart Couch Potato. You should see in the logs that it was loaded. Also you'll need to open up the main.py file and set the path variable to the directory where your CPProcess.py script resides, which by default points to C:\\Scripts\\. Use double backslashes. If you make any changes here make sure to delete the `.pyc` files.
-3. Disable automatic checking of the renamer folder, the script will automatically notify Couch Potato when it is complete to check for new videos to be renamed and relocated. Leaving this on may cause conflicts and CouchPotato may try to relocate/rename the file before processing is completed.
+3. If you're using one of the post download scripts ([SAB|NZBGet|uTorrent]PostProcess.py), disable automatic checking of the renamer folder, the script will automatically notify Couch Potato when it is complete to check for new videos to be renamed and relocated. Leaving this on may cause conflicts and CouchPotato may try to relocate/rename the file before processing is completed.
     - Set `Run Every` to `0` 
+    - If you aren't using one of these scripts and are using an unsupport downloader, you will need to have CouchPotato periodically check the folder for files
 4. Point your Couch Potato videos that are sent to SAB to SABPostProcess.py for post processing with conversion prior to CP begin notified of completion. Similarly use NZBGetPostProcess.py for NZBGet. Make sure you configure your SAB/NZBGet categories so that they match with the categories configured for the script.
 
 NZBGet
