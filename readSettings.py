@@ -93,8 +93,16 @@ class ReadSettings:
                             'Couchpotato-category': 'couchpotato',
                             'Sonarr-category': 'sonarr',
                             'Bypass-category': 'bypass' }
+        # Default Sickrage Settings
+        sr_defaults = {'host': 'localhost',
+                       'port': '8081',
+                       'ssl': "False",
+                       'api_key': '',
+                       'web_root': '',
+                       'user': '',
+                       'pass': '' }
 
-        defaults = {'SickBeard': sb_defaults, 'CouchPotato': cp_defaults, 'Sonarr': sonarr_defaults, 'MP4': mp4_defaults, 'uTorrent': utorrent_defaults, 'SABNZBD': sab_defaults}
+        defaults = {'SickBeard': sb_defaults, 'CouchPotato': cp_defaults, 'Sonarr': sonarr_defaults, 'MP4': mp4_defaults, 'uTorrent': utorrent_defaults, 'SABNZBD': sab_defaults, 'Sickrage', sr_defaults}
         write = False  # Will be changed to true if a value is missing from the config file and needs to be written
 
         config = ConfigParser.SafeConfigParser()
@@ -353,6 +361,18 @@ class ReadSettings:
         self.Sickbeard['user'] = config.get(section, "username")
         self.Sickbeard['pass'] = config.get(section, "password")
 
+        #Read Sickrage section information
+        section = "Sickrage"
+        self.Sickrage = {}
+        self.Sickrage['host'] = config.get(section, "host")  # Server Address
+        self.Sickrage['port'] = config.get(section, "port")  # Server Port
+        self.Sickrage['api_key'] = config.get(section, "api_key")  # Sickbeard API key
+        self.Sickrage['web_root'] = config.get(section, "web_root")  # Sickbeard webroot
+        self.Sickrage['ssl'] = config.getboolean(section, "ssl") # SSL
+        self.Sickrage['user'] = config.get(section, "username")
+        self.Sickrage['pass'] = config.get(section, "password")
+
+        #Read SAB section information
         section = "SABNZBD"
         self.SAB = {}
         try:

@@ -29,18 +29,18 @@ except ImportError:
     from urllib.parse import urlencode
 
 def processEpisode(dir_to_process, settings, org_NZB_name=None, status=None):
-    host = settings.Sickbeard['host']
-    port = settings.Sickbeard['port']
-    username = settings.Sickbeard['user']
-    password = settings.Sickbeard['pass']
+    host = settings.Sickrage['host']
+    port = settings.Sickrage['port']
+    username = settings.Sickrage['user']
+    password = settings.Sickrage['pass']
 
     try:
-        ssl = int(settings.Sickbeard['ssl'])
+        ssl = int(settings.Sickrage['ssl'])
     except:
         ssl = 0
 
     try:
-        web_root = settings.Sickbeard['web_root']
+        web_root = settings.Sickrage['web_root']
         if not web_root.startswith("/"):
             web_root = "/" + web_root
         if not web_root.endswith("/"):
