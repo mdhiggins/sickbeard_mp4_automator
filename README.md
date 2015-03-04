@@ -66,9 +66,10 @@ Sick Beard Installation Instructions
     - `host` = Sick Beard host address (localhost)
     - `port` = Sick Beard port (8081)
     - `ssl` = 0/1
-    - `api_key` = Set this to your Sick Beard API key (options -> general, enable API in Sick Beard to get this key)
-3. **OPTIONAL** - If you're using SAB, set your post processing script to sabToSickBeardWithConverter.py - this is not completely needed but gives the added benefit of doing the conversion from mkv to mp4 before Sick Beard sees the file in whatever folder you choose to download things to. It saves having to put in all the API information as well, and prevents the one additional refresh needed normally to have Sick Beard see the properly converted file. That being said the postConversion script can handle everything on its own, so this step is just for the added benefits listed.
-
+    - `api_key` = Set this to your Sickbeard API key (options -> general, enable API in Sick Beard to get this key)
+    - `web_root` = Set your Sickbeard webroot
+    - `user` = Username
+    - `password` = Password
 Sonarr Support (Tagging Not Supported)
 --------------
 1. ** YOU MUST INSTALL THE PYTHON REQUESTS LIBRARY ** Run "pip install requests" or "easy_install requests"
