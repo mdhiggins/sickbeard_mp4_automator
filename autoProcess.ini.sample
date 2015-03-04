@@ -73,3 +73,12 @@ convert=True
 Sickbeard-category=sickbeard
 Couchpotato-category=couchpotato
 Sonarr-category=sonarr
+
+[Sickrage]
+host=localhost
+port=8081
+username=
+password=
+web_root=
+ssl=0
+api_key=
