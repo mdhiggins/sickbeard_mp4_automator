@@ -24,8 +24,8 @@ class ReadSettings:
                        'ssl': "False",
                        'api_key': '',
                        'web_root': '',
-                       'user': '',
-                       'pass': '' }
+                       'username': '',
+                       'password': '' }
        # Default MP4 conversion settings
         mp4_defaults = {'ffmpeg': 'ffmpeg.exe',
                         'ffprobe': 'ffprobe.exe',
@@ -99,8 +99,8 @@ class ReadSettings:
                        'ssl': "False",
                        'api_key': '',
                        'web_root': '',
-                       'user': '',
-                       'pass': '' }
+                       'username': '',
+                       'password': '' }
 
         defaults = {'SickBeard': sb_defaults, 'CouchPotato': cp_defaults, 'Sonarr': sonarr_defaults, 'MP4': mp4_defaults, 'uTorrent': utorrent_defaults, 'SABNZBD': sab_defaults, 'Sickrage': sr_defaults}
         write = False  # Will be changed to true if a value is missing from the config file and needs to be written
