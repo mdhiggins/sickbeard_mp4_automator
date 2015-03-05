@@ -2,7 +2,7 @@ import os
 import re
 import sys
 import shutil
-import autoProcessTV, autoProcessMovie
+from autoprocess import autoProcessTV, autoProcessMovie, autoProcessTVSR
 from readSettings import ReadSettings
 from mkvtomp4 import MkvtoMp4
 
@@ -37,7 +37,7 @@ path = str(sys.argv[3])
 settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
 label = sys.argv[1].lower()
 
-categories = [settings.uTorrent['cp'], settings.uTorrent['sb'], settings.uTorrent['sonarr'], settings.uTorrent['bypass']]
+categories = [settings.uTorrent['cp'], settings.uTorrent['sb'], settings.uTorrent['sonarr'], settings.uTorrent['sr'], settings.uTorrent['bypass']]
 
 if label not in categories:
     print "No valid label detected"
@@ -136,6 +136,8 @@ elif label == categories[2]:
         print "[WARNING] Update to Sonarr failed, check if Sonarr is running, autoProcess.ini for errors, or check install of python modules requests."
         sys.exit()
 elif label == categories[3]:
+    autoProcessTVSR.processEpisode(path, settings)
+elif label == categories[4]:
     print "Bypassing any further processing as per category"
 
 # Run a uTorrent action after conversion.

@@ -2,7 +2,7 @@
 
 import os
 import sys
-import autoProcessTV, autoProcessMovie, autoProcessTVSR
+from autoprocess import autoProcessTV, autoProcessMovie, autoProcessTVSR
 from readSettings import ReadSettings
 from mkvtomp4 import MkvtoMp4
 

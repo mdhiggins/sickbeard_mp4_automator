@@ -51,9 +51,7 @@ sys.path.append(MP4folder)
 try:
     from readSettings import ReadSettings
     from mkvtomp4 import MkvtoMp4
-    import autoProcessMovie
-    import autoProcessTV
-    import autoProcessTVSR
+    from autoprocess import autoProcessMovie, autoProcessTV, autoProcessTVSR
 except ImportError:
     pass
     print "[ERROR] Wrong path to sickbeard_mp4_automator: "+os.environ['NZBPO_MP4_FOLDER']
