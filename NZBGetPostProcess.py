@@ -40,8 +40,10 @@ import os, sys, re, json
 #Sanity checks for path string
 MP4folder = os.environ['NZBPO_MP4_FOLDER'].replace('"','')
 MP4folder = MP4folder.replace("'","")
-if not(MP4folder.endswith("/")):
+if not(MP4folder.endswith("/")) and os.name != 'nt':
     MP4folder += "/"
+if not MP4folder.endswith("\\") and os.name == 'nt':
+    MP4folder += "\\"
 #DEBUG#print MP4folder+" the original is "+os.environ['NZBPO_MP4_FOLDER']
 
 if MP4folder != os.environ['NZBPO_MP4_FOLDER']:
