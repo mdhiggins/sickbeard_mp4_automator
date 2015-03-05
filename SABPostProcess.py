@@ -25,6 +25,11 @@ if category.lower() not in categories:
     print categories
     sys.exit()
 
+if len(categories) != len(set(categories)):
+    print "Error, duplicate category detected. Category names must be unique"
+    print categories
+    sys.exit()
+
 path = str(sys.argv[1])
 nzb = str(sys.argv[2])
 
@@ -47,6 +52,7 @@ else:
 # Send to Sickbeard
 if (category == categories[0]):
     if len(sys.argv) < 2:
+    print "Passing to Sickbeard"
         print "No folder supplied - is this being called from SABnzbd?"
         sys.exit()
     elif len(sys.argv) >= 3:
@@ -56,9 +62,11 @@ if (category == categories[0]):
 
 # Send to CouchPotato        
 elif (category == categories[1]):
+    print "Passing to CouchPotato"
     autoProcessMovie.process(path, settings, nzb, sys.argv[7])
 # Send to Sonarr
 elif (category == categories[2]):
+    print "Passing to Sonarr"
     # Import requests
     try:
         import requests
@@ -90,6 +98,7 @@ elif (category == categories[2]):
     except:
         print "[WARNING] Update to Sonarr failed, check if Sonarr is running, autoProcess.ini for errors, or check install of python modules requests."
 elif (category == categories[3]):
+    print "Passing to Sickrage"
     if len(sys.argv) < 2:
         print "No folder supplied - is this being called from SABnzbd?"
         sys.exit()

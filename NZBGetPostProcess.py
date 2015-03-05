@@ -136,7 +136,13 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
 
     # Make sure one of the appropriate categories is set
     if category.lower() not in categories:
-        print "[INFO] Post-Process: No valid category detected. Category was %s." % (category)
+        print "[ERROR] Post-Process: No valid category detected. Category was %s." % (category)
+        status = 1
+        sys.exit(POSTPROCESS_NONE)
+
+    # Make sure there are no duplicate categories
+    if len(categories) != len(set(categories))
+        print "[ERROR] Duplicate category detected. Category names must be unique"
         status = 1
         sys.exit(POSTPROCESS_NONE)
 
