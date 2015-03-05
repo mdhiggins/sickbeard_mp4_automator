@@ -51,8 +51,8 @@ else:
 
 # Send to Sickbeard
 if (category == categories[0]):
-    if len(sys.argv) < 2:
     print "Passing to Sickbeard"
+    if len(sys.argv) < 2:
         print "No folder supplied - is this being called from SABnzbd?"
         sys.exit()
     elif len(sys.argv) >= 3:
