@@ -21,7 +21,8 @@ category = str(sys.argv[5]).lower()
 
 if category.lower() not in categories:
     print "Error, no valid category detected"
-    print "Category was " + category
+    print "Category '%s' not in:" % category
+    print categories
     sys.exit()
 
 path = str(sys.argv[1])

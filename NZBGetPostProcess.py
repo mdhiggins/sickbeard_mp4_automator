@@ -68,7 +68,7 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
     path = os.environ['NZBPP_DIRECTORY'] # Path to NZB directory
     nzb = os.environ['NZBPP_NZBFILENAME'] # Original NZB name
     category = os.environ['NZBPP_CATEGORY'] # NZB Category to determine destination
-    #DEBUG#print "Category is %s", category
+    #DEBUG#print "Category is %s" % category
     
     couchcat = os.environ['NZBPO_CP_CAT'].lower()
     sonarrcat = os.environ['NZBPO_SONARR_CAT'].lower()
@@ -136,7 +136,7 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
 
     # Make sure one of the appropriate categories is set
     if category.lower() not in categories:
-        print "[INFO] Post-Process: No valid category detected. Category was %s.", (category)
+        print "[INFO] Post-Process: No valid category detected. Category was %s." % (category)
         status = 1
         sys.exit(POSTPROCESS_NONE)
 
