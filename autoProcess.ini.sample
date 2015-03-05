@@ -82,3 +82,8 @@ password=
 web_root=
 ssl=0
 api_key=
+
+[Plex]
+host=localhost
+port=32400
+refresh=True

@@ -5,6 +5,7 @@ import json
 import urllib
 import struct
 from readSettings import ReadSettings
+from autoProcess import plex
 from tvdb_mp4 import Tvdb_mp4
 from mkvtomp4 import MkvtoMp4
 settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
@@ -41,6 +42,8 @@ if len(sys.argv) > 4:
                 print refresh[item]
         except IOError:
             print "Couldn't refresh Sickbeard, check your settings"
+
+        plex.refreshPlex(settings, 'show')
 
 else:
     print "Not enough command line arguments present " + str(len(sys.argv))

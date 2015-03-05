@@ -101,8 +101,12 @@ class ReadSettings:
                        'web_root': '',
                        'username': '',
                        'password': '' }
+        # Default Plex Settings
+        plex_defaults = {'host': 'localhost',
+                         'port': '32400', 
+                         'refresh': 'true'}
 
-        defaults = {'SickBeard': sb_defaults, 'CouchPotato': cp_defaults, 'Sonarr': sonarr_defaults, 'MP4': mp4_defaults, 'uTorrent': utorrent_defaults, 'SABNZBD': sab_defaults, 'Sickrage': sr_defaults}
+        defaults = {'SickBeard': sb_defaults, 'CouchPotato': cp_defaults, 'Sonarr': sonarr_defaults, 'MP4': mp4_defaults, 'uTorrent': utorrent_defaults, 'SABNZBD': sab_defaults, 'Sickrage': sr_defaults, 'Plex': plex_defaults}
         write = False  # Will be changed to true if a value is missing from the config file and needs to be written
 
         config = ConfigParser.SafeConfigParser()
@@ -384,6 +388,16 @@ class ReadSettings:
         self.SAB['sr'] = config.get(section, "Sickrage-category").lower()
         self.SAB['sonarr'] = config.get(section, "Sonarr-category").lower()
         self.SAB['bypass'] = config.get(section, "Bypass-category").lower()
+
+        #Read Plex section information
+        section = "Plex"
+        self.Plex = {}
+        self.Plex['host'] = config.get(section, "host")
+        self.Plex['port'] = config.get(section, "port")
+        try:
+            self.Plex['refresh'] = config.getboolean(section, "refresh")
+        except:
+            self.Plex['refresh'] = False
 
         #Pass the values on
         self.config = config

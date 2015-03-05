@@ -26,6 +26,7 @@ class PostProcess(Plugin):
             from readSettings import ReadSettings
             from mkvtomp4 import MkvtoMp4
             from tmdb_mp4 import tmdb_mp4
+            from autoprocess import plex
         except ImportError:
             log.error('Path to script folder appears to be invalid.')
             return False
@@ -70,5 +71,6 @@ class PostProcess(Plugin):
             except:
                 log.error('File processing failed: %s', (traceback.format_exc()))
 
+        plex.refreshPlex(settings, 'movie')
+
         return success
-    
