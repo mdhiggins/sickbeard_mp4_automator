@@ -5,7 +5,7 @@ import json
 import urllib
 import struct
 from readSettings import ReadSettings
-from autoProcess import plex
+from autoprocess import plex
 from tvdb_mp4 import Tvdb_mp4
 from mkvtomp4 import MkvtoMp4
 settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
