@@ -7,7 +7,7 @@ def refreshPlex(settings, source_type):
 	port = settings.Plex['port']
 	approved_sources = ['movie', 'show']
 	if settings.Plex['refresh'] and source_type in approved_sources:
-		base_url = 'http://%s:%s/library/sections' % host
+		base_url = 'http://%s:%s/library/sections' % (host, port)
 		refresh_url = '%s/%%s/refresh' % base_url
 
 		try:
@@ -17,6 +17,6 @@ def refreshPlex(settings, source_type):
 		    if s.getAttribute('type') == source_type:
 		      url = refresh_url % s.getAttribute('key')
 		      x = urllib.urlopen(url)
-		      print x
-		except:
+		except Exception as e:
 		  print "Unable to refresh plex, check your settings"
+		  print e
