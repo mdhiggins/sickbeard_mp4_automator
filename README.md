@@ -5,6 +5,7 @@ MP4 Conversion/Tagging Automation Script.
 
 Programs currently supported include:
 - Sickbeard
+- SickRage
 - CouchPotato
 - Sonarr (tagging not supported, see below)
 - SABNZBD
@@ -59,10 +60,10 @@ General Installation Instructions
     **YOU MUST INSTALL SUBLIMINAL AND ITS DEPENDENCIES FOR THIS TO WORK.** You must go into the `setup\subliminal` directory included in this script and run `setup.py install` to add support for fetching of subtitles. The version included with this script is modified from the stock version of subliminal, so you must install the included version.
     - `sub-providers` = Comma separated values for potential subtitle providers. Must specify at least 1 provider to enable `download-subs`. Providers include `podnapisi` `thesubdb` `opensubtitles` `tvsubtitles` `addic7ed` 
 
-Sick Beard Installation Instructions
+Sick Beard Setup
 --------------
 1. Open Sickbeard's config.ini in Sick Beard and set your "extra_scripts" value in the general section to the full path to "python postConversion.py" using double backslashes (C:\\Python27\\python C:\\Scripts\\postConversion.py). Make sure this is done while Sick Beard is not running or it will be reverted. And make sure python is registered as an environment variable/PATH. With the latest version of Sickbeard you must specify the absolute path to the python executable, otherwise you'll get an "Error 2"
-2. Set the SickBeard variables in autoProcess.ini:
+2. Set the SickBeard variables in autoProcess.ini under the [Sickbeard] section:
     - `host` = Sick Beard host address (localhost)
     - `port` = Sick Beard port (8081)
     - `ssl` = 0/1
@@ -70,7 +71,23 @@ Sick Beard Installation Instructions
     - `web_root` = Set your Sickbeard webroot
     - `user` = Username
     - `password` = Password
-Sonarr Support (Tagging Not Supported)
+
+SickRage Setup
+--------------
+1. Open the configuration page in Sickrage and scroll down to the option labelled "Extra Scripts". Here enter the path to python followed by the full script path. Examples:
+    - `C:\\Python27\\python.exe C:\\sickbeard_mp4_automator\\postConversion.py`
+    - `/usr/bin/python /home/user/sickbeard_mp4_automator/postConversion.py`
+2. Set the Sickrage variables in autoProcess.ini under the [Sickrage] section:
+    - `host` = Sick Beard host address (localhost)
+    - `port` = Sick Beard port (8081)
+    - `ssl` = 0/1
+    - `api_key` = Set this to your Sickbeard API key (options -> general, enable API in Sick Beard to get this key)
+    - `web_root` = Set your Sickbeard webroot
+    - `user` = Username
+    - `password` = Password
+
+
+Sonarr Setup (Tagging Not Supported)
 --------------
 1. ** YOU MUST INSTALL THE PYTHON REQUESTS LIBRARY ** Run "pip install requests" or "easy_install requests"
 2. Set your Sonarr settings in the autoProcess.ini file
@@ -83,7 +100,7 @@ Sonarr Support (Tagging Not Supported)
 3. Set the {Drone Factory Interval} to 0 to disable it. (NZBGet will trigger a specific path re-scan, allowing the mp4 conversion to be completed before Sonarr starts moving stuff around).
     - Sonarr does not currently support post processing scripts so tagging is not currently supported.
 
-Couch Potato Support
+Couch Potato Setup
 --------------
 1. Set your Couch Potato settings to the autoProcess.ini file
     - `host` = Couch Potato host address (localhost)
@@ -98,7 +115,7 @@ Couch Potato Support
     - If you aren't using one of these scripts and are using an unsupport downloader, you will need to have CouchPotato periodically check the folder for files
 4. Point your Couch Potato videos that are sent to SAB to SABPostProcess.py for post processing with conversion prior to CP begin notified of completion. Similarly use NZBGetPostProcess.py for NZBGet. Make sure you configure your SAB/NZBGet categories so that they match with the categories configured for the script.
 
-NZBGet
+NZBGet Setup
 --------------
 1. Copy the script NZBGetPostProcess.py to NZBGet's script folder. (default location is ~/downloads/scripts/)
 2. In NZBGet's web GUI, go to [Settings] and the newly created {NZBGETPOSTPROCESS} option. Fill in the MP4 automator folder path with the full path. (default ~/sickbeard_mp4_automator/) I suggest the full path and requires the trailing backslash "/".
@@ -106,7 +123,7 @@ NZBGet
 4. You may set the `convert` option to enable conversion before the file is passed on to the next step.
 5. Save and reload NZBGet
 
-SAB
+SABNZBD Setup
 --------------
 1. Point SABNZBD's script directory to the root directory where you have extract the script.
 2. Make sure your categories are set and match the categories specified in the SABNZBD section of autoProcess.ini. Set the script for each category to `SABPostProcess.py`
@@ -114,7 +131,7 @@ SAB
 4. Press save for each category
 5. You may set the `convert` option to enable conversion before the file is passed on to the next step.
 
-uTorrent Support
+uTorrent Setup
 --------------
 1. ** YOU MUST INSTALL THE PYTHON REQUESTS LIBRARY ** Run "pip install requests" or "easy_install requests"
 2. `uTorrentPostProcess.py` is the file you'll be using here. This script will allow post processing of torrent files with optional conversion and will forward the converted files to either Sickbeard, CouchPotato, Sonarr, or Bypass depending on the corresponding label of the torrent. Bypass is used when only conversion is desired and you don't want to pass the file for further processing.
@@ -231,6 +248,7 @@ subtitle srt - The.Matrix.1999.eng.srt
 Common Errors
 --------------
 - `ImportError: No module named pkg_resources` - you need to install setuptools for python. See here: https://pypi.python.org/pypi/setuptools#installation-instructions
+- Problems moving from downloader back to manager - you most likely haven't set up your categories correctly. The category options designated by SB/SR/CP/Sonarr need to match the ones set in your downloader either in the plugin options or in autoProcess.ini, and these categories ALL need to execute either SABPostProcess.py for SAB or NZBGetPostProcess.py for NZBGet. Make sure they match.
 
 Credits
 --------------
