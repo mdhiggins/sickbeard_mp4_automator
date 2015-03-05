@@ -105,7 +105,7 @@ class AudioCodec(BaseCodec):
         if 'bitrate' in safe:
             optlist.extend(['-b:a:' + stream, str(safe['bitrate']) + 'k'])
         if 'samplerate' in safe:
-            optlist.extend(['-r:a:' + stream, str(safe['samplerate'])])
+            optlist.extend(['-ar:a:' + stream, str(safe['samplerate'])])
         if 'language' in safe:
                 lang = str(safe['language'])
         else:
