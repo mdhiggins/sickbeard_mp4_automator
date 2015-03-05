@@ -129,6 +129,13 @@ uTorrent Support
     - Set `username` to your uTorrent Web UI username
     - Set `password` to your uTorrent Web UI password
 
+Plex Notification
+--------------
+The script now supports Plex notification as the final step executed by postConversion.py (from Sickbeard) or the PostProcess plugin (from CouchPotato). This feature is important because using Automatic Refresh within plex can flag files as being in use before tagging and QTFastStart have finished their work, leaving behind QTFS files and untagged mp4s. If you disable automatic refreshing this gives the script time to finish and then notifies Plex when everything is done.
+1. Disable automatic refreshing on your Plex server by going to `Settings > Server > Library` and disabling `Update my library automatically` and `Update my library periodically`.
+2. Set `host` and `port` under the Plex section of autoProcess.ini
+3. Set `refresh` to `True`
+
 Manual Script Usage
 --------------
 To run the script manually, simply run the manual.py file and follow the prompts it presents.
