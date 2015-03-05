@@ -40,7 +40,12 @@ label = sys.argv[1].lower()
 categories = [settings.uTorrent['cp'], settings.uTorrent['sb'], settings.uTorrent['sonarr'], settings.uTorrent['sr'], settings.uTorrent['bypass']]
 
 if label not in categories:
-    print "No valid label detected"
+    print "Error, no valid label detected"
+    sys.exit()
+
+if len(categories) != len(set(categories)):
+    print "Error, duplicate category detected. Category names must be unique"
+    print categories
     sys.exit()
 
 # Import requests
