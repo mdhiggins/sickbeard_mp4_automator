@@ -101,12 +101,24 @@ class ReadSettings:
                        'web_root': '',
                        'username': '',
                        'password': '' }
+
+        # Default deluge settings
+        deluge_defaults = {   'couchpotato-label': 'couchpotato',
+                              'sickbeard-label': 'sickbeard',
+                              'sickrage-label': 'sickrage',
+                              'sonarr-label': 'sonarr',
+                              'bypass-label': 'bypass',
+                              'convert': 'True',
+                              'host': 'localhost',
+                              'username': '',
+                              'password': ''}
+
         # Default Plex Settings
         plex_defaults = {'host': 'localhost',
                          'port': '32400', 
                          'refresh': 'true'}
 
-        defaults = {'SickBeard': sb_defaults, 'CouchPotato': cp_defaults, 'Sonarr': sonarr_defaults, 'MP4': mp4_defaults, 'uTorrent': utorrent_defaults, 'SABNZBD': sab_defaults, 'Sickrage': sr_defaults, 'Plex': plex_defaults}
+        defaults = {'SickBeard': sb_defaults, 'CouchPotato': cp_defaults, 'Sonarr': sonarr_defaults, 'MP4': mp4_defaults, 'uTorrent': utorrent_defaults, 'SABNZBD': sab_defaults, 'Sickrage': sr_defaults, 'Deluge': deluge_defaults, 'Plex': plex_defaults}
         write = False  # Will be changed to true if a value is missing from the config file and needs to be written
 
         config = ConfigParser.SafeConfigParser()
@@ -344,6 +356,22 @@ class ReadSettings:
         self.uTorrentHost = config.get(section, "host").lower()
         self.uTorrentUsername = config.get(section, "username")
         self.uTorrentPassword = config.get(section, "password")
+
+        #Read relevant Deluge section information
+        section = "Deluge"
+        self.Deluge = {}
+        self.Deluge['cp'] = config.get(section, "couchpotato-label").lower()
+        self.Deluge['sb'] = config.get(section, "sickbeard-label").lower()
+        self.Deluge['sr'] = config.get(section, "sickrage-label").lower()
+        self.Deluge['sonarr'] = config.get(section, "sonarr-label").lower()
+        self.Deluge['bypass'] = config.get(section, "bypass-label").lower()
+        try:
+            self.Deluge['convert'] = config.getboolean(section, "convert")
+        except:
+            self.Deluge['convert'] = False
+        self.Deluge['host'] = config.get(section, "host").lower()
+        self.Deluge['user'] = config.get(section, "username")
+        self.Deluge['pass'] = config.get(section, "password")
 
         #Read relevant Sonarr section information
         section = "Sonarr"
