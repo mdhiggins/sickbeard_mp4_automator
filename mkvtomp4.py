@@ -248,8 +248,8 @@ class MkvtoMp4:
                         abitrate = a.audio_channels * self.audio_bitrate
                     # Bitrate calculations/overrides
                     if self.audio_bitrate is 0:
-                        abitrate = a.audio_bitrate
-                
+                        abitrate = a.bitrate
+
                 # If the iOSFirst option is enabled, disable the iOS option after the first audio stream is processed
                 if self.iOS and self.iOSFirst:
                     self.iOS = False
