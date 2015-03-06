@@ -141,7 +141,7 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
         sys.exit(POSTPROCESS_NONE)
 
     # Make sure there are no duplicate categories
-    if len(categories) != len(set(categories))
+    if len(categories) != len(set(categories)):
         print "[ERROR] Duplicate category detected. Category names must be unique"
         status = 1
         sys.exit(POSTPROCESS_NONE)
