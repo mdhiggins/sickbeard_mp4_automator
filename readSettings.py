@@ -110,7 +110,7 @@ class ReadSettings:
                               'bypass-label': 'bypass',
                               'convert': 'True',
                               'host': 'localhost',
-                              'port': '58846'
+                              'port': '58846',
                               'username': '',
                               'password': ''}
 
