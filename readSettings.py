@@ -359,19 +359,19 @@ class ReadSettings:
 
         #Read relevant Deluge section information
         section = "Deluge"
-        self.Deluge = {}
-        self.Deluge['cp'] = config.get(section, "couchpotato-label").lower()
-        self.Deluge['sb'] = config.get(section, "sickbeard-label").lower()
-        self.Deluge['sr'] = config.get(section, "sickrage-label").lower()
-        self.Deluge['sonarr'] = config.get(section, "sonarr-label").lower()
-        self.Deluge['bypass'] = config.get(section, "bypass-label").lower()
+        self.deluge = {}
+        self.deluge['cp'] = config.get(section, "couchpotato-label").lower()
+        self.deluge['sb'] = config.get(section, "sickbeard-label").lower()
+        self.deluge['sr'] = config.get(section, "sickrage-label").lower()
+        self.deluge['sonarr'] = config.get(section, "sonarr-label").lower()
+        self.deluge['bypass'] = config.get(section, "bypass-label").lower()
         try:
-            self.Deluge['convert'] = config.getboolean(section, "convert")
+            self.deluge['convert'] = config.getboolean(section, "convert")
         except:
-            self.Deluge['convert'] = False
-        self.Deluge['host'] = config.get(section, "host").lower()
-        self.Deluge['user'] = config.get(section, "username")
-        self.Deluge['pass'] = config.get(section, "password")
+            self.deluge['convert'] = False
+        self.deluge['host'] = config.get(section, "host").lower()
+        self.deluge['user'] = config.get(section, "username")
+        self.deluge['pass'] = config.get(section, "password")
 
         #Read relevant Sonarr section information
         section = "Sonarr"
