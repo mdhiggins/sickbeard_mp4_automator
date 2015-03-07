@@ -110,6 +110,7 @@ class ReadSettings:
                               'bypass-label': 'bypass',
                               'convert': 'True',
                               'host': 'localhost',
+                              'port': '58846'
                               'username': '',
                               'password': ''}
 
@@ -370,6 +371,7 @@ class ReadSettings:
         except:
             self.deluge['convert'] = False
         self.deluge['host'] = config.get(section, "host").lower()
+        self.deluge['port'] = config.get(section, "port")
         self.deluge['user'] = config.get(section, "username")
         self.deluge['pass'] = config.get(section, "password")
 
