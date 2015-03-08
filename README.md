@@ -1,25 +1,29 @@
 MP4 Conversion/Tagging Automation Script.
 ==============
 
-**Automatically converts media files downloaded by various to mp4 files, and tags them with the appropriate metadata from theTVDB or TMDB.**
+**Automatically converts media files downloaded by various programs to mp4 files, and tags them with the appropriate metadata from theTVDB or TMDB.**
 
-Programs currently supported include:
+Works on Windows, OSX, and Linux
+
+Media Managers Supported:
 - Sickbeard
 - SickRage
 - CouchPotato
 - Sonarr (tagging not supported, see below)
+
+Downloaders Supported:
 - SABNZBD
 - NZBGet
 - uTorrent
-
+- Deluge Daemon
 
 Requirements
 --------------
 - Python 2.7 *(Does NOT work with Python 3)*
 - FFMPEG and FFPROBE binaries
-- Some scripts require the python module <i>REQUESTS</i>.
+- Requests module
+- Gevent
 - Python setup_tools
-- Works on Windows, OSX, and Linux (Linux users make sure you're using a build of FFMPEG with the non open-source codecs, see here: https://ffmpeg.org/trac/ffmpeg/wiki/UbuntuCompilationGuide)
 
 Default Settings
 --------------
@@ -27,7 +31,13 @@ Default Settings
 2. Audio - AAC 2.0 with additional AC3 track when source has >2 channels (ex 5.1)
 3. Subtitles - mov_text
 
-General Installation Instructions
+Prerequesite Installation Instructions
+--------------
+- `Setup_tools` - https://pypi.python.org/pypi/setuptools#installation-instructions
+- `Requests` - Run `pip install requests`
+- `Gevent` - Run `pip install gevent`
+
+General MP4 Configuration
 --------------
 1. Rename autoProcess.ini.sample to autoProcess.ini
 2. Set the MP4 variables to your desired output
@@ -62,15 +72,18 @@ General Installation Instructions
 
 Sick Beard Setup
 --------------
-1. Open Sickbeard's config.ini in Sick Beard and set your "extra_scripts" value in the general section to the full path to "python postConversion.py" using double backslashes (C:\\Python27\\python C:\\Scripts\\postConversion.py). Make sure this is done while Sick Beard is not running or it will be reverted. And make sure python is registered as an environment variable/PATH. With the latest version of Sickbeard you must specify the absolute path to the python executable, otherwise you'll get an "Error 2"
+1. Open Sickbeard's config.ini in Sick Beard installation folder
+    - Set "extra_scripts" value in the general section to the full path to "python postConversion.py" using double backslashes 
+        - Example: `C:\\Python27\\python C:\\Scripts\\postConversion.py`
+        - Make sure this is done while Sick Beard is not running or it will be reverted
 2. Set the SickBeard variables in autoProcess.ini under the [Sickbeard] section:
-    - `host` = Sick Beard host address (localhost)
-    - `port` = Sick Beard port (8081)
-    - `ssl` = 0/1
-    - `api_key` = Set this to your Sickbeard API key (options -> general, enable API in Sick Beard to get this key)
-    - `web_root` = Set your Sickbeard webroot
-    - `user` = Username
-    - `password` = Password
+    - `host` - default `localhost` - Sick Beard host address
+    - `port` - default `8081` - Sick Beard port
+    - `ssl` - `0`/`1`
+    - `api_key` - Set this to your Sickbeard API key (options -> general, enable API in Sick Beard to get this key)
+    - `web_root` - Set your Sickbeard webroot
+    - `user` - Username
+    - `password` - Password
 
 SickRage Setup
 --------------
@@ -86,16 +99,15 @@ SickRage Setup
     - `user` = Username
     - `password` = Password
 
-
 Sonarr Setup (Tagging Not Supported)
 --------------
 1. ** YOU MUST INSTALL THE PYTHON REQUESTS LIBRARY ** Run "pip install requests" or "easy_install requests"
 2. Set your Sonarr settings in the autoProcess.ini file
     - `host` = Sonarr host address (localhost)    #Settings/General/Start-Up
     - `port` = Sonarr port (8989)                 #Settings/General/Start-Up
-    - `ssl` = 1 if enabled, 0 if not                #Settings/General/Security
-    - `apikey` = Sonarr API Key (required)       #Settings/General/Security
-    - `web_root` = URL base empty or e.g. /tv #Settings/General/Start-Up
+    - `ssl` = 1 if enabled, 0 if not              #Settings/General/Security
+    - `apikey` = Sonarr API Key (required)        #Settings/General/Security
+    - `web_root` = URL base empty or e.g. /tv     #Settings/General/Start-Up
 2. Browse to the Settings>Download Client tab and enable advanced settings [Show].
 3. Set the {Drone Factory Interval} to 0 to disable it. (NZBGet will trigger a specific path re-scan, allowing the mp4 conversion to be completed before Sonarr starts moving stuff around).
     - Sonarr does not currently support post processing scripts so tagging is not currently supported.
@@ -109,49 +121,128 @@ Couch Potato Setup
     - `api_key` = Couch Potato API Key (required)
     - `username` = your Couch Potato username
     - `password` = your Couch Potato password
-2. Copy the PostProcess directory from the setup folder included with this script to the Couch Potato `custom_plugins` directory. You can find this directory within your Couch Potato setup by opening Couch Potato and navigating to the About page, where the installation directory is displayed. Copy the PostProcess folder (the whole folder, not just the contents) to the Couch Potato `custom_plugins` directory and restart Couch Potato. You should see in the logs that it was loaded. Also you'll need to open up the main.py file and set the path variable to the directory where the script resides, which by default points to `C:\\Scripts\\`. Use double backslashes. If you make any changes here make sure to delete the `.pyc` files and restart Couch Potato.
-3. If you're using one of the post download scripts ([SAB|NZBGet|uTorrent]PostProcess.py), disable automatic checking of the renamer folder, the script will automatically notify Couch Potato when it is complete to check for new videos to be renamed and relocated. Leaving this on may cause conflicts and CouchPotato may try to relocate/rename the file before processing is completed.
+2. Edit `main.py` in the `setup\PostProcess` folder
+    - Set the path variable to the script location
+    - By default it points to `C:\\Scripts\\`
+    - Use double backslahses
+2. Copy the PostProcess directory from the setup folder included with this script to the Couch Potato `custom_plugins` directory
+    - Navigate to the About page in Couch Potato, where the installation directory is displayed.
+    - Go to this folder and copy the PostProcess folder (the whole folder, not just the contents) to the Couch Potato `custom_plugins` directory
+    - Delete any `.pyc` files you find.
+    - Restart Couch Potato
+    - Verify in Couch Potato logs that PostProcess was loaded.
+3. If you're using one of the post download scripts ([SAB|NZBGet|uTorrent|deluge]PostProcess.py), disable automatic checking of the renamer folder, the script will automatically notify Couch Potato when it is complete to check for new videos to be renamed and relocated. Leaving this on may cause conflicts and CouchPotato may try to relocate/rename the file before processing is completed.
     - Set `Run Every` to `0` 
     - If you aren't using one of these scripts and are using an unsupport downloader, you will need to have CouchPotato periodically check the folder for files
-4. Point your Couch Potato videos that are sent to SAB to SABPostProcess.py for post processing with conversion prior to CP begin notified of completion. Similarly use NZBGetPostProcess.py for NZBGet. Make sure you configure your SAB/NZBGet categories so that they match with the categories configured for the script.
+4. Configure Downloaders
+    - In `Settings > Downloaders` configure your labels or categories to match what you have configured in your respective downloader.
 
 NZBGet Setup
 --------------
 1. Copy the script NZBGetPostProcess.py to NZBGet's script folder. (default location is ~/downloads/scripts/)
-2. In NZBGet's web GUI, go to [Settings] and the newly created {NZBGETPOSTPROCESS} option. Fill in the MP4 automator folder path with the full path. (default ~/sickbeard_mp4_automator/) I suggest the full path and requires the trailing backslash "/".
-3. You may change or set your appropriate category names to correspond with the application you wish to send the files to (CouchPotato, Sickbeard, Sonarr, Bypass) in this same settings area. Make sure these categories match. The Bypass category is for those that wish to convert the file without additional post processing.
-4. You may set the `convert` option to enable conversion before the file is passed on to the next step.
-5. Save and reload NZBGet
+2. Start/Restart NZBGet
+3. Configure {NZBGETPOSTPROCESS}
+    - Access NZBGet's WebUI (default `localhost:6789`)
+    - Go to `Settings` 
+    - Select `NZBGETPOSTPROCESS` option at the bottom of the left hand navigation panel and configure the options
+        - `MP4_FOLDER` - default `~/sickbeard_mp4_automator/` - Location of the script. Use full path with trailing backslash.
+        - `SHOULDCONVERT` - `True`/`False` - Convert file before passing to destination
+        - `CP_CAT` - default `couchpotato` - category of downloads that will be passed to CouchPotato
+        - `SONARR_CAT` - default `sonarr` - category of downloads that will be passed to Sonarr
+        - `SICKBEARD_CAT` - default `sickbeard` - category of downloads that will be passed to Sickbeard
+        - `SICKRAGE_CAT` - default `sickrage` - category of downloads that will be passed to Sickrage
+        - `BYPASS_CAT` - default `bypass` - category of downloads that may be converted but won't be passed on further
+    - Save changes
+    - Reload NZBGet
+4. Verify that whatever media manager you are using is assigning the category to match the label settings specified here so that file will be passed back to the appropriate location
 
 SABNZBD Setup
 --------------
-1. Point SABNZBD's script directory to the root directory where you have extract the script.
-2. Make sure your categories are set and match the categories specified in the SABNZBD section of autoProcess.ini. Set the script for each category to `SABPostProcess.py`
-3. Bypass category can be used for users that just want to convert the files without passing them for additional processing
-4. Press save for each category
-5. You may set the `convert` option to enable conversion before the file is passed on to the next step.
+1. Configure `SABNZBD` section of `autoProcess.ini`
+    - `convert` - `True`/`False` - Allows for conversion of files before passing back to the respective download manager.
+    - `sickbeard-category` - default `sickbeard` -  category that will be sent to Sickbeard for additional processing when download is complete
+    - `sickrage-category` - default `sickrage` - category that will be sent to Sickrage for additional processing when download is complete
+    - `couchpotato-category` - default `couchpotato` - category that will be sent to Couch Potato for additional processing when download is complete
+    - `sonarr-category` - default `sonarr` - category that will be sent to Sonarr for additional processing when download is complete
+    - `byapss-category` - default `bypass` - category that should be assigned to torrents that will not be sent anywhere when download is complete. Useful if you wish to convert files without additional processing
+2. Point SABNZBD's script directory to the root directory where you have extract the script.
+3. Configure categories. Categories will determine where the download is sent when it is finished
+    - `Settings > Categories`
+    - Configure `name` to match the settings from the `SABNZBD` section of `autoProcess.ini`
+        - Default `sickbeard`
+        - Default `sickrage`
+        - Default `couchpotato`
+        - Default `sonarr`
+        - Default `bypass`
+    - Select the SABPostProcess.py script
+    - Save EACH category
+4. Verify that whatever media manager you are using is assigning the label to match the label settings specified here so that file will be passed back to the appropriate location
 
 uTorrent Setup
 --------------
-1. ** YOU MUST INSTALL THE PYTHON REQUESTS LIBRARY ** Run "pip install requests" or "easy_install requests"
-2. `uTorrentPostProcess.py` is the file you'll be using here. This script will allow post processing of torrent files with optional conversion and will forward the converted files to either Sickbeard, CouchPotato, Sonarr, or Bypass depending on the corresponding label of the torrent. Bypass is used when only conversion is desired and you don't want to pass the file for further processing.
-3. Enable uTorrent Web UI.
-4. uTorrent must be set up with the following post command options: ```#Args: %L %S %D %K %F %S %I``` Picture: http://i.imgur.com/7eADkCI.png
-5. Set your uTorrent settings in autoProcess.ini
-    - Set `sickbeard-label` `couchpotato-label` and `sonarr-label` to match your appropriate uTorrent label. Files without this corrrect label will be ignored.
-    - Set `webui` to True/False. If True the script can change the state of the torrent.
-    - Set `action_before` to stop/pause or any other action from http://help.utorrent.com/customer/portal/articles/1573952-actions---webapi
-    - Set `action_after` to start/stop/pause/unpause/remove/removedata or any other action from http://help.utorrent.com/customer/portal/articles/1573952-actions---webapi
-    - Set `hostname` to your uTorrent Web UI URL, eg http://localhost:8080/ including the trailing slash.
-    - Set `username` to your uTorrent Web UI username
-    - Set `password` to your uTorrent Web UI password
+1. Verify that you have installed the **Requets library**
+    - `pip install requests`
+2. Launch uTorrent
+3. Set `Run Program` option
+    - Go to `Options > Preferences > Advanced > Run Program`
+    - Point to `uTorrentPostProcess.py` with command line parameters: `%L %S %D %K %F %S %I` in that exact order. 
+    - Reference picture: http://i.imgur.com/7eADkCI.png
+3. Set your uTorrent settings in autoProcess.ini
+    - `convert` - `True`/`False`. Allows for conversion of files before passing back to the respective download manager.
+    - `sickbeard-label` - default `sickbeard` - uTorrent label that should be assigned to torrents that will be sent to Sickbeard for additional processing when download is complete.
+    - `sickrage-label - default `sickrage` - uTorrent label that should be assigned to torrents that will be sent to Sickrage for additional processing when download is complete.
+    - `couchpotato-label` - default `couchpotato` - uTorrent label that should be assigned to torrents that will be sent to Couch Potato for additional processing when download is complete.
+    - `sonarr-label` - default `sonarr` - uTorrent label that should be assigned to torrents that will be sent to Sonarr for additional processing when download is complete.
+    - `bypass-label` - default `bypass` - label that should be assigned to torrents that will not be sent anywhere when download is complete. Useful if you wish to convert files without additional processing.
+    - `webui` - `True`/`False`. If `True` the script can change the state of the torrent.
+    - `action_before` - stop/pause or any other action from http://help.utorrent.com/customer/portal/articles/1573952-actions---webapi
+    - `action_after` - start/stop/pause/unpause/remove/removedata or any other action from http://help.utorrent.com/customer/portal/articles/1573952-actions---webapi
+    - `hostname` - your uTorrent Web UI URL, eg `http://localhost:8080/` including the trailing slash.
+    - `username` - your uTorrent Web UI username.
+    - `password` - your uTorrent Web UI password.
+4. Verify that whatever media manager you are using is assigning the label to match the label settings specified here so that file will be passed back to the appropriate location
+
+Deluge Daemon
+--------------
+1. Verify that you have installed the **Gevent library**
+    - `pip install gevent`
+2. Create username and password for deluge daemon
+    - Navigate to your deluge configuration folder 
+        - `%appdata%\Roaming\Deluge` in Windows
+        - `/var/lib/deluge/.config/deluge/` in Linux
+    - Open the `auth` file
+    - Add a username and password in the format `<username>:<password>:<level>`. Replace <username> and <password> with your choice and level with your desired authentication level. Default level is `10`. Save auth.
+        - Ex: `sampleuser:samplepass:10`
+3. Start/Restart deluged
+    - *deluged* not <i>deluge</i>
+4. Access the WebUI
+    - Default port is `8112`
+    - Default password is `deluge`
+5. Enabled the `Execute` plugin
+    - Add event for `Torrent Complete`
+    - Set path to the full path to `delugePostProcess.py` or `delugePostProcess.bat` for Windows users.
+6. Configure the deluge options in `autoProcess.ini`
+    - `sickbeard-label` - Deluge label that should be assigned to torrents that will be sent to Sickbeard for additional processing when download is complete.
+    - `sickrage-label - Deluge label that should be assigned to torrents that will be sent to Sickrage for additional processing when download is complete.
+    - `couchpotato-label` - Deluge label that should be assigned to torrents that will be sent to Couch Potato for additional processing when download is complete.
+    - `sonarr-label` - Deluge label that should be assigned to torrents that will be sent to Sonarr for additional processing when download is complete.
+    - `bypass-label` - label that should be assigned to torrents that will not be sent anywhere when download is complete. Useful if you wish to convert files without additional processing.
+    - `convert` - `True`/`False`. Allows for conversion of files before passing back to the respective download manager.
+    - `hostname` - your Deluge hostname. Default is `localhost`
+    - `port` - Deluge daemon port. Default is `58846`. Do not confuse this with your WebUI port, which is different.
+    - `username` - your Deluge username that you previously added to the `auth` file.
+    - `password` - your Deluge password that you previously added to the `auth` file.
+7. Verify that whatever downloader you are using is assigning the label to match the label settings specified here so that file will be passed back to the appropriate location
 
 Plex Notification
 --------------
-The script now supports Plex notification as the final step executed by postConversion.py (from Sickbeard) or the PostProcess plugin (from CouchPotato). This feature is important because using Automatic Refresh within plex can flag files as being in use before tagging and QTFastStart have finished their work, leaving behind QTFS files and untagged mp4s. If you disable automatic refreshing this gives the script time to finish and then notifies Plex when everything is done.
-1. Disable automatic refreshing on your Plex server by going to `Settings > Server > Library` and disabling `Update my library automatically` and `Update my library periodically`.
-2. Set `host` and `port` under the Plex section of autoProcess.ini
-3. Set `refresh` to `True`
+Send a Plex notification as the final step when all processing is completed. This feature prevents a file from being flagged as "in use" by Plex before processing has completed.
+1. Disable automatic refreshing on your Plex server
+    - `Settings > Server > Library` and disable `Update my library automatically` and `Update my library periodically`.
+2. Configure autoProcess.ini
+    - `refresh` - `True`/`False` - Enable or disable the feature
+    - `host` - Plex hostname. Default `localhost`
+    - `port` - Plex port. Default `32400`
 
 Manual Script Usage
 --------------
