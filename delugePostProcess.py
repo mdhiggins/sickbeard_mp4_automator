@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
                     datefmt='%m-%d %H:%M',
                     filename=os.path.join(os.path.dirname(sys.argv[0]), "info.log"),
-                    filemode='w')
+                    filemode='a')
 log = logging.getLogger("delugePostProcess")
 log.info("Deluge post processing started.")
 
