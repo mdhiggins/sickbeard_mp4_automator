@@ -91,13 +91,13 @@ SickRage Setup
     - `C:\\Python27\\python.exe C:\\sickbeard_mp4_automator\\postConversion.py`
     - `/usr/bin/python /home/user/sickbeard_mp4_automator/postConversion.py`
 2. Set the Sickrage variables in autoProcess.ini under the [Sickrage] section:
-    - `host` = Sick Beard host address (localhost)
-    - `port` = Sick Beard port (8081)
-    - `ssl` = 0/1
-    - `api_key` = Set this to your Sickbeard API key (options -> general, enable API in Sick Beard to get this key)
-    - `web_root` = Set your Sickbeard webroot
-    - `user` = Username
-    - `password` = Password
+    - `host` - default `localhost` - Sickrage host address (localhost)
+    - `port` - default `8081` Sickrage port
+    - `ssl` - `1` if enabled, `0` if not
+    - `api_key` - Set this to your Sickrage API key
+    - `web_root` - Set your Sickrage webroot
+    - `user` - Username
+    - `password` - Password
 
 Sonarr Setup (Tagging Not Supported)
 --------------
@@ -115,12 +115,12 @@ Sonarr Setup (Tagging Not Supported)
 Couch Potato Setup
 --------------
 1. Set your Couch Potato settings to the autoProcess.ini file
-    - `host` = Couch Potato host address (localhost)
-    - `port` = Couch Potato port (5050)
-    - `ssl` = 1 if enabled, 0 if not
-    - `api_key` = Couch Potato API Key (required)
-    - `username` = your Couch Potato username
-    - `password` = your Couch Potato password
+    - `host` - default `localhost` - Couch Potato host address
+    - `port` - default `5050` - Couch Potato port (5050)
+    - `ssl` - `1` if enabled, `0` if not
+    - `api_key` - Couch Potato API Key
+    - `username` - your Couch Potato username
+    - `password` - your Couch Potato password
 2. Edit `main.py` in the `setup\PostProcess` folder
     - Set the path variable to the script location
     - By default it points to `C:\\Scripts\\`
@@ -139,10 +139,12 @@ Couch Potato Setup
 
 NZBGet Setup
 --------------
-1. Copy the script NZBGetPostProcess.py to NZBGet's script folder. (default location is ~/downloads/scripts/)
+1. Copy the script NZBGetPostProcess.py to NZBGet's script folder. 
+    - Default location is ~/downloads/scripts/
 2. Start/Restart NZBGet
-3. Configure {NZBGETPOSTPROCESS}
-    - Access NZBGet's WebUI (default `localhost:6789`)
+3. Configure NZBGETPOSTPROCESS
+    - Access NZBGet's WebUI
+        - Default `localhost:6789`
     - Go to `Settings` 
     - Select `NZBGETPOSTPROCESS` option at the bottom of the left hand navigation panel and configure the options
         - `MP4_FOLDER` - default `~/sickbeard_mp4_automator/` - Location of the script. Use full path with trailing backslash.
