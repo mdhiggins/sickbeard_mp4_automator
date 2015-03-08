@@ -1,1 +1,1 @@
-python delugePostProcess.py %1 %2 %3
+python "%~dp0delugePostProcess.py" %1 %2 %3
