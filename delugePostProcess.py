@@ -7,13 +7,11 @@ from readSettings import ReadSettings
 from mkvtomp4 import MkvtoMp4
 from deluge import DelugeClient
 import logging
+from logging.config import fileConfig
 
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
-                    datefmt='%m-%d %H:%M',
-                    filename=os.path.join(os.path.dirname(sys.argv[0]), "info.log"),
-                    filemode='a')
+fileConfig(os.path.join(os.path.dirname(sys.argv[0]), 'logging.ini'), defaults={'logfilename': os.path.join(os.path.dirname(sys.argv[0]), 'info.log')})
 log = logging.getLogger("delugePostProcess")
+
 log.info("Deluge post processing started.")
 
 settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
@@ -92,7 +90,7 @@ if (category == categories[0]):
     autoProcessTV.processEpisode(path, settings)
 # Send to CouchPotato        
 elif (category == categories[1]):
-    log.info("Passing %s directory to CouchPotato." % path)
+    log.info("Passing %s directory to Couch Potato." % path)
     autoProcessMovie.process(path, settings)
 # Send to Sonarr
 elif (category == categories[2]):
