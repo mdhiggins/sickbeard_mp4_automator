@@ -53,7 +53,7 @@ sys.path.append(MP4folder)
 try:
     from readSettings import ReadSettings
     from mkvtomp4 import MkvtoMp4
-    from autoprocess import autoProcessMovie, autoProcessTV, autoProcessTVSR
+    from autoprocess import autoProcessMovie, autoProcessTV, autoProcessTVSR, sonarr
 except ImportError:
     pass
     print "[ERROR] Wrong path to sickbeard_mp4_automator: "+os.environ['NZBPO_MP4_FOLDER']
@@ -183,41 +183,11 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
         autoProcessMovie.process(path, settings, nzb, status)
         sys.exit(POSTPROCESS_SUCCESS)
     elif (category.lower() == categories[2]):
-        #DEBUG#print "Sonarr Processing Activated"
-
-        #Exit if missing requests module
-        try:
-            import requests
-        except ImportError:
-            print "[ERROR] Python module REQUESTS is required. Install with 'pip install requests' then try again."
-            sys.exit(POSTPROCESS_ERROR)
-
-        host=settings.Sonarr['host']
-        port=settings.Sonarr['port']
-        apikey = settings.Sonarr['apikey']
-        if apikey == '':
-            print "[WARNING] Your Sonarr API Key can not be blank. Update autoProcess.ini at %s" % MP4folder
-            sys.exit(POSTPROCESS_ERROR)
-        try:
-            ssl=int(settings.Sonarr['ssl'])
-        except:
-            ssl=0
-        if ssl:
-            protocol="https://"
+        success = sonarr.processEpisode(path, settings, True)
+        if success:
+            sys.exit(POSTPROCESS_SUCCESS)
         else:
-            protocol="http://"
-        url = protocol+host+":"+port+"/api/command"
-        payload = {'name': 'downloadedepisodesscan','path': path}
-        print "[INFO] Requesting Sonarr to scan folder '"+path+"'"
-        #headers = {'X-Api-Key': apikey}
-        try:
-            r = requests.post(url, data=json.dumps(payload), headers={'X-Api-Key': apikey})#headers=headers)
-            rstate = r.json()
-            print "[INFO] Sonarr responds as "+rstate['state']+"."
-        except:
-            print "[WARNING] Update to Sonarr failed, check if Sonarr is running, autoProcess.ini for errors, or check install of python modules requests."
             sys.exit(POSTPROCESS_ERROR)
-        sys.exit(POSTPROCESS_SUCCESS)
     elif (category.lower() == categories[3]):
         #DEBUG#print "Sickrage Processing Activated"
         autoProcessTVSR.processEpisode(path, settings, nzb)

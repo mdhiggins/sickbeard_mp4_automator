@@ -2,7 +2,7 @@
 
 import os
 import sys
-from autoprocess import autoProcessTV, autoProcessMovie, autoProcessTVSR
+from autoprocess import autoProcessTV, autoProcessMovie, autoProcessTVSR, sonarr
 from readSettings import ReadSettings
 from mkvtomp4 import MkvtoMp4
 from deluge import DelugeClient
@@ -95,36 +95,7 @@ elif (category == categories[1]):
 # Send to Sonarr
 elif (category == categories[2]):
     log.info("Passing %s directory to Sonarr." % path)
-    # Import requests
-    try:
-        import requests
-    except ImportError:
-        log.exception("Python module REQUESTS is required. Install with 'pip install requests' then try again.")
-        sys.exit()
-
-    host=settings.Sonarr['host']
-    port=settings.Sonarr['port']
-    apikey = settings.Sonarr['apikey']
-    if apikey == '':
-        log.error("Your Sonarr API Key can not be blank. Update autoProcess.ini")
-    try:
-        ssl=int(settings.Sonarr['ssl'])
-    except:
-        ssl=0
-    if ssl:
-        protocol="https://"
-    else:
-        protocol="http://"
-    url = protocol+host+":"+port+"/api/command"
-    payload = {'name': 'downloadedepisodesscan','path': path}
-    log.info("Requesting Sonarr to scan folder '"+path+"'")
-    headers = {'X-Api-Key': apikey}
-    try:
-        r = requests.post(url, data=json.dumps(payload), headers=headers)
-        rstate = r.json()
-        log.info("Sonarr responds as "+rstate['state']+".")
-    except:
-        log.error("Update to Sonarr failed, check if Sonarr is running, autoProcess.ini for errors, or check install of python modules requests.")
+    sonarr.processEpisode(path, settings)
 elif (category == categories[3]):
     log.info("Passing %s directory to Sickrage." % path)
     autoProcessTVSR.processEpisode(path, settings)

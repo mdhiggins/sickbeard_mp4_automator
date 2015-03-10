@@ -2,7 +2,7 @@ import os
 import re
 import sys
 import shutil
-from autoprocess import autoProcessTV, autoProcessMovie, autoProcessTVSR
+from autoprocess import autoProcessTV, autoProcessMovie, autoProcessTVSR, sonarr
 from readSettings import ReadSettings
 from mkvtomp4 import MkvtoMp4
 import logging
@@ -148,33 +148,7 @@ elif label == categories[1]:
     autoProcessTV.processEpisode(path, settings)
 elif label == categories[2]:
     log.info("Passing %s directory to Sonarr." % path)
-    host = settings.Sonarr['host']
-    port = settings.Sonarr['port']
-    apikey = settings.Sonarr['apikey']
-
-    if apikey == '':
-        log.error("Your Sonarr API Key can not be blank. Update autoProcess.ini.")
-        sys.exit()
-
-    try:
-        ssl = int(settings.Sonarr['ssl'])
-    except:
-        ssl = 0
-    if ssl:
-        protocol = "https://"
-    else:
-        protocol = "http://"
-    url = protocol+host+":"+port+"/api/command"
-    log.debug("Generated Sonarr URL %s" % url)
-    payload = {'name': 'downloadedepisodesscan','path': path}
-    headers = {'X-Api-Key': apikey}
-    try:
-        r = requests.post(url, data=json.dumps(payload), headers=headers)
-        rstate = r.json()
-        log.info("Sonarr responds as "+rstate['state']+".")
-    except:
-        log.exception("Update to Sonarr failed, check if Sonarr is running, autoProcess.ini for errors, or check install of python modules requests.")
-        sys.exit()
+    sonarr.processEpisode(path, settings)
 elif label == categories[3]:
     log.info("Passing %s directory to Sickrage." % path)
     autoProcessTVSR.processEpisode(path, settings)
