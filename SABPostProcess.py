@@ -5,6 +5,17 @@ import sys
 from autoprocess import autoProcessTV, autoProcessMovie, autoProcessTVSR
 from readSettings import ReadSettings
 from mkvtomp4 import MkvtoMp4
+import logging
+from logging.config import fileConfig
+
+fileConfig(os.path.join(os.path.dirname(sys.argv[0]), 'logging.ini'), defaults={'logfilename': os.path.join(os.path.dirname(sys.argv[0]), 'info.log')})
+log = logging.getLogger("SABPostProcess")
+
+log.info("SAB post processing started.")
+
+if len(sys.argv) < 8:
+    log.error("Not enough command line parameters specified. Is this being called from SAB?")
+    sys.exit()
 
 # SABnzbd argv:
 # 1 The final directory of the job (full path)
@@ -18,67 +29,64 @@ from mkvtomp4 import MkvtoMp4
 settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
 categories = [settings.SAB['sb'], settings.SAB['cp'], settings.SAB['sonarr'], settings.SAB['sr'], settings.SAB['bypass']]
 category = str(sys.argv[5]).lower()
-
-if category.lower() not in categories:
-    print "Error, no valid category detected"
-    print "Category '%s' not in:" % category
-    print categories
-    sys.exit()
-
-if len(categories) != len(set(categories)):
-    print "Error, duplicate category detected. Category names must be unique"
-    print categories
-    sys.exit()
-
 path = str(sys.argv[1])
 nzb = str(sys.argv[2])
 
+log.debug("Path: %s." % path)
+log.debug("Category: %s." % category)
+log.debug("Categories: %s." % categories)
+log.debug("NZB: %s." % nzb)
+
+if category.lower() not in categories:
+    log.error("No valid category detected.")
+    sys.exit()
+
+if len(categories) != len(set(categories)):
+    log.error("Duplicate category detected. Category names must be unique.")
+    sys.exit()
+
 if settings.SAB['convert']:
-    print "Converting before passing"
+    log.info("Performing conversion")
     converter = MkvtoMp4(settings)
     converter.output_dir = None
     for r, d, f in os.walk(path):
         for files in f:
             inputfile = os.path.join(r, files)
             if MkvtoMp4(settings).validSource(inputfile):
-                try:
-                	print "Valid file detected: " + inputfile
-                except:
-                	print "Valid file detected"
+                log.info("Processing file %s." % inputfile)
                 converter.process(inputfile)
+            else:
+                log.debug("Ignoring file %s." % inputfile)
 else:
-    print "Passing without conversion"
+    log.info("Passing without conversion.")
 
 # Send to Sickbeard
 if (category == categories[0]):
-    print "Passing to Sickbeard"
-    if len(sys.argv) < 2:
-        print "No folder supplied - is this being called from SABnzbd?"
-        sys.exit()
-    elif len(sys.argv) >= 3:
-        autoProcessTV.processEpisode(path, settings, nzb)
-    else:
-        autoProcessTV.processEpisode(path, settings)
+    log.info("Passing %s directory to Sickbeard." % path)
+    autoProcessTV.processEpisode(path, settings, nzb)
 
 # Send to CouchPotato        
 elif (category == categories[1]):
-    print "Passing to CouchPotato"
+    log.info("Passing %s directory to Couch Potato." % path)
     autoProcessMovie.process(path, settings, nzb, sys.argv[7])
 # Send to Sonarr
 elif (category == categories[2]):
-    print "Passing to Sonarr"
+    log.info("Passing %s directory to Sonarr." % path)
     # Import requests
     try:
         import requests
     except ImportError:
-        print "[ERROR] Python module REQUESTS is required. Install with 'pip install requests' then try again."
+        log.exception("Python module REQUESTS is required. Install with 'pip install requests' then try again.")
         sys.exit()
 
     host=settings.Sonarr['host']
     port=settings.Sonarr['port']
     apikey = settings.Sonarr['apikey']
+
     if apikey == '':
-        print "[WARNING] Your Sonarr API Key can not be blank. Update autoProcess.ini"
+        log.error("Your Sonarr API Key can not be blank. Update autoProcess.ini.")
+        sys.exit()
+
     try:
         ssl=int(settings.Sonarr['ssl'])
     except:
@@ -89,23 +97,18 @@ elif (category == categories[2]):
         protocol="http://"
     url = protocol+host+":"+port+"/api/command"
     payload = {'name': 'downloadedepisodesscan','path': path}
-    print "[INFO] Requesting Sonarr to scan folder '"+path+"'"
+    log.info("Requesting Sonarr to scan folder '"+path+"'")
     headers = {'X-Api-Key': apikey}
     try:
         r = requests.post(url, data=json.dumps(payload), headers=headers)
         rstate = r.json()
-        print "[INFO] Sonarr responds as "+rstate['state']+"."
+        log.info("Sonarr responds as "+rstate['state']+".")
     except:
-        print "[WARNING] Update to Sonarr failed, check if Sonarr is running, autoProcess.ini for errors, or check install of python modules requests."
+        log.error("Update to Sonarr failed, check if Sonarr is running, autoProcess.ini for errors, or check install of python modules requests.")
 elif (category == categories[3]):
-    print "Passing to Sickrage"
-    if len(sys.argv) < 2:
-        print "No folder supplied - is this being called from SABnzbd?"
-        sys.exit()
-    elif len(sys.argv) >= 3:
-        autoProcessTVSR.processEpisode(path, settings, nzb)
-    else:
-        autoProcessTVSR.processEpisode(path, settings)
+    log.info("Passing %s directory to Sickrage." % path)
+    autoProcessTVSR.processEpisode(path, settings, nzb)
+# Bypass
 elif (category == categories[4]):
-    print "Bypassing any further processing as per category"
+    log.info("Bypassing any further processing as per category.")
     
