@@ -20,7 +20,6 @@
 import sys
 import urllib
 import os.path
-import ConfigParser
 
 class AuthURLOpener(urllib.FancyURLopener):
     def __init__(self, user, pw):
@@ -49,12 +48,12 @@ def processEpisode(dirName, settings, nzbName=None):
     password = settings.Sickbeard['pass']
     try:
         ssl = int(settings.Sickbeard['ssl'])
-    except (ConfigParser.NoOptionError, ValueError):
+    except:
         ssl = 0
     
     try:
         web_root = settings.Sickbeard['web_root']
-    except ConfigParser.NoOptionError:
+    except:
         web_root = ""
     
     params = {}
