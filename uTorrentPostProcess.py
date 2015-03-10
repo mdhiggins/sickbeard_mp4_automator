@@ -151,9 +151,11 @@ elif label == categories[2]:
     host = settings.Sonarr['host']
     port = settings.Sonarr['port']
     apikey = settings.Sonarr['apikey']
+
     if apikey == '':
         log.error("Your Sonarr API Key can not be blank. Update autoProcess.ini.")
         sys.exit()
+
     try:
         ssl = int(settings.Sonarr['ssl'])
     except:
