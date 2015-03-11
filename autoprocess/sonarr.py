@@ -49,14 +49,14 @@ def processEpisode(dirName, settings, nzbGet=False):
     log.debug("Sonarr port: %s." % port)
     log.debug("Sonarr apikey: %s." % apikey)
     log.debug("Sonarr protocol: %s." % protocol)
-    log.debug("URL '%s' with payload '%s.'" % url, payload)
+    log.debug("URL '%s' with payload '%s.'" % (url, payload))
 
-    log.info("%sRequesting Sonarr to scan directory '%s'." % infoprefix, dirName)
+    log.info("%sRequesting Sonarr to scan directory '%s'." % (infoprefix, dirName))
 
     try:
         r = requests.post(url, data=json.dumps(payload), headers=headers)
         rstate = r.json()
-        log.info("%sSonarr response: %s." % infoprefix, rstate['state'])
+        log.info("%sSonarr response: %s." % (infoprefix, rstate['state']))
         return True
     except:
         log.exception("%sUpdate to Sonarr failed, check if Sonarr is running, autoProcess.ini for errors, or check install of python modules requests." % errorprefix)
