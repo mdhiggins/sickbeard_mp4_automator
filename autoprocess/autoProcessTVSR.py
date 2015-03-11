@@ -8,26 +8,29 @@ from __future__ import with_statement
 
 import os.path
 import sys
+import logging
 
 sys.path.insert(1, os.path.abspath(os.path.join(os.path.dirname(__file__), 'lib')))
 
-try:
-    import requests
-except ImportError:
-    print ("You need to install python requests library")
-    sys.exit(1)
-
-# Try importing Python 2 modules using new names
-try:
-    import urllib2
-    from urllib import urlencode
-
-# On error import Python 3 modules
-except ImportError:
-    import urllib.request as urllib2
-    from urllib.parse import urlencode
-
 def processEpisode(dir_to_process, settings, org_NZB_name=None, status=None):
+
+    log = logging.getLogger(__name__)
+
+    try:
+        import requests
+    except ImportError:
+        log.exception("You need to install python requests library.")
+        sys.exit(1)
+
+    # Try importing Python 2 modules using new names
+    try:
+        import urllib2
+        from urllib import urlencode
+    # On error import Python 3 modules
+    except ImportError:
+        import urllib.request as urllib2
+        from urllib.parse import urlencode
+
     host = settings.Sickrage['host']
     port = settings.Sickrage['port']
     username = settings.Sickrage['user']
@@ -66,7 +69,16 @@ def processEpisode(dir_to_process, settings, org_NZB_name=None, status=None):
     url = protocol + host + ":" + port + web_root + "home/postprocess/processEpisode"
     login_url = protocol + host + ":" + port + web_root + "login"
 
-    print ("Opening URL: " + url)
+    log.debug('Host: %s.' % host)
+    log.debug('Port: %s.' % port)
+    log.debug('Username: %s.' % username)
+    log.debug('Password: %s.' % password)
+    log.debug('Protocol: %s.' % protocol)
+    log.debug('Web Root: %s.' % web_root)
+    log.debug('URL: %s.' % url)
+    log.debug('Login URL: %s.' % login_url)
+
+    log.info("Opening URL: %s." % url)
 
     try:
         sess = requests.Session()
@@ -75,15 +87,14 @@ def processEpisode(dir_to_process, settings, org_NZB_name=None, status=None):
 
         for line in result.iter_lines():
             if line:
-                print (line.strip())
+                log.info(line.strip())
 
     except IOError:
         e = sys.exc_info()[1]
-        print ("Unable to open URL: " + str(e))
+        log.exception("Unable to open URL: %s." % str(e))
         sys.exit(1)
 
 
 if __name__ == "__main__":
-    print ("This module is supposed to be used as import in other scripts and not run standalone.")
-    print ("Use sabToSickBeard instead.")
+    log.error("This module is supposed to be used as import in other scripts and not run standalone.")
     sys.exit(1)

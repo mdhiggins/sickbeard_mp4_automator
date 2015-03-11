@@ -20,6 +20,7 @@
 import sys
 import urllib
 import os.path
+import logging
 
 class AuthURLOpener(urllib.FancyURLopener):
     def __init__(self, user, pw):
@@ -42,6 +43,8 @@ class AuthURLOpener(urllib.FancyURLopener):
 
 def processEpisode(dirName, settings, nzbName=None):
     
+    log = logging.getLogger(__name__)
+
     host = settings.Sickbeard['host']
     port = settings.Sickbeard['port']
     username = settings.Sickbeard['user']
@@ -63,7 +66,7 @@ def processEpisode(dirName, settings, nzbName=None):
     params['dir'] = dirName
     if nzbName != None:
         params['nzbName'] = nzbName
-        
+
     myOpener = AuthURLOpener(username, password)
     
     if ssl:
@@ -73,15 +76,23 @@ def processEpisode(dirName, settings, nzbName=None):
 
     url = protocol + host + ":" + port + web_root + "/home/postprocess/processEpisode?" + urllib.urlencode(params)
     
-    print "Opening URL:", url
+    log.debug('Host: %s.' % host)
+    log.debug('Port: %s.' % port)
+    log.debug('Username: %s.' % username)
+    log.debug('Password: %s.' % password)
+    log.debug('Protocol: %s.' % protocol)
+    log.debug('Web Root: %s.' % web_root)
+    log.debug('URL: %s.' % url)
+
+    log.info("Opening URL: %s." % url)
     
     try:
         urlObj = myOpener.openit(url)
     except IOError, e:
-        print "Unable to open URL: ", str(e)
+        log.exception("Unable to open URL: %s." % str(e))
         sys.exit(1)
     
     result = urlObj.readlines()
     for line in result:
-        print line
+        log.info(line)
         
