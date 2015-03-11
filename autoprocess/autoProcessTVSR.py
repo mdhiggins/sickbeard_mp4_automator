@@ -93,8 +93,3 @@ def processEpisode(dir_to_process, settings, org_NZB_name=None, status=None):
         e = sys.exc_info()[1]
         log.exception("Unable to open URL: %s." % str(e))
         sys.exit(1)
-
-
-if __name__ == "__main__":
-    log.error("This module is supposed to be used as import in other scripts and not run standalone.")
-    sys.exit(1)
