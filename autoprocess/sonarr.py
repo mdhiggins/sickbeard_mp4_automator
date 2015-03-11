@@ -12,7 +12,7 @@ def processEpisode(dirName, settings, nzbGet=False):
         errorprefix = ""
         infoprefix = ""
 
-    fileConfig(os.path.join(os.path.dirname(sys.argv[0]), 'logging.ini'), defaults={'logfilename': os.path.join(os.path.dirname(sys.argv[0]), 'info.log')})
+    #fileConfig(os.path.join(os.path.dirname(sys.argv[0]), 'logging.ini'), defaults={'logfilename': os.path.join(os.path.dirname(sys.argv[0]), 'info.log')})
     log = logging.getLogger(__name__)
 
     log.info("%sSonarr notifier started." % infoprefix)
