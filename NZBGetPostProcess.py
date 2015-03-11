@@ -54,10 +54,20 @@ try:
     from readSettings import ReadSettings
     from mkvtomp4 import MkvtoMp4
     from autoprocess import autoProcessMovie, autoProcessTV, autoProcessTVSR, sonarr
+    import logging
+    from logging.config import fileConfig
 except ImportError:
     pass
     print "[ERROR] Wrong path to sickbeard_mp4_automator: "+os.environ['NZBPO_MP4_FOLDER']
     sys.exit(0)
+
+# Setup Logging
+try:
+    fileConfig(os.path.join(MP4folder, 'logging.ini'), defaults={'logfilename': os.path.join(MP4folder, 'info.log')})
+    log = logging.getLogger("NZBGetPostProcess")
+except:
+    #DEBUG#print "Error setting up logging."
+    pass
 
 #Determine if conversion will take place
 shouldConvert = (os.environ['NZBPO_SHOULDCONVERT'].lower() in ("yes", "true", "t", "1"))
@@ -68,7 +78,7 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
     path = os.environ['NZBPP_DIRECTORY'] # Path to NZB directory
     nzb = os.environ['NZBPP_NZBFILENAME'] # Original NZB name
     category = os.environ['NZBPP_CATEGORY'] # NZB Category to determine destination
-    #DEBUG#print "Category is %s" % category
+    #DEBUG#print "Category is %s." % category
     
     couchcat = os.environ['NZBPO_CP_CAT'].lower()
     sonarrcat = os.environ['NZBPO_SONARR_CAT'].lower()
