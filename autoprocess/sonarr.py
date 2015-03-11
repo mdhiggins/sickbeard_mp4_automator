@@ -1,7 +1,7 @@
 import sys
 import os
 import logging
-from logging.config import fileConfig
+#from logging.config import fileConfig
 
 def processEpisode(dirName, settings, nzbGet=False):
 
