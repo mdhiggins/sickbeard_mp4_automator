@@ -101,5 +101,5 @@ def processEpisode(dirName, settings, nzbName=None):
             lastline = line.strip()
 
     if lastline:
-        log.info(lastline))
+        log.info(lastline)
         
