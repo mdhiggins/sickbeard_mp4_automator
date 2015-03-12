@@ -84,10 +84,15 @@ def processEpisode(dir_to_process, settings, org_NZB_name=None, status=None):
         sess = requests.Session()
         sess.post(login_url, data={'username': username, 'password': password}, stream=True, verify=False)
         result = sess.get(url, params=params, stream=True, verify=False)
-
+        lastline = None
+        
         for line in result.iter_lines():
             if line:
-                log.info(line.strip())
+                log.debug(line.strip())
+                lastline = line.strip()
+
+        if lastline:
+            log.info(lastline)
 
     except IOError:
         e = sys.exc_info()[1]

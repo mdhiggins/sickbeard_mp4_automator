@@ -89,10 +89,17 @@ def processEpisode(dirName, settings, nzbName=None):
     try:
         urlObj = myOpener.openit(url)
     except IOError, e:
-        log.exception("Unable to open URL: %s." % str(e))
+        log.exception("Unable to open URL")
         sys.exit(1)
     
     result = urlObj.readlines()
+    lastline = None
+
     for line in result:
-        log.info(line)
+        if line:
+            log.debug(line.strip())
+            lastline = line.strip()
+
+    if lastline:
+        log.info(lastline))
         
