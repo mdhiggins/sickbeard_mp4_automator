@@ -7,6 +7,7 @@ import locale
 import glob
 import argparse
 import struct
+import logging
 from readSettings import ReadSettings
 from tvdb_mp4 import Tvdb_mp4
 from tmdb_mp4 import tmdb_mp4
@@ -14,9 +15,14 @@ from mkvtomp4 import MkvtoMp4
 from tvdb_api import tvdb_api
 from tmdb_api import tmdb
 from extensions import tmdb_api_key
+from logging.config import fileConfig
+
+fileConfig(os.path.join(os.path.dirname(sys.argv[0]), 'logging.ini'), defaults={'logfilename': os.path.join(os.path.dirname(sys.argv[0]), 'info.log')})
+log = logging.getLogger("MANUAL")
 
 settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
 
+log.info("Manual processor started.")
 
 def mediatype():
     print "Select media type:"
@@ -183,8 +189,8 @@ def processFile(inputfile, tagdata, relativePath=None):
         inputfile = inputfile.encode(locale.getpreferredencoding())
     except: 
         raise Exception, "File contains an unknown character that cannot be handled by under Python in your operating system, please rename the file"
-    if MkvtoMp4(settings).validSource(inputfile):
-        converter = MkvtoMp4(settings)
+    if MkvtoMp4(settings, logger=log).validSource(inputfile):
+        converter = MkvtoMp4(settings, logger=log)
         output = converter.process(inputfile, True)
         if tagmp4 is not None:
             try:
@@ -204,7 +210,7 @@ def walkDir(dir, silent=False, preserveRelative=False, tvdbid=None):
             filepath = os.path.join(r, file)
             relative = os.path.split(os.path.relpath(filepath , dir))[0] if preserveRelative else None
             try:
-                if MkvtoMp4(settings).validSource(filepath):
+                if MkvtoMp4(settings, logger=log).validSource(filepath):
                     try:
                         print "Processing file %s" % (filepath.encode(sys.stdout.encoding, errors='ignore'))
                     except:
@@ -239,6 +245,8 @@ def main():
     #Setup the silent mode
     silent = args['auto']
 
+    print ("%sbit Python." % (struct.calcsize("P") * 8))
+
     #Settings overrides
     if (args['nomove']):
         settings.output_dir = None
@@ -254,8 +262,6 @@ def main():
         settings.processMP4 = True
         print "Reprocessing of MP4 files enabled"
 
-    print struct.calcsize("P") * 8
-
     #Establish the path we will be working with
     if (args['input']):
         path = str(args['input']).decode(locale.getpreferredencoding())
@@ -269,7 +275,7 @@ def main():
     if os.path.isdir(path):
         tvdbid = int(args['tvdbid']) if args['tvdbid'] else None
         walkDir(path, silent, tvdbid=tvdbid, preserveRelative=args['preserveRelative'])
-    elif (os.path.isfile(path) and MkvtoMp4(settings).validSource(path)):
+    elif (os.path.isfile(path) and MkvtoMp4(settings, logger=log).validSource(path)):
         if (args['tvdbid'] and not (args['imdbid'] or args['tmdbid'])):
             tvdbid = int(args['tvdbid']) if args['tvdbid'] else None
             season = int(args['season']) if args['season'] else None
