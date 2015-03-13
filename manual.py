@@ -19,6 +19,9 @@ from logging.config import fileConfig
 
 fileConfig(os.path.join(os.path.dirname(sys.argv[0]), 'logging.ini'), defaults={'logfilename': os.path.join(os.path.dirname(sys.argv[0]), 'info.log')})
 log = logging.getLogger("MANUAL")
+logging.getLogger("subliminal").setLevel(logging.WARNING)
+logging.getLogger("requests").setLevel(logging.WARNING)
+logging.getLogger("enzyme").setLevel(logging.WARNING)
 
 settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
 
