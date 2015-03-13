@@ -187,7 +187,7 @@ uTorrent Setup
 2. Launch uTorrent
 3. Set `Run Program` option
     - Go to `Options > Preferences > Advanced > Run Program`
-    - Point to `uTorrentPostProcess.py` with command line parameters: `%L %S %D %K %F %S %I` in that exact order. 
+    - Point to `uTorrentPostProcess.py` with command line parameters: `%L %T %D %K %F %I` in that exact order. 
     - Reference picture: http://i.imgur.com/7eADkCI.png
 3. Set your uTorrent settings in autoProcess.ini
     - `convert` - `True`/`False`. Allows for conversion of files before passing back to the respective download manager.
