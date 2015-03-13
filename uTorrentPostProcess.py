@@ -41,9 +41,10 @@ def _sendRequest(session, host='http://localhost:8080/', username=None, password
     log.error("Problem sending command " + fnct + ", return code = " + str(response.status_code) + ".")
     return False
 
-if len(sys.argv) < 7:
+if len(sys.argv) < 6:
     log.error("Not enough command line parameters present, are you launching this from uTorrent?")
     log.error("#Args: %L %T %D %K %F %I Label, Tracker, Directory, single|multi, NameofFile(if single), InfoHash")
+    log.error("Length was %s" % str(len(sys.argv)))
     sys.exit()
 
 settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
