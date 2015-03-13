@@ -182,7 +182,7 @@ SABNZBD Setup
 
 uTorrent Setup
 --------------
-1. Verify that you have installed the **Requets library**
+1. Verify that you have installed the **Requests library**
     - `pip install requests`
 2. Launch uTorrent
 3. Set `Run Program` option
