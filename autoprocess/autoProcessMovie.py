@@ -26,9 +26,13 @@ class AuthURLOpener(urllib.FancyURLopener):
         return urllib.FancyURLopener.open(self, url)
 
 
-def process(dirName, settings, nzbName=None, status=0):
+def process(dirName, settings, nzbName=None, status=0, logger=None):
 
-    log = logging.getLogger(__name__)
+    # Setup logging
+    if logger:
+        log = logger
+    else:
+        log = logging.getLogger(__name__)
 
     status = int(status)
 

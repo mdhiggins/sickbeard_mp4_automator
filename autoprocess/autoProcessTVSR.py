@@ -12,9 +12,13 @@ import logging
 
 sys.path.insert(1, os.path.abspath(os.path.join(os.path.dirname(__file__), 'lib')))
 
-def processEpisode(dir_to_process, settings, org_NZB_name=None, status=None):
+def processEpisode(dir_to_process, settings, org_NZB_name=None, status=None, logger=None):
 
-    log = logging.getLogger(__name__)
+    # Setup logging
+    if logger:
+        log = logger
+    else:
+        log = logging.getLogger(__name__)
 
     try:
         import requests

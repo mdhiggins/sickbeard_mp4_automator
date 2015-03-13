@@ -4,7 +4,7 @@ import logging
 import json
 #from logging.config import fileConfig
 
-def processEpisode(dirName, settings, nzbGet=False):
+def processEpisode(dirName, settings, nzbGet=False, logger=None):
 
     if nzbGet:
         errorprefix = "[ERROR] "
@@ -13,8 +13,11 @@ def processEpisode(dirName, settings, nzbGet=False):
         errorprefix = ""
         infoprefix = ""
 
-    #fileConfig(os.path.join(os.path.dirname(sys.argv[0]), 'logging.ini'), defaults={'logfilename': os.path.join(os.path.dirname(sys.argv[0]), 'info.log')})
-    log = logging.getLogger(__name__)
+    # Setup logging
+    if logger:
+        log = logger    
+    else:
+        log = logging.getLogger(__name__)
 
     log.info("%sSonarr notifier started." % infoprefix)
 
