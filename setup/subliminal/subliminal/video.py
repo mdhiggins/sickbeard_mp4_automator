@@ -59,10 +59,13 @@ class Video(object):
 
     @classmethod
     def fromguess(cls, name, guess):
-        if guess['type'] == 'episode':
-            return Episode.fromguess(name, guess)
-        if guess['type'] == 'movie':
-            return Movie.fromguess(name, guess)
+        try:
+            if guess['type'] == 'episode':
+                return Episode.fromguess(name, guess)
+            if guess['type'] == 'movie':
+                return Movie.fromguess(name, guess)
+        except:
+            pass
         raise ValueError('The guess must be an episode or a movie guess')
 
     @classmethod
