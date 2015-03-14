@@ -560,17 +560,17 @@ class MkvtoMp4:
                 os.makedirs(moveto)
             try:
                 shutil.move(inputfile, moveto)
-                self.log.info("%s moved to %s" % (moveto))
+                self.log.info("%s moved to %s" % (inputfile, moveto))
             except UnicodeDecodeError:
                 self.log.info("File moved.")
             except Exception as e:
                 try:
                     shutil.move(inputfile.decode(sys.getfilesystemencoding()), moveto)
-                    self.log.info("%s moved to %s" % (moveto))
+                    self.log.info("%s moved to %s" % (inputfile, moveto))
                 except UnicodeDecodeError:
                     self.log.info("File moved.")
                 except Exception as e:
-                    self.log.exception("Unable to move file to %s" % (moveto))
+                    self.log.exception("Unable to move %s to %s" % (inputfile, moveto))
 
     # Robust file removal function, with options to retry in the event the file is in use, and replace a deleted file
     def removeFile(self, filename, retries=2, delay=10, replacement=None):
