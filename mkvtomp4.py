@@ -126,17 +126,29 @@ class MkvtoMp4:
 
         if self.needProcessing(inputfile):
             options = self.generateOptions(inputfile, original=original)
+            
             try:
-                if reportProgress: print json.dumps(options, sort_keys=False, indent=4)
+                if reportProgress: 
+                    self.log.info(json.dumps(options, sort_keys=False, indent=4))
+                else:
+                    self.log.debug(json.dumps(options, sort_keys=False, indent=4))
             except:
-                pass
+                self.log.exception("Unable to log options.")
+
             outputfile, inputfile = self.convert(inputfile, options, reportProgress)
-            if not outputfile: return False
+
+            if not outputfile: 
+                self.log.debug("Error converting, no outputfile present.")
+                return False
+
+            self.log.debug("%s created from %s successfully." % (outputfile, inputfile))
+
         else:
             outputfile = inputfile
             if self.output_dir is not None:
                 try:                
                     outputfile = os.path.join(self.output_dir, os.path.split(inputfile)[1])
+                    self.log.debug("Outputfile set to %s." % outputfile)
                     shutil.copy(inputfile, outputfile)
                 except Exception as e:
                     self.log.exception("Error moving file to output directory.")
@@ -145,21 +157,19 @@ class MkvtoMp4:
                 delete = False
 
         if delete:
+            self.log.debug("Attempting to remove %s." % inputfile)
             if self.removeFile(inputfile):
-                try:
-                    self.log.debug("%s deleted." % inputfile)
-                except:
-                    self.log.debug("Original file deleted.")
+                self.log.debug("%s deleted." % inputfile)
                 deleted = True
             else:
-                self.log.error("Couldn't delete the original file: %s." % inputfile)
+                self.log.error("Couldn't delete %s." % inputfile)
         if self.downloadsubs:
             for subfile in self.deletesubs:
+                self.log.debug("Attempting to remove subtitle %s." % subfile)
                 if self.removeFile(subfile):
-                    try:
-                        self.log.debug("Subtitle %s deleted." % subfile)
-                    except:
-                        self.log.debug("Subtitle file deleted.")
+                    self.log.debug("Subtitle %s deleted." % subfile)
+                else:
+                    self.log.debug("Unable to delete subtitle %s." % subfile)
 
         dim = self.getDimensions(outputfile)
 
@@ -198,6 +208,7 @@ class MkvtoMp4:
         
         self.log.debug("Height: %s" % info.video.video_height)
         self.log.debug("Width: %s" % info.video.video_width)
+
         return { 'y': info.video.video_height,
                  'x': info.video.video_width }
 
@@ -219,6 +230,9 @@ class MkvtoMp4:
         else:
             vcodec = 'copy' if info.video.codec.lower() in self.video_codec else self.video_codec[0]
             vbitrate = info.format.bitrate
+
+        self.log.debug("Video codec: %s" % vcodec)
+        self.log.debug("Video bitrate: %s" % vbitrate)
 
         #Audio streams
         self.log.info("Reading audio streams.")
@@ -243,7 +257,7 @@ class MkvtoMp4:
                 # Create iOS friendly audio stream if the default audio stream has too many channels (iOS only likes AAC stereo)
                 if self.iOS:
                     if a.audio_channels > 2:
-                        self.log.info("Creating audio stream %s from source audio stream %s because iOS option is True." % (str(l), a.index))
+                        self.log.info("Creating audio stream %s from source audio stream %s [iOS-audio]." % (str(l), a.index))
                         self.log.debug("Audio codec: %s." % self.iOS)
                         self.log.debug("Channels: 2.")
                         self.log.debug("Bitrate: 256.")
@@ -259,7 +273,7 @@ class MkvtoMp4:
                 # If the iOS audio option is enabled and the source audio channel is only stereo, the additional iOS channel will be skipped and a single AAC 2.0 channel will be made regardless of codec preference to avoid multiple stereo channels
                 self.log.info("Creating audio stream %s from source audio stream %s." % (str(l), a.index))
                 if self.iOS and a.audio_channels <= 2:
-                    self.log.debug("Overriding default channel settings because iOS audio is enabled but the source is stereo. Transferring iOS-style settings.")
+                    self.log.debug("Overriding default channel settings because iOS audio is enabled but the source is stereo [iOS-audio].")
                     acodec = 'copy' if a.codec == self.iOS else self.iOS
                     audio_channels = a.audio_channels
                     abitrate = a.audio_channels * 128
@@ -353,10 +367,7 @@ class MkvtoMp4:
                     for timecode in conv:
                             pass
 
-                    try:
-                        self.log.info("%s created." % outputfile)
-                    except:
-                        print "Subtitle file created"
+                    self.log.info("%s created." % outputfile)
 
         # Attempt to download subtitles if they are missing using subliminal
         languages = set()
@@ -402,12 +413,11 @@ class MkvtoMp4:
                                 pass
                         # If subtitle file name and input video name are the same, proceed
                         if x == filename:
-                            self.log.info("External subtitle file detected [%s]." % lang)
+                            self.log.info("External %s subtitle file detected." % lang)
                             if self.swl is None or lang in self.swl:
-                                try:
-                                    self.log.info("Creating subtitle stream %s by importing %s." % (l, fname))
-                                except:
-                                    self.log.info("Creating subtitle stream %s by importing external file." & l)
+                                
+                                self.log.info("Creating subtitle stream %s by importing %s." % (l, fname))
+                                
                                 subtitle_settings.update({l: {
                                     'path': os.path.join(dirName, fname),
                                     'source': src,
@@ -481,15 +491,14 @@ class MkvtoMp4:
             if reportProgress:
                 sys.stdout.write('[{0}] {1}%\r'.format('#' * (timecode / 10) + ' ' * (10 - (timecode / 10)), timecode))
                 sys.stdout.flush()
-        try:
-            self.log.info("%s created." % outputfile)
-        except:
-            self.log.info("New media file created.")
+
+        self.log.info("%s created." % outputfile)
         
         try:
             os.chmod(outputfile, self.permissions) # Set permissions of newly created file
         except:
             self.log.exception("Unable to set new file permissions.")
+
         return outputfile, inputfile
 
     # Break apart a file path into the directory, filename, and extension
@@ -542,14 +551,10 @@ class MkvtoMp4:
                 try:
                     shutil.copy(inputfile, d)
                     self.log.info("%s copied to %s." % (inputfile, d))
-                except UnicodeDecodeError:
-                    self.log.info("File copied.")
                 except Exception as e:
                     try:
                         shutil.copy(inputfile.decode(sys.getfilesystemencoding()), d)
                         self.log.info("%s copied to %s." % (inputfile, d))
-                    except UnicodeDecodeError:
-                        self.log.info("File copied.")
                     except Exception as e:
                         self.log.exception("Unable to create additional copy of file in %s." % (d))
 
@@ -561,14 +566,10 @@ class MkvtoMp4:
             try:
                 shutil.move(inputfile, moveto)
                 self.log.info("%s moved to %s" % (inputfile, moveto))
-            except UnicodeDecodeError:
-                self.log.info("File moved.")
             except Exception as e:
                 try:
                     shutil.move(inputfile.decode(sys.getfilesystemencoding()), moveto)
                     self.log.info("%s moved to %s" % (inputfile, moveto))
-                except UnicodeDecodeError:
-                    self.log.info("File moved.")
                 except Exception as e:
                     self.log.exception("Unable to move %s to %s" % (inputfile, moveto))
 
@@ -579,7 +580,7 @@ class MkvtoMp4:
                 # Make sure file isn't read-only
                 os.chmod(filename, 0777)
             except:
-                self.log.debug("Unable to chmod file before deletion.")
+                self.log.debug("Unable to set file permissions before deletion. This is not always required.")
             try:
                 os.remove(filename)
                 # Replaces the newly deleted file with another by renaming (replacing an original with a newly created file)
