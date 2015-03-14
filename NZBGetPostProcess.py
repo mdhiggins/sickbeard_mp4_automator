@@ -62,18 +62,14 @@ except ImportError:
     sys.exit(0)
 
 # Setup Logging
-try:
-    fileConfig(os.path.join(MP4folder, 'logging.ini'), defaults={'logfilename': os.path.join(MP4folder, 'info.log')})
-    log = logging.getLogger("NZBGetPostProcess")
-except:
-    #DEBUG#print "Error setting up logging."
-    pass
+fileConfig(os.path.join(MP4folder, 'logging.ini'), defaults={'logfilename': os.path.join(MP4folder, 'info.log')})
+log = logging.getLogger("NZBGetPostProcess")
 
 #Determine if conversion will take place
 shouldConvert = (os.environ['NZBPO_SHOULDCONVERT'].lower() in ("yes", "true", "t", "1"))
 
 if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5] < '11.0':
-    print "[INFO] Script triggered from NZBGet (11.0 or later)."
+    log.info("Script triggered from NZBGet (11.0 or later).")
 
     path = os.environ['NZBPP_DIRECTORY'] # Path to NZB directory
     nzb = os.environ['NZBPP_NZBFILENAME'] # Original NZB name
@@ -88,6 +84,11 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
     
     categories = [sickbeardcat, couchcat, sonarrcat, sickragecat, bypass]
     
+    log.debug("Path: %s" % path)
+    log.debug("NZB: %s" % nzb)
+    log.debug("Category: %s" % category)
+    log.debug("Categories: %s" % categories)
+
     # NZBGet argv: all passed as environment variables.
     clientAgent = "nzbget"
     # Exit codes used by NZBGet
@@ -100,22 +101,22 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
     status = 0
 
     if os.environ['NZBOP_UNPACK'] != 'yes':
-        print "[INFO] Please enable option \"Unpack\" in nzbget configuration file, exiting"
+        log.error("Please enable option \"Unpack\" in nzbget configuration file, exiting.")
         sys.exit(POSTPROCESS_NONE)
 
     # Check par status
     if os.environ['NZBPP_PARSTATUS'] == '3':
-        print "[INFO] Par-check successful, but Par-repair disabled, exiting"
+        log.error("Par-check successful, but Par-repair disabled, exiting")
         sys.exit(POSTPROCESS_NONE)
 
     if os.environ['NZBPP_PARSTATUS'] == '1':
-        print "[INFO] Par-check failed, setting status \"failed\""
+        log.error("Par-check failed, setting status \"failed\".")
         status = 1
         sys.exit(POSTPROCESS_NONE)
 
     # Check unpack status
     if os.environ['NZBPP_UNPACKSTATUS'] == '1':
-        print "[INFO] Unpack failed, setting status \"failed\""
+        log.error("Unpack failed, setting status \"failed\".")
         status = 1
         sys.exit(POSTPROCESS_NONE)
 
@@ -127,32 +128,32 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
                 fileExtension = os.path.splitext(file)[1]
 
                 if fileExtension in ['.par2']:
-                    print "[INFO] Post-Process: Unpack skipped and par-check skipped (although par2-files exist), setting status \"failed\"g"
+                    log.error("Post-Process: Unpack skipped and par-check skipped (although par2-files exist), setting status \"failed\".")
                     status = 1
                     break
 
         if os.path.isfile(os.path.join(os.environ['NZBPP_DIRECTORY'], "_brokenlog.txt")) and not status == 1:
-            print "[INFO] Post-Process: _brokenlog.txt exists, download is probably damaged, exiting"
+            log.error("Post-Process: _brokenlog.txt exists, download is probably damaged, exiting.")
             status = 1
 
         if not status == 1:
-            print "[INFO] Neither par2-files found, _brokenlog.txt doesn't exist, considering download successful"
+            log.error("Neither par2-files found, _brokenlog.txt doesn't exist, considering download successful.")
 
     # Check if destination directory exists (important for reprocessing of history items)
     if not os.path.isdir(os.environ['NZBPP_DIRECTORY']):
-        print "[INFO] Post-Process: Nothing to post-process: destination directory ", os.environ['NZBPP_DIRECTORY'], "doesn't exist"
+        log.error("Post-Process: Nothing to post-process: destination directory ", os.environ['NZBPP_DIRECTORY'], "doesn't exist.")
         status = 1
         sys.exit(POSTPROCESS_NONE)
 
     # Make sure one of the appropriate categories is set
     if category.lower() not in categories:
-        print "[ERROR] Post-Process: No valid category detected. Category was %s." % (category)
+        log.error("Post-Process: No valid category detected. Category was %s." % (category))
         status = 1
         sys.exit(POSTPROCESS_NONE)
 
     # Make sure there are no duplicate categories
     if len(categories) != len(set(categories)):
-        print "[ERROR] Duplicate category detected. Category names must be unique"
+        log.error("Duplicate category detected. Category names must be unique.")
         status = 1
         sys.exit(POSTPROCESS_NONE)
 
@@ -162,7 +163,7 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
     if shouldConvert:
         converted = 0
         attempted = 0
-        converter = MkvtoMp4(settings)
+        converter = MkvtoMp4(settings, logger=log)
         converter.output_dir = None
         for r, d, f in os.walk(path):
             for files in f:
@@ -171,17 +172,13 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
                 #DEBUG#print inputfile
                 #Ignores files under 50MB
                 if os.path.getsize(inputfile) > 50000000:
-                    if MkvtoMp4(settings).validSource(inputfile):
-                        try:
-                            print "[INFO] Valid file detected: " + inputfile
-                        except:
-                            print "[INFO] Valid file detected"
+                    if MkvtoMp4(settings, logger=log).validSource(inputfile):
                         try:
                             converter.process(inputfile)
-                            print "[INFO] Successfully converted!"
+                            log.info("Successfully processed %s." % inputfile)
                             converted += 1
                         except:
-                            print "[WARNING] File conversion failed!"
+                            log.warning("File processing failed.")
         #DEBUG#print "%d of %d files converted", (converted, attempted)
 
     if (category.lower() == categories[0]):
@@ -206,5 +203,5 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
         pass
 
 else:
-    print "[ERROR] This script can only be called from NZBGet (11.0 or later)."
+    log.error("This script can only be called from NZBGet (11.0 or later).")
     sys.exit(0)
