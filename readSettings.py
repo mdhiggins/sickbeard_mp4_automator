@@ -211,7 +211,10 @@ class ReadSettings:
             self.iOS = False
         else:
             if self.iOS.lower() in ['true', 'yes', 't', '1']:
-                self.iOS = 'aac'
+                if 'libfdk_aac' in self.acodec:
+                    self.iOS = 'libfdk_aac'
+                else:
+                    self.iOS = 'aac'        
         self.iOSFirst = config.getboolean(section, "ios-first-track-only")  # Enables the iOS audio option only for the first track
         self.downloadsubs = config.getboolean(section, "download-subs")  #  Enables downloading of subtitles from the internet sources using subliminal
 

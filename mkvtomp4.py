@@ -257,19 +257,34 @@ class MkvtoMp4:
                 # Create iOS friendly audio stream if the default audio stream has too many channels (iOS only likes AAC stereo)
                 if self.iOS:
                     if a.audio_channels > 2:
-                        self.log.info("Creating audio stream %s from source audio stream %s [iOS-audio]." % (str(l), a.index))
-                        self.log.debug("Audio codec: %s." % self.iOS)
-                        self.log.debug("Channels: 2.")
-                        self.log.debug("Bitrate: 256.")
-                        self.log.debug("Language: %s" % a.metadata['language'])
-                        audio_settings.update({l: {
-                            'map': a.index,
-                            'codec': self.iOS,
-                            'channels': 2,
-                            'bitrate': 256,
-                            'language': a.metadata['language'],
-                        }})
-                        l += 1
+                        if self.iOS == 'libfdk_aac':
+                                self.log.info("Creating audio stream %s from source audio stream %s [iOS-audio]." % (str(l), a.index))
+                            self.log.debug("Audio codec: %s." % self.iOS)
+                            self.log.debug("Channels: 2.")
+                            self.log.debug("Bitrate: 256.")
+                            self.log.debug("Language: %s" % a.metadata['language'])
+                            audio_settings.update({l: {
+                                'map': a.index,
+                                'codec': self.iOS,
+                                'channels': 2,
+                                'vbr': 5,
+                                'language': a.metadata['language'],
+                            }})
+                            l += 1
+                        else:
+                            self.log.info("Creating audio stream %s from source audio stream %s [iOS-audio]." % (str(l), a.index))
+                            self.log.debug("Audio codec: %s." % self.iOS)
+                            self.log.debug("Channels: 2.")
+                            self.log.debug("Bitrate: 256.")
+                            self.log.debug("Language: %s" % a.metadata['language'])
+                            audio_settings.update({l: {
+                                'map': a.index,
+                                'codec': self.iOS,
+                                'channels': 2,
+                                'bitrate': 256,
+                                'language': a.metadata['language'],
+                            }})
+                            l += 1
                 # If the iOS audio option is enabled and the source audio channel is only stereo, the additional iOS channel will be skipped and a single AAC 2.0 channel will be made regardless of codec preference to avoid multiple stereo channels
                 self.log.info("Creating audio stream %s from source audio stream %s." % (str(l), a.index))
                 if self.iOS and a.audio_channels <= 2:
