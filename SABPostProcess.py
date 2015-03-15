@@ -64,7 +64,6 @@ else:
 if (category == categories[0]):
     log.info("Passing %s directory to Sickbeard." % path)
     autoProcessTV.processEpisode(path, settings, nzb)
-
 # Send to CouchPotato        
 elif (category == categories[1]):
     log.info("Passing %s directory to Couch Potato." % path)
