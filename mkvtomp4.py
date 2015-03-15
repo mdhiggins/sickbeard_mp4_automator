@@ -258,7 +258,7 @@ class MkvtoMp4:
                 if self.iOS:
                     if a.audio_channels > 2:
                         if self.iOS == 'libfdk_aac':
-                                self.log.info("Creating audio stream %s from source audio stream %s [iOS-audio]." % (str(l), a.index))
+                            self.log.info("Creating audio stream %s from source audio stream %s [iOS-audio]." % (str(l), a.index))
                             self.log.debug("Audio codec: %s." % self.iOS)
                             self.log.debug("Channels: 2.")
                             self.log.debug("Bitrate: 256.")
