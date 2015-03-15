@@ -143,10 +143,10 @@ else:
     delete_dir = newpath
 
 if label == categories[0]:
-    log.info("Passing %s directory to Sickbeard." % path)
+    log.info("Passing %s directory to Couch Potato." % path)
     autoProcessMovie.process(path, settings)
 elif label == categories[1]:
-    log.info("Passing %s directory to Couch Potato." % path)
+    log.info("Passing %s directory to Sickbeard." % path)
     autoProcessTV.processEpisode(path, settings)
 elif label == categories[2]:
     log.info("Passing %s directory to Sonarr." % path)
