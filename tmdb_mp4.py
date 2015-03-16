@@ -4,15 +4,29 @@ import urllib
 import StringIO
 import tempfile
 import time
+import logging
 from tmdb_api import tmdb
 from mutagen.mp4 import MP4, MP4Cover
 from extensions import valid_output_extensions, valid_poster_extensions, tmdb_api_key
 
 
 class tmdb_mp4:
-    def __init__(self, imdbid, tmdbid=False, original=None, language='en'):
+    def __init__(self, imdbid, tmdbid=False, original=None, language='en', logger=None):
+
+        if logger:
+            self.log = logger
+        else:
+            self.log = logging.getLogger(__name__)
+
+        if tmdbid:
+            self.log.debug("TMDB ID: %s." % tmdbid)
+        else:
+            self.log.debug("IMDB ID: %s." % imdbid)
+
         if tmdbid is False and imdbid.startswith('tt') is not True:
             imdbid = 'tt' + imdbid
+            self.log.debug("Correcting imdbid to %s." % imdbid)
+
         self.original = original
         for i in range(3):
             try:
@@ -34,20 +48,19 @@ class tmdb_mp4:
                 self.xml = self.xmlTags()
                 break
             except Exception as e:
-                print "Failed to connect to tMDB, trying again in 20 seconds"
-                print e
+                self.log.exception("Failed to connect to tMDB, trying again in 20 seconds.")
                 time.sleep(20)
 
     def writeTags(self, mp4Path, artwork = True):
-        print "Tagging file :" + mp4Path
+        self.log.info("Tagging file: %s." % mp4Path)
         ext = os.path.splitext(mp4Path)[1][1:]
         if ext not in valid_output_extensions:
-            print "Error: File is not the correct format"
+            self.log.error("File is not the correct format.")
             sys.exit()
         try:
             MP4(mp4Path).delete()
         except IOError:
-            print "Unable to clear original tags"
+            self.log.debug("Unable to clear original tags, attempting to proceed.")
 
         video = MP4(mp4Path)
         video["\xa9nam"] = self.title  # Movie title
@@ -83,16 +96,15 @@ class tmdb_mp4:
             video["\xa9too"] = "MDH:" + os.path.basename(self.original)
         else:
             video["\xa9too"] = "MDH:" + os.path.basename(mp4Path)
-        video.pprint()
-        MP4(mp4Path).delete(mp4Path)
+
         for i in range(3):
             try:
-                print "Trying to write tags"
+                self.log.info("Trying to write tags.")
                 video.save()
-                print "Tags written successfully"
+                self.log.info("Tags written successfully.")
                 break
             except IOError:
-                print IOError
+                self.log.exception("There was a problem writing the tags. Retrying.")
                 time.sleep(5)
 
     def rating(self):
@@ -169,7 +181,7 @@ class tmdb_mp4:
             path = os.path.join(head, filename + os.extsep + e)
             if (os.path.exists(path)):
                 poster = path
-                print "Local artwork detected, using " + path
+                self.log.info("Local artwork detected, using %s." % path)
                 break
         #Pulls down all the poster metadata for the correct season and sorts them into the Poster object
         if poster is None:

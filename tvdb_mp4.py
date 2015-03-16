@@ -4,13 +4,20 @@ import urllib
 import StringIO
 import tempfile
 import time
+import logging
 from tvdb_api.tvdb_api import Tvdb
 from mutagen.mp4 import MP4, MP4Cover
 from extensions import valid_output_extensions, valid_poster_extensions
 
 
 class Tvdb_mp4:
-    def __init__(self, show, season, episode, original=None, language='en'):
+    def __init__(self, show, season, episode, original=None, language='en', logger=None):
+
+        if logger:
+            self.log = logger
+        else:
+            self.log = logging.getLogger(__name__)
+
         for i in range(3):
             try:
                 self.tvdb_show = Tvdb(interactive=False, cache=False, banners=True, actors=True, forceConnect=True, language=language)
@@ -41,20 +48,19 @@ class Tvdb_mp4:
                 self.xml = self.xmlTags()
                 break
             except Exception as e:
-                print "Failed to connect to TVDB, trying again in 20 seconds"
-                print e
+                self.log.exception("Failed to connect to TVDB, trying again in 20 seconds.")
                 time.sleep(20)
 
     def writeTags(self, mp4Path, artwork = True):
-        print "Tagging file :" + mp4Path
+        self.log.info("Tagging file: %s." % mp4Path)
         ext = os.path.splitext(mp4Path)[1][1:]
         if ext not in valid_output_extensions:
-            print "Error: File is not the correct format"
+            self.log.error("File is not the correct format.")
             sys.exit()
         try:
             MP4(mp4Path).delete()
         except IOError:
-            print "Unable to clear original tags, attempting to proceed"
+            self.log.debug("Unable to clear original tags, attempting to proceed.")
 
         video = MP4(mp4Path)
         video["tvsh"] = self.show  # TV show title
@@ -94,12 +100,12 @@ class Tvdb_mp4:
         MP4(mp4Path).delete(mp4Path)
         for i in range(3):
             try:
-                print "Trying to write tags"
+                self.log.info("Trying to write tags.")
                 video.save()
-                print "Tags written successfully"
+                self.log.info("Tags written successfully.")
                 break
             except IOError as e:
-                print e
+                self.log.exception("There was a problem writing the tags. Retrying.")
                 time.sleep(5)
 
     def setHD(self, width, height):
@@ -185,7 +191,7 @@ class Tvdb_mp4:
             path = os.path.join(head, filename + os.extsep + e)
             if (os.path.exists(path)):
                 poster = path
-                print "Local artwork detected, using " + path
+                self.log.info("Local artwork detected, using %s." % path)
                 break
         # Pulls down all the poster metadata for the correct season and sorts them into the Poster object
         if poster is None:
