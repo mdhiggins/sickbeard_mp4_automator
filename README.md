@@ -208,6 +208,7 @@ Deluge Daemon
 --------------
 1. Verify that you have installed the **Gevent library**
     - `pip install gevent`
+    - Windows users will need to also install the Microsoft Visual C++ Compiler for Python 2.7 for gevent to work. http://www.microsoft.com/en-us/download/details.aspx?id=44266
 2. Create username and password for deluge daemon
     - Navigate to your deluge configuration folder 
         - `%appdata%\Roaming\Deluge` in Windows
