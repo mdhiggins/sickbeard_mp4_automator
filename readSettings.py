@@ -1,23 +1,31 @@
 import os
 import sys
 import ConfigParser
+import logging
 from extensions import *
 from babelfish import Language
-try:
-    from babelfish import Language
-except:
-    print "Trying to install SetupTools"
-    try:
-        import setup
-        setup.ez_setup.main()
-        from babelfish import Language
-    except:
-        print "Please install SetupTools"
-
 
 class ReadSettings:
 
-    def __init__(self, directory, filename):
+    def __init__(self, directory, filename, logger=None):
+
+        # Setup logging
+        if logger:
+            log = logger
+        else:
+            log = logging.getLogger(__name__)
+
+        try:
+            from babelfish import Language
+        except:
+            log.debug("Trying to install SetupTools.")
+            try:
+                import setup
+                setup.ez_setup.main()
+                from babelfish import Language
+            except:
+                log.exception("Please install SetupTools.")
+
         # Default settings for SickBeard
         sb_defaults = {'host': 'localhost',
                        'port': '8081',
@@ -129,7 +137,7 @@ class ReadSettings:
             config.readfp(fp)
             fp.close()
         else:
-            print "Error: Config file not found, creating"
+            log.error("Config file not found, creating %s." % configFile)
             #config.filename = filename
             write = True
 
@@ -167,7 +175,7 @@ class ReadSettings:
                     try:
                         os.makedirs(self.copyto[i])
                     except:
-                        print "Error making directory %s" % (self.copyto[i])
+                        log.exception("Error making directory %s." % (self.copyto[i]))
         self.moveto = config.get(section, "move_to") # Directory to move final product to
         if self.moveto == '':
             self.moveto = None
@@ -177,7 +185,7 @@ class ReadSettings:
                 try:
                     os.makedirs(self.moveto)
                 except:
-                    print "Error making directory %s" % (self.moveto)
+                    log.exception("Error making directory %s." % (self.moveto))
                     self.moveto = None
 
         self.output_extension = config.get(section, "output_extension")  # Output extension
@@ -197,9 +205,9 @@ class ReadSettings:
             self.abitrate = int(self.abitrate)
         except:
             self.abitrate = 256
-            print "Audio bitrate was invalid, defaulting to 256 per channel"
+            log.debug("Audio bitrate was invalid, defaulting to 256 per channel.")
         if self.abitrate > 256:
-            print "Warning - audio bitrates >256 may create errors with common codecs"
+            log.warning("Audio bitrates >256 may create errors with common codecs.")
 
         # !!! Leaving this disabled for now, users will be responsible for knowing whicn codecs do and don't work with mp4 files !!!
         #if self.acodec not in valid_audio_codecs:
@@ -213,19 +221,18 @@ class ReadSettings:
             if self.iOS.lower() in ['true', 'yes', 't', '1']:
                 self.iOS = 'aac'
         self.iOSFirst = config.getboolean(section, "ios-first-track-only")  # Enables the iOS audio option only for the first track
+        
         self.downloadsubs = config.getboolean(section, "download-subs")  #  Enables downloading of subtitles from the internet sources using subliminal
-
         if self.downloadsubs:
             try:
                 import subliminal
             except Exception as e:
-                print e
                 self.downloadsubs = False
-                print "Subliminal is not installed, automatically downloading of subs has been disabled"
+                log.exception("Subliminal is not installed, automatically downloading of subs has been disabled.")
         self.subproviders = config.get(section, 'sub-providers').lower()
         if self.subproviders == '':
             self.downloadsubs = False
-            print "You must specifiy at least one subtitle provider to downlaod subs automatically"
+            log.warning("You must specifiy at least one subtitle provider to downlaod subs automatically, subtitle downloading disabled.")
         else:
             self.subproviders = self.subproviders.lower().replace(' ', '').split(',')
 
@@ -235,7 +242,7 @@ class ReadSettings:
         try:
             self.permissions = int(self.permissions, 8)
         except:
-            print "Error defaulting to 777 permissions"
+            self.log.exception("Invalid permissions, defaulting to 777.")
             self.permissions = 0777
 
         #Setup variable for maximum audio channels
@@ -246,10 +253,10 @@ class ReadSettings:
             try:
                 self.maxchannels = int(self.maxchannels)
             except:
-                print "Invalid number of audio channels specified"
+                log.exception("Invalid number of audio channels specified.")
                 self.maxchannels = None
         if self.maxchannels is not None and self.maxchannels < 1:
-            print "Must have at least 1 audio channel"
+            log.warning("Must have at least 1 audio channel.")
             self.maxchannels = None
 
         self.vcodec = config.get(section, "video-codec")
@@ -265,7 +272,7 @@ class ReadSettings:
             try:
                 self.vbitrate = int(self.vbitrate)*1000
             except:
-                print "Invalid video bitrate, defaulting to no video bitrate cap"
+                log.exception("Invalid video bitrate, defaulting to no video bitrate cap.")
                 self.vbitrate = None
 
         self.awl = config.get(section, 'audio-language').strip().lower()  # List of acceptable languages for audio streams to be carried over from the original file, separated by a comma. Blank for all
@@ -289,7 +296,7 @@ class ReadSettings:
             self.sdl = None
         # Prevent incompatible combination of settings
         if self.output_dir == "" and self.delete is False:
-            print "Error - you must specify an alternate output directory if you aren't going to delete the original file"
+            log.error("You must specify an alternate output directory if you aren't going to delete the original file.")
             sys.exit()
         # Create output directory if it does not exist
         if self.output_dir is not None:
@@ -304,10 +311,10 @@ class ReadSettings:
                 babel = Language.fromalpha3(self.taglanguage)
                 self.taglanguage = babel.alpha2
             except:
-                print "Unable to set tag language, defaulting to English"
+                log.exception("Unable to set tag language, defaulting to English.")
                 self.taglanguage = 'en'
         elif len(self.taglanguage) < 2:
-            print "Unable to set tag language, defaulting to English"
+            log.exception("Unable to set tag language, defaulting to English.")
             self.taglanguage = 'en'
         self.artwork = config.getboolean(section, "download-artwork") # Download and embed artwork
 
