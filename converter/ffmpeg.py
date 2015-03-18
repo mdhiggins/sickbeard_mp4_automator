@@ -475,7 +475,14 @@ class FFMpeg(object):
             if not ret:
                 break
 
-            ret = ret.decode(console_encoding)
+            try:
+                ret = ret.decode(console_encoding)
+            except UnicodeDecodeError:
+                try:
+                    ret = ret.decode(console_encoding, errors="ignore")
+                except:
+                    pass
+
             total_output += ret
             buf += ret
             if '\r' in buf:
