@@ -205,7 +205,7 @@ class ReadSettings:
             self.abitrate = int(self.abitrate)
         except:
             self.abitrate = 256
-            log.debug("Audio bitrate was invalid, defaulting to 256 per channel.")
+            log.warning("Audio bitrate was invalid, defaulting to 256 per channel.")
         if self.abitrate > 256:
             log.warning("Audio bitrates >256 may create errors with common codecs.")
 
