@@ -75,8 +75,10 @@ class AudioCodec(BaseCodec):
 
         if 'bitrate' in safe:
             br = safe['bitrate']
-            if br < 8 or br > 1536:
-                del safe['bitrate']
+            if br < 8:
+                br = 8
+            if br > 1536:
+                br = 1536
 
         if 'samplerate' in safe:
             f = safe['samplerate']
