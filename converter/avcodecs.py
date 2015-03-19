@@ -520,6 +520,13 @@ class Ac3Codec(AudioCodec):
     """
     codec_name = 'ac3'
     ffmpeg_codec_name = 'ac3'
+    
+    def parse_options(self, opt, stream=0):
+        if 'channels' in opt:
+            c = opt['channels']
+            if c > 6:
+                opt['channels'] = 6
+        return super(Ac3Codec, self).parse_options(opt, stream)
 
 
 class FlacCodec(AudioCodec):
