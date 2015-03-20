@@ -124,7 +124,7 @@ if settings.uTorrent['convert']:
                         output = converter.process(inputfile, reportProgress=True)
                         ignore.append(output['output'])
                     except:
-                        log.error("Unable to process file %s." % inputfile)
+                        log.exception("Unable to process file %s." % inputfile)
                 else:
                     log.debug("Ignoring file %s." % inputfile)
 
