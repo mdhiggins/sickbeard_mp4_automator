@@ -485,7 +485,7 @@ class MkvtoMp4:
                     i += i
                 self.log.debug("Unable to rename input file. Setting output file name to %s." % outputfile)
 
-        conv = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH).convert(inputfile, outputfile, options, timeout=None)
+        conv = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH).convert(inputfile, outputfile, options, timeout=None, preopts=['-fix_sub_duration'], postopts=['-threads', 'auto'])
 
         for timecode in conv:
             if reportProgress:
