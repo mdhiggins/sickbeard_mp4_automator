@@ -114,12 +114,17 @@ if settings.uTorrent['convert']:
             log.debug("Ignoring file %s." % inputfile)
     else:
         log.debug("Processing multiple files.")
+        ignore = []
         for r, d, f in os.walk(path):
             for files in f:
                 inputfile = os.path.join(r, files)
-                if MkvtoMp4(settings).validSource(inputfile):
+                if MkvtoMp4(settings).validSource(inputfile) and inputfile not in ignore:
                     log.info("Processing file %s." % inputfile)
-                    converter.process(inputfile, reportProgress=True)
+                    try:
+                        output = converter.process(inputfile, reportProgress=True)
+                        ignore.append(output['output'])
+                    except:
+                        log.error("Unable to process file %s." % inputfile)
                 else:
                     log.debug("Ignoring file %s." % inputfile)
 
