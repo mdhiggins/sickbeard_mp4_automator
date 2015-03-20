@@ -60,6 +60,7 @@ class AudioCodec(BaseCodec):
         'samplerate': int,
         'source': int,
         'path' : str,
+        'filter' : str,
         'map': int
     }
 
@@ -108,6 +109,8 @@ class AudioCodec(BaseCodec):
             optlist.extend(['-b:a:' + stream, str(br) + 'k'])
         if 'samplerate' in safe:
             optlist.extend(['-ar:a:' + stream, str(safe['samplerate'])])
+        if 'filter' in safe:
+            optlist.extend(['-filter:a:' + stream, str(safe['filter'])])
         if 'language' in safe:
                 lang = str(safe['language'])
         else:
