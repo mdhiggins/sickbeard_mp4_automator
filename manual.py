@@ -17,7 +17,7 @@ from tmdb_api import tmdb
 from extensions import tmdb_api_key
 from logging.config import fileConfig
 
-fileConfig(os.path.join(os.path.dirname(sys.argv[0]), 'logging.ini'), defaults={'logfilename': os.path.join(os.path.dirname(sys.argv[0]), 'info.log')})
+fileConfig(os.path.join(os.path.dirname(sys.argv[0]), 'logging.ini'), defaults={'logfilename': os.path.join(os.path.dirname(sys.argv[0]), 'info.log').replace("\\", "/")})
 log = logging.getLogger("MANUAL")
 logging.getLogger("subliminal").setLevel(logging.WARNING)
 logging.getLogger("requests").setLevel(logging.WARNING)
