@@ -600,6 +600,7 @@ class H264Codec(VideoCodec):
         # default:23, recommended: 18-28
         # http://mewiki.project357.com/wiki/X264_Settings#profile
         'profile': str,  # default: not-set, for valid values see above link
+        'level': float, # default: not-set, values range from 3.0 to 4.2
         'tune': str,  # default: not-set, for valid values see above link
     })
 
@@ -610,7 +611,9 @@ class H264Codec(VideoCodec):
         if 'quality' in safe:
             optlist.extend(['-crf', safe['quality']])
         if 'profile' in safe:
-            optlist.extend(['-profile', safe['profile']])
+            optlist.extend(['-profile:v', safe['profile']])
+        if 'level' in safe:
+            optlist.extend(['-level'], '%0.1f' % safe['level'])
         if 'tune' in safe:
             optlist.extend(['-tune', safe['tune']])
         return optlist
@@ -706,6 +709,13 @@ class SrtCodec(SubtitleCodec):
     ffmpeg_codec_name = 'srt'
 
 
+class WebVTTCodec(SubtitleCodec):
+    """
+    SRT subtitle codec.
+    """
+    codec_name = 'webvtt'
+    ffmpeg_codec_name = 'webvtt'
+
 class SSA(SubtitleCodec):
     """
     SSA (SubStation Alpha) subtitle.
@@ -751,5 +761,5 @@ video_codec_list = [
 
 subtitle_codec_list = [
     SubtitleNullCodec, SubtitleCopyCodec, MOVTextCodec, SrtCodec, SSA, SubRip, DVDSub,
-    DVBSub
+    DVBSub, WebVTTCodec
 ]
