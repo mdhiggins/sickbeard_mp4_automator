@@ -119,6 +119,7 @@ class MediaStreamInfo(object):
         self.video_width = None
         self.video_height = None
         self.video_fps = None
+        self.video_level = None
         self.audio_channels = None
         self.audio_samplerate = None
         self.attached_pic = None
@@ -194,6 +195,8 @@ class MediaStreamInfo(object):
                         self.video_fps = float(n) / float(d)
                 elif '.' in val:
                     self.video_fps = self.parse_float(val)
+            if key == 'level':
+                self.video_level = self.parse_float(val)
 
         if self.type == 'subtitle':
             if key == 'disposition:forced':
