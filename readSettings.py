@@ -48,12 +48,13 @@ class ReadSettings:
                         'ios-first-track-only': 'False',
                         'max-audio-channels': '',
                         'audio-language': '',
+                        'audio-default-language': '',
                         'audio-codec': 'ac3',
                         'audio-channel-bitrate': '256',
                         'video-codec': 'h264, x264',
                         'video-bitrate': '',
+                        'subtitle-codec': 'mov_text',
                         'subtitle-language': '',
-                        'audio-default-language': '',
                         'subtitle-default-language': '',
                         'convert-mp4': 'False',
                         'fullpathguess': 'True',
@@ -280,6 +281,11 @@ class ReadSettings:
             self.awl = None
         else:
             self.awl = self.awl.replace(' ', '').split(',')
+
+        self.scodec = config.get(section, 'subtitle-codec').strip().lower()
+        if not self.scodec or self.scodec == "":
+            self.scodec = 'mov_text'
+            self.log.warning("Invalid subtitle codec, defaulting to mov_text.")
 
         self.swl = config.get(section, 'subtitle-language').strip().lower()  # List of acceptable languages for subtitle streams to be carried over from the original file, separated by a comma. Blank for all
         if self.swl == '':

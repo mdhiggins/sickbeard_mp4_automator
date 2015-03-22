@@ -31,6 +31,7 @@ class MkvtoMp4:
                     swl=None, 
                     adl=None, 
                     sdl=None, 
+                    scodec='mov_text',
                     downloadsubs=True,
                     processMP4=False, 
                     copyto=None, 
@@ -70,6 +71,7 @@ class MkvtoMp4:
         self.awl=awl
         self.adl=adl
         # Subtitle settings
+        self.scodec=scodec
         self.swl=swl
         self.sdl=sdl
         self.downloadsubs = downloadsubs
@@ -106,6 +108,7 @@ class MkvtoMp4:
         self.awl=settings.awl
         self.adl=settings.adl
         #Subtitle settings
+        self.scodec=settings.scodec
         self.swl=settings.swl
         self.sdl=settings.sdl
         self.downloadsubs=settings.downloadsubs
@@ -336,7 +339,7 @@ class MkvtoMp4:
                 if self.swl is None or s.metadata['language'].lower() in self.swl:
                     subtitle_settings.update({l: {
                         'map': s.index,
-                        'codec': 'mov_text',
+                        'codec': self.scodec,
                         'language': s.metadata['language']
                         #'forced': s.sub_forced,
                         #'default': s.sub_default
