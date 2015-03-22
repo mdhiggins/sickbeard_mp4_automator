@@ -248,7 +248,7 @@ class MkvtoMp4:
             except KeyError:
                 a.metadata['language'] = 'und'
 
-            self.log.info("Audio stream #%s detected: %s [%s]." % (a.index, a.codec, a.metadata['language']))
+            self.log.info("Audio detected for stream #%s: %s [%s]." % (a.index, a.codec, a.metadata['language']))
 
             # Set undefined language to default language if specified
             if self.adl is not None and a.metadata['language'] == 'und':
@@ -326,7 +326,7 @@ class MkvtoMp4:
             except KeyError:
                 s.metadata['language'] = 'und'
 
-            self.log.info("Subtitle stream #%s detected: %s [%s]." % (s.index, s.codec, s.metadata['language']))
+            self.log.info("Subtitle detected for stream #%s: %s [%s]." % (s.index, s.codec, s.metadata['language']))
 
             # Set undefined language to default language if specified
             if self.sdl is not None and s.metadata['language'] == 'und':
