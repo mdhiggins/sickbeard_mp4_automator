@@ -348,7 +348,7 @@ class MkvtoMp4:
                     l = l + 1
             elif s.codec.lower() not in bad_subtitle_codecs and not self.embedsubs:
                 if self.swl is None or s.metadata['language'].lower() in self.swl:
-                    ripsub = {1: {
+                    ripsub = {0: {
                         'map': s.index,
                         'codec': 'srt',
                         'language': s.metadata['language']
