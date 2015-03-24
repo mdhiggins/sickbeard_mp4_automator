@@ -363,6 +363,7 @@ class MkvtoMp4:
                     
                     i = 2
                     while os.path.isfile(outputfile):
+                        self.log.debug("%s exists, appending %s to filename." % (outputfile, i))
                         outputfile = os.path.join(output_dir, filename + "." + s.metadata['language'] + "." + str(i) + ".srt")
                         i += i
                     self.log.info("Ripping [%s] subtitle from source into external file." % s.metadata['language'])
