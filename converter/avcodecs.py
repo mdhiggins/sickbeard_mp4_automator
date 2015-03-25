@@ -229,6 +229,7 @@ class VideoCodec(BaseCodec):
         'mode': str,
         'src_width': int,
         'src_height': int,
+        'filter': str,
         'map': int
     }
 
@@ -358,6 +359,7 @@ class VideoCodec(BaseCodec):
             optlist.extend(['-vb', str(safe['bitrate']) + 'k'])  # FIXED
         if 'filter' in safe:
             if filters:
+                filters = '%s;%s' % (filters, str(safe['filter']))
             else:
                 filters = str(safe['filter'])
         if w and h:
