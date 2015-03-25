@@ -356,6 +356,10 @@ class VideoCodec(BaseCodec):
             optlist.extend(['-r', str(safe['fps'])])
         if 'bitrate' in safe:
             optlist.extend(['-vb', str(safe['bitrate']) + 'k'])  # FIXED
+        if 'filter' in safe:
+            if filters:
+            else:
+                filters = str(safe['filter'])
         if w and h:
             optlist.extend(['-s', '%dx%d' % (w, h)])
 
