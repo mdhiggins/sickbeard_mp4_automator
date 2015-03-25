@@ -195,9 +195,10 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
     elif (category.lower() == categories[3]):
         #DEBUG#print "Sickrage Processing Activated"
         autoProcessTVSR.processEpisode(path, settings, nzb)
+        sys.exit(POSTPROCESS_SUCCESS)
     elif (category.lower() == categories[4]):
         #DEBUG#print "Bypass Further Processing"
-        pass
+        sys.exit(POSTPROCESS_NONE)
 
 else:
     log.error("This script can only be called from NZBGet (11.0 or later).")
