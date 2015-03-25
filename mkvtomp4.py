@@ -6,7 +6,7 @@ import sys
 import shutil
 import logging
 from converter import Converter
-from extensions import valid_input_extensions, valid_output_extensions, bad_subtitle_codecs, valid_subtitle_extensions
+from extensions import valid_input_extensions, valid_output_extensions, bad_subtitle_codecs, valid_subtitle_extensions, subtitle_codec_extensions
 from qtfaststart import processor, exceptions
 from babelfish import Language
 
@@ -350,21 +350,28 @@ class MkvtoMp4:
                 if self.swl is None or s.metadata['language'].lower() in self.swl:
                     ripsub = {0: {
                         'map': s.index,
-                        'codec': 'srt',
+                        'codec': self.scodec,
                         'language': s.metadata['language']
                     }}
                     options = {
-                        'format': 'srt',
+                        'format': self.scodec,
                         'subtitle': ripsub,
                     }
+
+                    try:
+                        extension = subtitle_codec_extensions[self.scodec]
+                    except:
+                        self.log.info("Wasn't able to determine subtitle file extension, defaulting to '.srt'.")
+                        extension = 'srt'
+
                     input_dir, filename, input_extension = self.parseFile(inputfile)
                     output_dir = input_dir if self.output_dir is None else self.output_dir
-                    outputfile = os.path.join(output_dir, filename + "." + s.metadata['language'] + ".srt")
+                    outputfile = os.path.join(output_dir, filename + "." + s.metadata['language'] + "." + extension)
                     
                     i = 2
                     while os.path.isfile(outputfile):
                         self.log.debug("%s exists, appending %s to filename." % (outputfile, i))
-                        outputfile = os.path.join(output_dir, filename + "." + s.metadata['language'] + "." + str(i) + ".srt")
+                        outputfile = os.path.join(output_dir, filename + "." + s.metadata['language'] + "." + str(i) + "." + extension)
                         i += i
                     self.log.info("Ripping [%s] subtitle from source into external file." % s.metadata['language'])
                     conv = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH).convert(inputfile, outputfile, options, timeout=None)

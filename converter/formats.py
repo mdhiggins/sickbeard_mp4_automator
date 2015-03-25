@@ -94,14 +94,22 @@ class Mp3Format(BaseFormat):
 
 class SrtFormat(BaseFormat):
     """
-    Mp4 container format, the default Format for H.264
-    video content.
+    SRT subtitle format
     """
     format_name = 'srt'
     ffmpeg_format_name = 'srt'
 
 
+class WebVTTFormat(BaseFormat):
+    """
+    VTT subtitle format
+    """
+    format_name = 'webvtt'
+    ffmpeg_format_name = 'webvtt'
+
+
 format_list = [
     OggFormat, AviFormat, MkvFormat, WebmFormat, FlvFormat,
-    MovFormat, Mp4Format, MpegFormat, Mp3Format, SrtFormat
+    MovFormat, Mp4Format, MpegFormat, Mp3Format, SrtFormat,
+    WebVTTFormat
 ]
