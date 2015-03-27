@@ -170,10 +170,11 @@ if web_ui:
         log.debug("Sending action %s to uTorrent" % settings.uTorrentActionAfter)
 
 if delete_dir:
-    try:
-        os.rmdir(delete_dir)
-        log.debug("Successfully removed tempoary directory %s." % delete_dir)
-    except:
-        log.exception("Unable to delete temporary directory")
+    if os.path.exists(delete_dir):
+        try:
+            os.rmdir(delete_dir)
+            log.debug("Successfully removed tempoary directory %s." % delete_dir)
+        except:
+            log.exception("Unable to delete temporary directory")
 
 sys.exit()
