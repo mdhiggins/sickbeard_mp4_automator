@@ -51,10 +51,10 @@ General MP4 Configuration
     - `delete_original` = True/False
     - `relocate_moov` = True/False - relocates the MOOV atom to the beginning of the file for better streaming
     - `ios-audio` = creates a 2nd copy of an audio stream that will be iOS compatible (AAC Stereo) if the normal output will not be. If a stereo source stream is detected with this option enabled, an AAC stereo stream will be the only one produced (essentially overriding the codec option) to avoid multiple stereo audio stream copies in different codecs.
-    - `max-audio-channels` = Sets a maximum number of audio channels. This may provide an alternative to the iOS audio option, where instead users can simply select the desired output codec and the max number of audio channels without the creation of an additional audio track. 
-    - `video-codec` = set your desired video codecs. May specify multiple comma separated values (ex: h264, x264). The first value specified will be the default conversion choice when an undesired codec is encountered; any codecs specified here will be remuxed/copied rather than converted. 
+    - `max-audio-channels` = Sets a maximum number of audio channels. This may provide an alternative to the iOS audio option, where instead users can simply select the desired output codec and the max number of audio channels without the creation of an additional audio track.
+    - `video-codec` = set your desired video codecs. May specify multiple comma separated values (ex: h264, x264). The first value specified will be the default conversion choice when an undesired codec is encountered; any codecs specified here will be remuxed/copied rather than converted.
     - `video-bitrate` = allows you to set a maximum video bitrate in Kbps. If the source file exceeds the video-bitrate it will be transcoded to the specified video-bitrate, even if they source file is already in the correct video codec. If the source file is in the correct video codec and does not exceed the video-bitrate setting, then it will be copied without transcoding. Leave blank to disable this setting.
-    - `audio-codec` = set your desired audio codecs. May specify multiple comma separated values (ex: ac3, aac). The first value specified will be the default conversion choice when an undesired codec is encountered; any codecs specified here will be remuxed/copied rather than converted. 
+    - `audio-codec` = set your desired audio codecs. May specify multiple comma separated values (ex: ac3, aac). The first value specified will be the default conversion choice when an undesired codec is encountered; any codecs specified here will be remuxed/copied rather than converted.
     - `audio-channel-bitrate` = set the bitrate for each audio channel. Default is 256. Setting this value to 0 will attempt to mirror the bitrate of the audio source, but this can be unreliable as bitrates vary between different codecs.
     - `audio-language` = 3 letter language code for audio streams you wish to copy. Leave blank to copy all. Separate multiple audio streams with commas (ex: eng,spa)
     - `audio-default-language` = If an audio stream with an unidentified/untagged language is detected, you can default that language tag to whatever this value is (ex: eng). This is useful for many single-audio releases which don't bother to tag the audio stream as anything
@@ -66,15 +66,15 @@ General MP4 Configuration
     - `tagfile` = True/False - Enable or disable tagging file with appropriate metadata after encoding.
     - `tag-language` = en - Set your tag language for TMDB/TVDB entries metadata retrieval. Use either 2 or 3 character language codes.
     - `download-artwork` = True/False - Enabled downloading and embeddeding of Season or Movie posters and embeddeding of that image into the mp4 as the cover image.
-    - `download-subs` = True/False - When enabled the script will attempt to download subtitles of your specified languages automatically using subliminal and merge them into the final mp4 file. 
+    - `download-subs` = True/False - When enabled the script will attempt to download subtitles of your specified languages automatically using subliminal and merge them into the final mp4 file.
     - `embed-subs` = True/False - Enabled by default. Embeds subtitles in the resulting MP4 file that are found embedded in the source file as well as external SRT/VTT files. Disabling embed-subs will cause the script to extract any subtitles that meet your language criteria into external SRT/VTT files. The script will also attempt to download SRT files if possible and this feature is enabled.
     **YOU MUST INSTALL SUBLIMINAL AND ITS DEPENDENCIES FOR THIS TO WORK.** You must go into the `setup\subliminal` directory included in this script and run `setup.py install` to add support for fetching of subtitles. The version included with this script is modified from the stock version of subliminal, so you must install the included version.
-    - `sub-providers` = Comma separated values for potential subtitle providers. Must specify at least 1 provider to enable `download-subs`. Providers include `podnapisi` `thesubdb` `opensubtitles` `tvsubtitles` `addic7ed` 
+    - `sub-providers` = Comma separated values for potential subtitle providers. Must specify at least 1 provider to enable `download-subs`. Providers include `podnapisi` `thesubdb` `opensubtitles` `tvsubtitles` `addic7ed`
 
 Sick Beard Setup
 --------------
 1. Open Sickbeard's config.ini in Sick Beard installation folder
-    - Set "extra_scripts" value in the general section to the full path to "python postConversion.py" using double backslashes 
+    - Set "extra_scripts" value in the general section to the full path to "python postConversion.py" using double backslashes
         - Example: `C:\\Python27\\python C:\\Scripts\\postConversion.py`
         - Make sure this is done while Sick Beard is not running or it will be reverted
 2. Set the SickBeard variables in autoProcess.ini under the [Sickbeard] section:
@@ -133,20 +133,20 @@ Couch Potato Setup
     - Restart Couch Potato
     - Verify in Couch Potato logs that PostProcess was loaded.
 3. If you're using one of the post download scripts ([SAB|NZBGet|uTorrent|deluge]PostProcess.py), disable automatic checking of the renamer folder, the script will automatically notify Couch Potato when it is complete to check for new videos to be renamed and relocated. Leaving this on may cause conflicts and CouchPotato may try to relocate/rename the file before processing is completed.
-    - Set `Run Every` to `0` 
+    - Set `Run Every` to `0`
     - If you aren't using one of these scripts and are using an unsupport downloader, you will need to have CouchPotato periodically check the folder for files
 4. Configure Downloaders
     - In `Settings > Downloaders` configure your labels or categories to match what you have configured in your respective downloader.
 
 NZBGet Setup
 --------------
-1. Copy the script NZBGetPostProcess.py to NZBGet's script folder. 
+1. Copy the script NZBGetPostProcess.py to NZBGet's script folder.
     - Default location is ~/downloads/scripts/
 2. Start/Restart NZBGet
 3. Configure NZBGETPOSTPROCESS
     - Access NZBGet's WebUI
         - Default `localhost:6789`
-    - Go to `Settings` 
+    - Go to `Settings`
     - Select `NZBGETPOSTPROCESS` option at the bottom of the left hand navigation panel and configure the options
         - `MP4_FOLDER` - default `~/sickbeard_mp4_automator/` - Location of the script. Use full path with trailing backslash.
         - `SHOULDCONVERT` - `True`/`False` - Convert file before passing to destination
@@ -188,7 +188,7 @@ uTorrent Setup
 2. Launch uTorrent
 3. Set `Run Program` option
     - Go to `Options > Preferences > Advanced > Run Program`
-    - Point to `uTorrentPostProcess.py` with command line parameters: `%L %T %D %K %F %I` in that exact order. 
+    - Point to `uTorrentPostProcess.py` with command line parameters: `%L %T %D %K %F %I` in that exact order.
     - Reference picture: http://i.imgur.com/7eADkCI.png
 3. Set your uTorrent settings in autoProcess.ini
     - `convert` - `True`/`False`. Allows for conversion of files before passing back to the respective download manager.
@@ -211,7 +211,7 @@ Deluge Daemon
     - `pip install gevent`
     - Windows users will need to also install the Microsoft Visual C++ Compiler for Python 2.7 for gevent to work. http://www.microsoft.com/en-us/download/details.aspx?id=44266
 2. Create username and password for deluge daemon
-    - Navigate to your deluge configuration folder 
+    - Navigate to your deluge configuration folder
         - `%appdata%\Roaming\Deluge` in Windows
         - `/var/lib/deluge/.config/deluge/` in Linux
     - Open the `auth` file
@@ -283,12 +283,14 @@ optional arguments:
                         options that come from output_dir and move-to
   -nc, --nocopy         Overrides and disables the custom copying of file
                         options that come from output_dir and move-to
+  -nt, --notag          Overrides and disables tagging when using the
+                        automated option
   -nd, --nodelete       Overrides and disables deleting of original files
   -pr, --preserveRelative
                         Preserves relative directories when processing
                         multiple files using the copy-to or move-to
                         functionality
-  -cmp4, --convertmp4   Overrides convert-mp4 setting in autoProcess.ini 
+  -cmp4, --convertmp4   Overrides convert-mp4 setting in autoProcess.ini
                         enabling the reprocessing of mp4 files
 ```
 
