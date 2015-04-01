@@ -8,7 +8,6 @@
 from __future__ import unicode_literals
 import re
 import sys
-import pickle
 from unittest import TestCase, TestSuite, TestLoader, TextTestRunner
 from pkg_resources import resource_stream  # @UnresolvedImport
 from babelfish import (LANGUAGES, Language, Country, Script, language_converters, country_converters,
@@ -119,9 +118,6 @@ class TestScript(TestCase, _Py26FixTestCase):
     def test_hash(self):
         self.assertEqual(hash(Script('Hira')), hash('Hira'))
 
-    def test_pickle(self):
-        self.assertEqual(pickle.loads(pickle.dumps(Script('Latn'))), Script('Latn'))
-
 
 class TestCountry(TestCase, _Py26FixTestCase):
     def test_wrong_country(self):
@@ -136,10 +132,6 @@ class TestCountry(TestCase, _Py26FixTestCase):
 
     def test_hash(self):
         self.assertEqual(hash(Country('US')), hash('US'))
-
-    def test_pickle(self):
-        for country in [Country('GB'), Country('US')]:
-            self.assertEqual(pickle.loads(pickle.dumps(country)), country)
 
     def test_converter_name(self):
         self.assertEqual(Country('US').name, 'UNITED STATES')
@@ -315,13 +307,6 @@ class TestLanguage(TestCase, _Py26FixTestCase):
         self.assertEqual(hash(Language('por', 'BR')), hash('pt-BR'))
         self.assertEqual(hash(Language('srp', script='Cyrl')), hash('sr-Cyrl'))
         self.assertEqual(hash(Language('eng', 'US', 'Latn')), hash('en-US-Latn'))
-
-    def test_pickle(self):
-        for lang in [Language('fra'),
-                     Language('eng', 'US'),
-                     Language('srp', script='Latn'),
-                     Language('eng', 'US', 'Latn')]:
-            self.assertEqual(pickle.loads(pickle.dumps(lang)), lang)
 
     def test_str(self):
         self.assertEqual(Language.fromietf(str(Language('eng', 'US', 'Latn'))), Language('eng', 'US', 'Latn'))

@@ -12,7 +12,6 @@ from .converters import ConverterManager
 from .country import Country
 from .exceptions import LanguageConvertError
 from .script import Script
-from . import basestr
 
 
 LANGUAGES = set()
@@ -53,7 +52,7 @@ class LanguageMeta(type):
     def __getattr__(cls, name):
         if name.startswith('from'):
             return partial(cls.fromcode, converter=name[4:])
-        return type.__getattribute__(cls, name)
+        return getattr(cls, name)
 
 
 class Language(LanguageMeta(str('LanguageBase'), (object,), {})):
@@ -136,12 +135,6 @@ class Language(LanguageMeta(str('LanguageBase'), (object,), {})):
                 break
         return language
 
-    def __getstate__(self):
-        return self.alpha3, self.country, self.script
-
-    def __setstate__(self, state):
-        self.alpha3, self.country, self.script = state
-
     def __getattr__(self, name):
         alpha3 = self.alpha3
         country = self.country.alpha2 if self.country is not None else None
@@ -155,13 +148,9 @@ class Language(LanguageMeta(str('LanguageBase'), (object,), {})):
         return hash(str(self))
 
     def __eq__(self, other):
-        if isinstance(other, basestr):
-            return str(self) == other
-        if not isinstance(other, Language):
+        if other is None:
             return False
-        return (self.alpha3 == other.alpha3 and
-                self.country == other.country and
-                self.script == other.script)
+        return self.alpha3 == other.alpha3 and self.country == other.country and self.script == other.script
 
     def __ne__(self, other):
         return not self == other

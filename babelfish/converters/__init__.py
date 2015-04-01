@@ -241,14 +241,7 @@ class ConverterManager(object):
                 return self.converters[ep.name]
         for ep in (EntryPoint.parse(c) for c in self.registered_converters + self.internal_converters):
             if ep.name == name:
-                # `require` argument of ep.load() is deprecated in newer versions of setuptools
-                if hasattr(ep, 'resolve'):
-                    plugin = ep.resolve()
-                elif hasattr(ep, '_load'):
-                    plugin = ep._load()
-                else:
-                    plugin = ep.load(require=False)
-                self.converters[ep.name] = plugin()
+                self.converters[ep.name] = ep.load(require=False)()
                 return self.converters[ep.name]
         raise KeyError(name)
 

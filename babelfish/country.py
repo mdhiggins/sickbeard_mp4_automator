@@ -9,7 +9,6 @@ from collections import namedtuple
 from functools import partial
 from pkg_resources import resource_stream  # @UnresolvedImport
 from .converters import ConverterManager
-from . import basestr
 
 
 COUNTRIES = {}
@@ -44,7 +43,7 @@ class CountryMeta(type):
     def __getattr__(cls, name):
         if name.startswith('from'):
             return partial(cls.fromcode, converter=name[4:])
-        return type.__getattribute__(cls, name)
+        return getattr(cls, name)
 
 
 class Country(CountryMeta(str('CountryBase'), (object,), {})):
@@ -75,12 +74,6 @@ class Country(CountryMeta(str('CountryBase'), (object,), {})):
         """
         return cls(country_converters[converter].reverse(code))
 
-    def __getstate__(self):
-        return self.alpha2
-
-    def __setstate__(self, state):
-        self.alpha2 = state
-
     def __getattr__(self, name):
         return country_converters[name].convert(self.alpha2)
 
@@ -88,9 +81,7 @@ class Country(CountryMeta(str('CountryBase'), (object,), {})):
         return hash(self.alpha2)
 
     def __eq__(self, other):
-        if isinstance(other, basestr):
-            return str(self) == other
-        if not isinstance(other, Country):
+        if other is None:
             return False
         return self.alpha2 == other.alpha2
 
