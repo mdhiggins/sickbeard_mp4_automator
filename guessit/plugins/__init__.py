@@ -19,28 +19,3 @@
 #
 
 from __future__ import absolute_import, division, print_function, unicode_literals
-
-from guessit.test.guessittest import *
-
-IGNORE_EPISODES = []
-IGNORE_MOVIES = []
-
-
-class TestAutoDetectAll(TestGuessit):
-    def testAutoMatcher(self):
-        self.checkMinimumFieldsCorrect(filename='autodetect.yaml',
-                                       remove_type=False)
-
-    def testAutoMatcherMovies(self):
-        self.checkMinimumFieldsCorrect(filename='movies.yaml',
-                                       exclude_files=IGNORE_MOVIES)
-
-    def testAutoMatcherEpisodes(self):
-        self.checkMinimumFieldsCorrect(filename='episodes.yaml',
-                                       exclude_files=IGNORE_EPISODES)
-
-
-suite = allTests(TestAutoDetectAll)
-
-if __name__ == '__main__':
-    TextTestRunner(verbosity=2).run(suite)
