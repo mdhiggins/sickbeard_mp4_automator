@@ -7,7 +7,7 @@
 from __future__ import unicode_literals
 from collections import namedtuple
 from pkg_resources import resource_stream  # @UnresolvedImport
-
+from . import basestr
 
 #: Script code to script name mapping
 SCRIPTS = {}
@@ -50,10 +50,20 @@ class Script(object):
         """English name of the script"""
         return SCRIPTS[self.code]
 
+    def __getstate__(self):
+        return self.code
+
+    def __setstate__(self, state):
+        self.code = state
+
     def __hash__(self):
         return hash(self.code)
 
     def __eq__(self, other):
+        if isinstance(other, basestr):
+            return self.code == other
+        if not isinstance(other, Script):
+            return False
         return self.code == other.code
 
     def __ne__(self, other):
