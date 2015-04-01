@@ -17,19 +17,4 @@
 # You should have received a copy of the Lesser GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-from guessit.test.guessittest import *
-
-
-class TestEpisode(TestGuessit):
-    def testEpisodes(self):
-        self.checkMinimumFieldsCorrect(filetype='episode',
-                                       filename='episodes.yaml')
-
-
-suite = allTests(TestEpisode)
-
-if __name__ == '__main__':
-    TextTestRunner(verbosity=2).run(suite)
+__version__ = '0.10.3.dev0'

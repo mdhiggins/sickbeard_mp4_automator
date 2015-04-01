@@ -19,28 +19,22 @@
 #
 
 from __future__ import absolute_import, division, print_function, unicode_literals
-
-from guessit.test.guessittest import *
-
-IGNORE_EPISODES = []
-IGNORE_MOVIES = []
-
-
-class TestAutoDetectAll(TestGuessit):
-    def testAutoMatcher(self):
-        self.checkMinimumFieldsCorrect(filename='autodetect.yaml',
-                                       remove_type=False)
-
-    def testAutoMatcherMovies(self):
-        self.checkMinimumFieldsCorrect(filename='movies.yaml',
-                                       exclude_files=IGNORE_MOVIES)
-
-    def testAutoMatcherEpisodes(self):
-        self.checkMinimumFieldsCorrect(filename='episodes.yaml',
-                                       exclude_files=IGNORE_EPISODES)
+from guessit.test import (test_api, test_autodetect, test_autodetect_all, test_doctests,
+                          test_episode, test_hashes, test_language, test_main,
+                          test_matchtree, test_movie, test_quality, test_utils)
+from unittest import TextTestRunner
 
 
-suite = allTests(TestAutoDetectAll)
+import logging
+
+def main():
+    for suite in [test_api.suite, test_autodetect.suite,
+                  test_autodetect_all.suite, test_doctests.suite,
+                  test_episode.suite, test_hashes.suite, test_language.suite,
+                  test_main.suite, test_matchtree.suite, test_movie.suite,
+                  test_quality.suite, test_utils.suite]:
+        TextTestRunner(verbosity=2).run(suite)
+
 
 if __name__ == '__main__':
-    TextTestRunner(verbosity=2).run(suite)
+    main()

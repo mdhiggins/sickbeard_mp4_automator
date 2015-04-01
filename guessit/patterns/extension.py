@@ -3,6 +3,8 @@
 #
 # GuessIt - A library for guessing information from filenames
 # Copyright (c) 2013 Nicolas Wack <wackou@gmail.com>
+# Copyright (c) 2013 Rémi Alvergnat <toilal.dev@gmail.com>
+# Copyright (c) 2011 Ricard Marxer <ricardmp@gmail.com>
 #
 # GuessIt is free software; you can redistribute it and/or modify it under
 # the terms of the Lesser GNU General Public License as published by
@@ -20,27 +22,11 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from guessit.test.guessittest import *
+subtitle_exts = ['srt', 'idx', 'sub', 'ssa', 'ass']
 
-IGNORE_EPISODES = []
-IGNORE_MOVIES = []
+info_exts = ['nfo']
 
-
-class TestAutoDetectAll(TestGuessit):
-    def testAutoMatcher(self):
-        self.checkMinimumFieldsCorrect(filename='autodetect.yaml',
-                                       remove_type=False)
-
-    def testAutoMatcherMovies(self):
-        self.checkMinimumFieldsCorrect(filename='movies.yaml',
-                                       exclude_files=IGNORE_MOVIES)
-
-    def testAutoMatcherEpisodes(self):
-        self.checkMinimumFieldsCorrect(filename='episodes.yaml',
-                                       exclude_files=IGNORE_EPISODES)
-
-
-suite = allTests(TestAutoDetectAll)
-
-if __name__ == '__main__':
-    TextTestRunner(verbosity=2).run(suite)
+video_exts = ['3g2', '3gp', '3gp2', 'asf', 'avi', 'divx', 'flv', 'm4v', 'mk2',
+              'mka', 'mkv', 'mov', 'mp4', 'mp4a', 'mpeg', 'mpg', 'ogg', 'ogm',
+              'ogv', 'qt', 'ra', 'ram', 'rm', 'ts', 'wav', 'webm', 'wma', 'wmv',
+              'iso']
