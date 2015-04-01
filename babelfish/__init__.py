@@ -5,10 +5,17 @@
 # that can be found in the LICENSE file.
 #
 __title__ = 'babelfish'
-__version__ = '0.5.1'
+__version__ = '0.5.4'
 __author__ = 'Antoine Bertin'
 __license__ = 'BSD'
 __copyright__ = 'Copyright 2013 the BabelFish authors'
+
+import sys
+
+if sys.version_info[0] >= 3:
+    basestr = str
+else:
+    basestr = basestring
 
 from .converters import (LanguageConverter, LanguageReverseConverter, LanguageEquivalenceConverter, CountryConverter,
     CountryReverseConverter)
