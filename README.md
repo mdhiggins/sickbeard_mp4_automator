@@ -36,6 +36,7 @@ Prerequesite Installation Instructions
 - `Setup_tools` - https://pypi.python.org/pypi/setuptools#installation-instructions
 - `Requests` - Run `pip install requests`
 - `Gevent` - Run `pip install gevent`
+- `stevedore` - Run `pip install stevedore` (this will be automatically installed with subliminal)
 
 General MP4 Configuration
 --------------
