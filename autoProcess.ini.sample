@@ -47,11 +47,11 @@ permissions=0777
 [CouchPotato]
 host = localhost
 port = 5050
-username = 
+username =
 password =
 web_root =
 ssl = 0
-apikey = 
+apikey =
 delay = 65
 method = renamer
 delete_failed = 0
@@ -67,6 +67,18 @@ action_after=removedata
 host=http://localhost:8080/
 username=
 password=
+
+[Deluge]
+host = localhost
+username =
+convert = True
+password =
+sonarr-label = sonarr
+bypass-label = bypass
+sickbeard-label = sickbeard
+port = 58846
+sickrage-label = sickrage
+couchpotato-label = couchpotato
 
 [SABNZBD]
 convert=True
