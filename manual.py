@@ -7,6 +7,7 @@ import locale
 import glob
 import argparse
 import struct
+import logging
 from readSettings import ReadSettings
 from tvdb_mp4 import Tvdb_mp4
 from tmdb_mp4 import tmdb_mp4
@@ -14,9 +15,17 @@ from mkvtomp4 import MkvtoMp4
 from tvdb_api import tvdb_api
 from tmdb_api import tmdb
 from extensions import tmdb_api_key
+from logging.config import fileConfig
 
-settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
+fileConfig(os.path.join(os.path.dirname(sys.argv[0]), 'logging.ini'), defaults={'logfilename': os.path.join(os.path.dirname(sys.argv[0]), 'info.log').replace("\\", "/")})
+log = logging.getLogger("MANUAL")
+logging.getLogger("subliminal").setLevel(logging.WARNING)
+logging.getLogger("requests").setLevel(logging.WARNING)
+logging.getLogger("enzyme").setLevel(logging.WARNING)
 
+log.info("Manual processor started.")
+
+settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini", logger=log)
 
 def mediatype():
     print "Select media type:"
@@ -87,7 +96,7 @@ def getinfo(fileName=None, silent=False, tag=settings.tagfile, tvdbid=None):
         elif m_type is 5:
             return False
     else:
-        if tagdata and tag: 
+        if tagdata and tag:
             return tagdata
         else:
             return None
@@ -156,14 +165,14 @@ def processFile(inputfile, tagdata, relativePath=None):
         tagmp4 = None # No tag data specified but convert the file anyway
     elif tagdata[0] is 1:
         imdbid = tagdata[1]
-        tagmp4 = tmdb_mp4(imdbid, language=settings.taglanguage)
+        tagmp4 = tmdb_mp4(imdbid, language=settings.taglanguage, logger=log)
         try:
             print "Processing %s" % (tagmp4.title.encode(sys.stdout.encoding, errors='ignore'))
         except:
             print "Processing movie"
     elif tagdata[0] is 2:
         tmdbid = tagdata[1]
-        tagmp4 = tmdb_mp4(tmdbid, True, language=settings.taglanguage)
+        tagmp4 = tmdb_mp4(tmdbid, True, language=settings.taglanguage, logger=log)
         try:
             print "Processing %s" % (tagmp4.title.encode(sys.stdout.encoding, errors='ignore'))
         except:
@@ -172,38 +181,39 @@ def processFile(inputfile, tagdata, relativePath=None):
         tvdbid = int(tagdata[1])
         season = int(tagdata[2])
         episode = int(tagdata[3])
-        tagmp4 = Tvdb_mp4(tvdbid, season, episode, language=settings.taglanguage)
+        tagmp4 = Tvdb_mp4(tvdbid, season, episode, language=settings.taglanguage, logger=log)
         try:
             print "Processing %s Season %02d Episode %02d - %s" % (tagmp4.show.encode(sys.stdout.encoding, errors='ignore'), int(tagmp4.season), int(tagmp4.episode), tagmp4.title.encode(sys.stdout.encoding, errors='ignore'))
         except:
             print "Processing TV episode"
-    
+
     # Process
-    try: 
+    try:
         inputfile = inputfile.encode(locale.getpreferredencoding())
-    except: 
+    except:
         raise Exception, "File contains an unknown character that cannot be handled by under Python in your operating system, please rename the file"
-    if MkvtoMp4(settings).validSource(inputfile):
-        converter = MkvtoMp4(settings)
+    if MkvtoMp4(settings, logger=log).validSource(inputfile):
+        converter = MkvtoMp4(settings, logger=log)
         output = converter.process(inputfile, True)
         if tagmp4 is not None:
             try:
                 tagmp4.setHD(output['x'], output['y'])
                 tagmp4.writeTags(output['output'], settings.artwork)
-            except:
+            except Exception as e:
                 print "There was an error tagging the file"
+                print e
         if settings.relocate_moov:
             converter.QTFS(output['output'])
         converter.replicate(output['output'], relativePath=relativePath)
 
 
-def walkDir(dir, silent=False, preserveRelative=False, tvdbid=None):
+def walkDir(dir, silent=False, preserveRelative=False, tvdbid=None, tag=True):
     for r,d,f in os.walk(dir):
         for file in f:
             filepath = os.path.join(r, file)
             relative = os.path.split(os.path.relpath(filepath , dir))[0] if preserveRelative else None
             try:
-                if MkvtoMp4(settings).validSource(filepath):
+                if MkvtoMp4(settings, logger=log).validSource(filepath):
                     try:
                         print "Processing file %s" % (filepath.encode(sys.stdout.encoding, errors='ignore'))
                     except:
@@ -211,7 +221,10 @@ def walkDir(dir, silent=False, preserveRelative=False, tvdbid=None):
                             print "Processing file %s" % (filepath.encode('utf-8', errors='ignore'))
                         except:
                             print "Processing file"
-                    tagdata = getinfo(filepath, silent, tvdbid=tvdbid)
+                    if tag:
+                        tagdata = getinfo(filepath, silent, tvdbid=tvdbid)
+                    else:
+                        tagdata = None
                     processFile(filepath, tagdata, relativePath=relative)
             except Exception as e:
                 print "An unexpected error occurred, processing of this file has failed"
@@ -230,6 +243,7 @@ def main():
     parser.add_argument('-nm', '--nomove', action='store_true', help="Overrides and disables the custom moving of file options that come from output_dir and move-to")
     parser.add_argument('-nc', '--nocopy', action='store_true', help="Overrides and disables the custom copying of file options that come from output_dir and move-to")
     parser.add_argument('-nd', '--nodelete', action='store_true', help="Overrides and disables deleting of original files")
+    parser.add_argument('-nt', '--notag', action="store_true", help="Overrides and disables tagging when using the automated option")
     parser.add_argument('-pr', '--preserveRelative', action='store_true', help="Preserves relative directories when processing multiple files using the copy-to or move-to functionality")
     parser.add_argument('-cmp4', '--convertmp4', action='store_true', help="Overrides convert-mp4 setting in autoProcess.ini enabling the reprocessing of mp4 files")
 
@@ -237,6 +251,9 @@ def main():
 
     #Setup the silent mode
     silent = args['auto']
+    tag = True
+
+    print ("%sbit Python." % (struct.calcsize("P") * 8))
 
     #Settings overrides
     if (args['nomove']):
@@ -252,8 +269,9 @@ def main():
     if (args['convertmp4']):
         settings.processMP4 = True
         print "Reprocessing of MP4 files enabled"
-
-    print struct.calcsize("P") * 8
+    if (args['notag']):
+        tag = False
+        print "No-tagging enabled"
 
     #Establish the path we will be working with
     if (args['input']):
@@ -267,9 +285,11 @@ def main():
 
     if os.path.isdir(path):
         tvdbid = int(args['tvdbid']) if args['tvdbid'] else None
-        walkDir(path, silent, tvdbid=tvdbid, preserveRelative=args['preserveRelative'])
-    elif (os.path.isfile(path) and MkvtoMp4(settings).validSource(path)):
-        if (args['tvdbid'] and not (args['imdbid'] or args['tmdbid'])):
+        walkDir(path, silent, tvdbid=tvdbid, preserveRelative=args['preserveRelative'], tag=tag)
+    elif (os.path.isfile(path) and MkvtoMp4(settings, logger=log).validSource(path)):
+        if (not tag):
+            tagdata = None
+        elif (args['tvdbid'] and not (args['imdbid'] or args['tmdbid'])):
             tvdbid = int(args['tvdbid']) if args['tvdbid'] else None
             season = int(args['season']) if args['season'] else None
             episode = int(args['episode']) if args['episode'] else None
