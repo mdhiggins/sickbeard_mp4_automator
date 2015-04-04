@@ -1,7 +1,10 @@
 import os
 import sys
 import urllib
-import StringIO
+try:
+    from io import StringIO
+except:
+    from cStringIO import StringIO
 import tempfile
 import time
 import logging
@@ -152,7 +155,7 @@ class Tvdb_mp4:
         subfooter = "</array>\n"
         footer = "</dict></plist>\n"
 
-        output = StringIO.StringIO()
+        output = StringIO()
         output.write(header)
 
         # Write actors
