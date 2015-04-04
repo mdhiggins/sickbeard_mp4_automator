@@ -125,7 +125,7 @@ class ReadSettings:
 
         # Default Plex Settings
         plex_defaults = {'host': 'localhost',
-                         'port': '32400', 
+                         'port': '32400',
                          'refresh': 'true'}
 
         defaults = {'SickBeard': sb_defaults, 'CouchPotato': cp_defaults, 'Sonarr': sonarr_defaults, 'MP4': mp4_defaults, 'uTorrent': utorrent_defaults, 'SABNZBD': sab_defaults, 'Sickrage': sr_defaults, 'Deluge': deluge_defaults, 'Plex': plex_defaults}
@@ -214,7 +214,7 @@ class ReadSettings:
         #if self.acodec not in valid_audio_codecs:
         #    self.acodec = 'aac'
         #    print "Audio codec not valid, defaulting to AAC"
-        
+
         self.iOS = config.get(section, "ios-audio")  # Creates a second audio channel if the standard output methods are different from this for iOS compatability
         if self.iOS == "" or self.iOS.lower() in ['false', 'no', 'f', '0']:
             self.iOS = False
@@ -222,7 +222,7 @@ class ReadSettings:
             if self.iOS.lower() in ['true', 'yes', 't', '1']:
                 self.iOS = 'aac'
         self.iOSFirst = config.getboolean(section, "ios-first-track-only")  # Enables the iOS audio option only for the first track
-        
+
         self.downloadsubs = config.getboolean(section, "download-subs")  #  Enables downloading of subtitles from the internet sources using subliminal
         if self.downloadsubs:
             try:
@@ -271,7 +271,7 @@ class ReadSettings:
             self.vbitrate = None
         else:
             try:
-                self.vbitrate = int(self.vbitrate)*1000
+                self.vbitrate = int(self.vbitrate)
             except:
                 log.exception("Invalid video bitrate, defaulting to no video bitrate cap.")
                 self.vbitrate = None
