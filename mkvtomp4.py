@@ -12,29 +12,29 @@ from babelfish import Language
 
 
 class MkvtoMp4:
-    def __init__(   self, settings=None, 
-                    FFMPEG_PATH="FFMPEG.exe", 
-                    FFPROBE_PATH="FFPROBE.exe", 
-                    delete=True, 
-                    output_extension='mp4', 
-                    output_dir=None, 
-                    relocate_moov=True, 
-                    output_format = 'mp4', 
+    def __init__(   self, settings=None,
+                    FFMPEG_PATH="FFMPEG.exe",
+                    FFPROBE_PATH="FFPROBE.exe",
+                    delete=True,
+                    output_extension='mp4',
+                    output_dir=None,
+                    relocate_moov=True,
+                    output_format = 'mp4',
                     video_codec=['h264', 'x264'],
-                    video_bitrate=None, 
-                    audio_codec=['ac3'], 
-                    audio_bitrate=256, 
-                    iOS=False, 
+                    video_bitrate=None,
+                    audio_codec=['ac3'],
+                    audio_bitrate=256,
+                    iOS=False,
                     iOSFirst=False,
                     maxchannels=None,
-                    awl=None, 
-                    swl=None, 
-                    adl=None, 
-                    sdl=None, 
+                    awl=None,
+                    swl=None,
+                    adl=None,
+                    sdl=None,
                     scodec='mov_text',
                     downloadsubs=True,
-                    processMP4=False, 
-                    copyto=None, 
+                    processMP4=False,
+                    copyto=None,
                     moveto=None,
                     embedsubs=True,
                     providers=['addic7ed', 'podnapisi', 'thesubdb', 'opensubtitles'],
@@ -129,9 +129,9 @@ class MkvtoMp4:
 
         if self.needProcessing(inputfile):
             options = self.generateOptions(inputfile, original=original)
-            
+
             try:
-                if reportProgress: 
+                if reportProgress:
                     self.log.info(json.dumps(options, sort_keys=False, indent=4))
                 else:
                     self.log.debug(json.dumps(options, sort_keys=False, indent=4))
@@ -140,7 +140,7 @@ class MkvtoMp4:
 
             outputfile, inputfile = self.convert(inputfile, options, reportProgress)
 
-            if not outputfile: 
+            if not outputfile:
                 self.log.debug("Error converting, no outputfile present.")
                 return False
 
@@ -149,7 +149,7 @@ class MkvtoMp4:
         else:
             outputfile = inputfile
             if self.output_dir is not None:
-                try:                
+                try:
                     outputfile = os.path.join(self.output_dir, os.path.split(inputfile)[1])
                     self.log.debug("Outputfile set to %s." % outputfile)
                     shutil.copy(inputfile, outputfile)
@@ -192,7 +192,7 @@ class MkvtoMp4:
             return True
         else:
             self.log.debug("%s is invalid." % inputfile)
-            return False            
+            return False
 
     # Determine if a file meets the criteria for processing
     def needProcessing(self, inputfile):
@@ -208,7 +208,7 @@ class MkvtoMp4:
     # Get values for width and height to be passed to the tagging classes for proper HD tags
     def getDimensions(self, inputfile):
         if self.validSource(inputfile): info = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH).probe(inputfile)
-        
+
         self.log.debug("Height: %s" % info.video.video_height)
         self.log.debug("Width: %s" % info.video.video_width)
 
@@ -216,7 +216,7 @@ class MkvtoMp4:
                  'x': info.video.video_width }
 
     # Generate a list of options to be passed to FFMPEG based on selected settings and the source file parameters and streams
-    def generateOptions(self, inputfile, original=None):    
+    def generateOptions(self, inputfile, original=None):
         #Get path information from the input file
         input_dir, filename, input_extension = self.parseFile(inputfile)
 
@@ -226,7 +226,7 @@ class MkvtoMp4:
         self.log.info("Reading video stream.")
         self.log.info("Video codec detected: %s" % info.video.codec)
 
-        if self.video_bitrate is not None and info.format.bitrate > self.video_bitrate:
+        if self.video_bitrate is not None and info.format.bitrate/1000 > self.video_bitrate:
             self.log.debug("Overriding video bitrate. Codec cannot be copied because video bitrate is too high.")
             vcodec = self.video_codec[0]
             vbitrate = self.video_bitrate
@@ -334,7 +334,7 @@ class MkvtoMp4:
                 s.metadata['language'] = self.sdl
             # Make sure its not an image based codec
             if s.codec.lower() not in bad_subtitle_codecs and self.embedsubs:
-                
+
                 # Proceed if no whitelist is set, or if the language is in the whitelist
                 if self.swl is None or s.metadata['language'].lower() in self.swl:
                     subtitle_settings.update({l: {
@@ -367,7 +367,7 @@ class MkvtoMp4:
                     input_dir, filename, input_extension = self.parseFile(inputfile)
                     output_dir = input_dir if self.output_dir is None else self.output_dir
                     outputfile = os.path.join(output_dir, filename + "." + s.metadata['language'] + "." + extension)
-                    
+
                     i = 2
                     while os.path.isfile(outputfile):
                         self.log.debug("%s exists, appending %s to filename." % (outputfile, i))
@@ -426,9 +426,9 @@ class MkvtoMp4:
                         if x == filename:
                             self.log.info("External %s subtitle file detected." % lang)
                             if self.swl is None or lang in self.swl:
-                                
+
                                 self.log.info("Creating subtitle stream %s by importing %s." % (l, fname))
-                                
+
                                 subtitle_settings.update({l: {
                                     'path': os.path.join(dirName, fname),
                                     'source': src,
@@ -446,7 +446,7 @@ class MkvtoMp4:
                                 src = src + 1
 
                                 self.deletesubs.add(os.path.join(dirName, fname))
-                            
+
                             else:
                                 self.log.info("Ignoring %s external subtitle stream due to language %s." % (fname, lang))
 
@@ -489,7 +489,7 @@ class MkvtoMp4:
                 os.rename(inputfile, newfile)
                 self.log.debug("Input file renamed from %s to %s." % (inputfile, newfile))
                 inputfile = newfile
-            except: 
+            except:
                 i = 1
                 while os.path.isfile(outputfile):
                     outputfile = os.path.join(output_dir, filename + "(" + str(i) + ")." + self.output_extension)
@@ -504,7 +504,7 @@ class MkvtoMp4:
                 sys.stdout.flush()
 
         self.log.info("%s created." % outputfile)
-        
+
         try:
             os.chmod(outputfile, self.permissions) # Set permissions of newly created file
         except:
@@ -527,7 +527,7 @@ class MkvtoMp4:
         # Relocate MOOV atom to the very beginning. Can double the time it takes to convert a file but makes streaming faster
         if self.parseFile(inputfile)[2] in valid_output_extensions and os.path.isfile(inputfile) and self.relocate_moov:
             self.log.info("Relocating MOOV atom to start of file.")
-            
+
             outputfile = inputfile.decode(sys.getfilesystemencoding()) + temp_ext
 
             # Clear out the temp file if it exists
