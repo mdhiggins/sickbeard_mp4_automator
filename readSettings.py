@@ -1,6 +1,9 @@
 import os
 import sys
-import ConfigParser
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
 import logging
 from extensions import *
 from babelfish import Language
@@ -131,7 +134,7 @@ class ReadSettings:
         defaults = {'SickBeard': sb_defaults, 'CouchPotato': cp_defaults, 'Sonarr': sonarr_defaults, 'MP4': mp4_defaults, 'uTorrent': utorrent_defaults, 'SABNZBD': sab_defaults, 'Sickrage': sr_defaults, 'Deluge': deluge_defaults, 'Plex': plex_defaults}
         write = False  # Will be changed to true if a value is missing from the config file and needs to be written
 
-        config = ConfigParser.SafeConfigParser()
+        config = configparser.SafeConfigParser()
         configFile = os.path.join(directory, filename)
         if os.path.isfile(configFile):
             fp = open(configFile, "rb")
@@ -244,7 +247,7 @@ class ReadSettings:
             self.permissions = int(self.permissions, 8)
         except:
             self.log.exception("Invalid permissions, defaulting to 777.")
-            self.permissions = 0777
+            self.permissions = int("0777", 8)
 
         #Setup variable for maximum audio channels
         self.maxchannels = config.get(section, 'max-audio-channels')
@@ -354,14 +357,14 @@ class ReadSettings:
             self.CP['delay'] = 60
         try:
             self.CP['delete_failed'] = config.getboolean(section, "delete_failed")
-        except (ConfigParser.NoOptionError, ValueError):
+        except (configparser.NoOptionError, ValueError):
             self.CP['delete_failed'] = False
         try:
             if config.getboolean(section, 'ssl'):
                 self.CP['protocol'] = "https://"
             else:
                 self.CP['protocol'] = "http://"
-        except (ConfigParser.NoOptionError, ValueError):
+        except (configparser.NoOptionError, ValueError):
             self.CP['protocol'] = "http://"
 
         #Read relevant uTorrent section information
@@ -466,7 +469,7 @@ class ReadSettings:
         try:
             if config.getboolean(section, "ssl"):
                 protocol = "https://"
-        except (ConfigParser.NoOptionError, ValueError):
+        except (configparser.NoOptionError, ValueError):
             pass
         host = config.get(section, "host")  # Server Address
         port = config.get(section, "port")  # Server Port
