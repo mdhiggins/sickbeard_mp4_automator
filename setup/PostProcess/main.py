@@ -7,7 +7,7 @@ import os
 
 log = CPLog(__name__)
 
-# Edit to point to the absolute path where the CPProcess.py script resides
+# Edit to point to the absolute path where the rest of the script resides
 path = "C:\\Scripts\\"
 
 
@@ -16,7 +16,7 @@ class PostProcess(Plugin):
     def __init__(self):
         addEvent('renamer.after', self.callscript)
 
-    
+
     def callscript(self, message = None, group = None):
 
         log.info('MP4 Automator Post Processing script initialized version 2')
@@ -33,7 +33,7 @@ class PostProcess(Plugin):
 
         settings = ReadSettings(path, "autoProcess.ini")
         converter = MkvtoMp4(settings)
-        
+
         try:
             imdbid = group['library']['identifier']
         except:
@@ -41,7 +41,7 @@ class PostProcess(Plugin):
 
         moviefile = group['renamed_files']
         original = group['files']['movie'][0]
-        
+
         success = False
 
         for inputfile in moviefile:
@@ -50,7 +50,7 @@ class PostProcess(Plugin):
                 if MkvtoMp4(settings).validSource(inputfile):
                     log.info('File is valid')
                     output = converter.process(inputfile, original=original)
-                    
+
                     # Tag with metadata
                     if settings.tagfile:
                         log.info('Tagging file with IMDB ID %s', imdbid)
