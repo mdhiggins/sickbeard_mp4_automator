@@ -37,6 +37,7 @@ Prerequesite Installation Instructions
 - `Requests` - Run `pip install requests`
 - `Gevent` - Run `pip install gevent`
 - `stevedore` - Run `pip install stevedore` (this will be automatically installed with subliminal)
+- `dateutil` - Run `pip install dateutil` (this will be automatically installed with subliminal)
 
 General MP4 Configuration
 --------------
