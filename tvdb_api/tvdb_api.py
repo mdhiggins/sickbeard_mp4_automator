@@ -57,8 +57,8 @@ else:
     text_type = str
 
 
-from tvdb_ui import BaseUI, ConsoleUI
-from tvdb_exceptions import (tvdb_error, tvdb_userabort, tvdb_shownotfound,
+from .tvdb_ui import BaseUI, ConsoleUI
+from .tvdb_exceptions import (tvdb_error, tvdb_userabort, tvdb_shownotfound,
     tvdb_seasonnotfound, tvdb_episodenotfound, tvdb_attributenotfound)
 
 lastTimeout = None

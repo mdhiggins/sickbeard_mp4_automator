@@ -49,7 +49,7 @@ import sys
 import logging
 import warnings
 
-from tvdb_exceptions import tvdb_userabort
+from .tvdb_exceptions import tvdb_userabort
 
 
 IS_PY2 = sys.version_info[0] == 2
