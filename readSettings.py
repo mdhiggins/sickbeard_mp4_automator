@@ -137,9 +137,7 @@ class ReadSettings:
         config = configparser.SafeConfigParser()
         configFile = os.path.join(directory, filename)
         if os.path.isfile(configFile):
-            fp = open(configFile, "rb")
-            config.readfp(fp)
-            fp.close()
+            config.read(configFile)
         else:
             log.error("Config file not found, creating %s." % configFile)
             #config.filename = filename
