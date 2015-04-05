@@ -82,7 +82,7 @@ class FileType(mutagen._util.DictMixin):
 
         If the file has no tags at all, a KeyError is raised.
         """
-        if self.tags is None: raise KeyError, key
+        if self.tags is None: raise KeyError(key)
         else: return self.tags[key]
 
     def __setitem__(self, key, value):
@@ -100,7 +100,7 @@ class FileType(mutagen._util.DictMixin):
 
         If the file has no tags at all, a KeyError is raised.
         """
-        if self.tags is None: raise KeyError, key
+        if self.tags is None: raise KeyError(key)
         else: del(self.tags[key])
 
     def keys(self):
