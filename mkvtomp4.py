@@ -38,7 +38,7 @@ class MkvtoMp4:
                     moveto=None,
                     embedsubs=True,
                     providers=['addic7ed', 'podnapisi', 'thesubdb', 'opensubtitles'],
-                    permissions=0777,
+                    permissions=int("777", 8),
                     logger=None):
         # Setup Logging
         if logger:
@@ -187,11 +187,15 @@ class MkvtoMp4:
     def validSource(self, inputfile):
         input_dir, filename, input_extension = self.parseFile(inputfile)
         # Make sure the input_extension is some sort of recognized extension, and that the file actually exists
-        if (input_extension in valid_input_extensions or input_extension in valid_output_extensions) and os.path.isfile(inputfile):
-            self.log.debug("%s is valid." % inputfile)
-            return True
+        if (input_extension in valid_input_extensions or input_extension in valid_output_extensions):
+            if (os.path.isfile(inputfile)):
+                self.log.debug("%s is valid." % inputfile)
+                return True
+            else:
+                self.log.debug("%s not found." % inputfile)
+                return False
         else:
-            self.log.debug("%s is invalid." % inputfile)
+            self.log.debug("%s is invalid with extension %s." % (inputfile, input_extension))
             return False
 
     # Determine if a file meets the criteria for processing
@@ -470,8 +474,10 @@ class MkvtoMp4:
 
         input_dir, filename, input_extension = self.parseFile(inputfile)
         output_dir = input_dir if self.output_dir is None else self.output_dir
-        outputfile = os.path.join(output_dir.decode(sys.getfilesystemencoding()), filename.decode(sys.getfilesystemencoding()) + "." + self.output_extension).encode(sys.getfilesystemencoding())
-
+        try:
+            outputfile = os.path.join(output_dir.decode(sys.getfilesystemencoding()), filename.decode(sys.getfilesystemencoding()) + "." + self.output_extension).encode(sys.getfilesystemencoding())
+        except:
+            outputfile = os.path.join(output_dir, filename + "." + self.output_extension)
         self.log.debug("Input directory: %s." % input_dir)
         self.log.debug("File name: %s." % filename)
         self.log.debug("Input extension: %s." % input_extension)
@@ -500,7 +506,10 @@ class MkvtoMp4:
 
         for timecode in conv:
             if reportProgress:
-                sys.stdout.write('[{0}] {1}%\r'.format('#' * (timecode / 10) + ' ' * (10 - (timecode / 10)), timecode))
+                try:
+                    sys.stdout.write('[{0}] {1}%\r'.format('#' * (timecode / 10) + ' ' * (10 - (timecode / 10)), timecode))
+                except:
+                    sys.stdout.write(str(timecode))
                 sys.stdout.flush()
 
         self.log.info("%s created." % outputfile)
@@ -528,7 +537,10 @@ class MkvtoMp4:
         if self.parseFile(inputfile)[2] in valid_output_extensions and os.path.isfile(inputfile) and self.relocate_moov:
             self.log.info("Relocating MOOV atom to start of file.")
 
-            outputfile = inputfile.decode(sys.getfilesystemencoding()) + temp_ext
+            try:
+                outputfile = inputfile.decode(sys.getfilesystemencoding()) + temp_ext
+            except:
+                outputfile = inputfile + temp_ext
 
             # Clear out the temp file if it exists
             if os.path.exists(outputfile):
@@ -589,7 +601,7 @@ class MkvtoMp4:
         for i in range(retries + 1):
             try:
                 # Make sure file isn't read-only
-                os.chmod(filename, 0777)
+                os.chmod(filename, int("0777", 8))
             except:
                 self.log.debug("Unable to set file permissions before deletion. This is not always required.")
             try:
