@@ -268,6 +268,11 @@ class cdata(object):
 
     test_bit = staticmethod(lambda value, n: bool((value >> n) & 1))
 
+    to_char_le = staticmethod(lambda data: struct.pack('<b', data))
+    to_uchar_le = staticmethod(lambda data: struct.pack('<B', data))
+
+    to_char_be = staticmethod(lambda data: struct.pack('>b', data))
+    to_uchar_be = staticmethod(lambda data: struct.pack('>B', data))
 
 _fill_cdata(cdata)
 
