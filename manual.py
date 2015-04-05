@@ -17,6 +17,8 @@ from tmdb_api import tmdb
 from extensions import tmdb_api_key
 from logging.config import fileConfig
 
+if sys.version[0]=="3": raw_input=input
+
 fileConfig(os.path.join(os.path.dirname(sys.argv[0]), 'logging.ini'), defaults={'logfilename': os.path.join(os.path.dirname(sys.argv[0]), 'info.log').replace("\\", "/")})
 log = logging.getLogger("MANUAL")
 logging.getLogger("subliminal").setLevel(logging.WARNING)
@@ -47,7 +49,10 @@ def getValue(prompt, num=False):
     value = raw_input("#: ").strip(' \"')
     # Remove escape characters in non-windows environments
     if os.name != 'nt': value = value.replace('\\', '')
-    value = value.decode(sys.stdout.encoding)
+    try:
+        value = value.decode(sys.stdout.encoding)
+    except:
+        pass
     if num is True and value.isdigit() is False:
         print("Must be a numerical value")
         return getValue(prompt, num)
@@ -188,10 +193,6 @@ def processFile(inputfile, tagdata, relativePath=None):
             print("Processing TV episode")
 
     # Process
-    try:
-        inputfile = inputfile.encode(locale.getpreferredencoding())
-    except:
-        raise Exception("File contains an unknown character that cannot be handled by under Python in your operating system, please rename the file")
     if MkvtoMp4(settings, logger=log).validSource(inputfile):
         converter = MkvtoMp4(settings, logger=log)
         output = converter.process(inputfile, True)
