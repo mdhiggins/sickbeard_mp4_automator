@@ -234,7 +234,7 @@ Deluge Daemon
     - `sonarr-label` - Deluge label that should be assigned to torrents that will be sent to Sonarr for additional processing when download is complete.
     - `bypass-label` - label that should be assigned to torrents that will not be sent anywhere when download is complete. Useful if you wish to convert files without additional processing.
     - `convert` - `True`/`False`. Allows for conversion of files before passing back to the respective download manager.
-    - `hostname` - your Deluge hostname. Default is `localhost`
+    - `host` - your Deluge hostname. Default is `localhost`
     - `port` - Deluge daemon port. Default is `58846`. Do not confuse this with your WebUI port, which is different.
     - `username` - your Deluge username that you previously added to the `auth` file.
     - `password` - your Deluge password that you previously added to the `auth` file.
