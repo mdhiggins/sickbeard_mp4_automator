@@ -191,7 +191,7 @@ def processFile(inputfile, tagdata, relativePath=None):
     try:
         inputfile = inputfile.encode(locale.getpreferredencoding())
     except:
-        raise Exception, "File contains an unknown character that cannot be handled by under Python in your operating system, please rename the file"
+        raise Exception("File contains an unknown character that cannot be handled by under Python in your operating system, please rename the file")
     if MkvtoMp4(settings, logger=log).validSource(inputfile):
         converter = MkvtoMp4(settings, logger=log)
         output = converter.process(inputfile, True)
