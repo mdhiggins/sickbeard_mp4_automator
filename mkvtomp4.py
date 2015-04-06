@@ -253,7 +253,7 @@ class MkvtoMp4:
             vbitrate = self.video_bitrate
         else:
             vcodec = 'copy' if info.video.codec.lower() in self.video_codec else self.video_codec[0]
-            vbitrate = info.format.bitrate
+            vbitrate = vbr
 
         self.log.debug("Video codec: %s" % vcodec)
         self.log.debug("Video bitrate: %s" % vbitrate)
