@@ -229,7 +229,7 @@ class MkvtoMp4:
         self.log.debug("Total bitrate is %s." % info.format.bitrate)
         self.log.debug("Total audio bitrate is %s." % audio_bitrate)
         self.log.debug("Estimated video bitrate is %s." % (total_bitrate - audio_bitrate))
-        return (total_bitrate - audio_bitrate)/1000
+        return ((total_bitrate - audio_bitrate)/1000)*.95
 
     # Generate a list of options to be passed to FFMPEG based on selected settings and the source file parameters and streams
     def generateOptions(self, inputfile, original=None):
