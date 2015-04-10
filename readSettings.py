@@ -56,6 +56,7 @@ class ReadSettings:
                         'audio-channel-bitrate': '256',
                         'video-codec': 'h264, x264',
                         'video-bitrate': '',
+                        'video-width': '',
                         'subtitle-codec': 'mov_text',
                         'subtitle-language': '',
                         'subtitle-default-language': '',
@@ -268,6 +269,7 @@ class ReadSettings:
             self.vcodec = self.vcodec.lower().replace(' ', '').split(',')
 
         self.vbitrate = config.get(section, "video-bitrate")
+        print ("read vbitrate: %s" % self.vbitrate)
         if self.vbitrate == '':
             self.vbitrate = None
         else:
@@ -276,6 +278,17 @@ class ReadSettings:
             except:
                 log.exception("Invalid video bitrate, defaulting to no video bitrate cap.")
                 self.vbitrate = None
+
+        self.vwidth = config.get(section, "video-width")
+        print ("read vwidth: %s" % self.vwidth)
+        if self.vwidth == '':
+            self.vwidth = None
+        else:
+            try:
+                self.vwidth = int(self.vwidth)
+            except:
+                log.exception("Invalid video width, defaulting to no video-width.")
+                self.vwidth = None
 
         self.awl = config.get(section, 'audio-language').strip().lower()  # List of acceptable languages for audio streams to be carried over from the original file, separated by a comma. Blank for all
         if self.awl == '':
