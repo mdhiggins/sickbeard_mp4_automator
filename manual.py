@@ -191,7 +191,6 @@ def processFile(inputfile, tagdata, relativePath=None):
             print("Processing %s Season %02d Episode %02d - %s" % (tagmp4.show.encode(sys.stdout.encoding, errors='ignore'), int(tagmp4.season), int(tagmp4.episode), tagmp4.title.encode(sys.stdout.encoding, errors='ignore')))
         except:
             print("Processing TV episode")
-
     # Process
     if MkvtoMp4(settings, logger=log).validSource(inputfile):
         converter = MkvtoMp4(settings, logger=log)
@@ -215,6 +214,12 @@ def walkDir(dir, silent=False, preserveRelative=False, tvdbid=None, tag=True):
             relative = os.path.split(os.path.relpath(filepath , dir))[0] if preserveRelative else None
             try:
                 if MkvtoMp4(settings, logger=log).validSource(filepath):
+                    #validate that destination file does not exist if doing a move operation
+                    if settings.moveto:
+                        moveto = os.path.join(settings.moveto, relative) if relative else settings.moveto
+                        if os.path.exists(moveto):
+                            print ("Skipped file %s.  %s already exists." % (filepath, moveto))
+                            continue
                     try:
                         print("Processing file %s" % (filepath.encode(sys.stdout.encoding, errors='ignore')))
                     except:
