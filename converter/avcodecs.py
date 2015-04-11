@@ -372,6 +372,19 @@ class VideoCodec(BaseCodec):
             optlist.extend(['-vf', filters])
 
         optlist.extend(self._codec_specific_produce_ffmpeg_list(safe))
+
+        if optlist.count('-vf') > 1:
+            vf = []
+            while optlist.count('-vf') > 0:
+                vf.append(optlist.pop(optlist.index('-vf')+1))
+                del optlist[optlist.index('-vf')]
+
+            vfstring = ""
+            for line in vf:
+                vfstring = "%s;%s" % (vfstring, line)
+
+            optlist.extend(['-vf', vfstring[1:]])
+
         return optlist
 
 
