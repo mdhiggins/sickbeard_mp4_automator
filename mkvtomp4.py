@@ -22,6 +22,7 @@ class MkvtoMp4:
                     output_format = 'mp4',
                     video_codec=['h264', 'x264'],
                     video_bitrate=None,
+                    video_width=None,
                     audio_codec=['ac3'],
                     audio_bitrate=256,
                     iOS=False,
@@ -62,6 +63,7 @@ class MkvtoMp4:
         # Video settings
         self.video_codec=video_codec
         self.video_bitrate=video_bitrate
+        self.video_width=video_width
         # Audio settings
         self.audio_codec=audio_codec
         self.audio_bitrate=audio_bitrate
@@ -99,6 +101,7 @@ class MkvtoMp4:
         #Video settings
         self.video_codec=settings.vcodec
         self.video_bitrate=settings.vbitrate
+        self.video_width=settings.vwidth
         #Audio settings
         self.audio_codec=settings.acodec
         self.audio_bitrate=settings.abitrate
@@ -219,6 +222,18 @@ class MkvtoMp4:
         return { 'y': info.video.video_height,
                  'x': info.video.video_width }
 
+    # Estimate the video bitrate
+    def estimateVideoBitrate(self, info):
+        total_bitrate = info.format.bitrate
+        audio_bitrate = 0
+        for a in info.audio:
+            audio_bitrate += a.bitrate
+
+        self.log.debug("Total bitrate is %s." % info.format.bitrate)
+        self.log.debug("Total audio bitrate is %s." % audio_bitrate)
+        self.log.debug("Estimated video bitrate is %s." % (total_bitrate - audio_bitrate))
+        return ((total_bitrate - audio_bitrate)/1000)*.95
+
     # Generate a list of options to be passed to FFMPEG based on selected settings and the source file parameters and streams
     def generateOptions(self, inputfile, original=None):
         #Get path information from the input file
@@ -230,13 +245,25 @@ class MkvtoMp4:
         self.log.info("Reading video stream.")
         self.log.info("Video codec detected: %s" % info.video.codec)
 
-        if self.video_bitrate is not None and info.format.bitrate/1000 > self.video_bitrate:
+        try:
+            vbr = self.estimateVideoBitrate(info)
+        except:
+            vbr = info.format.bitrate/1000
+
+        vcodec = 'copy' if info.video.codec.lower() in self.video_codec else self.video_codec[0]
+        vbitrate = vbr
+
+        if self.video_bitrate is not None and vbr > self.video_bitrate:
             self.log.debug("Overriding video bitrate. Codec cannot be copied because video bitrate is too high.")
             vcodec = self.video_codec[0]
             vbitrate = self.video_bitrate
+
+        if self.video_width is not None and self.video_width < info.video.video_width:
+            self.log.debug("Video width is over the max width, it will be downsampled. Video stream can no longer be copied.")
+            vcodec = self.video_codec[0]
+            vwidth = self.video_width
         else:
-            vcodec = 'copy' if info.video.codec.lower() in self.video_codec else self.video_codec[0]
-            vbitrate = info.format.bitrate
+            vwidth = None
 
         self.log.debug("Video codec: %s" % vcodec)
         self.log.debug("Video bitrate: %s" % vbitrate)
@@ -298,7 +325,7 @@ class MkvtoMp4:
                         abitrate = a.audio_channels * self.audio_bitrate
                     # Bitrate calculations/overrides
                     if self.audio_bitrate is 0:
-                        abitrate = a.bitrate
+                        abitrate = a.bitrate/1000
 
                 self.log.debug("Audio codec: %s." % acodec)
                 self.log.debug("Channels: %s." % audio_channels)
@@ -465,6 +492,10 @@ class MkvtoMp4:
             'audio': audio_settings,
             'subtitle': subtitle_settings,
         }
+
+        # Add width option
+        if vwidth: options['video']['width'] = vwidth
+
         self.options = options
         return options
 
