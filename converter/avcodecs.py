@@ -248,13 +248,9 @@ class VideoCodec(BaseCodec):
             return w, h, None
         elif w and not h:
             h = int((1.0 * w) / aspect)
-            h = (round(h/2))*2
-            w = (round((h * aspect)/2))*2
             return w, h, None
         elif h and not w:
             w = int(aspect * h)
-            w = (round(w)/2)*2
-            h = (round((w * aspect)/2))*2
             return w, h, None
 
         # If source and target dimensions are actually the same aspect
@@ -533,7 +529,7 @@ class Ac3Codec(AudioCodec):
     """
     codec_name = 'ac3'
     ffmpeg_codec_name = 'ac3'
-
+    
     def parse_options(self, opt, stream=0):
         if 'channels' in opt:
             c = opt['channels']
