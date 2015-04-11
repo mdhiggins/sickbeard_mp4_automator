@@ -283,7 +283,7 @@ class ReadSettings:
             self.vwidth = None
         else:
             try:
-                self.vwidth = round(int(self.vwidth)/2)*2
+                self.vwidth = int(self.vwidth)
             except:
                 log.exception("Invalid video width, defaulting to none.")
                 self.vwidth = None
