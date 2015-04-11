@@ -22,6 +22,7 @@ class MkvtoMp4:
                     output_format = 'mp4',
                     video_codec=['h264', 'x264'],
                     video_bitrate=None,
+                    video_width=None,
                     audio_codec=['ac3'],
                     audio_bitrate=256,
                     iOS=False,
@@ -62,6 +63,7 @@ class MkvtoMp4:
         # Video settings
         self.video_codec=video_codec
         self.video_bitrate=video_bitrate
+        self.video_width=video_width
         # Audio settings
         self.audio_codec=audio_codec
         self.audio_bitrate=audio_bitrate
@@ -99,6 +101,7 @@ class MkvtoMp4:
         #Video settings
         self.video_codec=settings.vcodec
         self.video_bitrate=settings.vbitrate
+        self.video_width=settings.vwidth
         #Audio settings
         self.audio_codec=settings.acodec
         self.audio_bitrate=settings.abitrate
@@ -247,13 +250,20 @@ class MkvtoMp4:
         except:
             vbr = info.format.bitrate/1000
 
+        vcodec = 'copy' if info.video.codec.lower() in self.video_codec else self.video_codec[0]
+        vbitrate = vbr
+
         if self.video_bitrate is not None and vbr > self.video_bitrate:
             self.log.debug("Overriding video bitrate. Codec cannot be copied because video bitrate is too high.")
             vcodec = self.video_codec[0]
             vbitrate = self.video_bitrate
+
+        if self.video_width is not None and self.video_width < info.video.video_width:
+            self.log.debug("Video width is over the max width, it will be downsampled. Video stream can no longer be copied.")
+            vcodec = self.video_codec[0]
+            vwidth = self.video_width
         else:
-            vcodec = 'copy' if info.video.codec.lower() in self.video_codec else self.video_codec[0]
-            vbitrate = vbr
+            vwidth = None
 
         self.log.debug("Video codec: %s" % vcodec)
         self.log.debug("Video bitrate: %s" % vbitrate)
@@ -482,6 +492,10 @@ class MkvtoMp4:
             'audio': audio_settings,
             'subtitle': subtitle_settings,
         }
+
+        # Add width option
+        if vwidth: options['video']['width'] = vwidth
+
         self.options = options
         return options
 
