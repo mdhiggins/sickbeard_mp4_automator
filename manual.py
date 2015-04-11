@@ -217,6 +217,7 @@ def walkDir(dir, silent=False, preserveRelative=False, tvdbid=None, tag=True):
                     #validate that destination file does not exist if doing a move operation
                     if settings.moveto:
                         moveto = os.path.join(settings.moveto, relative) if relative else settings.moveto
+                        moveto = os.path.join(moveto, os.path.split(filepath)[1])
                         if os.path.exists(moveto):
                             print ("Skipped file %s.  %s already exists." % (filepath, moveto))
                             continue
