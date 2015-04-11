@@ -356,7 +356,8 @@ class MP4Tags(DictProxy, Metadata):
                 render_func = type(self).__render_text
 
             try:
-                values.append(render_func(self, key, value))
+                if value:
+                    values.append(render_func(self, key, value))
             except (TypeError, ValueError) as s:
                 reraise(MP4MetadataValueError, s, sys.exc_info()[2])
 
