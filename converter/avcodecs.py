@@ -621,8 +621,8 @@ class H264Codec(VideoCodec):
         'profile': str,  # default: not-set, for valid values see above link
         'level': float, # default: not-set, values range from 3.0 to 4.2
         'tune': str,  # default: not-set, for valid values see above link
-        'wscale': int,
-        'hscale': int
+        'wscale': int, # special handlers for the even number requirements of h264
+        'hscale': int # special handlers for the even number requirements of h264
     })
 
     def parse_options(self, opt, stream=0):
