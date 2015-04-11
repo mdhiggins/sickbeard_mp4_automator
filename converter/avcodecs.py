@@ -529,7 +529,7 @@ class Ac3Codec(AudioCodec):
     """
     codec_name = 'ac3'
     ffmpeg_codec_name = 'ac3'
-    
+
     def parse_options(self, opt, stream=0):
         if 'channels' in opt:
             c = opt['channels']
@@ -608,7 +608,18 @@ class H264Codec(VideoCodec):
         'profile': str,  # default: not-set, for valid values see above link
         'level': float, # default: not-set, values range from 3.0 to 4.2
         'tune': str,  # default: not-set, for valid values see above link
+        'wscale': int,
+        'hscale': int
     })
+
+    def parse_options(self, opt, stream=0):
+        if 'width' in opt:
+            opt['wscale'] = opt['width']
+            del(opt['width'])
+        if 'height' in opt:
+            opt['hscale'] = opt['height']
+            del(opt['height'])
+        return super(H264Codec, self).parse_options(opt, stream)
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         optlist = []
@@ -622,6 +633,12 @@ class H264Codec(VideoCodec):
             optlist.extend(['-level'], '%0.1f' % safe['level'])
         if 'tune' in safe:
             optlist.extend(['-tune', safe['tune']])
+        if 'wscale' in safe and 'hscale' in safe:
+            optlist.extend(['-vf', 'scale=%s:%s' % (safe['wscale'], safe['hscale'])])
+        elif 'wscale' in safe:
+            optlist.extend(['-vf', 'scale=%s:-2' % (safe['wscale'])])
+        elif 'hscale' in safe:
+            optlist.extend(['-vf', 'scale=-2:%s' % (safe['hscale'])])
         return optlist
 
 
