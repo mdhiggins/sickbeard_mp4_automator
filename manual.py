@@ -148,11 +148,10 @@ def tvdbInfo(guessData, tvdbid=None):
         fullseries = series + " (" + str(guessData["year"]) + ")"
     season = guessData["season"]
     episode = guessData["episodeNumber"]
-    t = tvdb_api.Tvdb()
-    #tvdbid = t[series]['id']
+    t = tvdb_api.Tvdb(interactive=False, cache=False, banners=False, actors=False, forceConnect=True, language='en')
     try:
         tvdbid = str(tvdbid) if tvdbid else t[fullseries]['id']
-        series = t[fullseries]['seriesname']
+        series = t[int(tvdbid)]['seriesname']
     except:
         tvdbid = t[series]['id']
     try:
