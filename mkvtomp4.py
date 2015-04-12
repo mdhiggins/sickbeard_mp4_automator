@@ -517,21 +517,11 @@ class MkvtoMp4:
 
         if os.path.abspath(inputfile) == os.path.abspath(outputfile):
             self.log.debug("Inputfile and outputfile are the same.")
-            newfile = os.path.join(input_dir, filename + '.tmp.' + input_extension)
-            #Make sure there isn't any leftover temp files for whatever reason
-            if os.path.exists(newfile):
-                self.removeFile(newfile, 0, 0)
-            #Attempt to rename the new input file to a temporary name
-            try:
-                os.rename(inputfile, newfile)
-                self.log.debug("Input file renamed from %s to %s." % (inputfile, newfile))
-                inputfile = newfile
-            except:
-                i = 1
-                while os.path.isfile(outputfile):
-                    outputfile = os.path.join(output_dir, filename + "(" + str(i) + ")." + self.output_extension)
-                    i += i
-                self.log.debug("Unable to rename input file. Setting output file name to %s." % outputfile)
+            i = 2
+            while os.path.isfile(outputfile):
+                outputfile = os.path.join(output_dir, filename + "(" + str(i) + ")." + self.output_extension)
+                i += i
+            self.log.debug("Setting output file name to %s." % outputfile)
 
         conv = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH).convert(inputfile, outputfile, options, timeout=None, preopts=['-fix_sub_duration'], postopts=['-threads', 'auto'])
 
