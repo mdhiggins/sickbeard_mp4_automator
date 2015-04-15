@@ -59,7 +59,7 @@ if settings.deluge['convert']:
     # Perform conversion.
     settings.delete = False
     if not settings.output_dir:
-        settings.output_dir = os.path.join(path, torrent_id)
+        settings.output_dir = os.path.join(path, torrent_name)
         if not os.path.exists(settings.output_dir):
             os.mkdir(settings.output_dir)
         delete_dir = settings.output_dir
@@ -77,7 +77,7 @@ if settings.deluge['convert']:
 
     path = converter.output_dir
 else:
-    newpath = os.path.join(path, torrent_id)
+    newpath = os.path.join(path, torrent_name)
     if not os.path.exists(newpath):
         os.mkdir(newpath)
     for filename in files:
@@ -86,12 +86,12 @@ else:
         shutil.copy(inputfile, newpath)
     path = newpath
     delete_dir = newpath
-    
+
 # Send to Sickbeard
 if (category == categories[0]):
     log.info("Passing %s directory to Sickbeard." % path)
     autoProcessTV.processEpisode(path, settings)
-# Send to CouchPotato        
+# Send to CouchPotato
 elif (category == categories[1]):
     log.info("Passing %s directory to Couch Potato." % path)
     autoProcessMovie.process(path, settings)
@@ -112,4 +112,3 @@ if delete_dir:
             log.debug("Successfully removed tempoary directory %s." % delete_dir)
         except:
             log.exception("Unable to delete temporary directory.")
-        
