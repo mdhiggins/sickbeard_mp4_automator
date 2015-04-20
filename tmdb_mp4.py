@@ -125,9 +125,9 @@ class tmdb_mp4:
         return str(output)
 
     def setHD(self, width, height):
-        if width >= 1920 or height >= 1080:
+        if width >= 1900 or height >= 1060:
             self.HD = [2]
-        elif width >= 1280 or height >= 720:
+        elif width >= 1260 or height >= 700:
             self.HD = [1]
         else:
             self.HD = [0]
