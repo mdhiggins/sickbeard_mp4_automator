@@ -15,7 +15,7 @@ def processEpisode(dirName, settings, nzbGet=False, logger=None):
 
     # Setup logging
     if logger:
-        log = logger    
+        log = logger
     else:
         log = logging.getLogger(__name__)
 
@@ -26,6 +26,7 @@ def processEpisode(dirName, settings, nzbGet=False, logger=None):
         import requests
     except ImportError:
         log.exception("%sPython module REQUESTS is required. Install with 'pip install requests' then try again." % errorprefix)
+        log.error("%sPython executable path is %s" % (errorprefix, sys.executable))
         return False
 
     host=settings.Sonarr['host']
