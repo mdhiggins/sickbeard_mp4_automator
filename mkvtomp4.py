@@ -434,7 +434,7 @@ class MkvtoMp4:
                 subtitles = subliminal.download_best_subtitles([video], languages, hearing_impaired=False, providers=self.subproviders)
                 subliminal.save_subtitles(subtitles)
             except Exception as e:
-                self.log.debug("Unable to download subtitles.")
+                self.log.debug("Unable to download subtitles.", exc_info=True)
 
         # External subtitle import
         if self.embedsubs: #Don't bother if we're not embeddeding any subtitles
