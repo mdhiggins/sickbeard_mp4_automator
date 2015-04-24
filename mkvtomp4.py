@@ -597,6 +597,7 @@ class MkvtoMp4:
                     self.log.info("%s copied to %s." % (inputfile, d))
                 except Exception as e:
                     try:
+                        self.log.exception("First attempt to move the file has failed.")
                         shutil.copy(inputfile.decode(sys.getfilesystemencoding()), d)
                         self.log.info("%s copied to %s." % (inputfile, d))
                     except Exception as e:
