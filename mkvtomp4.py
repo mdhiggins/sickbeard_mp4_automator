@@ -596,8 +596,8 @@ class MkvtoMp4:
                     shutil.copy(inputfile, d)
                     self.log.info("%s copied to %s." % (inputfile, d))
                 except Exception as e:
+                    self.log.exception("First attempt to move the file has failed.")
                     try:
-                        self.log.exception("First attempt to move the file has failed.")
                         if os.path.exists(inputfile):
                             self.removeFile(inputfile, 0, 0)
                         shutil.copy(inputfile.decode(sys.getfilesystemencoding()), d)
