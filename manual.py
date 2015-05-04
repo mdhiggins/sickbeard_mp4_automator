@@ -160,6 +160,28 @@ def tvdbInfo(guessData, tvdbid=None):
         print("Matched TV episode")
     return 3, tvdbid, season, episode
 
+def getOutputPath(inputfile, outputpath, relativePath=None):
+    input_dir, filename, input_extension = MkvtoMp4(settings, logger=log).parseFile(inputfile)
+    dst = os.path.join(outputpath, relativePath) if relativePath else outputpath
+    try:
+        outputfile = os.path.join(dst.decode(sys.getfilesystemencoding()), filename.decode(sys.getfilesystemencoding()) + "." + settings.output_extension).encode(sys.getfilesystemencoding())
+    except:
+        outputfile = os.path.join(dst, filename + "." + settings.output_extension)
+    return outputfile
+
+def checkSkip(inputfile, relativePath=None):
+    #checks if any of the potential output files exist
+    if hasattr(settings,'skip'):
+        if settings.moveto:
+            outputfile = getOutputPath(inputfile, settings.moveto, relativePath)
+            if os.path.exists(outputfile): return outputfile
+        if settings.copyto:
+            outputfile = getOutputPath(inputfile, settings.copyto, relativePath)
+            if os.path.exists(outputfile): return outputfile
+        if settings.output_dir:
+            outputfile = getOutputPath(inputfile, settings.output_dir, False)    #relativePath doesn't apply for output_dir
+            if os.path.exists(outputfile): return outputfile
+    return None
 
 def processFile(inputfile, tagdata, relativePath=None):
     # Gather tagdata
@@ -191,6 +213,11 @@ def processFile(inputfile, tagdata, relativePath=None):
         except:
             print("Processing TV episode")
 
+    if hasattr(settings,'skip'):
+        outputfile = checkSkip(inputfile, relativePath)
+        if outputfile:
+            print ("File skipped. Destination file %s exists" % (outputfile))
+            return
     # Process
     if MkvtoMp4(settings, logger=log).validSource(inputfile):
         converter = MkvtoMp4(settings, logger=log)
@@ -244,6 +271,7 @@ def main():
     parser.add_argument('-nc', '--nocopy', action='store_true', help="Overrides and disables the custom copying of file options that come from output_dir and move-to")
     parser.add_argument('-nd', '--nodelete', action='store_true', help="Overrides and disables deleting of original files")
     parser.add_argument('-nt', '--notag', action="store_true", help="Overrides and disables tagging when using the automated option")
+    parser.add_argument('-k', '--skip', action="store_true", help="Skip processing if output exists.  Requires move_to,copy_to, or output_directory.")
     parser.add_argument('-pr', '--preserveRelative', action='store_true', help="Preserves relative directories when processing multiple files using the copy-to or move-to functionality")
     parser.add_argument('-cmp4', '--convertmp4', action='store_true', help="Overrides convert-mp4 setting in autoProcess.ini enabling the reprocessing of mp4 files")
 
@@ -282,6 +310,14 @@ def main():
             pass
     else:
         path = getValue("Enter path to file")
+
+    if(args['skip']):
+        if(not settings.moveto and not settings.output_dir and not  settings.copyto):
+            print("--skip requires either 'output_directory', 'copy_to' or 'move_to' to be set")
+            return
+        else:
+            print("Will skip processing if an output file already exists")
+            settings.skip = True
 
     if os.path.isdir(path):
         tvdbid = int(args['tvdbid']) if args['tvdbid'] else None
