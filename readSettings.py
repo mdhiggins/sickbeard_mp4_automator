@@ -61,6 +61,7 @@ class ReadSettings:
                         'subtitle-language': '',
                         'subtitle-default-language': '',
                         'convert-mp4': 'False',
+                        'h264Quality':'',
                         'fullpathguess': 'True',
                         'tagfile': 'True',
                         'tag-language': 'en',
@@ -277,6 +278,16 @@ class ReadSettings:
             except:
                 log.exception("Invalid video bitrate, defaulting to no video bitrate cap.")
                 self.vbitrate = None
+
+        self.h264Quality = config.get(section, "h264Quality")
+        if self.h264Quality == '':
+            self.h264Quality = None
+        else:
+            try:
+                self.h264Quality = int(self.h264Quality)
+            except:
+                log.exception("Invalid h264 Quality, using default quality.")
+                self.h264Quality = None
 
         self.vwidth = config.get(section, "video-max-width")
         if self.vwidth == '':

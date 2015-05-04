@@ -35,6 +35,7 @@ class MkvtoMp4:
                     scodec='mov_text',
                     downloadsubs=True,
                     processMP4=False,
+                    h264Quality=None,
                     copyto=None,
                     moveto=None,
                     embedsubs=True,
@@ -56,6 +57,7 @@ class MkvtoMp4:
         self.output_dir=output_dir
         self.relocate_moov=relocate_moov
         self.processMP4=processMP4
+        self.h264Quality=h264Quality
         self.copyto=copyto
         self.moveto=moveto
         self.relocate_moov=relocate_moov
@@ -94,6 +96,7 @@ class MkvtoMp4:
         self.output_dir=settings.output_dir
         self.relocate_moov=settings.relocate_moov
         self.processMP4=settings.processMP4
+        self.h264Quality=settings.h264Quality
         self.copyto=settings.copyto
         self.moveto=settings.moveto
         self.relocate_moov = settings.relocate_moov
@@ -493,6 +496,12 @@ class MkvtoMp4:
             'subtitle': subtitle_settings,
         }
 
+        #in h264, drop the constant bitrate and use the recommended quality settings.  ffmpeg default is 23 but our default is 20.
+        if vcodec == "h264":
+            del options['video']['bitrate']
+            options['video']['quality'] = self.h264Quality if self.h264Quality else 20
+            if self.video_bitrate is not None:  #set maximum bitrate if it's specified
+                options['video']['maxbitrate'] = int(vbitrate)
         # Add width option
         if vwidth: options['video']['width'] = vwidth
 
