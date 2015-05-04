@@ -640,7 +640,7 @@ class H264Codec(VideoCodec):
         if 'preset' in safe:
             optlist.extend(['-preset', safe['preset']])
         if 'quality' in safe:
-            optlist.extend(['-crf', safe['quality']])
+            optlist.extend(['-crf', str(safe['quality'])])
         if 'maxbitrate' in safe:
             optlist.extend(['-maxrate', str(safe['maxbitrate'])])
             optlist.extend(['-bufsize', str(safe['maxbitrate']*2)])
