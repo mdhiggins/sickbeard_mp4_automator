@@ -342,7 +342,7 @@ def insert_bytes(fobj, size, offset, BUFFER_SIZE=2 ** 16):
                 file_map.move(offset + size, offset, movesize)
             finally:
                 file_map.close()
-        except (ValueError, EnvironmentError, ImportError):
+        except (ValueError, EnvironmentError, ImportError, OverflowError):
             # handle broken mmap scenarios
             locked = lock(fobj)
             fobj.truncate(filesize)
