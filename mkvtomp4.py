@@ -501,7 +501,7 @@ class MkvtoMp4:
             del options['video']['bitrate']
             options['video']['quality'] = self.h264Quality if self.h264Quality else 20
             if self.video_bitrate is not None:  #set maximum bitrate if it's specified
-                options['video']['maxbitrate'] = int(vbitrate)
+                options['video']['maxbitrate'] = self.video_bitrate
         # Add width option
         if vwidth: options['video']['width'] = vwidth
 
