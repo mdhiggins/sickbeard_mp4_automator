@@ -639,7 +639,7 @@ class H264Codec(VideoCodec):
         if 'preset' in safe:
             optlist.extend(['-preset', safe['preset']])
         if 'quality' in safe:
-            optlist.extend(['-crf', safe['quality']])
+            optlist.extend(['-crf', str(safe['quality'])])
         if 'profile' in safe:
             optlist.extend(['-profile:v', safe['profile']])
         if 'level' in safe:
