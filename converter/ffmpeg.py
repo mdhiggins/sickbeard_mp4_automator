@@ -480,6 +480,10 @@ class FFMpeg(object):
                 signal.alarm(0)
 
             if not ret:
+                #For small or very fast jobs, ffmpeg may never output a '\r'.  When EOF is reached, yield if we haven't yet.
+                if not yielded:
+                    yielded = True
+                    yield 10
                 break
 
             try:
