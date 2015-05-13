@@ -27,7 +27,7 @@ logging.getLogger("enzyme").setLevel(logging.WARNING)
 
 log.info("Manual processor started.")
 
-settings = None
+settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini", logger=log)
 
 def mediatype():
     print("Select media type:")
@@ -73,10 +73,11 @@ def getYesNo():
         return getYesNo()
 
 
-def getinfo(fileName=None, silent=False, tag=None, tvdbid=None):
+def getinfo(fileName=None, silent=False, tag=True, tvdbid=None):
     tagdata = None
     # Try to guess the file is guessing is enabled
     if fileName is not None: tagdata = guessInfo(fileName, tvdbid)
+
     if silent is False:
         if tagdata:
             print("Proceed using guessed identification from filename?")
@@ -222,7 +223,7 @@ def walkDir(dir, silent=False, preserveRelative=False, tvdbid=None, tag=True):
                         except:
                             print("Processing file")
                     if tag:
-                        tagdata = getinfo(filepath, silent, tag=settings.tagfile, tvdbid=tvdbid)
+                        tagdata = getinfo(filepath, silent, tvdbid=tvdbid)
                     else:
                         tagdata = None
                     processFile(filepath, tagdata, relativePath=relative)
@@ -233,9 +234,10 @@ def walkDir(dir, silent=False, preserveRelative=False, tvdbid=None, tag=True):
 
 def main():
     global settings
+
     parser = argparse.ArgumentParser(description="Manual conversion and tagging script for sickbeard_mp4_automator")
     parser.add_argument('-i', '--input', help='The source that will be converted. May be a file or a directory')
-    parser.add_argument('-c', '--config', nargs=1, help='Use alternate configuration file')
+    parser.add_argument('-c', '--config', help='Specify an alternate configuration file location')
     parser.add_argument('-a', '--auto', action="store_true", help="Enable auto mode, the script will not prompt you for any further input, good for batch files. It will guess the metadata using guessit")
     parser.add_argument('-tv', '--tvdbid', help="Set the TVDB ID for a tv show")
     parser.add_argument('-s', '--season', help="Specifiy the season number")
@@ -250,22 +252,6 @@ def main():
     parser.add_argument('-cmp4', '--convertmp4', action='store_true', help="Overrides convert-mp4 setting in autoProcess.ini enabling the reprocessing of mp4 files")
 
     args = vars(parser.parse_args())
-    
-    #Look for alternate settings files
-    if(args['config']):
-        if os.path.exists(args['config'][0]):
-            print('Using configuration file "%s"' % (args['config'][0]))
-            settings = ReadSettings(os.path.split(args['config'][0])[0], os.path.split(args['config'][0])[1], logger=log)
-        elif os.path.exists(os.path.join(os.path.dirname(sys.argv[0]),args['config'][0])):
-            print('Using configuration file "%s"' % (args['config'][0]))
-            settings = ReadSettings(os.path.dirname(sys.argv[0]), args['config'][0], logger=log)
-        else:
-            print('Configuration file "%s" not present' % (args['config'][0]))
-            return
-    else:
-        settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini", logger=log)
-
-            
 
     #Setup the silent mode
     silent = args['auto']
@@ -274,6 +260,15 @@ def main():
     print("%sbit Python." % (struct.calcsize("P") * 8))
 
     #Settings overrides
+    if(args['config']):
+        if os.path.exists(args['config']):
+            print('Using configuration file "%s"' % (args['config']))
+            settings = ReadSettings(os.path.split(args['config'])[0], os.path.split(args['config'])[1], logger=log)
+        elif os.path.exists(os.path.join(os.path.dirname(sys.argv[0]),args['config'])):
+            print('Using configuration file "%s"' % (args['config']))
+            settings = ReadSettings(os.path.dirname(sys.argv[0]), args['config'], logger=log)
+        else:
+            print('Configuration file "%s" not present, using default autoProcess.ini' % (args['config']))
     if (args['nomove']):
         settings.output_dir = None
         settings.moveto = None
@@ -288,7 +283,7 @@ def main():
         settings.processMP4 = True
         print("Reprocessing of MP4 files enabled")
     if (args['notag']):
-        tag = False
+        settings.tagfile = False
         print("No-tagging enabled")
 
     #Establish the path we will be working with
@@ -303,9 +298,9 @@ def main():
 
     if os.path.isdir(path):
         tvdbid = int(args['tvdbid']) if args['tvdbid'] else None
-        walkDir(path, silent, tvdbid=tvdbid, preserveRelative=args['preserveRelative'], tag=tag)
+        walkDir(path, silent, tvdbid=tvdbid, preserveRelative=args['preserveRelative'], tag=settings.tagfile)
     elif (os.path.isfile(path) and MkvtoMp4(settings, logger=log).validSource(path)):
-        if (not tag):
+        if (not settings.tagfile):
             tagdata = None
         elif (args['tvdbid'] and not (args['imdbid'] or args['tmdbid'])):
             tvdbid = int(args['tvdbid']) if args['tvdbid'] else None
@@ -314,7 +309,7 @@ def main():
             if (tvdbid and season and episode):
                 tagdata = [3, tvdbid, season, episode]
             else:
-                tagdata = getinfo(path, silent=silent, tag=settings.tagfile, tvdbid=tvdbid)
+                tagdata = getinfo(path, silent=silent, tvdbid=tvdbid)
         elif ((args['imdbid'] or args['tmdbid']) and not args['tvdbid']):
             if (args['imdbid']):
                 imdbid = args['imdbid']
@@ -323,7 +318,7 @@ def main():
                 tmdbid = int(args['tmdbid'])
                 tagdata = [2, tmdbid]
         else:
-            tagdata = getinfo(path, silent=silent,  tag=settings.tagfile)
+            tagdata = getinfo(path, silent=silent)
         processFile(path, tagdata)
     else:
         try:
