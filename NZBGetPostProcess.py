@@ -72,15 +72,15 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
     nzb = os.environ['NZBPP_NZBFILENAME'] # Original NZB name
     category = os.environ['NZBPP_CATEGORY'] # NZB Category to determine destination
     #DEBUG#print "Category is %s." % category
-    
+
     couchcat = os.environ['NZBPO_CP_CAT'].lower()
     sonarrcat = os.environ['NZBPO_SONARR_CAT'].lower()
     sickbeardcat = os.environ['NZBPO_SICKBEARD_CAT'].lower()
     sickragecat = os.environ['NZBPO_SICKRAGE_CAT'].lower()
     bypass = os.environ['NZBPO_BYPASS_CAT'].lower()
-    
+
     categories = [sickbeardcat, couchcat, sonarrcat, sickragecat, bypass]
-    
+
     log.debug("Path: %s" % path)
     log.debug("NZB: %s" % nzb)
     log.debug("Category: %s" % category)
@@ -158,25 +158,23 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
     settings = ReadSettings(MP4folder, "autoProcess.ini")
 
     if shouldConvert:
-        converted = 0
-        attempted = 0
         converter = MkvtoMp4(settings, logger=log)
         converter.output_dir = None
         for r, d, f in os.walk(path):
             for files in f:
-                attempted += 1
                 inputfile = os.path.join(r, files)
                 #DEBUG#print inputfile
                 #Ignores files under 50MB
                 if os.path.getsize(inputfile) > 50000000:
                     if MkvtoMp4(settings, logger=log).validSource(inputfile):
                         try:
-                            converter.process(inputfile)
+                            output = converter.process(inputfile)
                             log.info("Successfully processed %s." % inputfile)
-                            converted += 1
+                            if (category == categories[2] and settings.relocate_moov):
+                                log.debug("Performing QTFS move because video was converted and Sonarr has no post processing.")
+                                converter.QTFS(output['output'])
                         except:
                             log.warning("File processing failed.")
-        #DEBUG#print "%d of %d files converted", (converted, attempted)
 
     if (category.lower() == categories[0]):
         #DEBUG#print "Sickbeard Processing Activated"

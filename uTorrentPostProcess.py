@@ -24,7 +24,7 @@ def _authToken(session=None, host=None, username=None, password=None):
         auth = re.search("<div.*?>(\S+)<\/div>", response.text).group(1)
     else:
         log.error("Authentication Failed - Status Code " + response.status_code + ".")
-        
+
     return auth,session
 
 def _sendRequest(session, host='http://localhost:8080/', username=None, password=None, params=None, files=None, fnct=None):
@@ -33,11 +33,11 @@ def _sendRequest(session, host='http://localhost:8080/', username=None, password
     except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError), e:
         log.exception("Problem sending command " + fnct +  " - " + str(e) + ".")
         return False
-    
+
     if response.status_code == 200:
         log.debug("Request sent successfully - %s." % fnct)
         return True
-    
+
     log.error("Problem sending command " + fnct + ", return code = " + str(response.status_code) + ".")
     return False
 
@@ -104,12 +104,18 @@ if settings.uTorrent['convert']:
         delete_dir = os.path.join(path, torrent_hash)
 
     converter = MkvtoMp4(settings)
-        
+
     if str(sys.argv[4]) == 'single':
         inputfile = os.path.join(path, str(sys.argv[5]))
         if MkvtoMp4(settings).validSource(inputfile):
             log.info("Processing file %s." % inputfile)
-            converter.process(inputfile, reportProgress=True)
+            try:
+                output = converter.process(inputfile, reportProgress=True)
+                if (label == categories[2] and settings.relocate_moov):
+                    log.debug("Performing QTFS move because video was converted and Sonarr has no post processing.")
+                    converter.QTFS(output['output'])
+            except:
+                log.exception("Error converting file %s." % inputfile)
         else:
             log.debug("Ignoring file %s." % inputfile)
     else:
@@ -121,10 +127,13 @@ if settings.uTorrent['convert']:
                 if MkvtoMp4(settings).validSource(inputfile) and inputfile not in ignore:
                     log.info("Processing file %s." % inputfile)
                     try:
-                        output = converter.process(inputfile, reportProgress=True)
+                        output = converter.process(inputfile)
                         ignore.append(output['output'])
+                        if (label == categories[2] and settings.relocate_moov):
+                            log.debug("Performing QTFS move because video was converted and Sonarr has no post processing.")
+                            converter.QTFS(output['output'])
                     except:
-                        log.exception("Unable to process file %s." % inputfile)
+                        log.exception("Error converting file %s." % inputfile)
                 else:
                     log.debug("Ignoring file %s." % inputfile)
 
@@ -163,7 +172,7 @@ elif label == categories[4]:
     log.info("Bypassing any further processing as per category.")
 
 # Run a uTorrent action after conversion.
-if web_ui: 
+if web_ui:
     if session and auth and settings.uTorrentActionAfter:
         params = {'token': auth, 'action': settings.uTorrentActionAfter, 'hash': torrent_hash}
         _sendRequest(session, settings.uTorrentHost, settings.uTorrentUsername, settings.uTorrentPassword, params, None, "After Function")

@@ -71,7 +71,10 @@ if settings.deluge['convert']:
         if MkvtoMp4(settings).validSource(inputfile):
             log.info("Converting file %s at location %s." % (inputfile, settings.output_dir))
             try:
-                converter.process(inputfile, reportProgress=True)
+                output = converter.process(inputfile)
+                if (category == categories[2] and settings.relocate_moov):
+                    log.debug("Performing QTFS move because video was converted and Sonarr has no post processing.")
+                    converter.QTFS(output['output'])
             except:
                 log.exception("Error converting file %s." % inputfile)
 

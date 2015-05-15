@@ -54,7 +54,13 @@ if settings.SAB['convert']:
             inputfile = os.path.join(r, files)
             if MkvtoMp4(settings).validSource(inputfile):
                 log.info("Processing file %s." % inputfile)
-                converter.process(inputfile)
+                try:
+                    output = converter.process(inputfile)
+                    if (category == categories[2] and settings.relocate_moov):
+                        log.debug("Performing QTFS move because video was converted and Sonarr has no post processing.")
+                        converter.QTFS(output['output'])
+                except:
+                    log.exception("Error converting file %s." % inputfile)
             else:
                 log.debug("Ignoring file %s." % inputfile)
 else:
@@ -64,7 +70,7 @@ else:
 if (category == categories[0]):
     log.info("Passing %s directory to Sickbeard." % path)
     autoProcessTV.processEpisode(path, settings, nzb)
-# Send to CouchPotato        
+# Send to CouchPotato
 elif (category == categories[1]):
     log.info("Passing %s directory to Couch Potato." % path)
     autoProcessMovie.process(path, settings, nzb, sys.argv[7])
@@ -78,4 +84,3 @@ elif (category == categories[3]):
 # Bypass
 elif (category == categories[4]):
     log.info("Bypassing any further processing as per category.")
-    
