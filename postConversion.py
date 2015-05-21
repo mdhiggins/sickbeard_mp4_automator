@@ -51,6 +51,9 @@ if len(sys.argv) > 4:
         # Copy to additional locations
         converter.replicate(output['output'])
 
+        # run any post process scripts
+        converter.post_process(output['output'])
+
         try:
             refresh = json.load(urllib.urlopen(settings.getRefreshURL(tvdb_id)))
             for item in refresh:
