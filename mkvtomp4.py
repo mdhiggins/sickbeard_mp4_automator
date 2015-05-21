@@ -40,6 +40,7 @@ class MkvtoMp4:
                     embedsubs=True,
                     providers=['addic7ed', 'podnapisi', 'thesubdb', 'opensubtitles'],
                     permissions=int("777", 8),
+                    post_process=False
                     logger=None):
         # Setup Logging
         if logger:
@@ -68,6 +69,7 @@ class MkvtoMp4:
         self.audio_codec=audio_codec
         self.audio_bitrate=audio_bitrate
         self.iOS=iOS
+        self.post_process=post_process
         self.iOSFirst=iOSFirst
         self.maxchannels=maxchannels
         self.awl=awl
@@ -98,6 +100,7 @@ class MkvtoMp4:
         self.moveto=settings.moveto
         self.relocate_moov = settings.relocate_moov
         self.permissions = settings.permissions
+        self.post_process = settings.post_process
         #Video settings
         self.video_codec=settings.vcodec
         self.video_bitrate=settings.vbitrate
@@ -622,6 +625,11 @@ class MkvtoMp4:
                     self.log.info("%s moved to %s" % (inputfile, moveto))
                 except Exception as e:
                     self.log.exception("Unable to move %s to %s" % (inputfile, moveto))
+
+    # Runs any post process scripts
+    def post_process(self, inputfile):
+        print 'post_process'
+        print 'inputfile: ' + inputfile
 
     # Robust file removal function, with options to retry in the event the file is in use, and replace a deleted file
     def removeFile(self, filename, retries=2, delay=10, replacement=None):

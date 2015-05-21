@@ -206,6 +206,7 @@ def processFile(inputfile, tagdata, relativePath=None):
         if settings.relocate_moov:
             converter.QTFS(output['output'])
         converter.replicate(output['output'], relativePath=relativePath)
+        converter.post_process(output['output'])
 
 
 def walkDir(dir, silent=False, preserveRelative=False, tvdbid=None, tag=True):
