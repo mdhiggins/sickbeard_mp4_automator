@@ -206,7 +206,8 @@ def processFile(inputfile, tagdata, relativePath=None):
                 print(e)
         if settings.relocate_moov:
             converter.QTFS(output['output'])
-        converter.replicate(output['output'], relativePath=relativePath)
+        results = converter.replicate(output['output'], relativePath=relativePath)
+        output.update(results)
         if settings.post_process:
             post_processor = PostProcessor(output)
             post_processor.run_scripts()

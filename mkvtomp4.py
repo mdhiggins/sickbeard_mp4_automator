@@ -585,6 +585,7 @@ class MkvtoMp4:
 
     # Makes additional copies of the input file in each directory specified in the copy_to option
     def replicate(self, inputfile, relativePath=None):
+        results = {}
         if self.copyto:
             self.log.debug("Copyto option is enabled.")
             for d in self.copyto:
@@ -595,6 +596,9 @@ class MkvtoMp4:
                 try:
                     shutil.copy(inputfile, d)
                     self.log.info("%s copied to %s." % (inputfile, d))
+                    if not results['copyto']:
+                        results['copyto'] = []
+                    results['copyto'].append(d)
                 except Exception as e:
                     self.log.exception("First attempt to copy the file has failed.")
                     try:
@@ -602,6 +606,9 @@ class MkvtoMp4:
                             self.removeFile(inputfile, 0, 0)
                         shutil.copy(inputfile.decode(sys.getfilesystemencoding()), d)
                         self.log.info("%s copied to %s." % (inputfile, d))
+                        if not results['copyto']:
+                            results['copyto'] = []
+                        results['copyto'].append(d)
                     except Exception as e:
                         self.log.exception("Unable to create additional copy of file in %s." % (d))
 
@@ -613,6 +620,9 @@ class MkvtoMp4:
             try:
                 shutil.move(inputfile, moveto)
                 self.log.info("%s moved to %s" % (inputfile, moveto))
+                results['moveto'] = os.path.join(moveto, os.path.basename(inputfile))
+                print 'inputfile: ' + inputfile
+                print 'moveto: ' + moveto
             except Exception as e:
                 self.log.exception("First attempt to move the file has failed.")
                 try:
@@ -620,8 +630,12 @@ class MkvtoMp4:
                         self.removeFile(inputfile, 0, 0)
                     shutil.move(inputfile.decode(sys.getfilesystemencoding()), moveto)
                     self.log.info("%s moved to %s" % (inputfile, moveto))
+                    results['moveto'] = os.path.join(moveto, os.path.basename(inputfile))
                 except Exception as e:
                     self.log.exception("Unable to move %s to %s" % (inputfile, moveto))
+        if results:
+            return results
+        return None
 
     # Robust file removal function, with options to retry in the event the file is in use, and replace a deleted file
     def removeFile(self, filename, retries=2, delay=10, replacement=None):

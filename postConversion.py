@@ -50,7 +50,8 @@ if len(sys.argv) > 4:
             converter.QTFS(output['output'])
 
         # Copy to additional locations
-        converter.replicate(output['output'])
+        results = converter.replicate(output['output'])
+        output.update(results)
 
         # run any post process scripts
         if settings.post_process:
