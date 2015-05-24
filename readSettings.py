@@ -43,7 +43,6 @@ class ReadSettings:
                         'output_directory': '',
                         'copy_to': '',
                         'move_to': '',
-                        'add_to_itunes': 'False',
                         'output_extension': 'mp4',
                         'output_format': 'mp4',
                         'delete_original': 'True',
