@@ -4,18 +4,11 @@ import time
 import json
 import sys
 import shutil
-<<<<<<< HEAD
-import subprocess
-=======
 import logging
->>>>>>> post-process-hooks
 from converter import Converter
 from extensions import valid_input_extensions, valid_output_extensions, bad_subtitle_codecs, valid_subtitle_extensions, subtitle_codec_extensions
 from qtfaststart import processor, exceptions
 from babelfish import Language
-import addToItunes
-
-DEFAULT_ADD_TO_ITUNES_SCRIPT_PATH = addToItunes.where()
 
 
 class MkvtoMp4:
@@ -104,11 +97,7 @@ class MkvtoMp4:
         self.copyto=settings.copyto
         self.moveto=settings.moveto
         self.relocate_moov = settings.relocate_moov
-<<<<<<< HEAD
-        self.add_to_itunes=settings.add_to_itunes
-=======
         self.permissions = settings.permissions
->>>>>>> post-process-hooks
         #Video settings
         self.video_codec=settings.vcodec
         self.video_bitrate=settings.vbitrate
@@ -129,10 +118,7 @@ class MkvtoMp4:
         self.subproviders=settings.subproviders
         self.embedsubs=settings.embedsubs
 
-<<<<<<< HEAD
-=======
         self.log.debug("Settings imported.")
->>>>>>> post-process-hooks
 
     # Process a file from start to finish, with checking to make sure formats are compatible with selected settings
     def process(self, inputfile, reportProgress=False, original=None):
@@ -599,16 +585,9 @@ class MkvtoMp4:
 
     # Makes additional copies of the input file in each directory specified in the copy_to option
     def replicate(self, inputfile, relativePath=None):
-<<<<<<< HEAD
-        replicateResults = {'inputfile': inputfile}
-        if self.copyto:
-            copyResults = []
-            replicateResults['copyto'] = copyResults
-=======
         results = {}
         if self.copyto:
             self.log.debug("Copyto option is enabled.")
->>>>>>> post-process-hooks
             for d in self.copyto:
                 if (relativePath):
                     d = os.path.join(d, relativePath)
@@ -616,30 +595,20 @@ class MkvtoMp4:
                         os.makedirs(d)
                 try:
                     shutil.copy(inputfile, d)
-<<<<<<< HEAD
-                    copyResults.append(d)
-                    print "Copy succeeded"
-=======
                     self.log.info("%s copied to %s." % (inputfile, d))
                     if not results['copyto']:
                         results['copyto'] = []
                     results['copyto'].append(d)
->>>>>>> post-process-hooks
                 except Exception as e:
                     self.log.exception("First attempt to copy the file has failed.")
                     try:
                         if os.path.exists(inputfile):
                             self.removeFile(inputfile, 0, 0)
                         shutil.copy(inputfile.decode(sys.getfilesystemencoding()), d)
-<<<<<<< HEAD
-                        copyResults.append(d)
-                        print "Copy succeeded"
-=======
                         self.log.info("%s copied to %s." % (inputfile, d))
                         if not results['copyto']:
                             results['copyto'] = []
                         results['copyto'].append(d)
->>>>>>> post-process-hooks
                     except Exception as e:
                         self.log.exception("Unable to create additional copy of file in %s." % (d))
 
@@ -650,50 +619,16 @@ class MkvtoMp4:
                 os.makedirs(moveto)
             try:
                 shutil.move(inputfile, moveto)
-<<<<<<< HEAD
-                replicateResults['moveto'] = moveto
-                print "File moved to %s" % (moveto)
-=======
                 self.log.info("%s moved to %s" % (inputfile, moveto))
                 results['moveto'] = os.path.join(moveto, os.path.basename(inputfile))
                 print 'inputfile: ' + inputfile
                 print 'moveto: ' + moveto
->>>>>>> post-process-hooks
             except Exception as e:
                 self.log.exception("First attempt to move the file has failed.")
                 try:
                     if os.path.exists(inputfile):
                         self.removeFile(inputfile, 0, 0)
                     shutil.move(inputfile.decode(sys.getfilesystemencoding()), moveto)
-<<<<<<< HEAD
-                    replicateResults['moveto'] = moveto
-                    print "File moved"
-                except Exception as e:
-                    print "Unable to move file to %s" % (moveto)
-                    print e
-        return replicateResults
-
-    # Adds file to iTunes using AppleScript so that "Copy to iTunes" is respected and not file has to be moved
-    def addToItunes(self, outputresults):
-        if os.name != 'posix':
-            print "You can't add file to iTunes this way unless you are using OSX"
-            return
-        outputlocation = ''
-        # Checking that there is only an input file (file )
-        if not ('moveto' in outputresults.keys()):
-            outputlocation = outputresults['inputfile']
-        else:
-            outputlocation = outputresults['moveto']
-        if not os.path.exists(outputlocation):
-            print 'The file you are trying to add to iTunes at ' + str(outputlocation) + ' does not exist'
-            return
-        try:
-            subprocess.call(['osascript', DEFAULT_ADD_TO_ITUNES_SCRIPT_PATH, outputlocation])
-            print 'Added to iTunes'
-        except Exception as e:
-            print 'Exception on adding to iTunes this file %s' % (outputlocation)
-            print e
-=======
                     self.log.info("%s moved to %s" % (inputfile, moveto))
                     results['moveto'] = os.path.join(moveto, os.path.basename(inputfile))
                 except Exception as e:
@@ -701,7 +636,6 @@ class MkvtoMp4:
         if results:
             return results
         return None
->>>>>>> post-process-hooks
 
     # Robust file removal function, with options to retry in the event the file is in use, and replace a deleted file
     def removeFile(self, filename, retries=2, delay=10, replacement=None):
