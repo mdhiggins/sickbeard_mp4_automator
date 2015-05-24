@@ -191,7 +191,6 @@ class ReadSettings:
                 except:
                     log.exception("Error making directory %s." % (self.moveto))
                     self.moveto = None
-        self.add_to_itunes = config.getboolean(section, "add_to_itunes")
         self.output_extension = config.get(section, "output_extension")  # Output extension
         self.output_format = config.get(section, "output_format") # Output format
         if self.output_format not in valid_formats:
