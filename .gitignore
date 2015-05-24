@@ -1,8 +1,8 @@
 ###############################
 ## sickbeard-mp4-automator
 #############################
-#autoProcess.ini
-#post_process/
+autoProcess.ini
+post_process/
 
 #################
 ## Eclipse
