@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # GuessIt - A library for guessing information from filenames
-# Copyright (c) 2012 Nicolas Wack <wackou@gmail.com>
+# Copyright (c) 2013 Nicolas Wack <wackou@gmail.com>
 #
 # GuessIt is free software; you can redistribute it and/or modify it under
 # the terms of the Lesser GNU General Public License as published by
@@ -18,31 +18,34 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from __future__ import unicode_literals
-from guessittest import *
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+from guessit.test.guessittest import *
+
 import io
+
 
 class TestLanguage(TestGuessit):
 
-    def check_languages(self, languages, scheme=None):
+    def check_languages(self, languages):
         for lang1, lang2 in languages.items():
-            self.assertEqual(Language(lang1, scheme=scheme),
-                             Language(lang2, scheme=scheme))
+            self.assertEqual(Language.fromguessit(lang1),
+                             Language.fromguessit(lang2))
 
     def test_addic7ed(self):
         languages = {'English': 'en',
-                     'English (US)': 'en',
-                     'English (UK)': 'en',
+                     'English (US)': 'en-US',
+                     'English (UK)': 'en-UK',
                      'Italian': 'it',
                      'Portuguese': 'pt',
-                     'Portuguese (Brazilian)': 'pt',
+                     'Portuguese (Brazilian)': 'pt-BR',
                      'Romanian': 'ro',
-                     'Español (Latinoamérica)': 'es',
-                     'Español (España)': 'es',
-                     'Spanish (Latin America)': 'es',
+                     'Español (Latinoamérica)': 'es-MX',
+                     'Español (España)': 'es-ES',
+                     'Spanish (Latin America)': 'es-MX',
                      'Español': 'es',
                      'Spanish': 'es',
-                     'Spanish (Spain)': 'es',
+                     'Spanish (Spain)': 'es-ES',
                      'French': 'fr',
                      'Greek': 'el',
                      'Arabic': 'ar',
@@ -63,9 +66,9 @@ class TestLanguage(TestGuessit):
         self.check_languages(languages)
 
     def test_subswiki(self):
-        languages = {'English (US)': 'en', 'English (UK)': 'en', 'English': 'en',
+        languages = {'English (US)': 'en-US', 'English (UK)': 'en-UK', 'English': 'en',
                      'French': 'fr', 'Brazilian': 'po', 'Portuguese': 'pt',
-                     'Español (Latinoamérica)': 'es', 'Español (España)': 'es',
+                     'Español (Latinoamérica)': 'es-MX', 'Español (España)': 'es-ES',
                      'Español': 'es', 'Italian': 'it', 'Català': 'ca'}
 
         self.check_languages(languages)
@@ -82,25 +85,26 @@ class TestLanguage(TestGuessit):
 
     def test_opensubtitles(self):
         opensubtitles_langfile = file_in_same_dir(__file__, 'opensubtitles_languages_2012_05_09.txt')
-        langs = [ u(l).strip().split('\t') for l in io.open(opensubtitles_langfile, encoding='utf-8') ][1:]
-        for lang in langs:
-            # check that we recognize the opensubtitles language code correctly
-            # and that we are able to output this code from a language
-            self.assertEqual(lang[0], Language(lang[0], scheme='opensubtitles').opensubtitles)
-            if lang[1]:
-                # check we recognize the opensubtitles 2-letter code correctly
-                self.check_languages({lang[0]: lang[1]}, scheme='opensubtitles')
+        for l in [u(l).strip() for l in io.open(opensubtitles_langfile, encoding='utf-8')][1:]:
+            idlang, alpha2, _, upload_enabled, web_enabled = l.strip().split('\t')
+            # do not test languages that are too esoteric / not widely available
+            if int(upload_enabled) and int(web_enabled):
+                # check that we recognize the opensubtitles language code correctly
+                # and that we are able to output this code from a language
+                self.assertEqual(idlang, Language.fromguessit(idlang).opensubtitles)
+                if alpha2:
+                    # check we recognize the opensubtitles 2-letter code correctly
+                    self.check_languages({idlang: alpha2})
 
     def test_tmdb(self):
         # examples from http://api.themoviedb.org/2.1/language-tags
         for lang in ['en-US', 'en-CA', 'es-MX', 'fr-PF']:
-            self.assertEqual(lang, Language(lang).tmdb)
-
+            self.assertEqual(lang, str(Language.fromguessit(lang)))
 
     def test_subtitulos(self):
-        languages = {'English (US)': 'en', 'English (UK)': 'en', 'English': 'en',
+        languages = {'English (US)': 'en-US', 'English (UK)': 'en-UK', 'English': 'en',
                      'French': 'fr', 'Brazilian': 'po', 'Portuguese': 'pt',
-                     'Español (Latinoamérica)': 'es', 'Español (España)': 'es',
+                     'Español (Latinoamérica)': 'es-MX', 'Español (España)': 'es-ES',
                      'Español': 'es', 'Italian': 'it', 'Català': 'ca'}
 
         self.check_languages(languages)
@@ -113,19 +117,11 @@ class TestLanguage(TestGuessit):
 
         self.check_languages(languages)
 
-    def test_language_object(self):
-        self.assertEqual(len(list(set([Language('qwerty'), Language('asdf')]))), 1)
-        d = { Language('qwerty'): 7 }
-        d[Language('asdf')] = 23
-        self.assertEqual(d[Language('qwerty')], 23)
-
     def test_exceptions(self):
-        self.assertEqual(Language('br'), Language('pt(br)'))
+        self.assertEqual(Language.fromguessit('br'), Language.fromguessit('pt(br)'))
 
-        # languages should be equal regardless of country
-        self.assertEqual(Language('br'), Language('pt'))
-
-        self.assertEqual(Language('unknown'), Language('und'))
+        self.assertEqual(Language.fromguessit('unknown'),
+                         Language.fromguessit('und'))
 
 
 suite = allTests(TestLanguage)

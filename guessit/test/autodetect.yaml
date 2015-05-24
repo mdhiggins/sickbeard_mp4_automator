@@ -27,6 +27,13 @@
   title: Down Street
   website: tvu.org.ru
 
+? Neverwhere.05.Down.Street.[tvu.org.ru].avi
+: type: episode
+  series: Neverwhere
+  episodeNumber: 5
+  title: Down Street
+  website: tvu.org.ru
+
 ? Series/Breaking Bad/Minisodes/Breaking.Bad.(Minisodes).01.Good.Cop.Bad.Cop.WEBRip.XviD.avi
 : type: episode
   series: Breaking Bad
@@ -57,7 +64,7 @@
 
 ? Movies/M.A.S.H. (1970)/MASH.(1970).[Divx.5.02][Dual-Subtitulos][DVDRip].ogm
 : type: movie
-  title: M A S H
+  title: M.A.S.H.
   year: 1970
   videoCodec: DivX
   format: DVD
@@ -151,3 +158,343 @@
   screenSize: 720p
   format: HDTV
   videoCodec: h264
+
+? White.House.Down.2013.1080p.BluRay.DTS-HD.MA.5.1.x264-PublicHD.mkv
+: type: movie
+  title: White House Down
+  year: 2013
+  screenSize: 1080p
+  format: BluRay
+  audioCodec: DTS
+  audioProfile: HDMA
+  videoCodec: h264
+  releaseGroup: PublicHD
+  audioChannels: "5.1"
+
+? White.House.Down.2013.1080p.BluRay.DTSHD.MA.5.1.x264-PublicHD.mkv
+: type: movie
+  title: White House Down
+  year: 2013
+  screenSize: 1080p
+  format: BluRay
+  audioCodec: DTS
+  audioProfile: HDMA
+  videoCodec: h264
+  releaseGroup: PublicHD
+  audioChannels: "5.1"
+
+? Hostages.S01E01.Pilot.for.Air.720p.WEB-DL.DD5.1.H.264-NTb.nfo
+: type: episodeinfo
+  series: Hostages
+  title: Pilot for Air
+  season: 1
+  episodeNumber: 1
+  screenSize: 720p
+  format: WEB-DL
+  audioChannels: "5.1"
+  videoCodec: h264
+  audioCodec: DolbyDigital
+  releaseGroup: NTb
+
+? Despicable.Me.2.2013.1080p.BluRay.x264-VeDeTT.nfo
+: type: movieinfo
+  title: Despicable Me 2
+  year: 2013
+  screenSize: 1080p
+  format: BluRay
+  videoCodec: h264
+  releaseGroup: VeDeTT
+
+? Le Cinquieme Commando 1971 SUBFORCED FRENCH DVDRiP XViD AC3 Bandix.mkv
+: type: movie
+  audioCodec: AC3
+  format: DVD
+  releaseGroup: Bandix
+  subtitleLanguage: French
+  title: Le Cinquieme Commando
+  videoCodec: XviD
+  year: 1971
+
+? Le Seigneur des Anneaux - La Communauté de l'Anneau - Version Longue - BDRip.mkv
+: type: movie
+  format: BluRay
+  title: Le Seigneur des Anneaux
+
+? La petite bande (Michel Deville - 1983) VF PAL MP4 x264 AAC.mkv
+: type: movie
+  audioCodec: AAC
+  language: French
+  title: La petite bande
+  videoCodec: h264
+  year: 1983
+
+? Retour de Flammes (Gregor Schnitzler 2003) FULL DVD.iso
+: type: movie
+  format: DVD
+  title: Retour de Flammes
+  type: movie
+  year: 2003
+
+? A.Common.Title.Special.2014.avi
+: type: movie
+  year: 2014
+  title: A Common Title Special
+
+? A.Common.Title.2014.Special.avi
+: type: episode
+  year: 2014
+  series: A Common Title
+  title: Special
+  episodeDetails: Special
+
+? A.Common.Title.2014.Special.Edition.avi
+: type: movie
+  year: 2014
+  title: A Common Title
+  edition: Special Edition
+
+? Downton.Abbey.2013.Christmas.Special.HDTV.x264-FoV.mp4
+: type: episode
+  year: 2013
+  series: Downton Abbey
+  title: Christmas Special
+  videoCodec: h264
+  releaseGroup: FoV
+  format: HDTV
+  episodeDetails: Special
+
+? Doctor_Who_2013_Christmas_Special.The_Time_of_The_Doctor.HD
+: options: -n
+  type: episode
+  series: Doctor Who
+  other: HD
+  episodeDetails: Special
+  title: Christmas Special The Time of The Doctor
+  year: 2013
+
+? Doctor Who 2005 50th Anniversary Special The Day of the Doctor 3.avi
+: type: episode
+  series: Doctor Who
+  episodeDetails: Special
+  title: 50th Anniversary Special The Day of the Doctor 3
+  year: 2005
+
+? Robot Chicken S06-Born Again Virgin Christmas Special HDTV x264.avi
+: type: episode
+  series: Robot Chicken
+  format: HDTV
+  season: 6
+  title: Born Again Virgin Christmas Special
+  videoCodec: h264
+  episodeDetails: Special
+
+? Wicked.Tuna.S03E00.Head.To.Tail.Special.HDTV.x264-YesTV
+: options: -n
+  type: episode
+  series: Wicked Tuna
+  title: Head To Tail Special
+  releaseGroup: YesTV
+  season: 3
+  episodeNumber: 0
+  videoCodec: h264
+  format: HDTV
+  episodeDetails: Special
+
+? The.Voice.UK.S03E12.HDTV.x264-C4TV
+: options: -n
+  episodeNumber: 12
+  videoCodec: h264
+  format: HDTV
+  series: The Voice (UK)
+  releaseGroup: C4TV
+  season: 3
+  country: United Kingdom
+  type: episode
+
+? /tmp/star.trek.9/star.trek.9.mkv
+: type: movie
+  title: star trek 9
+
+? star.trek.9.mkv
+: type: movie
+  title: star trek 9
+
+? FlexGet.S01E02.TheName.HDTV.xvid
+: options: -n
+  episodeNumber: 2
+  format: HDTV
+  season: 1
+  series: FlexGet
+  title: TheName
+  type: episode
+  videoCodec: XviD
+
+? FlexGet.S01E02.TheName.HDTV.xvid
+: options: -n
+  episodeNumber: 2
+  format: HDTV
+  season: 1
+  series: FlexGet
+  title: TheName
+  type: episode
+  videoCodec: XviD
+
+? some.series.S03E14.Title.Here.720p
+: options: -n
+  episodeNumber: 14
+  screenSize: 720p
+  season: 3
+  series: some series
+  title: Title Here
+  type: episode
+
+? '[the.group] Some.Series.S03E15.Title.Two.720p'
+: options: -n
+  episodeNumber: 15
+  releaseGroup: the.group
+  screenSize: 720p
+  season: 3
+  series: Some Series
+  title: Title Two
+  type: episode
+
+? 'HD 720p: Some series.S03E16.Title.Three'
+: options: -n
+  episodeNumber: 16
+  other: HD
+  screenSize: 720p
+  season: 3
+  series: Some series
+  title: Title Three
+  type: episode
+
+? Something.Season.2.1of4.Ep.Title.HDTV.torrent
+: episodeCount: 4
+  episodeNumber: 1
+  format: HDTV
+  season: 2
+  series: Something
+  title: Title
+  type: episode
+
+? Show-A (US) - Episode Title S02E09 hdtv
+: options: -n
+  country: US
+  episodeNumber: 9
+  format: HDTV
+  season: 2
+  series: Show-A (US)
+  type: episode
+
+? Jack's.Show.S03E01.blah.1080p
+: options: -n
+  episodeNumber: 1
+  screenSize: 1080p
+  season: 3
+  series: Jack's Show
+  title: blah
+  type: episode
+
+? FlexGet.epic
+: options: -n
+  title: FlexGet epic
+  type: movie
+
+? FlexGet.Apt.1
+: options: -n
+  title: FlexGet Apt 1
+  type: movie
+
+? FlexGet.aptitude
+: options: -n
+  title: FlexGet aptitude
+  type: movie
+
+? FlexGet.Step1
+: options: -n
+  title: FlexGet Step1
+  type: movie
+
+? Movies/El Bosque Animado (1987)/El.Bosque.Animado.[Jose.Luis.Cuerda.1987].[Xvid-Dvdrip-720 * 432].avi
+: format: DVD
+  screenSize: 720x432
+  title: El Bosque Animado
+  videoCodec: XviD
+  year: 1987
+  type: movie
+
+? Movies/El Bosque Animado (1987)/El.Bosque.Animado.[Jose.Luis.Cuerda.1987].[Xvid-Dvdrip-720x432].avi
+: format: DVD
+  screenSize: 720x432
+  title: El Bosque Animado
+  videoCodec: XviD
+  year: 1987
+  type: movie
+
+? 2009.shoot.fruit.chan.multi.dvd9.pal
+: options: -n
+  format: DVD
+  language: mul
+  other: PAL
+  title: shoot fruit chan
+  type: movie
+  year: 2009
+
+? 2009.shoot.fruit.chan.multi.dvd5.pal
+: options: -n
+  format: DVD
+  language: mul
+  other: PAL
+  title: shoot fruit chan
+  type: movie
+  year: 2009
+
+? The.Flash.2014.S01E01.PREAIR.WEBRip.XviD-EVO.avi
+: episodeNumber: 1
+  format: WEBRip
+  other: Preair
+  releaseGroup: EVO
+  season: 1
+  series: The Flash
+  type: episode
+  videoCodec: XviD
+  year: 2014
+
+? Ice.Lake.Rebels.S01E06.Ice.Lake.Games.720p.HDTV.x264-DHD
+: options: -n
+  episodeNumber: 6
+  format: HDTV
+  releaseGroup: DHD
+  screenSize: 720p
+  season: 1
+  series: Ice Lake Rebels
+  title: Ice Lake Games
+  type: episode
+  videoCodec: h264
+
+? The League - S06E10 - Epi Sexy.mkv
+: episodeNumber: 10
+  season: 6
+  series: The League
+  title: Epi Sexy
+  type: episode
+
+? Stay (2005) [1080p]/Stay.2005.1080p.BluRay.x264.YIFY.mp4
+: format: BluRay
+  releaseGroup: YIFY
+  screenSize: 1080p
+  title: Stay
+  type: movie
+  videoCodec: h264
+  year: 2005
+
+? /media/live/A/Anger.Management.S02E82.720p.HDTV.X264-DIMENSION.mkv
+: format: HDTV
+  releaseGroup: DIMENSION
+  screenSize: 720p
+  series: Anger Management
+  type: episode
+  season: 2
+  episodeNumber: 82
+  videoCodec: h264
+

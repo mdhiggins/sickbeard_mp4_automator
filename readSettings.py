@@ -1,28 +1,42 @@
 import os
 import sys
-import ConfigParser
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
+import logging
 from extensions import *
 from babelfish import Language
-try:
-    from babelfish import Language
-except:
-    print "Trying to install SetupTools"
-    try:
-        import setup
-        setup.ez_setup.main()
-        from babelfish import Language
-    except:
-        print "Please install SetupTools"
-
 
 class ReadSettings:
 
-    def __init__(self, directory, filename):
+    def __init__(self, directory, filename, logger=None):
+
+        # Setup logging
+        if logger:
+            log = logger
+        else:
+            log = logging.getLogger(__name__)
+
+        try:
+            from babelfish import Language
+        except:
+            log.debug("Trying to install SetupTools.")
+            try:
+                import setup
+                setup.ez_setup.main()
+                from babelfish import Language
+            except:
+                log.exception("Please install SetupTools.")
+
         # Default settings for SickBeard
         sb_defaults = {'host': 'localhost',
                        'port': '8081',
                        'ssl': "False",
-                       'api_key': '', }
+                       'api_key': '',
+                       'web_root': '',
+                       'username': '',
+                       'password': '' }
        # Default MP4 conversion settings
         mp4_defaults = {'ffmpeg': 'ffmpeg.exe',
                         'ffprobe': 'ffprobe.exe',
@@ -38,12 +52,14 @@ class ReadSettings:
                         'ios-first-track-only': 'False',
                         'max-audio-channels': '',
                         'audio-language': '',
+                        'audio-default-language': '',
                         'audio-codec': 'ac3',
                         'audio-channel-bitrate': '256',
                         'video-codec': 'h264, x264',
                         'video-bitrate': '',
+                        'video-max-width': '',
+                        'subtitle-codec': 'mov_text',
                         'subtitle-language': '',
-                        'audio-default-language': '',
                         'subtitle-default-language': '',
                         'convert-mp4': 'False',
                         'fullpathguess': 'True',
@@ -52,7 +68,9 @@ class ReadSettings:
                         'download-artwork': 'True',
                         'download-subs': 'False',
                         'embed-subs': 'True',
-                        'sub-providers': 'addic7ed, podnapisi, thesubdb, opensubtitles' }
+                        'sub-providers': 'addic7ed, podnapisi, thesubdb, opensubtitles',
+                        'permissions': '777',
+                        'post-process': 'False' }
         # Default settings for CouchPotato
         cp_defaults = {'host': 'localhost',
                        'port': '5050',
@@ -63,27 +81,68 @@ class ReadSettings:
                        'method': 'renamer',
                        'delete_failed': 'False',
                        'ssl': 'False',
+                       'web_root': '' }
+        # Default settings for Sonarr
+        sonarr_defaults = {'host': 'localhost',
+                       'port': '8989',
+                       'apikey': '',
+                       'ssl': 'False',
                        'web_root': ''}
         # Default uTorrent settings
-        utorrent_defaults = { 'label': '',
+        utorrent_defaults = { 'couchpotato-label': 'couchpotato',
+                              'sickbeard-label': 'sickbeard',
+                              'sickrage-label': 'sickrage',
+                              'sonarr-label': 'sonarr',
+                              'bypass-label': 'bypass',
+                              'convert': 'True',
                               'webui': 'False',
                               'action_before': 'stop',
                               'action_after': 'removedata',
                               'host': 'http://localhost:8080/',
                               'username': '',
                               'password': ''}
+        # Default SAB settings
+        sab_defaults = {    'convert': 'True',
+                            'Sickbeard-category': 'sickbeard',
+                            'Sickrage-category': 'sickrage',
+                            'Couchpotato-category': 'couchpotato',
+                            'Sonarr-category': 'sonarr',
+                            'Bypass-category': 'bypass' }
+        # Default Sickrage Settings
+        sr_defaults = {'host': 'localhost',
+                       'port': '8081',
+                       'ssl': "False",
+                       'api_key': '',
+                       'web_root': '',
+                       'username': '',
+                       'password': '' }
 
-        defaults = {'SickBeard': sb_defaults, 'CouchPotato': cp_defaults, 'MP4': mp4_defaults, 'uTorrent': utorrent_defaults}
+        # Default deluge settings
+        deluge_defaults = {   'couchpotato-label': 'couchpotato',
+                              'sickbeard-label': 'sickbeard',
+                              'sickrage-label': 'sickrage',
+                              'sonarr-label': 'sonarr',
+                              'bypass-label': 'bypass',
+                              'convert': 'True',
+                              'host': 'localhost',
+                              'port': '58846',
+                              'username': '',
+                              'password': ''}
+
+        # Default Plex Settings
+        plex_defaults = {'host': 'localhost',
+                         'port': '32400',
+                         'refresh': 'true'}
+
+        defaults = {'SickBeard': sb_defaults, 'CouchPotato': cp_defaults, 'Sonarr': sonarr_defaults, 'MP4': mp4_defaults, 'uTorrent': utorrent_defaults, 'SABNZBD': sab_defaults, 'Sickrage': sr_defaults, 'Deluge': deluge_defaults, 'Plex': plex_defaults}
         write = False  # Will be changed to true if a value is missing from the config file and needs to be written
 
-        config = ConfigParser.SafeConfigParser()
+        config = configparser.SafeConfigParser()
         configFile = os.path.join(directory, filename)
         if os.path.isfile(configFile):
-            fp = open(configFile, "rb")
-            config.readfp(fp)
-            fp.close()
+            config.read(configFile)
         else:
-            print "Error: Config file not found, creating"
+            log.error("Config file not found, creating %s." % configFile)
             #config.filename = filename
             write = True
 
@@ -121,7 +180,7 @@ class ReadSettings:
                     try:
                         os.makedirs(self.copyto[i])
                     except:
-                        print "Error making directory %s" % (self.copyto[i])
+                        log.exception("Error making directory %s." % (self.copyto[i]))
         self.moveto = config.get(section, "move_to") # Directory to move final product to
         if self.moveto == '':
             self.moveto = None
@@ -131,7 +190,7 @@ class ReadSettings:
                 try:
                     os.makedirs(self.moveto)
                 except:
-                    print "Error making directory %s" % (self.moveto)
+                    log.exception("Error making directory %s." % (self.moveto))
                     self.moveto = None
         self.add_to_itunes = config.getboolean(section, "add_to_itunes")
         self.output_extension = config.get(section, "output_extension")  # Output extension
@@ -151,15 +210,15 @@ class ReadSettings:
             self.abitrate = int(self.abitrate)
         except:
             self.abitrate = 256
-            print "Audio bitrate was invalid, defaulting to 256 per channel"
+            log.warning("Audio bitrate was invalid, defaulting to 256 per channel.")
         if self.abitrate > 256:
-            print "Warning - audio bitrates >256 may create errors with common codecs"
+            log.warning("Audio bitrates >256 may create errors with common codecs.")
 
         # !!! Leaving this disabled for now, users will be responsible for knowing whicn codecs do and don't work with mp4 files !!!
         #if self.acodec not in valid_audio_codecs:
         #    self.acodec = 'aac'
         #    print "Audio codec not valid, defaulting to AAC"
-        
+
         self.iOS = config.get(section, "ios-audio")  # Creates a second audio channel if the standard output methods are different from this for iOS compatability
         if self.iOS == "" or self.iOS.lower() in ['false', 'no', 'f', '0']:
             self.iOS = False
@@ -167,23 +226,36 @@ class ReadSettings:
             if self.iOS.lower() in ['true', 'yes', 't', '1']:
                 self.iOS = 'aac'
         self.iOSFirst = config.getboolean(section, "ios-first-track-only")  # Enables the iOS audio option only for the first track
-        self.downloadsubs = config.getboolean(section, "download-subs")  #  Enables downloading of subtitles from the internet sources using subliminal
 
+        self.downloadsubs = config.getboolean(section, "download-subs")  #  Enables downloading of subtitles from the internet sources using subliminal
         if self.downloadsubs:
             try:
                 import subliminal
             except Exception as e:
-                print e
                 self.downloadsubs = False
-                print "Subliminal is not installed, automatically downloading of subs has been disabled"
+                log.exception("Subliminal is not installed, automatically downloading of subs has been disabled.")
         self.subproviders = config.get(section, 'sub-providers').lower()
         if self.subproviders == '':
             self.downloadsubs = False
-            print "You must specifiy at least one subtitle provider to downlaod subs automatically"
+            log.warning("You must specifiy at least one subtitle provider to downlaod subs automatically, subtitle downloading disabled.")
         else:
             self.subproviders = self.subproviders.lower().replace(' ', '').split(',')
 
         self.embedsubs = config.getboolean(section, 'embed-subs')
+
+        self.permissions = config.get(section, 'permissions')
+        try:
+            self.permissions = int(self.permissions, 8)
+        except:
+            self.log.exception("Invalid permissions, defaulting to 777.")
+            self.permissions = int("0777", 8)
+
+        self.post_process = config.get(section, 'post-process')
+        if self.post_process == "" or self.post_process.lower() in ['false', 'no', 'f', '0']:
+            self.post_process = False
+        else:
+            if self.post_process.lower() in ['true', 'yes', 't', '1']:
+                self.post_process = True
 
         #Setup variable for maximum audio channels
         self.maxchannels = config.get(section, 'max-audio-channels')
@@ -193,10 +265,10 @@ class ReadSettings:
             try:
                 self.maxchannels = int(self.maxchannels)
             except:
-                print "Invalid number of audio channels specified"
+                log.exception("Invalid number of audio channels specified.")
                 self.maxchannels = None
         if self.maxchannels is not None and self.maxchannels < 1:
-            print "Must have at least 1 audio channel"
+            log.warning("Must have at least 1 audio channel.")
             self.maxchannels = None
 
         self.vcodec = config.get(section, "video-codec")
@@ -210,16 +282,43 @@ class ReadSettings:
             self.vbitrate = None
         else:
             try:
-                self.vbitrate = int(self.vbitrate)*1000
+                self.vbitrate = int(self.vbitrate)
             except:
-                print "Invalid video bitrate, defaulting to no video bitrate cap"
+                log.exception("Invalid video bitrate, defaulting to no video bitrate cap.")
                 self.vbitrate = None
+
+        self.vwidth = config.get(section, "video-max-width")
+        if self.vwidth == '':
+            self.vwidth = None
+        else:
+            try:
+                self.vwidth = int(self.vwidth)
+            except:
+                log.exception("Invalid video width, defaulting to none.")
+                self.vwidth = None
 
         self.awl = config.get(section, 'audio-language').strip().lower()  # List of acceptable languages for audio streams to be carried over from the original file, separated by a comma. Blank for all
         if self.awl == '':
             self.awl = None
         else:
             self.awl = self.awl.replace(' ', '').split(',')
+
+        self.scodec = config.get(section, 'subtitle-codec').strip().lower()
+        if not self.scodec or self.scodec == "":
+            if self.embedsubs:
+                self.scodec = 'mov_text'
+            else:
+                self.scodec = 'srt'
+            log.warning("Invalid subtitle codec, defaulting to '%s'." % self.scodec)
+
+        if self.embedsubs and self.scodec not in valid_internal_subcodecs:
+            log.warning("Invalid interal subtitle codec %s, defaulting to 'mov_text'." % self.scodec)
+            self.scodec = 'mov_text'
+
+        if not self.embedsubs and self.scodec not in valid_external_subcodecs:
+            log.warning("Invalid external subtitle codec %s, defaulting to 'srt'." % self.scodec)
+            self.scodec = 'srt'
+
 
         self.swl = config.get(section, 'subtitle-language').strip().lower()  # List of acceptable languages for subtitle streams to be carried over from the original file, separated by a comma. Blank for all
         if self.swl == '':
@@ -236,7 +335,7 @@ class ReadSettings:
             self.sdl = None
         # Prevent incompatible combination of settings
         if self.output_dir == "" and self.delete is False:
-            print "Error - you must specify an alternate output directory if you aren't going to delete the original file"
+            log.error("You must specify an alternate output directory if you aren't going to delete the original file.")
             sys.exit()
         # Create output directory if it does not exist
         if self.output_dir is not None:
@@ -251,10 +350,10 @@ class ReadSettings:
                 babel = Language.fromalpha3(self.taglanguage)
                 self.taglanguage = babel.alpha2
             except:
-                print "Unable to set tag language, defaulting to English"
+                log.exception("Unable to set tag language, defaulting to English.")
                 self.taglanguage = 'en'
         elif len(self.taglanguage) < 2:
-            print "Unable to set tag language, defaulting to English"
+            log.exception("Unable to set tag language, defaulting to English.")
             self.taglanguage = 'en'
         self.artwork = config.getboolean(section, "download-artwork") # Download and embed artwork
 
@@ -269,33 +368,112 @@ class ReadSettings:
         self.CP['delay'] = config.get(section, "delay")
         self.CP['method'] = config.get(section, "method")
         self.CP['web_root'] = config.get(section, "web_root")
+
         try:
             self.CP['delay'] = float(self.CP['delay'])
         except ValueError:
             self.CP['delay'] = 60
         try:
             self.CP['delete_failed'] = config.getboolean(section, "delete_failed")
-        except (ConfigParser.NoOptionError, ValueError):
+        except (configparser.NoOptionError, ValueError):
             self.CP['delete_failed'] = False
         try:
             if config.getboolean(section, 'ssl'):
                 self.CP['protocol'] = "https://"
             else:
                 self.CP['protocol'] = "http://"
-        except (ConfigParser.NoOptionError, ValueError):
+        except (configparser.NoOptionError, ValueError):
             self.CP['protocol'] = "http://"
 
         #Read relevant uTorrent section information
         section = "uTorrent"
-        self.uTorrentLabel = config.get(section, "label").lower()
+        self.uTorrent = {}
+        self.uTorrent['cp'] = config.get(section, "couchpotato-label").lower()
+        self.uTorrent['sb'] = config.get(section, "sickbeard-label").lower()
+        self.uTorrent['sr'] = config.get(section, "sickrage-label").lower()
+        self.uTorrent['sonarr'] = config.get(section, "sonarr-label").lower()
+        self.uTorrent['bypass'] = config.get(section, "bypass-label").lower()
+        try:
+            self.uTorrent['convert'] = config.getboolean(section, "convert")
+        except:
+            self.uTorrent['convert'] = False
         self.uTorrentWebUI = config.getboolean(section, "webui")
         self.uTorrentActionBefore = config.get(section, "action_before").lower()
         self.uTorrentActionAfter = config.get(section, "action_after").lower()
         self.uTorrentHost = config.get(section, "host").lower()
         self.uTorrentUsername = config.get(section, "username")
         self.uTorrentPassword = config.get(section, "password")
-        if self.uTorrentLabel == "":
-            self.uTorrentLabel = None;
+
+        #Read relevant Deluge section information
+        section = "Deluge"
+        self.deluge = {}
+        self.deluge['cp'] = config.get(section, "couchpotato-label").lower()
+        self.deluge['sb'] = config.get(section, "sickbeard-label").lower()
+        self.deluge['sr'] = config.get(section, "sickrage-label").lower()
+        self.deluge['sonarr'] = config.get(section, "sonarr-label").lower()
+        self.deluge['bypass'] = config.get(section, "bypass-label").lower()
+        try:
+            self.deluge['convert'] = config.getboolean(section, "convert")
+        except:
+            self.deluge['convert'] = False
+        self.deluge['host'] = config.get(section, "host").lower()
+        self.deluge['port'] = config.get(section, "port")
+        self.deluge['user'] = config.get(section, "username")
+        self.deluge['pass'] = config.get(section, "password")
+
+        #Read relevant Sonarr section information
+        section = "Sonarr"
+        self.Sonarr = {}
+        self.Sonarr['host'] = config.get(section, "host")
+        self.Sonarr['port'] = config.get(section, "port")
+        self.Sonarr['apikey'] = config.get(section, "apikey")
+        self.Sonarr['ssl'] = config.get(section, "ssl")
+        self.Sonarr['web_root'] = config.get(section, "web_root")
+
+        #Read Sickbeard section information
+        section = "SickBeard"
+        self.Sickbeard = {}
+        self.Sickbeard['host'] = config.get(section, "host")  # Server Address
+        self.Sickbeard['port'] = config.get(section, "port")  # Server Port
+        self.Sickbeard['api_key'] = config.get(section, "api_key")  # Sickbeard API key
+        self.Sickbeard['web_root'] = config.get(section, "web_root")  # Sickbeard webroot
+        self.Sickbeard['ssl'] = config.getboolean(section, "ssl") # SSL
+        self.Sickbeard['user'] = config.get(section, "username")
+        self.Sickbeard['pass'] = config.get(section, "password")
+
+        #Read Sickrage section information
+        section = "Sickrage"
+        self.Sickrage = {}
+        self.Sickrage['host'] = config.get(section, "host")  # Server Address
+        self.Sickrage['port'] = config.get(section, "port")  # Server Port
+        self.Sickrage['api_key'] = config.get(section, "api_key")  # Sickbeard API key
+        self.Sickrage['web_root'] = config.get(section, "web_root")  # Sickbeard webroot
+        self.Sickrage['ssl'] = config.getboolean(section, "ssl") # SSL
+        self.Sickrage['user'] = config.get(section, "username")
+        self.Sickrage['pass'] = config.get(section, "password")
+
+        #Read SAB section information
+        section = "SABNZBD"
+        self.SAB = {}
+        try:
+            self.SAB['convert'] = config.getboolean(section, "convert") # Convert
+        except:
+            self.SAB['convert'] = False
+        self.SAB['cp'] = config.get(section, "Couchpotato-category").lower()
+        self.SAB['sb'] = config.get(section, "Sickbeard-category").lower()
+        self.SAB['sr'] = config.get(section, "Sickrage-category").lower()
+        self.SAB['sonarr'] = config.get(section, "Sonarr-category").lower()
+        self.SAB['bypass'] = config.get(section, "Bypass-category").lower()
+
+        #Read Plex section information
+        section = "Plex"
+        self.Plex = {}
+        self.Plex['host'] = config.get(section, "host")
+        self.Plex['port'] = config.get(section, "port")
+        try:
+            self.Plex['refresh'] = config.getboolean(section, "refresh")
+        except:
+            self.Plex['refresh'] = False
 
         #Pass the values on
         self.config = config
@@ -309,7 +487,7 @@ class ReadSettings:
         try:
             if config.getboolean(section, "ssl"):
                 protocol = "https://"
-        except (ConfigParser.NoOptionError, ValueError):
+        except (configparser.NoOptionError, ValueError):
             pass
         host = config.get(section, "host")  # Server Address
         port = config.get(section, "port")  # Server Port

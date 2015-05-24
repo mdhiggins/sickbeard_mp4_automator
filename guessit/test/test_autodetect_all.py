@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # GuessIt - A library for guessing information from filenames
-# Copyright (c) 2012 Nicolas Wack <wackou@gmail.com>
+# Copyright (c) 2013 Nicolas Wack <wackou@gmail.com>
 #
 # GuessIt is free software; you can redistribute it and/or modify it under
 # the terms of the Lesser GNU General Public License as published by
@@ -18,26 +18,25 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from __future__ import unicode_literals
-from guessittest import *
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-IGNORE_EPISODES = [ 'finale ' ]
+from guessit.test.guessittest import *
+
+IGNORE_EPISODES = []
 IGNORE_MOVIES = []
+
 
 class TestAutoDetectAll(TestGuessit):
     def testAutoMatcher(self):
-        self.checkMinimumFieldsCorrect(filetype='autodetect',
-                                       filename='autodetect.yaml',
+        self.checkMinimumFieldsCorrect(filename='autodetect.yaml',
                                        remove_type=False)
 
     def testAutoMatcherMovies(self):
-        self.checkMinimumFieldsCorrect(filetype='autodetect',
-                                       filename='movies.yaml',
+        self.checkMinimumFieldsCorrect(filename='movies.yaml',
                                        exclude_files=IGNORE_MOVIES)
 
     def testAutoMatcherEpisodes(self):
-        self.checkMinimumFieldsCorrect(filetype='autodetect',
-                                       filename='episodes.yaml',
+        self.checkMinimumFieldsCorrect(filename='episodes.yaml',
                                        exclude_files=IGNORE_EPISODES)
 
 

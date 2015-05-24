@@ -1,13 +1,10 @@
 #!/usr/bin/python
 
-
 import os
-import os.path
 
-from avcodecs import video_codec_list, audio_codec_list, subtitle_codec_list
-from formats import format_list
-
-from ffmpeg import FFMpeg, FFMpegError, FFMpegConvertError
+from converter.avcodecs import video_codec_list, audio_codec_list, subtitle_codec_list
+from converter.formats import format_list
+from converter.ffmpeg import FFMpeg, FFMpegError, FFMpegConvertError
 
 
 class ConverterError(Exception):
@@ -27,7 +24,7 @@ class Converter(object):
         """
 
         self.ffmpeg = FFMpeg(ffmpeg_path=ffmpeg_path,
-            ffprobe_path=ffprobe_path)
+                             ffprobe_path=ffprobe_path)
         self.video_codecs = {}
         self.audio_codecs = {}
         self.subtitle_codecs = {}
@@ -40,7 +37,7 @@ class Converter(object):
         for cls in video_codec_list:
             name = cls.codec_name
             self.video_codecs[name] = cls
-            
+
         for cls in subtitle_codec_list:
             name = cls.codec_name
             self.subtitle_codecs[name] = cls
@@ -75,74 +72,77 @@ class Converter(object):
         if 'audio' not in opt and 'video' not in opt and 'subtitle' not in opt:
             raise ConverterError('Neither audio nor video nor subtitle streams requested')
 
-        if 'audio' in opt:
-            y = opt['audio']
+        if 'audio' not in opt:
+            opt['audio'] = {'codec': None}
 
-            # Creates the new nested dictionary to preserve backwards compatability
-            try:
-                first = y.values()[0]
-                if not isinstance(first, dict) and first is not None:
-                    y = {0: y}
-            except IndexError:
-                pass
+        if 'subtitle' not in opt:
+            opt['subtitle'] = {'codec': None}
 
-            for n in y:
-                x = y[n]
+        # Audio
+        y = opt['audio']
 
-                if not isinstance(x, dict) or 'codec' not in x:
-                    raise ConverterError('Invalid audio codec specification')
+        # Creates the new nested dictionary to preserve backwards compatability
+        try:
+            first = list(y.values())[0]
+            if not isinstance(first, dict):
+                y = {0: y}
+        except IndexError:
+            pass
 
-                if 'map' not in x:
-                    raise ConverterError('Must specify a map value')
+        for n in y:
+            x = y[n]
 
-                c = x['codec']
-                if c not in self.audio_codecs:
-                    raise ConverterError('Requested unknown audio codec ' + str(c))
+            if not isinstance(x, dict) or 'codec' not in x:
+                raise ConverterError('Invalid audio codec specification')
 
-                audio_options.extend(self.audio_codecs[c]().parse_options(x, n))
-                if audio_options is None:
-                    raise ConverterError('Unknown audio codec error')
+            if 'path' in x and 'source' not in x:
+                raise ConverterError('Cannot specify audio path without FFMPEG source number')
 
-        if 'subtitle' in opt:
-            y = opt['subtitle']
+            if 'source' in x and 'path' not in x:
+                raise ConverterError('Cannot specify alternate input source without a path')
 
-            # Creates the new nested dictionary to preserve backwards compatability
-            try:
-                first = y.values()[0]
-                if not isinstance(first, dict) and first is not None:
-                    y = {0: y}
-            except IndexError:
-                pass
+            c = x['codec']
+            if c not in self.audio_codecs:
+                raise ConverterError('Requested unknown audio codec ' + str(c))
 
-            for n in y:
-                x = y[n]
-                if not isinstance(x, dict) or 'codec' not in x:
-                    raise ConverterError('Invalid subtitle codec specification')
+            audio_options.extend(self.audio_codecs[c]().parse_options(x, n))
+            if audio_options is None:
+                raise ConverterError('Unknown audio codec error')
 
-                if 'map' not in x:
-                    raise ConverterError('Must specify a map value')
+        # Subtitle
+        y = opt['subtitle']
 
-                if 'path' in x and 'source' not in x:
-                    raise ConverterError('Cannot specify subtitle path without FFMPEG source number')
+        # Creates the new nested dictionary to preserve backwards compatability
+        try:
+            first = list(y.values())[0]
+            if not isinstance(first, dict):
+                y = {0: y}
+        except IndexError:
+            pass
 
-                if 'source' in x and 'path' not in x:
-                    raise ConverterError('Cannot specify alternate input source without a path')
+        for n in y:
+            x = y[n]
+            if not isinstance(x, dict) or 'codec' not in x:
+                raise ConverterError('Invalid subtitle codec specification')
 
-                c = x['codec']
-                if c not in self.subtitle_codecs:
-                    raise ConverterError('Requested unknown audio codec ' + str(c))
+            if 'path' in x and 'source' not in x:
+                raise ConverterError('Cannot specify subtitle path without FFMPEG source number')
 
-                subtitle_options.extend(self.subtitle_codecs[c]().parse_options(x, n))
-                if audio_options is None:
-                    raise ConverterError('Unknown audio codec error')
+            if 'source' in x and 'path' not in x:
+                raise ConverterError('Cannot specify alternate input source without a path')
+
+            c = x['codec']
+            if c not in self.subtitle_codecs:
+                raise ConverterError('Requested unknown subtitle codec ' + str(c))
+
+            subtitle_options.extend(self.subtitle_codecs[c]().parse_options(x, n))
+            if subtitle_options is None:
+                raise ConverterError('Unknown subtitle codec error')
 
         if 'video' in opt:
             x = opt['video']
             if not isinstance(x, dict) or 'codec' not in x:
                 raise ConverterError('Invalid video codec specification')
-
-            if 'map' not in x:
-                raise ConverterError('Must specify a map value')
 
             c = x['codec']
             if c not in self.video_codecs:
@@ -152,6 +152,7 @@ class Converter(object):
             if video_options is None:
                 raise ConverterError('Unknown video codec error')
 
+        # aggregate all options
         optlist = video_options + audio_options + subtitle_options + format_options
 
         if twopass == 1:
@@ -161,7 +162,7 @@ class Converter(object):
 
         return optlist
 
-    def convert(self, infile, outfile, options, twopass=False, timeout=10):
+    def convert(self, infile, outfile, options, twopass=False, timeout=10, preopts=None, postopts=None):
         """
         Convert media file (infile) according to specified options, and
         save it to outfile. For two-pass encoding, specify the pass (1 or 2)
@@ -174,6 +175,7 @@ class Converter(object):
               avcodecs.AudioCodec for list of supported options
             * video (optional, dict) - video codec and options; see
               avcodecs.VideoCodec for list of supported options
+            * map (optional, int) - can be used to map all content of stream 0
 
         Multiple audio/video streams are not supported. The output has to
         have at least an audio or a video stream (or both).
@@ -193,7 +195,7 @@ class Converter(object):
         timeout is handled (using signals) has special restriction when
         using threads.
 
-        >>> conv = c.convert('test1.ogg', '/tmp/output.mkv', {
+        >>> conv = Converter().convert('test1.ogg', '/tmp/output.mkv', {
         ...    'format': 'mkv',
         ...    'audio': { 'codec': 'aac' },
         ...    'video': { 'codec': 'h264' }
@@ -217,7 +219,8 @@ class Converter(object):
             raise ConverterError('Source file has no audio or video streams')
 
         if info.video and 'video' in options:
-            v = options['video']
+            options = options.copy()
+            v = options['video'] = options['video'].copy()
             v['src_width'] = info.video.video_width
             v['src_height'] = info.video.video_height
 
@@ -226,30 +229,40 @@ class Converter(object):
 
         if twopass:
             optlist1 = self.parse_options(options, 1)
-            for timecode in self.ffmpeg.convert(infile, outfile, optlist,
-                    timeout=timeout):
+            for timecode in self.ffmpeg.convert(infile, outfile, optlist1,
+                                                timeout=timeout, preopts=preopts, postopts=postopts):
                 yield int((50.0 * timecode) / info.format.duration)
 
             optlist2 = self.parse_options(options, 2)
             for timecode in self.ffmpeg.convert(infile, outfile, optlist2,
-                    timeout=timeout):
+                                                timeout=timeout, preopts=preopts, postopts=postopts):
                 yield int(50.0 + (50.0 * timecode) / info.format.duration)
         else:
             optlist = self.parse_options(options, twopass)
             for timecode in self.ffmpeg.convert(infile, outfile, optlist,
-                    timeout=timeout):
+                                                timeout=timeout, preopts=preopts, postopts=postopts):
                 yield int((100.0 * timecode) / info.format.duration)
 
-    def probe(self, fname):
+    def probe(self, fname, posters_as_video=True):
         """
         Examine the media file. See the documentation of
         converter.FFMpeg.probe() for details.
-        """
-        return self.ffmpeg.probe(fname)
 
-    def thumbnail(self, fname, time, outfile, size=None):
+        :param posters_as_video: Take poster images (mainly for audio files) as
+            A video stream, defaults to True
+        """
+        return self.ffmpeg.probe(fname, posters_as_video)
+
+    def thumbnail(self, fname, time, outfile, size=None, quality=FFMpeg.DEFAULT_JPEG_QUALITY):
         """
         Create a thumbnail of the media file. See the documentation of
         converter.FFMpeg.thumbnail() for details.
         """
-        return self.ffmpeg.thumbnail(fname, time, outfile, size)
+        return self.ffmpeg.thumbnail(fname, time, outfile, size, quality)
+
+    def thumbnails(self, fname, option_list):
+        """
+        Create one or more thumbnail of the media file. See the documentation
+        of converter.FFMpeg.thumbnails() for details.
+        """
+        return self.ffmpeg.thumbnails(fname, option_list)

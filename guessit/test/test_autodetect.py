@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # GuessIt - A library for guessing information from filenames
-# Copyright (c) 2011-2012 Nicolas Wack <wackou@gmail.com>
+# Copyright (c) 2013 Nicolas Wack <wackou@gmail.com>
 #
 # GuessIt is free software; you can redistribute it and/or modify it under
 # the terms of the Lesser GNU General Public License as published by
@@ -18,13 +18,24 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from guessittest import *
+from guessit.test.guessittest import *
+
 
 class TestAutoDetect(TestGuessit):
+    def testEmpty(self):
+        result = guessit.guess_file_info('')
+        self.assertEqual(result, {})
+
+        result = guessit.guess_file_info('___-__')
+        self.assertEqual(result, {})
+
+        result = guessit.guess_file_info('__-.avc')
+        self.assertEqual(result, {'type': 'unknown', 'extension': 'avc'})
+
     def testAutoDetect(self):
-        self.checkMinimumFieldsCorrect(filetype='autodetect',
-                                       filename='autodetect.yaml',
+        self.checkMinimumFieldsCorrect(filename='autodetect.yaml',
                                        remove_type=False)
 
 

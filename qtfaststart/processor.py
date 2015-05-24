@@ -7,9 +7,12 @@ import logging
 import os
 import struct
 
-from StringIO import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
-from exceptions import FastStartException
+from .exceptions import FastStartException
 
 CHUNK_SIZE = 8192
 

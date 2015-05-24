@@ -4,11 +4,13 @@ import os.path
 import os
 import re
 import signal
+from subprocess import Popen, PIPE
+import logging
+import locale
 
-try:
-    from subprocess import Popen, PIPE
-except:
-    Popen = None
+logger = logging.getLogger(__name__)
+
+console_encoding = locale.getdefaultlocale()[1] or 'UTF-8'
 
 
 class FFMpegError(Exception):
@@ -16,7 +18,34 @@ class FFMpegError(Exception):
 
 
 class FFMpegConvertError(Exception):
-    pass
+    def __init__(self, message, cmd, output, details=None, pid=0):
+        """
+        @param    message: Error message.
+        @type     message: C{str}
+
+        @param    cmd: Full command string used to spawn ffmpeg.
+        @type     cmd: C{str}
+
+        @param    output: Full stdout output from the ffmpeg command.
+        @type     output: C{str}
+
+        @param    details: Optional error details.
+        @type     details: C{str}
+        """
+        super(FFMpegConvertError, self).__init__(message)
+
+        self.cmd = cmd
+        self.output = output
+        self.details = details
+        self.pid = pid
+
+    def __repr__(self):
+        error = self.details if self.details else self.message
+        return ('<FFMpegConvertError error="%s", pid=%s, cmd="%s">' %
+                (error, self.pid, self.cmd))
+
+    def __str__(self):
+        return self.__repr__()
 
 
 class MediaFormatInfo(object):
@@ -45,15 +74,17 @@ class MediaFormatInfo(object):
         elif key == 'format_long_name':
             self.fullname = val
         elif key == 'bit_rate':
-            self.bitrate = float(val)
+            self.bitrate = MediaStreamInfo.parse_float(val, None)
         elif key == 'duration':
-            self.duration = float(val)
+            self.duration = MediaStreamInfo.parse_float(val, None)
         elif key == 'size':
-            self.size = float(val)
+            self.size = MediaStreamInfo.parse_float(val, None)
 
     def __repr__(self):
+        if self.duration is None:
+            return 'MediaFormatInfo(format=%s)' % self.format
         return 'MediaFormatInfo(format=%s, duration=%.2f)' % (self.format,
-            self.duration)
+                                                              self.duration)
 
 
 class MediaStreamInfo(object):
@@ -66,6 +97,9 @@ class MediaStreamInfo(object):
       * codec_desc - codec full (descriptive) name
       * duration - stream duration in seconds
       * map - stream index for ffmpeg mapping
+      * metadata - optional metadata associated with a video or audio stream
+      * bitrate - stream bitrate in bytes/second
+      * attached_pic - (0, 1 or None) is stream a poster image? (e.g. in mp3)
     Video-specific attributes are:
       * video_width - width of video in pixels
       * video_height - height of video in pixels
@@ -81,15 +115,17 @@ class MediaStreamInfo(object):
         self.codec = None
         self.codec_desc = None
         self.duration = None
+        self.bitrate = None
         self.video_width = None
         self.video_height = None
         self.video_fps = None
+        self.video_level = None
         self.audio_channels = None
         self.audio_samplerate = None
-        self.audio_bitrate = None
+        self.attached_pic = None
         self.sub_forced = None
         self.sub_default = None
-        self.language = 'und'
+        self.metadata = {}
 
     @staticmethod
     def parse_float(val, default=0.0):
@@ -120,6 +156,8 @@ class MediaStreamInfo(object):
             self.codec_desc = val
         elif key == 'duration':
             self.duration = self.parse_float(val)
+        elif key == 'bit_rate':
+            self.bitrate = self.parse_int(val, None)
         elif key == 'width':
             self.video_width = self.parse_int(val)
         elif key == 'height':
@@ -128,9 +166,13 @@ class MediaStreamInfo(object):
             self.audio_channels = self.parse_int(val)
         elif key == 'sample_rate':
             self.audio_samplerate = self.parse_float(val)
-        elif key.lower() == 'tag:language':
-            if val is not None and val.strip() != "":
-                self.language = val
+        elif key == 'DISPOSITION:attached_pic':
+            self.attached_pic = self.parse_int(val)
+
+        if key.startswith('TAG:'):
+            key = key.split('TAG:')[1].lower()
+            value = val.lower().strip()
+            self.metadata[key] = value
 
         if self.type == 'audio':
             if key == 'avg_frame_rate':
@@ -142,8 +184,6 @@ class MediaStreamInfo(object):
                         self.video_fps = float(n) / float(d)
                 elif '.' in val:
                     self.video_fps = self.parse_float(val)
-            if key == 'bit_rate':
-                self.audio_bitrate = self.parse_int(val) / 1000
 
         if self.type == 'video':
             if key == 'r_frame_rate':
@@ -155,26 +195,40 @@ class MediaStreamInfo(object):
                         self.video_fps = float(n) / float(d)
                 elif '.' in val:
                     self.video_fps = self.parse_float(val)
+            if key == 'level':
+                self.video_level = self.parse_float(val)
 
         if self.type == 'subtitle':
-            if key.lower() == 'disposition:forced':
+            if key == 'disposition:forced':
                 self.sub_forced = self.parse_int(val)
-            if key.lower() == 'disposition:default':
+            if key == 'disposition:default':
                 self.sub_default = self.parse_int(val)
+
 
     def __repr__(self):
         d = ''
+        metadata_str = ['%s=%s' % (key, value) for key, value
+                        in self.metadata.items()]
+        metadata_str = ', '.join(metadata_str)
+
         if self.type == 'audio':
             d = 'type=%s, codec=%s, channels=%d, rate=%.0f' % (self.type,
-                self.codec, self.audio_channels,
-                self.audio_samplerate)
+                self.codec, self.audio_channels, self.audio_samplerate)
         elif self.type == 'video':
             d = 'type=%s, codec=%s, width=%d, height=%d, fps=%.1f' % (
                 self.type, self.codec, self.video_width, self.video_height,
                 self.video_fps)
         elif self.type == 'subtitle':
-            d = 'type=%s, language=%s, forced=%d' % (self.type, self.sub_language, self.sub_forced)
-        return 'MediaStreamInfo(%s)' % d
+            d = 'type=%s, codec=%s' % (self.type, self.codec)
+        if self.bitrate is not None:
+            d += ', bitrate=%d' % self.bitrate
+
+        if self.metadata:
+            value = 'MediaStreamInfo(%s, %s)' % (d, metadata_str)
+        else:
+            value = 'MediaStreamInfo(%s)' % d
+
+        return value
 
 
 class MediaInfo(object):
@@ -185,8 +239,13 @@ class MediaInfo(object):
       * streams - a list of MediaStreamInfo objects
     """
 
-    def __init__(self):
+    def __init__(self, posters_as_video=True):
+        """
+        :param posters_as_video: Take poster images (mainly for audio files) as
+            A video stream, defaults to True
+        """
         self.format = MediaFormatInfo()
+        self.posters_as_video = posters_as_video
         self.streams = []
 
     def parse_ffprobe(self, raw):
@@ -221,7 +280,7 @@ class MediaInfo(object):
 
     def __repr__(self):
         return 'MediaInfo(format=%s, streams=%s)' % (repr(self.format),
-            repr(self.streams))
+                                                     repr(self.streams))
 
     @property
     def video(self):
@@ -229,9 +288,14 @@ class MediaInfo(object):
         First video stream, or None if there are no video streams.
         """
         for s in self.streams:
-            if s.type == 'video':
+            if s.type == 'video' and (self.posters_as_video
+                                      or not s.attached_pic):
                 return s
         return None
+
+    @property
+    def posters(self):
+        return [s for s in self.streams if s.attached_pic]
 
     @property
     def audio(self):
@@ -263,6 +327,7 @@ class FFMpeg(object):
 
     >>> f = FFMpeg()
     """
+    DEFAULT_JPEG_QUALITY = 4
 
     def __init__(self, ffmpeg_path=None, ffprobe_path=None):
         """
@@ -299,34 +364,18 @@ class FFMpeg(object):
             raise FFMpegError("ffprobe binary not found: " + self.ffprobe_path)
 
     @staticmethod
-    def _spawn(cmds, communicate=False):
-        if Popen and os.name != 'nt':
-            p = Popen(cmds, shell=False,
-                stdin=PIPE, stdout=PIPE, stderr=PIPE,
-                close_fds=True)
-            if communicate:
-                    return p.communicate()
-            else:
-                return (p.stdout, p.stderr)
-        elif Popen and os.name == 'nt':
-            p = Popen(cmds, shell=False,
-                stdin=PIPE, stdout=PIPE, stderr=PIPE,
-                close_fds=False)
-            if communicate:
-                return p.communicate()
-            else:
-                return (p.stdout, p.stderr)
-        else:
-            pin, pout, perr = os.popen3(cmds)
-            return (pout, perr)
+    def _spawn(cmds):
+        logger.debug('Spawning ffmpeg with command: ' + ' '.join(cmds))
+        return Popen(cmds, shell=False, stdin=PIPE, stdout=PIPE, stderr=PIPE,
+                     close_fds=(os.name != 'nt'))
 
-    def probe(self, fname):
+    def probe(self, fname, posters_as_video=True):
         """
         Examine the media file and determine its format and media streams.
         Returns the MediaInfo object, or None if the specified file is
         not a valid media file.
 
-        >>> info = f.probe('test1.ogg')
+        >>> info = FFMpeg().probe('test1.ogg')
         >>> info.format
         'ogg'
         >>> info.duration
@@ -341,24 +390,27 @@ class FFMpeg(object):
         'vorbis'
         >>> info.audio.channels
         2
+        :param posters_as_video: Take poster images (mainly for audio files) as
+            A video stream, defaults to True
         """
 
         if not os.path.exists(fname):
             return None
 
-        info = MediaInfo()
+        info = MediaInfo(posters_as_video)
 
-        raw, _ = self._spawn([self.ffprobe_path,
-            '-show_format', '-show_streams', fname], True)
-
-        info.parse_ffprobe(raw)
+        p = self._spawn([self.ffprobe_path,
+                         '-show_format', '-show_streams', fname])
+        stdout_data, _ = p.communicate()
+        stdout_data = stdout_data.decode(console_encoding)
+        info.parse_ffprobe(stdout_data)
 
         if not info.format.format and len(info.streams) == 0:
             return None
 
         return info
 
-    def convert(self, infile, outfile, opts, timeout=10):
+    def convert(self, infile, outfile, opts, timeout=10, preopts=None, postopts=None):
         """
         Convert the source media (infile) according to specified options
         (a list of ffmpeg switches as strings) and save it to outfile.
@@ -373,17 +425,23 @@ class FFMpeg(object):
         the documentation in Converter.convert() for more details about this
         option.
 
-        >>> conv = f.convert('test.ogg', '/tmp/output.mp3',
-        ...    [0, ['-acodec libmp3lame', '-vn']])
+        >>> conv = FFMpeg().convert('test.ogg', '/tmp/output.mp3',
+        ...    ['-acodec libmp3lame', '-vn'])
         >>> for timecode in conv:
         ...    pass # can be used to inform the user about conversion progress
 
         """
+        if os.name == 'nt':
+            timeout = 0
+
         if not os.path.exists(infile):
             raise FFMpegError("Input file doesn't exist: " + infile)
 
-        cmds = [self.ffmpeg_path, '-i', infile]
-        
+        cmds = [self.ffmpeg_path]
+        if preopts:
+            cmds.extend(preopts)
+        cmds.extend(['-i', infile])
+
         # Move additional inputs to the front of the line
         for ind, command in enumerate(opts):
             if command == '-i':
@@ -392,19 +450,19 @@ class FFMpeg(object):
                 del opts[ind]
 
         cmds.extend(opts)
-        #cmds.extend(['-movflags', 'faststart'])
-        cmds.extend(['-threads', 'auto'])
+        if postopts:
+            cmds.extend(postopts)
         cmds.extend(['-y', outfile])
 
-        if timeout and os.name != 'nt':
-            def on_sigalrm(*args):
+        if timeout:
+            def on_sigalrm(*_):
                 signal.signal(signal.SIGALRM, signal.SIG_DFL)
                 raise Exception('timed out while waiting for ffmpeg')
 
             signal.signal(signal.SIGALRM, on_sigalrm)
 
         try:
-            _, fd = self._spawn(cmds)
+            p = self._spawn(cmds)
         except OSError:
             raise FFMpegError('Error while calling ffmpeg binary')
 
@@ -413,16 +471,28 @@ class FFMpeg(object):
         total_output = ''
         pat = re.compile(r'time=([0-9.:]+) ')
         while True:
-            if timeout and os.name != 'nt':
+            if timeout:
                 signal.alarm(timeout)
 
-            ret = fd.read(10)
+            ret = p.stderr.read(10)
 
-            if timeout and os.name != 'nt':
+            if timeout:
                 signal.alarm(0)
 
             if not ret:
+                #For small or very fast jobs, ffmpeg may never output a '\r'.  When EOF is reached, yield if we haven't yet.
+                if not yielded:
+                    yielded = True
+                    yield 10
                 break
+
+            try:
+                ret = ret.decode(console_encoding)
+            except UnicodeDecodeError:
+                try:
+                    ret = ret.decode(console_encoding, errors="ignore")
+                except:
+                    pass
 
             total_output += ret
             buf += ret
@@ -433,7 +503,6 @@ class FFMpeg(object):
                 if len(tmp) == 1:
                     timespec = tmp[0]
                     if ':' in timespec:
-                        parts = timespec.split(':')
                         timecode = 0
                         for part in timespec.split(':'):
                             timecode = 60 * timecode + float(part)
@@ -442,48 +511,76 @@ class FFMpeg(object):
                     yielded = True
                     yield timecode
 
-        if timeout and os.name != 'nt':
+        if timeout:
             signal.signal(signal.SIGALRM, signal.SIG_DFL)
+
+        p.communicate()  # wait for process to exit
 
         if total_output == '':
             raise FFMpegError('Error while calling ffmpeg binary')
-        else:
-            if '\n' in total_output:
-                line = total_output.split('\n')[-2]
-                if line.startswith(infile + ': '):
-                    err = line[len(infile) + 2:]
-                    raise FFMpegConvertError('Encoding error: ' + err)
-                elif line.startswith('Error while '):
-                    raise FFMpegConvertError('Encoding error: ' + line)
-                elif not yielded:
-                    raise FFMpegConvertError('Unknown ffmpeg error ' + line)
 
-    def thumbnail(self, fname, time, outfile, size=None):
+        cmd = ' '.join(cmds)
+        if '\n' in total_output:
+            line = total_output.split('\n')[-2]
+
+            if line.startswith('Received signal'):
+                # Received signal 15: terminating.
+                raise FFMpegConvertError(line.split(':')[0], cmd, total_output, pid=p.pid)
+            if line.startswith(infile + ': '):
+                err = line[len(infile) + 2:]
+                raise FFMpegConvertError('Encoding error', cmd, total_output,
+                                         err, pid=p.pid)
+            if line.startswith('Error while '):
+                raise FFMpegConvertError('Encoding error', cmd, total_output,
+                                         line, pid=p.pid)
+            if not yielded:
+                raise FFMpegConvertError('Unknown ffmpeg error', cmd,
+                                         total_output, line, pid=p.pid)
+        if p.returncode != 0:
+            raise FFMpegConvertError('Exited with code %d' % p.returncode, cmd,
+                                     total_output, pid=p.pid)
+
+    def thumbnail(self, fname, time, outfile, size=None, quality=DEFAULT_JPEG_QUALITY):
         """
-        Create a thumbnal at the specific time point (in seconds) of
-        the media file, and store it to outfile. Size, if specified,
-        is WxH of the desired thumbnail. If not specified, the video
-        resolution is used.
+        Create a thumbnal of media file, and store it to outfile
+        @param time: time point (in seconds) (float or int)
+        @param size: Size, if specified, is WxH of the desired thumbnail.
+            If not specified, the video resolution is used.
+        @param quality: quality of jpeg file in range 2(best)-31(worst)
+            recommended range: 2-6
 
-        >>> f.thumbnail('test1.ogg', 5, '/tmp/shot.png', '320x240')
+        >>> FFMpeg().thumbnail('test1.ogg', 5, '/tmp/shot.png', '320x240')
+        """
+        return self.thumbnails(fname, [(time, outfile, size, quality)])
+
+    def thumbnails(self, fname, option_list):
+        """
+        Create one or more thumbnails of video.
+        @param option_list: a list of tuples like:
+            (time, outfile, size=None, quality=DEFAULT_JPEG_QUALITY)
+            see documentation of `converter.FFMpeg.thumbnail()` for details.
+
+        >>> FFMpeg().thumbnails('test1.ogg', [(5, '/tmp/shot.png', '320x240'),
+        >>>                                   (10, '/tmp/shot2.png', None, 5)])
         """
         if not os.path.exists(fname):
             raise IOError('No such file: ' + fname)
 
-        cmds = [self.ffmpeg_path,
-            '-ss', str(time),
-            '-i', fname,
-            '-y', '-an', '-f', 'image2', '-q:v', '0', '-vframes', '1']
+        cmds = [self.ffmpeg_path, '-i', fname, '-y', '-an']
+        for thumb in option_list:
+            if len(thumb) > 2 and thumb[2]:
+                cmds.extend(['-s', str(thumb[2])])
 
-        if size:
-            cmds.extend(['-s', str(size)])
+            cmds.extend([
+                '-f', 'image2', '-vframes', '1',
+                '-ss', str(thumb[0]), thumb[1],
+                '-q:v', str(FFMpeg.DEFAULT_JPEG_QUALITY if len(thumb) < 4 else str(thumb[3])),
+            ])
 
-        cmds.append(outfile)
-
-        _, fd = self._spawn(cmds)
-        output = fd.read()
-        if output == '':
+        p = self._spawn(cmds)
+        _, stderr_data = p.communicate()
+        if stderr_data == '':
             raise FFMpegError('Error while calling ffmpeg binary')
-
-        if not os.path.exists(outfile):
-            raise FFMpegError('Error creating thumbnail')
+        stderr_data.decode(console_encoding)
+        if any(not os.path.exists(option[1]) for option in option_list):
+            raise FFMpegError('Error creating thumbnail: %s' % stderr_data)

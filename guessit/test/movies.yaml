@@ -14,6 +14,7 @@
   format: DVD
   language: spanish
   videoCodec: DivX
+  releaseGroup: Artik[SEDG]
 
 ? Movies/Dark City (1998)/Dark.City.(1998).DC.BDRip.720p.DTS.X264-CHD.mkv
 : title: Dark City
@@ -39,7 +40,7 @@
   year: 2006
   other: PROPER
   format: DVD
-  other: [ R5, PROPER, REPACK ]
+  other: [ R5, Proper ]
   videoCodec: XviD
   releaseGroup: PUKKA
 
@@ -48,10 +49,12 @@
 : title: Le Prestige
   format: DVD
   videoCodec: h264
+  videoProfile: HP
   audioCodec: AAC
+  audioProfile: HE
   language: [ french, english ]
   subtitleLanguage: [ french, english ]
-  releaseGroup: '[XCT]'
+  releaseGroup: XCT
 
 ? Battle Royale (2000)/Battle.Royale.(Batoru.Rowaiaru).(2000).(Special.Edition).CD1of2.DVDRiP.XviD-[ZeaL].avi
 : title: Battle Royale
@@ -70,13 +73,13 @@
   cdNumber: 2
 
 ? Movies/Persepolis (2007)/[XCT] Persepolis [H264+Aac-128(Fr-Eng)+ST(Fr-Eng)+Ind].mkv
-: releaseGroup: "[XCT]"
-  title: Persepolis
+: title: Persepolis
   year: 2007
   videoCodec: h264
   audioCodec: AAC
   language: [ French, English ]
   subtitleLanguage: [ French, English ]
+  releaseGroup: XCT
 
 ? Movies/Toy Story (1995)/Toy Story [HDTV 720p English-Spanish].mkv
 : title: Toy Story
@@ -142,7 +145,7 @@
   format: DVD
   videoCodec: XviD
   releaseGroup: ARROW
-  other: ['repack', 'limited']
+  other: ['Proper', 'Limited']
 
 ? Movies/Fr - Paris 2054, Renaissance (2005) - De Christian Volckman - (Film Divx Science Fiction Fantastique Thriller Policier N&B).avi
 : title: Paris 2054, Renaissance
@@ -181,6 +184,7 @@
   format: DVD
   videoCodec: h264
   audioCodec: AC3
+  releaseGroup: FtS
   website: sharethefiles.com
 
 ? Movies/9 (2009)/9.2009.Blu-ray.DTS.720p.x264.HDBRiSe.[sharethefiles.com].mkv
@@ -202,13 +206,26 @@
   releaseGroup: CrazyTeam
 
 ? Movies/M.A.S.H. (1970)/MASH.(1970).[Divx.5.02][Dual-Subtitulos][DVDRip].ogm
-: title: M A S H
+: title: M.A.S.H.
   year: 1970
   videoCodec: DivX
   format: DVD
 
 ? Movies/The Doors (1991)/09.03.08.The.Doors.(1991).BDRip.720p.AC3.X264-HiS@SiLUHD-English.[sharethefiles.com].mkv
 : title: The Doors
+  year: 1991
+  date: 2008-03-09
+  format: BluRay
+  screenSize: 720p
+  audioCodec: AC3
+  videoCodec: h264
+  releaseGroup: HiS@SiLUHD
+  language: english
+  website: sharethefiles.com
+
+? Movies/The Doors (1991)/08.03.09.The.Doors.(1991).BDRip.720p.AC3.X264-HiS@SiLUHD-English.[sharethefiles.com].mkv
+: options: --date-year-first
+  title: The Doors
   year: 1991
   date: 2008-03-09
   format: BluRay
@@ -241,6 +258,7 @@
   format: DVD
   videoCodec: h264
   audioCodec: AAC
+  audioProfile: LC
   audioChannels: "5.1"
   language: [ french, english ]
   subtitleLanguage: [ french, english ]
@@ -296,10 +314,12 @@
 : title: OSS 117--Cairo, Nest of Spies
 
 ? The Godfather Part III.mkv
-: title: The Godfather Part III
+: title: The Godfather
+  part: 3
 
 ? Foobar Part VI.mkv
-: title: Foobar Part VI
+: title: Foobar
+  part: 6
 
 ? The_Insider-(1999)-x02-60_Minutes_Interview-1996.mp4
 : title: The Insider
@@ -320,6 +340,7 @@
   videoCodec: h264
   audioCodec: AC3
   audioChannels: "5.1"
+  releaseGroup: REDµX
 
 ? The.Director’s.Notebook.2006.Blu-Ray.x264.DXVA.720p.AC3-de[42].mkv
 : title: The Director’s Notebook
@@ -329,13 +350,14 @@
   videoApi: DXVA
   screenSize: 720p
   audioCodec: AC3
+  releaseGroup: de[42]
 
 ? Movies/Cosmopolis.2012.LiMiTED.720p.BluRay.x264-AN0NYM0US[bb]/ano-cosmo.720p.mkv
 : title: Cosmopolis
   year: 2012
   screenSize: 720p
   videoCodec: h264
-  releaseGroup: AN0NYM0US
+  releaseGroup: AN0NYM0US[bb]
   format: BluRay
   other: LIMITED
 
@@ -344,7 +366,8 @@
   year: 2006
   format: DVD
   videoCodec: XviD
-  releaseGroup: MP
+  videoProfile: MP
+  releaseGroup: AceBot
   language: French
 
 ? The_Italian_Job.mkv
@@ -375,7 +398,7 @@
   format: BluRay
   audioCodec: DTS
   videoCodec: h264
-  releaseGroup: D-Z0N3
+  releaseGroup: D Z0N3
 
 ? Street.Kings.2008.BluRay.1080p.DTS.x264.dxva EuReKA.mkv
 : title: Street Kings
@@ -412,4 +435,320 @@
   format: BluRay
   videoCodec: XviD
   audioChannels: "5.1"
+  audioCodec: DolbyDigital
   idNumber: XD607ebb-BRc59935-5155473f-1c5f49
+
+? Pacific.Rim.3D.2013.COMPLETE.BLURAY-PCH.avi
+: title: Pacific Rim
+  year: 2013
+  format: BluRay
+  other:
+   - complete
+   - 3D
+  releaseGroup: PCH
+
+? Immersion.French.2011.STV.READNFO.QC.FRENCH.ENGLISH.NTSC.DVDR.nfo
+: title: Immersion French
+  year: 2011
+  language:
+    - French
+    - English
+  format: DVD
+
+? Immersion.French.2011.STV.READNFO.QC.FRENCH.NTSC.DVDR.nfo
+: title: Immersion French
+  year: 2011
+  language: French
+  format: DVD
+
+? Immersion.French.2011.STV.READNFO.QC.NTSC.DVDR.nfo
+: title: Immersion French
+  year: 2011
+  format: DVD
+
+? French.Immersion.2011.STV.READNFO.QC.ENGLISH.NTSC.DVDR.nfo
+: title: French Immersion
+  year: 2011
+  language: ENGLISH
+  format: DVD
+
+? Howl's_Moving_Castle_(2004)_[720p,HDTV,x264,DTS]-FlexGet.avi
+: videoCodec: h264
+  format: HDTV
+  title: Howl's Moving Castle
+  screenSize: 720p
+  year: 2004
+  audioCodec: DTS
+  releaseGroup: FlexGet
+
+? Pirates de langkasuka.2008.FRENCH.1920X1080.h264.AVC.AsiaRa.mkv
+: screenSize: 1080p
+  year: 2008
+  language: French
+  videoCodec: h264
+  title: Pirates de langkasuka
+  releaseGroup: AsiaRa
+
+? Masala (2013) Telugu Movie HD DVDScr XviD - Exclusive.avi
+: year: 2013
+  videoCodec: XviD
+  title: Masala
+  format: HD-DVD
+  other: screener
+  language: Telugu
+  releaseGroup: Exclusive
+
+? Django Unchained 2012 DVDSCR X264 AAC-P2P.nfo
+: year: 2012
+  other: screener
+  videoCodec: h264
+  title: Django Unchained
+  audioCodec: AAC
+  format: DVD
+  releaseGroup: P2P
+
+? Ejecutiva.En.Apuros(2009).BLURAY.SCR.Xvid.Spanish.LanzamientosD.nfo
+: year: 2009
+  other: screener
+  format: BluRay
+  videoCodec: XviD
+  language: Spanish
+  title: Ejecutiva En Apuros
+
+? Die.Schluempfe.2.German.DL.1080p.BluRay.x264-EXQUiSiTE.mkv
+: title: Die Schluempfe 2
+  format: BluRay
+  language:
+    - Multiple languages
+    - German
+  videoCodec: h264
+  releaseGroup: EXQUiSiTE
+  screenSize: 1080p
+
+? Rocky 1976 French SubForced BRRip x264 AC3-FUNKY.mkv
+: title: Rocky
+  year: 1976
+  subtitleLanguage: French
+  format: BluRay
+  videoCodec: h264
+  audioCodec: AC3
+  releaseGroup: FUNKY
+
+? REDLINE (BD 1080p H264 10bit FLAC) [3xR].mkv
+: title: REDLINE
+  format: BluRay
+  videoCodec: h264
+  videoProfile: 10bit
+  audioCodec: Flac
+  screenSize: 1080p
+
+? The.Lizzie.McGuire.Movie.(2003).HR.DVDRiP.avi
+: title: The Lizzie McGuire Movie
+  year: 2003
+  format: DVD
+  other: HR
+
+? Hua.Mulan.BRRIP.MP4.x264.720p-HR.avi
+: title: Hua Mulan
+  videoCodec: h264
+  format: BluRay
+  screenSize: 720p
+  other: HR
+
+? Dr.Seuss.The.Lorax.2012.DVDRip.LiNE.XviD.AC3.HQ.Hive-CM8.mp4
+: videoCodec: XviD
+  title: Dr Seuss The Lorax
+  format: DVD
+  other: LiNE
+  year: 2012
+  audioCodec: AC3
+  audioProfile: HQ
+  releaseGroup: Hive-CM8
+  
+
+? "Star Wars: Episode IV - A New Hope (2004) Special Edition.MKV"
+: title: Star Wars Episode IV
+  year: 2004
+  edition: Special Edition
+  
+? Dr.LiNE.The.Lorax.2012.DVDRip.LiNE.XviD.AC3.HQ.Hive-CM8.mp4
+: videoCodec: XviD
+  title: Dr LiNE The Lorax
+  format: DVD
+  other: LiNE
+  year: 2012
+  audioCodec: AC3
+  audioProfile: HQ
+  releaseGroup: Hive-CM8
+
+? Perfect Child-2007-TRUEFRENCH-TVRip.Xvid-h@mster.avi
+: releaseGroup: h@mster
+  title: Perfect Child
+  videoCodec: XviD
+  language: French
+  format: TV
+  year: 2007
+  
+? entre.ciel.et.terre.(1994).dvdrip.h264.aac-psypeon.avi
+: audioCodec: AAC
+  format: DVD
+  releaseGroup: psypeon
+  title: entre ciel et terre
+  videoCodec: h264
+  year: 1994
+  
+? Yves.Saint.Laurent.2013.FRENCH.DVDSCR.MD.XviD-ViVARiUM.avi
+: format: DVD
+  language: French
+  other: Screener
+  releaseGroup: ViVARiUM
+  title: Yves Saint Laurent
+  videoCodec: XviD
+  year: 2013
+  
+? Echec et Mort - Hard to Kill - Steven Seagal Multi 1080p BluRay x264 CCATS.avi
+: format: BluRay
+  language: Multiple languages
+  releaseGroup: CCATS
+  screenSize: 1080p
+  title: Echec et Mort
+  videoCodec: h264
+
+? Paparazzi - Timsit/Lindon (MKV 1080p tvripHD)
+: options: -n
+  title: Paparazzi
+  screenSize: 1080p
+  format: HDTV
+  
+? some.movie.720p.bluray.x264-mind
+: options: -n
+  title: some movie
+  screenSize: 720p
+  videoCodec: h264
+  releaseGroup: mind
+  format: BluRay
+  
+? Dr LiNE The Lorax 720p h264 BluRay
+: options: -n
+  title: Dr LiNE The Lorax
+  screenSize: 720p
+  videoCodec: h264
+  format: BluRay
+
+? BeatdownFrenchDVDRip.mkv
+: options: -c
+  title: Beatdown
+  language: French
+  format: DVD
+
+? YvesSaintLaurent2013FrenchDVDScrXvid.avi
+: options: -c
+  format: DVD
+  language: French
+  other: Screener
+  title: Yves saint laurent
+  videoCodec: XviD
+  year: 2013
+
+? Elle.s.en.va.720p.mkv
+: screenSize: 720p
+  title: Elle s en va
+
+? FooBar.7.PDTV-FlexGet
+: options: -n
+  format: DVB
+  releaseGroup: FlexGet
+  title: FooBar 7
+
+? h265 - HEVC Riddick Unrated Director Cut French 1080p DTS.mkv
+: audioCodec: DTS
+  edition: Director's cut
+  language: fr
+  screenSize: 1080p
+  title: Riddick Unrated
+  videoCodec: h265
+
+? "[h265 - HEVC] Riddick Unrated Director Cut French [1080p DTS].mkv"
+: audioCodec: DTS
+  edition: Director's cut
+  language: fr
+  screenSize: 1080p
+  title: Riddick Unrated
+  videoCodec: h265
+
+? Barbecue-2014-French-mHD-1080p
+: options: -n
+  language: fr
+  other: mHD
+  screenSize: 1080p
+  title: Barbecue
+  year: 2014
+
+? Underworld Quadrilogie VO+VFF+VFQ 1080p HDlight.x264~Tonyk~Monde Infernal
+: options: -n
+  language:
+  - fr
+  - vo
+  other: HDLight
+  screenSize: 1080p
+  title: Underworld Quadrilogie
+  videoCodec: h264
+
+? A Bout Portant (The Killers).PAL.Multi.DVD-R-KZ
+: options: -n
+  format: DVD
+  language: mul
+  releaseGroup: KZ
+  title: A Bout Portant
+
+? "Mise à Sac (Alain Cavalier, 1967) [Vhs.Rip.Vff]"
+: options: -n
+  format: VHS
+  language: fr
+  title: "Mise à Sac"
+  year: 1967
+
+? A Bout Portant (The Killers).PAL.Multi.DVD-R-KZ
+: options: -n
+  format: DVD
+  language: mul
+  releaseGroup: KZ
+  title: A Bout Portant
+
+? Youth.In.Revolt.(Be.Bad).2009.MULTI.1080p.LAME3*92-MEDIOZZ
+: options: -n
+  audioCodec: MP3
+  language: mul
+  releaseGroup: MEDIOZZ
+  screenSize: 1080p
+  title: Youth In Revolt
+  year: 2009
+
+? La Defense Lincoln (The Lincoln Lawyer) 2011 [DVDRIP][Vostfr]
+: options: -n
+  format: DVD
+  subtitleLanguage: fr
+  title: La Defense Lincoln
+  year: 2011
+
+? '[h265 - HEVC] Fight Club French 1080p DTS.'
+: options: -n
+  audioCodec: DTS
+  language: fr
+  screenSize: 1080p
+  title: Fight Club
+  videoCodec: h265
+
+? Love Gourou (Mike Myers) - FR
+: options: -n
+  language: fr
+  title: Love Gourou
+
+? '[h265 - hevc] transformers 2 1080p french ac3 6ch.'
+: options: -n
+  audioChannels: '5.1'
+  audioCodec: AC3
+  language: fr
+  screenSize: 1080p
+  title: transformers 2
+  videoCodec: h265

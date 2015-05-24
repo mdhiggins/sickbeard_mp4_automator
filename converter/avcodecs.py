@@ -18,7 +18,7 @@ class BaseCodec(object):
     def _codec_specific_parse_options(self, safe):
         return safe
 
-    def _codec_specific_produce_ffmpeg_list(self, safe):
+    def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         return []
 
     def safe_options(self, opts):
@@ -58,13 +58,16 @@ class AudioCodec(BaseCodec):
         'channels': int,
         'bitrate': int,
         'samplerate': int,
+        'source': int,
+        'path' : str,
+        'filter' : str,
         'map': int
     }
 
-    def parse_options(self, opt, stream):
+    def parse_options(self, opt, stream=0):
         super(AudioCodec, self).parse_options(opt)
-        stream = str(stream)
         safe = self.safe_options(opt)
+        stream = str(stream)
 
         if 'channels' in safe:
             c = safe['channels']
@@ -73,8 +76,10 @@ class AudioCodec(BaseCodec):
 
         if 'bitrate' in safe:
             br = safe['bitrate']
-            if br < 8 or br > 1536:
-                del safe['bitrate']
+            if br < 8:
+                br = 8
+            if br > 1536:
+                br = 1536
 
         if 'samplerate' in safe:
             f = safe['samplerate']
@@ -86,21 +91,30 @@ class AudioCodec(BaseCodec):
             if len(l) > 3:
                 del safe['language']
 
-        safe = self._codec_specific_parse_options(safe)
+        if 'source' in safe:
+            s = str(safe['source'])
+        else:
+            s = str(0)
 
-        optlist = ['-c:a:' + stream, self.ffmpeg_codec_name]
+        safe = self._codec_specific_parse_options(safe)
+        optlist = []
+        optlist.extend(['-c:a:' + stream, self.ffmpeg_codec_name])
+        if 'path' in safe:
+            optlist.extend(['-i', str(safe['path'])])
         if 'map' in safe:
-            optlist.extend(['-map', '0:' + str(safe['map'])])
+            optlist.extend(['-map', s + ':' + str(safe['map'])])
         if 'channels' in safe:
             optlist.extend(['-ac:a:' + stream, str(safe['channels'])])
         if 'bitrate' in safe:
-            optlist.extend(['-b:a:' + stream, str(safe['bitrate']) + 'k'])
+            optlist.extend(['-b:a:' + stream, str(br) + 'k'])
         if 'samplerate' in safe:
-            optlist.extend(['-r:a:' + stream, str(safe['samplerate'])])
+            optlist.extend(['-ar:a:' + stream, str(safe['samplerate'])])
+        if 'filter' in safe:
+            optlist.extend(['-filter:a:' + stream, str(safe['filter'])])
         if 'language' in safe:
                 lang = str(safe['language'])
         else:
-            lang = 'und'
+            lang = 'und' # Never leave blank if not specified, always set to und for undefined
         optlist.extend(['-metadata:s:a:' + stream, "language=" + lang])
 
         optlist.extend(self._codec_specific_produce_ffmpeg_list(safe))
@@ -111,8 +125,8 @@ class SubtitleCodec(BaseCodec):
     """
     Base subtitle codec class handles general subtitle options. Possible
     parameters are:
-      * codec (string) - subtitle codec name (mov_text only one supported currently)
-      * language (string) - language of audio stream (3 char code)
+      * codec (string) - subtitle codec name (mov_text, subrib, ssa only supported currently)
+      * language (string) - language of subtitle stream (3 char code)
       * forced (int) - force subtitles (1 true, 0 false)
       * default (int) - default subtitles (1 true, 0 false)
 
@@ -129,7 +143,7 @@ class SubtitleCodec(BaseCodec):
         'path' : str
     }
 
-    def parse_options(self, opt, stream):
+    def parse_options(self, opt, stream=0):
         super(SubtitleCodec, self).parse_options(opt)
         stream = str(stream)
         safe = self.safe_options(opt)
@@ -149,15 +163,18 @@ class SubtitleCodec(BaseCodec):
             if len(l) > 3:
                 del safe['language']
 
-        safe = self._codec_specific_parse_options(safe)
-
         if 'source' in safe:
             s = str(safe['source'])
         else:
-            s = str('0')
-        optlist = ['-map', s + ':' + str(safe['map'])]
-        if 'codec' in safe:
-            optlist.extend(['-c:s:' + stream, self.ffmpeg_codec_name])
+            s = str(0)
+
+        safe = self._codec_specific_parse_options(safe)
+
+        optlist = []
+        optlist.extend(['-c:s:' + stream, self.ffmpeg_codec_name])
+        stream = str(stream)
+        if 'map' in safe:
+            optlist.extend(['-map', s + ':' + str(safe['map'])])
         if 'path' in safe:
             optlist.extend(['-i', str(safe['path'])])
         if 'default' in safe:
@@ -167,7 +184,7 @@ class SubtitleCodec(BaseCodec):
         if 'language' in safe:
                 lang = str(safe['language'])
         else:
-            lang = 'und'
+            lang = 'und' # Never leave blank if not specified, always set to und for undefined
         optlist.extend(['-metadata:s:s:' + stream, "language=" + lang])
 
         optlist.extend(self._codec_specific_produce_ffmpeg_list(safe))
@@ -212,6 +229,7 @@ class VideoCodec(BaseCodec):
         'mode': str,
         'src_width': int,
         'src_height': int,
+        'filter': str,
         'map': int
     }
 
@@ -219,7 +237,7 @@ class VideoCodec(BaseCodec):
         # If we don't have source info, we don't try to calculate
         # aspect corrections
         if not sw or not sh:
-            return (w, h, None)
+            return w, h, None
 
         # Original aspect ratio
         aspect = (1.0 * sw) / (1.0 * sh)
@@ -227,21 +245,21 @@ class VideoCodec(BaseCodec):
         # If we have only one dimension, we can easily calculate
         # the other to match the source aspect ratio
         if not w and not h:
-            return (w, h, None)
+            return w, h, None
         elif w and not h:
             h = int((1.0 * w) / aspect)
-            return (w, h, None)
+            return w, h, None
         elif h and not w:
             w = int(aspect * h)
-            return (w, h, None)
+            return w, h, None
 
         # If source and target dimensions are actually the same aspect
         # ratio, we've got nothing to do
         if int(aspect * h) == w:
-            return (w, h, None)
+            return w, h, None
 
         if mode == 'stretch':
-            return (w, h, None)
+            return w, h, None
 
         target_aspect = (1.0 * w) / (1.0 * h)
 
@@ -251,12 +269,12 @@ class VideoCodec(BaseCodec):
                 h0 = int(w / aspect)
                 assert h0 > h, (sw, sh, w, h)
                 dh = (h0 - h) / 2
-                return (w, h0, 'crop=0:%d:%d:%d' % (dh, w, h))
+                return w, h0, 'crop=%d:%d:0:%d' % (w, h, dh)
             else:  # source is wider, need to crop left/right
                 w0 = int(h * aspect)
                 assert w0 > w, (sw, sh, w, h)
                 dw = (w0 - w) / 2
-                return (w0, h, 'crop=%d:0:%d:%d' % (dw, w, h))
+                return w0, h, 'crop=%d:%d:%d:0' % (w, h, dw)
 
         if mode == 'pad':
             # target is taller, need to pad top/bottom
@@ -264,16 +282,16 @@ class VideoCodec(BaseCodec):
                 h1 = int(w / aspect)
                 assert h1 < h, (sw, sh, w, h)
                 dh = (h - h1) / 2
-                return (w, h1, 'pad=%d:%d:0:%d' % (w, h, dh))
+                return w, h1, 'pad=%d:%d:0:%d' % (w, h, dh)  # FIXED
             else:  # target is wider, need to pad left/right
                 w1 = int(h * aspect)
                 assert w1 < w, (sw, sh, w, h)
                 dw = (w - w1) / 2
-                return (w1, h, 'pad=%d:%d:%d:0' % (w, h, dw))
+                return w1, h, 'pad=%d:%d:%d:0' % (w, h, dw)  # FIXED
 
         assert False, mode
 
-    def parse_options(self, opt):
+    def parse_options(self, opt, stream=0):
         super(VideoCodec, self).parse_options(opt)
 
         safe = self.safe_options(opt)
@@ -303,7 +321,6 @@ class VideoCodec(BaseCodec):
 
         sw = None
         sh = None
-        aspect = None
 
         if 'src_width' in safe and 'src_height' in safe:
             sw = safe['src_width']
@@ -311,14 +328,13 @@ class VideoCodec(BaseCodec):
             if not sw or not sh:
                 sw = None
                 sh = None
-            else:
-                aspect = (1.0 * sw) / (1.0 * sh)
 
         mode = 'stretch'
         if 'mode' in safe:
             if safe['mode'] in ['stretch', 'crop', 'pad']:
                 mode = safe['mode']
 
+        ow, oh = w, h  # FIXED
         w, h, filters = self._aspect_corrections(sw, sh, w, h, mode)
 
         safe['width'] = w
@@ -340,14 +356,35 @@ class VideoCodec(BaseCodec):
         if 'fps' in safe:
             optlist.extend(['-r', str(safe['fps'])])
         if 'bitrate' in safe:
-            optlist.extend(['-b', str(safe['bitrate']) + 'k'])
+            optlist.extend(['-vb', str(safe['bitrate']) + 'k'])  # FIXED
+        if 'filter' in safe:
+            if filters:
+                filters = '%s;%s' % (filters, str(safe['filter']))
+            else:
+                filters = str(safe['filter'])
         if w and h:
-            optlist.extend(['-s', '%dx%d' % (w, h),
-                '-aspect', '%d:%d' % (w, h)])
+            optlist.extend(['-s', '%dx%d' % (w, h)])
+
+            if ow and oh:
+                optlist.extend(['-aspect', '%d:%d' % (ow, oh)])
+
         if filters:
             optlist.extend(['-vf', filters])
 
         optlist.extend(self._codec_specific_produce_ffmpeg_list(safe))
+
+        if optlist.count('-vf') > 1:
+            vf = []
+            while optlist.count('-vf') > 0:
+                vf.append(optlist.pop(optlist.index('-vf')+1))
+                del optlist[optlist.index('-vf')]
+
+            vfstring = ""
+            for line in vf:
+                vfstring = "%s;%s" % (vfstring, line)
+
+            optlist.extend(['-vf', vfstring[1:]])
+
         return optlist
 
 
@@ -357,7 +394,7 @@ class AudioNullCodec(BaseCodec):
     """
     codec_name = None
 
-    def parse_options(self, opt, stream):
+    def parse_options(self, opt, stream=0):
         return ['-an']
 
 
@@ -372,21 +409,37 @@ class VideoNullCodec(BaseCodec):
         return ['-vn']
 
 
+class SubtitleNullCodec(BaseCodec):
+    """
+    Null subtitle codec (no subtitle)
+    """
+
+    codec_name = None
+
+    def parse_options(self, opt, stream=0):
+        return ['-sn']
+
+
 class AudioCopyCodec(BaseCodec):
     """
     Copy audio stream directly from the source.
     """
     codec_name = 'copy'
     encoder_options = {'language': str,
+                       'source': str,
                        'map': int}
 
-    def parse_options(self, opt, stream):
+    def parse_options(self, opt, stream=0):
         safe = self.safe_options(opt)
         stream = str(stream)
         optlist = []
         optlist.extend(['-c:a:' + stream, 'copy'])
+        if 'source' in safe:
+            s = str(safe['source'])
+        else:
+            s = str(0)
         if 'map' in safe:
-            optlist.extend(['-map', '0:' + str(safe['map'])])
+            optlist.extend(['-map', s + ':' + str(safe['map'])])
         if 'language' in safe:
             l = safe['language']
             if len(l) > 3:
@@ -404,31 +457,63 @@ class VideoCopyCodec(BaseCodec):
     Copy video stream directly from the source.
     """
     codec_name = 'copy'
-    encoder_options = {'map': int}
+    encoder_options = {'map': int,
+                       'source': str}
 
-    def parse_options(self, opt):
+    def parse_options(self, opt, stream=0):
         safe = self.safe_options(opt)
         optlist = []
         optlist.extend(['-vcodec', 'copy'])
+        if 'source' in safe:
+            s = str(safe['source'])
+        else:
+            s = str(0)
         if 'map' in safe:
-            optlist.extend(['-map', '0:' + str(safe['map'])])
+            optlist.extend(['-map', s + ':' + str(safe['map'])])
         return optlist
 
 
+class SubtitleCopyCodec(BaseCodec):
+    """
+    Copy subtitle stream directly from the source.
+    """
+    codec_name = 'copy'
+    encoder_options = {'map': int,
+                       'source': str}
+
+    optlist = []
+    def parse_options(self, opt, stream=0):
+        safe = self.safe_options(opt)
+        stream = str(stream)
+        if 'source' in safe:
+            s = str(safe['source'])
+        else:
+            s = str(0)
+        if 'map' in safe:
+            optlist.extend(['-map', s + ':' + str(safe['map'])])
+        optlist.extend(['-c:s:' + stream, copy])
+        return optlist
+
+# Audio Codecs
 class VorbisCodec(AudioCodec):
     """
     Vorbis audio codec.
+    @see http://ffmpeg.org/trac/ffmpeg/wiki/TheoraVorbisEncodingGuide
     """
     codec_name = 'vorbis'
     ffmpeg_codec_name = 'libvorbis'
+    encoder_options = AudioCodec.encoder_options.copy()
+    encoder_options.update({
+        'quality': int,  # audio quality. Range is 0-10(highest quality)
+        # 3-6 is a good range to try. Default is 3
+    })
 
-
-class TheoraCodec(VideoCodec):
-    """
-    Theora video codec.
-    """
-    codec_name = 'theora'
-    ffmpeg_codec_name = 'libtheora'
+    def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
+        optlist = []
+        stream = str(stream)
+        if 'quality' in safe:
+            optlist.extend(['-qscale:a:' + stream, safe['quality']])
+        return optlist
 
 
 class AacCodec(AudioCodec):
@@ -439,49 +524,47 @@ class AacCodec(AudioCodec):
     ffmpeg_codec_name = 'aac'
     aac_experimental_enable = ['-strict', 'experimental']
 
-    def _codec_specific_produce_ffmpeg_list(self, safe):
+    def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         return self.aac_experimental_enable
+
+
+class FdkAacCodec(AudioCodec):
+    """
+    AAC audio codec.
+    """
+    codec_name = 'libfdk_aac'
+    ffmpeg_codec_name = 'libfdk_aac'
 
 
 class Ac3Codec(AudioCodec):
     """
-    AC3 audio codec
+    AC3 audio codec.
     """
     codec_name = 'ac3'
     ffmpeg_codec_name = 'ac3'
 
+    def parse_options(self, opt, stream=0):
+        if 'channels' in opt:
+            c = opt['channels']
+            if c > 6:
+                opt['channels'] = 6
+        return super(Ac3Codec, self).parse_options(opt, stream)
 
-class LibFDKAACCodec(AudioCodec):
+
+class FlacCodec(AudioCodec):
     """
-    LibFDK-AAC audio codec
+    FLAC audio codec.
     """
-    codec_name = 'libfdk-aac'
-    ffmpeg_codec_name = 'libfdk_aac'
+    codec_name = 'flac'
+    ffmpeg_codec_name = 'flac'
 
 
 class DtsCodec(AudioCodec):
     """
-    AC3 audio codec
+    DTS audio codec.
     """
     codec_name = 'dts'
     ffmpeg_codec_name = 'dts'
-
-
-class H264Codec(VideoCodec):
-    """
-    H.264/AVC video codec.
-    """
-    codec_name = 'h264'
-    ffmpeg_codec_name = 'libx264'
-
-    x264_voodoo_recipe_ipod = ("-flags +loop -cmp +chroma " +
-        "-partitions +parti4x4+partp8x8+partb8x8 -subq 5 -trellis 1 " +
-        "-refs 1 -coder 0 -me_range 16 -g 300 -keyint_min 25 " +
-        "-sc_threshold 40 -i_qfactor 0.71 -rc_eq 'blurCplx^(1-qComp)' " +
-        "-qcomp 0.6 -qmin 10 -qmax 51 -qdiff 4 -level 30")
-
-    #def _codec_specific_produce_ffmpeg_list(self, safe):
-        #return self.x264_voodoo_recipe_ipod.split(' ')
 
 
 class Mp3Codec(AudioCodec):
@@ -500,6 +583,78 @@ class Mp2Codec(AudioCodec):
     ffmpeg_codec_name = 'mp2'
 
 
+# Video Codecs
+class TheoraCodec(VideoCodec):
+    """
+    Theora video codec.
+    @see http://ffmpeg.org/trac/ffmpeg/wiki/TheoraVorbisEncodingGuide
+    """
+    codec_name = 'theora'
+    ffmpeg_codec_name = 'libtheora'
+    encoder_options = VideoCodec.encoder_options.copy()
+    encoder_options.update({
+        'quality': int,  # audio quality. Range is 0-10(highest quality)
+        # 5-7 is a good range to try (default is 200k bitrate)
+    })
+
+    def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
+        optlist = []
+        if 'quality' in safe:
+            optlist.extend(['-qscale:v', safe['quality']])
+        return optlist
+
+
+class H264Codec(VideoCodec):
+    """
+    H.264/AVC video codec.
+    @see http://ffmpeg.org/trac/ffmpeg/wiki/x264EncodingGuide
+    """
+    codec_name = 'h264'
+    ffmpeg_codec_name = 'libx264'
+    encoder_options = VideoCodec.encoder_options.copy()
+    encoder_options.update({
+        'preset': str,  # common presets are ultrafast, superfast, veryfast,
+        # faster, fast, medium(default), slow, slower, veryslow
+        'quality': int,  # constant rate factor, range:0(lossless)-51(worst)
+        # default:23, recommended: 18-28
+        # http://mewiki.project357.com/wiki/X264_Settings#profile
+        'profile': str,  # default: not-set, for valid values see above link
+        'level': float, # default: not-set, values range from 3.0 to 4.2
+        'tune': str,  # default: not-set, for valid values see above link
+        'wscale': int, # special handlers for the even number requirements of h264
+        'hscale': int # special handlers for the even number requirements of h264
+    })
+
+    def parse_options(self, opt, stream=0):
+        if 'width' in opt:
+            opt['wscale'] = opt['width']
+            del(opt['width'])
+        if 'height' in opt:
+            opt['hscale'] = opt['height']
+            del(opt['height'])
+        return super(H264Codec, self).parse_options(opt, stream)
+
+    def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
+        optlist = []
+        if 'preset' in safe:
+            optlist.extend(['-preset', safe['preset']])
+        if 'quality' in safe:
+            optlist.extend(['-crf', str(safe['quality'])])
+        if 'profile' in safe:
+            optlist.extend(['-profile:v', safe['profile']])
+        if 'level' in safe:
+            optlist.extend(['-level'], '%0.1f' % safe['level'])
+        if 'tune' in safe:
+            optlist.extend(['-tune', safe['tune']])
+        if 'wscale' in safe and 'hscale' in safe:
+            optlist.extend(['-vf', 'scale=%s:%s' % (safe['wscale'], safe['hscale'])])
+        elif 'wscale' in safe:
+            optlist.extend(['-vf', 'scale=%s:-2' % (safe['wscale'])])
+        elif 'hscale' in safe:
+            optlist.extend(['-vf', 'scale=-2:%s' % (safe['hscale'])])
+        return optlist
+
+
 class DivxCodec(VideoCodec):
     """
     DivX video codec.
@@ -513,7 +668,7 @@ class Vp8Codec(VideoCodec):
     Google VP8 video codec.
     """
     codec_name = 'vp8'
-    ffmpeg_codec_name = 'vp8'
+    ffmpeg_codec_name = 'libvpx'
 
 
 class H263Codec(VideoCodec):
@@ -541,7 +696,7 @@ class MpegCodec(VideoCodec):
     # again in vf; take care to put it *before* crop/pad, so
     # it uses the same adjusted dimensions as the codec itself
     # (pad/crop will adjust it further if neccessary)
-    def _codec_specific_parse_options(self, safe):
+    def _codec_specific_parse_options(self, safe, stream=0):
         w = safe['width']
         h = safe['height']
 
@@ -573,20 +728,13 @@ class Mpeg2Codec(MpegCodec):
     ffmpeg_codec_name = 'mpeg2video'
 
 
+# Subtitle Codecs
 class MOVTextCodec(SubtitleCodec):
     """
-    MOV Text subtitle codec.
+    mov_text subtitle codec.
     """
     codec_name = 'mov_text'
     ffmpeg_codec_name = 'mov_text'
-
-
-class WebVTTCodec(SubtitleCodec):
-    """
-    WebVTT subtitle codec.
-    """
-    codec_name = 'webvtt'
-    ffmpeg_codec_name = 'webvtt'
 
 
 class SrtCodec(SubtitleCodec):
@@ -596,8 +744,49 @@ class SrtCodec(SubtitleCodec):
     codec_name = 'srt'
     ffmpeg_codec_name = 'srt'
 
+
+class WebVTTCodec(SubtitleCodec):
+    """
+    SRT subtitle codec.
+    """
+    codec_name = 'webvtt'
+    ffmpeg_codec_name = 'webvtt'
+
+class SSA(SubtitleCodec):
+    """
+    SSA (SubStation Alpha) subtitle.
+    """
+    codec_name = 'ass'
+    ffmpeg_codec_name = 'ass'
+
+
+class SubRip(SubtitleCodec):
+    """
+    SubRip subtitle.
+    """
+    codec_name = 'subrip'
+    ffmpeg_codec_name = 'subrip'
+
+
+class DVBSub(SubtitleCodec):
+    """
+    DVB subtitles.
+    """
+    codec_name = 'dvbsub'
+    ffmpeg_codec_name = 'dvbsub'
+
+
+class DVDSub(SubtitleCodec):
+    """
+    DVD subtitles.
+    """
+    codec_name = 'dvdsub'
+    ffmpeg_codec_name = 'dvdsub'
+
+
 audio_codec_list = [
-    AudioNullCodec, AudioCopyCodec, VorbisCodec, AacCodec, Mp3Codec, Mp2Codec, Ac3Codec, DtsCodec, LibFDKAACCodec
+    AudioNullCodec, AudioCopyCodec, VorbisCodec, AacCodec, Mp3Codec, Mp2Codec,
+    FdkAacCodec, Ac3Codec, DtsCodec, FlacCodec
 ]
 
 video_codec_list = [
@@ -607,5 +796,6 @@ video_codec_list = [
 ]
 
 subtitle_codec_list = [
-    MOVTextCodec, WebVTTCodec, SrtCodec
+    SubtitleNullCodec, SubtitleCopyCodec, MOVTextCodec, SrtCodec, SSA, SubRip, DVDSub,
+    DVBSub, WebVTTCodec
 ]
