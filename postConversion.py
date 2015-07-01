@@ -26,17 +26,17 @@ if len(sys.argv) > 4:
     episode = int(sys.argv[5])
 
     converter = MkvtoMp4(settings)
-    
+
     log.debug("Input file: %s." % inputfile)
     log.debug("Original name: %s." % original)
     log.debug("TVDB ID: %s." % tvdb_id)
     log.debug("Season: %s episode: %s." % (season, episode))
-    
+
     if MkvtoMp4(settings).validSource(inputfile):
         log.info("Processing %s." % inputfile)
 
         output = converter.process(inputfile, original=original)
-        
+
         # Tag with metadata
         if settings.tagfile:
             log.info("Tagging %s with ID %s season %s episode %s." % (inputfile, tvdb_id, season, episode))
@@ -55,7 +55,7 @@ if len(sys.argv) > 4:
             refresh = json.load(urllib.urlopen(settings.getRefreshURL(tvdb_id)))
             for item in refresh:
                 log.debug(refresh[item])
-        except IOError:
+        except (IOError, ValueError):
             log.exception("Couldn't refresh Sickbeard, check your autoProcess.ini settings.")
 
         plex.refreshPlex(settings, 'show')
