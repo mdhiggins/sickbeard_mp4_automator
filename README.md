@@ -1,7 +1,11 @@
 MP4 Conversion/Tagging Automation Script.
 ==============
 
+<<<<<<< HEAD
+**Automatically converts mkv files downloaded by Sick Beard to mp4 files, and tags them with the appropriate metadata from theTVDB, allowing you to add to iTunes if desired. Works as an extra_script, integrated with SAB, as well as a manual post-processing script.**
+=======
 **Automatically converts media files downloaded by various programs to mp4 files, and tags them with the appropriate metadata from theTVDB or TMDB.**
+>>>>>>> post-process-hooks
 
 Works on Windows, OSX, and Linux
 
@@ -47,7 +51,7 @@ General MP4 Configuration
     - `ffprobe` = Path to FFPROBE.exe
     - `output_directory` = you may specify an alternate output directory. Leave blank to use the same directory that the source file is in. All processing will be done in this location. (Do not use for 'Automatically Add to iTunes' folder, iTunes will add prematurely, use `move_to`)
     - `copy_to` = you may specify additional directories for the final product to be replicated to. This will be the last step performed so the file copied will be fully processed. Directories may be separated with a `|` character
-    - `move_to` = you may specify one final directory to move the completed file. (Use this option for the 'Automatically Add to iTunes' folder)
+    - `move_to` = you may specify one final directory to move the completed file. (Use this option for the 'Automatically Add to iTunes' folder, or another option below for those using OSX)
     - `output_extension` = mp4/m4v (must be one of these 2)
     - `output_format` = mp4/mov (must be one of these 2, mov provides better compatability with iTunes/Apple, mp4 works better with other mobile devices)
     - `delete_original` = True/False
@@ -72,6 +76,28 @@ General MP4 Configuration
     - `embed-subs` = True/False - Enabled by default. Embeds subtitles in the resulting MP4 file that are found embedded in the source file as well as external SRT/VTT files. Disabling embed-subs will cause the script to extract any subtitles that meet your language criteria into external SRT/VTT files. The script will also attempt to download SRT files if possible and this feature is enabled.
     **YOU MUST INSTALL SUBLIMINAL AND ITS DEPENDENCIES FOR THIS TO WORK.** You must go into the `setup\subliminal` directory included in this script and run `setup.py install` to add support for fetching of subtitles. The version included with this script is modified from the stock version of subliminal, so you must install the included version.
     - `sub-providers` = Comma separated values for potential subtitle providers. Must specify at least 1 provider to enable `download-subs`. Providers include `podnapisi` `thesubdb` `opensubtitles` `tvsubtitles` `addic7ed`
+
+Post Process Scripts
+--------------
+Will run all scripts in root/post_process except for any files in root/post_process/resources
+scripts need to be executables
+environmental variables set for scripts
+key: moveto
+value: /Users/jzucker/Desktop/home_conversion/Shakespeare.In.Love.1998.720p.x264.YIFY.mp4
+key: output
+value: /Users/jzucker/Desktop/start/Shakespeare.In.Love.1998.720p.x264.YIFY.mp4
+key: input_deleted
+value: False
+key: x
+value: 1280
+key: y
+value: 544
+key: copyto
+value: None
+key: input
+value: /Users/jzucker/Desktop/start/Shakespeare.In.Love.1998.720p.x264.YIFY.mp4
+key: options
+value: None
 
 Sick Beard Setup
 --------------
@@ -295,6 +321,11 @@ optional arguments:
                         functionality
   -cmp4, --convertmp4   Overrides convert-mp4 setting in autoProcess.ini
                         enabling the reprocessing of mp4 files
+  -ati, --addtoitunes   Overrides Add to iTunes setting in autoProcess.ini 
+                        enabling silent Add to iTunes after processing
+  -nati, --noaddtoitunes Overrides Add to iTunes setting in autoProcess.ini 
+                        disabling silent Add to iTunes after processing (overrides 
+                        all other settings on command line and in config)
 ```
 
 Examples
@@ -326,6 +357,10 @@ Example: manual.py -i C:\Movies -a
 Process a directory but manually specific TVDB ID (Good for shows that don't correctly match using the guess)
 manual.py -i directory -a -tv tvdbid
 Example: manual.py -i C:\TV\Futurama\ -a -tv 73871
+
+Convert show and add to itunes
+manual.py -i mp4path -ati
+Example: manual.py -i C:\TV\Futurama\ -ati
 ```
 You may also simply run `manual.py -i 'C:\The Matrix.mkv'` and the script will prompt you for the missing information or attempt to guess based on the file name.
 You may run the script with a `--auto` or `-a` switch, which will let the script guess the tagging information based on the file name, avoiding any need for user input. This is the most ideal option for large batch file operations.

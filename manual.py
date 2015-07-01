@@ -12,6 +12,7 @@ from readSettings import ReadSettings
 from tvdb_mp4 import Tvdb_mp4
 from tmdb_mp4 import tmdb_mp4
 from mkvtomp4 import MkvtoMp4
+from post_processor import PostProcessor
 from tvdb_api import tvdb_api
 from tmdb_api import tmdb
 from extensions import tmdb_api_key
@@ -205,8 +206,12 @@ def processFile(inputfile, tagdata, relativePath=None):
                 print(e)
         if settings.relocate_moov:
             converter.QTFS(output['output'])
-        converter.replicate(output['output'], relativePath=relativePath)
-
+        results = converter.replicate(output['output'], relativePath=relativePath)
+        output.update(results)
+        if settings.post_process:
+            post_processor = PostProcessor(output)
+            post_processor.run_scripts()
+            
 
 def walkDir(dir, silent=False, preserveRelative=False, tvdbid=None, tag=True):
     for r,d,f in os.walk(dir):
@@ -250,6 +255,9 @@ def main():
     parser.add_argument('-nt', '--notag', action="store_true", help="Overrides and disables tagging when using the automated option")
     parser.add_argument('-pr', '--preserveRelative', action='store_true', help="Preserves relative directories when processing multiple files using the copy-to or move-to functionality")
     parser.add_argument('-cmp4', '--convertmp4', action='store_true', help="Overrides convert-mp4 setting in autoProcess.ini enabling the reprocessing of mp4 files")
+    if (os.name is 'posix'):
+        parser.add_argument('-ati', '--addtoitunes', action='store_true', help="Overrides Add to iTunes setting in autoProcess.ini enabling silent Add to iTunes after processing")
+        parser.add_argument('-nati', '--noaddtoitunes', action='store_true', help="Overrides Add to iTunes setting in autoProcess.ini disabling silent Add to iTunes after processing (overrides all other settings on command line and in config)")
 
     args = vars(parser.parse_args())
 
