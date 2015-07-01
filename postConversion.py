@@ -58,7 +58,7 @@ if len(sys.argv) > 4:
         except (IOError, ValueError):
             log.exception("Couldn't refresh Sickbeard, check your autoProcess.ini settings.")
 
-        plex.refreshPlex(settings, 'show')
+        plex.refreshPlex(settings, 'show', log)
 
 else:
     log.error("Not enough command line arguments present %s." % len(sys.argv))

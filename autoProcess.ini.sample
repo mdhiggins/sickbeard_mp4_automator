@@ -99,3 +99,4 @@ api_key=
 host=localhost
 port=32400
 refresh=True
+token=

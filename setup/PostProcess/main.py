@@ -71,6 +71,6 @@ class PostProcess(Plugin):
             except:
                 log.error('File processing failed: %s', (traceback.format_exc()))
 
-        plex.refreshPlex(settings, 'movie')
+        plex.refreshPlex(settings, 'movie', log)
 
         return success

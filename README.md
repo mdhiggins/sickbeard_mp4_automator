@@ -249,6 +249,7 @@ Send a Plex notification as the final step when all processing is completed. Thi
     - `refresh` - `True`/`False` - Enable or disable the feature
     - `host` - Plex hostname. Default `localhost`
     - `port` - Plex port. Default `32400`
+    - `token` - Plex Home Token
 
 Manual Script Usage
 --------------

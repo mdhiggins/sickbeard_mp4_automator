@@ -130,7 +130,8 @@ class ReadSettings:
         # Default Plex Settings
         plex_defaults = {'host': 'localhost',
                          'port': '32400',
-                         'refresh': 'true'}
+                         'refresh': 'true',
+                         'token': ''}
 
         defaults = {'SickBeard': sb_defaults, 'CouchPotato': cp_defaults, 'Sonarr': sonarr_defaults, 'MP4': mp4_defaults, 'uTorrent': utorrent_defaults, 'SABNZBD': sab_defaults, 'Sickrage': sr_defaults, 'Deluge': deluge_defaults, 'Plex': plex_defaults}
         write = False  # Will be changed to true if a value is missing from the config file and needs to be written
@@ -465,6 +466,9 @@ class ReadSettings:
             self.Plex['refresh'] = config.getboolean(section, "refresh")
         except:
             self.Plex['refresh'] = False
+        self.Plex['token'] = config.get(section, "token")
+        if self.Plex['token'] == '':
+            self.Plex['token'] = None;
 
         #Pass the values on
         self.config = config
