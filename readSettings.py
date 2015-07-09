@@ -68,7 +68,8 @@ class ReadSettings:
                         'download-subs': 'False',
                         'embed-subs': 'True',
                         'sub-providers': 'addic7ed, podnapisi, thesubdb, opensubtitles',
-                        'permissions': '777' }
+                        'permissions': '777',
+                        'post-process': 'False' }
         # Default settings for CouchPotato
         cp_defaults = {'host': 'localhost',
                        'port': '5050',
@@ -248,6 +249,13 @@ class ReadSettings:
         except:
             self.log.exception("Invalid permissions, defaulting to 777.")
             self.permissions = int("0777", 8)
+
+        self.post_process = config.get(section, 'post-process')
+        if self.post_process == "" or self.post_process.lower() in ['false', 'no', 'f', '0']:
+            self.post_process = False
+        else:
+            if self.post_process.lower() in ['true', 'yes', 't', '1']:
+                self.post_process = True
 
         #Setup variable for maximum audio channels
         self.maxchannels = config.get(section, 'max-audio-channels')

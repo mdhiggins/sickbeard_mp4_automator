@@ -12,6 +12,7 @@ from readSettings import ReadSettings
 from tvdb_mp4 import Tvdb_mp4
 from tmdb_mp4 import tmdb_mp4
 from mkvtomp4 import MkvtoMp4
+from post_processor import PostProcessor
 from tvdb_api import tvdb_api
 from tmdb_api import tmdb
 from extensions import tmdb_api_key
@@ -205,7 +206,11 @@ def processFile(inputfile, tagdata, relativePath=None):
                 print(e)
         if settings.relocate_moov:
             converter.QTFS(output['output'])
-        converter.replicate(output['output'], relativePath=relativePath)
+        results = converter.replicate(output['output'], relativePath=relativePath)
+        output.update(results)
+        if settings.post_process:
+            post_processor = PostProcessor(output)
+            post_processor.run_scripts()
 
 
 def walkDir(dir, silent=False, preserveRelative=False, tvdbid=None, tag=True):

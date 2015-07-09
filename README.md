@@ -73,6 +73,28 @@ General MP4 Configuration
     **YOU MUST INSTALL SUBLIMINAL AND ITS DEPENDENCIES FOR THIS TO WORK.** You must go into the `setup\subliminal` directory included in this script and run `setup.py install` to add support for fetching of subtitles. The version included with this script is modified from the stock version of subliminal, so you must install the included version.
     - `sub-providers` = Comma separated values for potential subtitle providers. Must specify at least 1 provider to enable `download-subs`. Providers include `podnapisi` `thesubdb` `opensubtitles` `tvsubtitles` `addic7ed`
 
+Post Process Scripts
+--------------
+Will run all scripts in root/post_process except for any files in root/post_process/resources
+scripts need to be executables
+environmental variables set for scripts
+key: moveto
+value: /Users/jzucker/Desktop/home_conversion/Shakespeare.In.Love.1998.720p.x264.YIFY.mp4
+key: output
+value: /Users/jzucker/Desktop/start/Shakespeare.In.Love.1998.720p.x264.YIFY.mp4
+key: input_deleted
+value: False
+key: x
+value: 1280
+key: y
+value: 544
+key: copyto
+value: None
+key: input
+value: /Users/jzucker/Desktop/start/Shakespeare.In.Love.1998.720p.x264.YIFY.mp4
+key: options
+value: None
+
 Sick Beard Setup
 --------------
 1. Open Sickbeard's config.ini in Sick Beard installation folder
