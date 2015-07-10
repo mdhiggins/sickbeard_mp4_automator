@@ -1,33 +1,15 @@
 #!/usr/bin/python
-
 import os
-import subprocess
+import json
+
 
 def main():
-	print 'sample: main'
-	if os.name != 'posix':
-		print "You can't add file to iTunes this way unless you are using OSX"
-		return
-	if not os.environ.get('output'):
-		return
-	final_destination = os.environ.get('output')
-	if os.environ.get('moveto'):
-		final_destination = os.environ.get('moveto')
-	print 'final destination: ' + final_destination
+	print("Sample Post Script")
 
-	current_directory = os.path.dirname(os.path.realpath(__file__))
-	add_to_itunes_script_path = os.path.join(current_directory, 'resources', 'add_to_itunes.scpt')
+	files = json.loads(os.environ.get('MH_FILES'))
 
-	if not os.path.exists(final_destination):
-		print 'The file you are trying to add to iTunes at ' + str(final_destination) + ' does not exist'
-		return
-	try:
-		subprocess.call(['osascript', add_to_itunes_script_path, final_destination])
-		print 'Added to iTunes'
-	except Exception as e:
-		print 'Exception on adding to iTunes this file %s' % (final_destination)
-		print e
-
+	for filename in files:
+    	print(filename)
 
 if __name__ == "__main__":
     main()

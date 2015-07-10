@@ -19,7 +19,7 @@ class PostProcess(Plugin):
 
     def callscript(self, message = None, group = None):
 
-        log.info('MP4 Automator Post Processing script initialized version 2')
+        log.info('MP4 Automator - Post processing script initialized')
 
         sys.path.append(path)
         try:
@@ -27,6 +27,7 @@ class PostProcess(Plugin):
             from mkvtomp4 import MkvtoMp4
             from tmdb_mp4 import tmdb_mp4
             from autoprocess import plex
+            from post_processor import PostProcessor
         except ImportError:
             log.error('Path to script folder appears to be invalid.')
             return False
@@ -63,7 +64,13 @@ class PostProcess(Plugin):
                         converter.QTFS(output['output'])
 
                     # Copy to additional locations
-                    converter.replicate(output['output'])
+                    output_files = converter.replicate(output['output'])
+
+                    # Run any post process scripts
+                    if settings.postprocess:
+                        post_processor = PostProcessor(output_files, log)
+                        post_processor.setMovie(imdbid)
+                        post_processor.run_scripts()
 
                     success = True
                 else:

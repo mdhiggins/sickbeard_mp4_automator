@@ -206,10 +206,16 @@ def processFile(inputfile, tagdata, relativePath=None):
                 print(e)
         if settings.relocate_moov:
             converter.QTFS(output['output'])
-        results = converter.replicate(output['output'], relativePath=relativePath)
-        output.update(results)
-        if settings.post_process:
-            post_processor = PostProcessor(output)
+        output_files = converter.replicate(output['output'], relativePath=relativePath)
+        if settings.postprocess:
+            post_processor = PostProcessor(output_files)
+            if tagdata:
+                if tagdata[0] is 1:
+                    post_processor.setMovie(tagdata[1])
+                elif tagdata[0] is 2:
+                    post_processor.setMovie(tagdata[1])
+                elif tagdata[0] is 3:
+                    post_processor.setTV(tagdata[1], tagdata[2], tagdata[3])
             post_processor.run_scripts()
 
 
@@ -253,6 +259,7 @@ def main():
     parser.add_argument('-nc', '--nocopy', action='store_true', help="Overrides and disables the custom copying of file options that come from output_dir and move-to")
     parser.add_argument('-nd', '--nodelete', action='store_true', help="Overrides and disables deleting of original files")
     parser.add_argument('-nt', '--notag', action="store_true", help="Overrides and disables tagging when using the automated option")
+    parser.add_argument('-np', '--nopost', action="store_true", help="Overrides and disables the execution of additional post processing scripts")
     parser.add_argument('-pr', '--preserveRelative', action='store_true', help="Preserves relative directories when processing multiple files using the copy-to or move-to functionality")
     parser.add_argument('-cmp4', '--convertmp4', action='store_true', help="Overrides convert-mp4 setting in autoProcess.ini enabling the reprocessing of mp4 files")
 
@@ -290,6 +297,9 @@ def main():
     if (args['notag']):
         settings.tagfile = False
         print("No-tagging enabled")
+    if (args['nopost']):
+        settings.postprocess = False
+        print("No post processing enabled")
 
     #Establish the path we will be working with
     if (args['input']):

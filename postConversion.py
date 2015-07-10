@@ -50,12 +50,12 @@ if len(sys.argv) > 4:
             converter.QTFS(output['output'])
 
         # Copy to additional locations
-        results = converter.replicate(output['output'])
-        output.update(results)
+        output_files = converter.replicate(output['output'])
 
         # run any post process scripts
-        if settings.post_process:
-            post_processor = PostProcessor(output)
+        if settings.postprocess:
+            post_processor = PostProcessor(output_files, log)
+            post_processor.setTV(tvdb_id, season, episode)
             post_processor.run_scripts()
 
         try:

@@ -305,7 +305,7 @@ class MkvtoMp4:
                         }})
                         l += 1
                 # If the iOS audio option is enabled and the source audio channel is only stereo, the additional iOS channel will be skipped and a single AAC 2.0 channel will be made regardless of codec preference to avoid multiple stereo channels
-                self.log.info("Creating audio stream %s from source audio stream %s." % (str(l), a.index))
+                self.log.info("Creating audio stream %s from source stream %s." % (str(l), a.index))
                 if self.iOS and a.audio_channels <= 2:
                     self.log.debug("Overriding default channel settings because iOS audio is enabled but the source is stereo [iOS-audio].")
                     acodec = 'copy' if a.codec == self.iOS else self.iOS
@@ -375,7 +375,7 @@ class MkvtoMp4:
                         #'forced': s.sub_forced,
                         #'default': s.sub_default
                     }})
-                    self.log.info("Creating subtitle stream %s from source subtitle stream %s." % (l, s.index))
+                    self.log.info("Creating subtitle stream %s from source stream %s." % (l, s.index))
                     l = l + 1
             elif s.codec.lower() not in bad_subtitle_codecs and not self.embedsubs:
                 if self.swl is None or s.metadata['language'].lower() in self.swl:
@@ -585,7 +585,8 @@ class MkvtoMp4:
 
     # Makes additional copies of the input file in each directory specified in the copy_to option
     def replicate(self, inputfile, relativePath=None):
-        results = {}
+        files = [inputfile]
+
         if self.copyto:
             self.log.debug("Copyto option is enabled.")
             for d in self.copyto:
@@ -596,9 +597,7 @@ class MkvtoMp4:
                 try:
                     shutil.copy(inputfile, d)
                     self.log.info("%s copied to %s." % (inputfile, d))
-                    if not results['copyto']:
-                        results['copyto'] = []
-                    results['copyto'].append(d)
+                    files.append(os.path.join(d, os.path.split(inputfile)[1]))
                 except Exception as e:
                     self.log.exception("First attempt to copy the file has failed.")
                     try:
@@ -606,9 +605,7 @@ class MkvtoMp4:
                             self.removeFile(inputfile, 0, 0)
                         shutil.copy(inputfile.decode(sys.getfilesystemencoding()), d)
                         self.log.info("%s copied to %s." % (inputfile, d))
-                        if not results['copyto']:
-                            results['copyto'] = []
-                        results['copyto'].append(d)
+                        files.append(os.path.join(d, os.path.split(inputfile)[1]))
                     except Exception as e:
                         self.log.exception("Unable to create additional copy of file in %s." % (d))
 
@@ -620,9 +617,7 @@ class MkvtoMp4:
             try:
                 shutil.move(inputfile, moveto)
                 self.log.info("%s moved to %s" % (inputfile, moveto))
-                results['moveto'] = os.path.join(moveto, os.path.basename(inputfile))
-                print 'inputfile: ' + inputfile
-                print 'moveto: ' + moveto
+                files[0] = os.path.join(moveto, os.path.basename(inputfile))
             except Exception as e:
                 self.log.exception("First attempt to move the file has failed.")
                 try:
@@ -630,12 +625,12 @@ class MkvtoMp4:
                         self.removeFile(inputfile, 0, 0)
                     shutil.move(inputfile.decode(sys.getfilesystemencoding()), moveto)
                     self.log.info("%s moved to %s" % (inputfile, moveto))
-                    results['moveto'] = os.path.join(moveto, os.path.basename(inputfile))
+                    files[0] = os.path.join(moveto, os.path.basename(inputfile))
                 except Exception as e:
                     self.log.exception("Unable to move %s to %s" % (inputfile, moveto))
-        if results:
-            return results
-        return None
+        for filename in files:
+            self.log.debug("Final output file: %s." % filename)
+        return files
 
     # Robust file removal function, with options to retry in the event the file is in use, and replace a deleted file
     def removeFile(self, filename, retries=2, delay=10, replacement=None):

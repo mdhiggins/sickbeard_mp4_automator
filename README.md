@@ -73,28 +73,6 @@ General MP4 Configuration
     **YOU MUST INSTALL SUBLIMINAL AND ITS DEPENDENCIES FOR THIS TO WORK.** You must go into the `setup\subliminal` directory included in this script and run `setup.py install` to add support for fetching of subtitles. The version included with this script is modified from the stock version of subliminal, so you must install the included version.
     - `sub-providers` = Comma separated values for potential subtitle providers. Must specify at least 1 provider to enable `download-subs`. Providers include `podnapisi` `thesubdb` `opensubtitles` `tvsubtitles` `addic7ed`
 
-Post Process Scripts
---------------
-Will run all scripts in root/post_process except for any files in root/post_process/resources
-scripts need to be executables
-environmental variables set for scripts
-key: moveto
-value: /Users/jzucker/Desktop/home_conversion/Shakespeare.In.Love.1998.720p.x264.YIFY.mp4
-key: output
-value: /Users/jzucker/Desktop/start/Shakespeare.In.Love.1998.720p.x264.YIFY.mp4
-key: input_deleted
-value: False
-key: x
-value: 1280
-key: y
-value: 544
-key: copyto
-value: None
-key: input
-value: /Users/jzucker/Desktop/start/Shakespeare.In.Love.1998.720p.x264.YIFY.mp4
-key: options
-value: None
-
 Sick Beard Setup
 --------------
 1. Open Sickbeard's config.ini in Sick Beard installation folder
@@ -273,6 +251,18 @@ Send a Plex notification as the final step when all processing is completed. Thi
     - `host` - Plex hostname. Default `localhost`
     - `port` - Plex port. Default `32400`
     - `token` - Plex Home Token
+
+Post Process Scripts
+--------------
+The script suite supports the ability to write your own post processing scripts that will be executed when all the final processing has been completed. All scripts in the `./post_process` directory will be executed if the `post-process` option is set to `True` in `autoProcess.ini`. Scripts within the `./post_process/resources` directory are protected from execution if additional script resources are required.
+The following environmental variables are available for usage:
+    - `MH_FILES` - JSON Array of all files created by the post processing script. The first file in the array is the primary file, and any additional files are copies created by the copy-to option
+    - `MH_TVDBID` - TVDB ID if file processed was a TV show and this information is available
+    - `MH_SEASON` - Season number if file processed was a TV show
+    - `MH_EPISODE` - Episode number if files processed was a TV show
+    - `MH_IMDBID` - IMDB ID if file processed was a movie
+A sample script as well as an OS X 'Add to iTunes' script (`iTunes.py`) have been provided.
+*Special thanks to jzucker2 for providing much of the initial code for this feature*
 
 Manual Script Usage
 --------------

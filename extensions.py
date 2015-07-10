@@ -10,3 +10,5 @@ valid_internal_subcodecs = ['mov_text']
 valid_external_subcodecs = ['srt', 'webvtt']
 subtitle_codec_extensions = { 'srt' : 'srt',
 							  'webvtt': 'vtt' }
+bad_post_files = ['resources', '.DS_Store']
+bad_post_extensions = ['.txt', '.log', '.pyc']
