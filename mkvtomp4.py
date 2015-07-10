@@ -40,6 +40,7 @@ class MkvtoMp4:
                     embedsubs=True,
                     providers=['addic7ed', 'podnapisi', 'thesubdb', 'opensubtitles'],
                     permissions=int("777", 8),
+                    pix_fmt=None,
                     logger=None):
         # Setup Logging
         if logger:
@@ -64,6 +65,7 @@ class MkvtoMp4:
         self.video_codec=video_codec
         self.video_bitrate=video_bitrate
         self.video_width=video_width
+        self.pix_fmt=pix_fmt
         # Audio settings
         self.audio_codec=audio_codec
         self.audio_bitrate=audio_bitrate
@@ -102,6 +104,7 @@ class MkvtoMp4:
         self.video_codec=settings.vcodec
         self.video_bitrate=settings.vbitrate
         self.video_width=settings.vwidth
+        self.pix_fmt=settings.pix_fmt
         #Audio settings
         self.audio_codec=settings.acodec
         self.audio_bitrate=settings.abitrate
@@ -252,6 +255,10 @@ class MkvtoMp4:
 
         vcodec = 'copy' if info.video.codec.lower() in self.video_codec else self.video_codec[0]
         vbitrate = vbr
+
+        self.log.info("Pix Fmt: %s" % info.video.pix_fmt)
+        if self.pix_fmt and self.pix_fmt.lower() != info.video.pix_fmt.lower():
+            vcodec = self.video_codec[0]
 
         if self.video_bitrate is not None and vbr > self.video_bitrate:
             self.log.debug("Overriding video bitrate. Codec cannot be copied because video bitrate is too high.")
@@ -495,6 +502,8 @@ class MkvtoMp4:
 
         # Add width option
         if vwidth: options['video']['width'] = vwidth
+        # Add pix_fmt
+        if self.pix_fmt: options['video']['pix_fmt'] = self.pix_fmt
 
         self.options = options
         return options

@@ -230,6 +230,7 @@ class VideoCodec(BaseCodec):
         'src_width': int,
         'src_height': int,
         'filter': str,
+        'pix_fmt': str,
         'map': int
     }
 
@@ -355,6 +356,8 @@ class VideoCodec(BaseCodec):
             optlist.extend(['-map', '0:' + str(safe['map'])])
         if 'fps' in safe:
             optlist.extend(['-r', str(safe['fps'])])
+        if 'pix_fmt' in safe:
+            optlist.extend(['-pix_fmt', str(safe['pix_fmt'])])
         if 'bitrate' in safe:
             optlist.extend(['-vb', str(safe['bitrate']) + 'k'])  # FIXED
         if 'filter' in safe:
