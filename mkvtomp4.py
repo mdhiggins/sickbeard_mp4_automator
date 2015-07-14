@@ -332,7 +332,12 @@ class MkvtoMp4:
                         abitrate = a.audio_channels * self.audio_bitrate
                     # Bitrate calculations/overrides
                     if self.audio_bitrate is 0:
-                        abitrate = a.bitrate/1000
+                        self.log.debug("Attempting to set bitrate based on source stream bitrate.")
+                        try:
+                            abitrate = a.bitrate/1000
+                        except:
+                            self.log.warning("Unable to determine audio bitrate from source stream %s, defaulting to 256 per channel." % a.index)
+                            abitrate = a.audio_channels * 256
 
                 self.log.debug("Audio codec: %s." % acodec)
                 self.log.debug("Channels: %s." % audio_channels)

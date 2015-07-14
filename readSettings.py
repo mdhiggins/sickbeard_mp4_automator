@@ -213,7 +213,7 @@ class ReadSettings:
             self.abitrate = 256
             log.warning("Audio bitrate was invalid, defaulting to 256 per channel.")
         if self.abitrate > 256:
-            log.warning("Audio bitrates >256 may create errors with common codecs.")
+            log.warning("Audio bitrate >256 may create errors with common codecs.")
 
         # !!! Leaving this disabled for now, users will be responsible for knowing whicn codecs do and don't work with mp4 files !!!
         #if self.acodec not in valid_audio_codecs:
@@ -282,6 +282,9 @@ class ReadSettings:
         else:
             try:
                 self.vbitrate = int(self.vbitrate)
+                if not (self.vbitrate > 0):
+                    self.vbitrate = None
+                    log.warning("Video bitrate must be greater than 0, defaulting to no video bitrate cap.")
             except:
                 log.exception("Invalid video bitrate, defaulting to no video bitrate cap.")
                 self.vbitrate = None
