@@ -416,12 +416,15 @@ class MkvtoMp4:
                         self.log.debug("%s exists, appending %s to filename." % (outputfile, i))
                         outputfile = os.path.join(output_dir, filename + "." + s.metadata['language'] + "." + str(i) + "." + extension)
                         i += 1
-                    self.log.info("Ripping [%s] subtitle from source into external file." % s.metadata['language'])
-                    conv = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH).convert(inputfile, outputfile, options, timeout=None)
-                    for timecode in conv:
-                            pass
+                    try:
+                        self.log.info("Ripping %s subtitle from source stream %s into external file." % (s.metadata['language'], s.index))
+                        conv = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH).convert(inputfile, outputfile, options, timeout=None)
+                        for timecode in conv:
+                                pass
 
-                    self.log.info("%s created." % outputfile)
+                        self.log.info("%s created." % outputfile)
+                    except:
+                        self.log.exception("Unabled to create external subtitle file for stream %s." % (s.index))
 
         # Attempt to download subtitles if they are missing using subliminal
         languages = set()
