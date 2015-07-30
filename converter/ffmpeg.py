@@ -405,7 +405,7 @@ class FFMpeg(object):
         p = self._spawn([self.ffprobe_path,
                          '-show_format', '-show_streams', fname])
         stdout_data, _ = p.communicate()
-        stdout_data = stdout_data.decode(console_encoding)
+        stdout_data = stdout_data.decode(console_encoding, errors='ignore')
         info.parse_ffprobe(stdout_data)
 
         if not info.format.format and len(info.streams) == 0:
