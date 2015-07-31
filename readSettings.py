@@ -57,6 +57,7 @@ class ReadSettings:
                         'video-codec': 'h264, x264',
                         'video-bitrate': '',
                         'video-max-width': '',
+                        'h264-max-level': '',
                         'subtitle-codec': 'mov_text',
                         'subtitle-language': '',
                         'subtitle-default-language': '',
@@ -298,6 +299,16 @@ class ReadSettings:
             except:
                 log.exception("Invalid video width, defaulting to none.")
                 self.vwidth = None
+
+        self.h264_level = config.get(section, "h264-max-level")
+        if self.h264_level == '':
+            self.h264_level = None
+        else:
+            try:
+                self.h264_level = float(self.h264_level)
+            except:
+                log.exception("Invalid h264 level, defaulting to none.")
+                self.h264_level = None
 
         self.pix_fmt = config.get(section, "pix-fmt").strip().lower()
         if self.pix_fmt == '':

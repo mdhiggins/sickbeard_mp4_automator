@@ -23,6 +23,7 @@ class MkvtoMp4:
                     video_codec=['h264', 'x264'],
                     video_bitrate=None,
                     video_width=None,
+                    h264_level=None,
                     audio_codec=['ac3'],
                     audio_bitrate=256,
                     iOS=False,
@@ -65,6 +66,7 @@ class MkvtoMp4:
         self.video_codec=video_codec
         self.video_bitrate=video_bitrate
         self.video_width=video_width
+        self.h264_level=h264_level
         self.pix_fmt=pix_fmt
         # Audio settings
         self.audio_codec=audio_codec
@@ -104,6 +106,7 @@ class MkvtoMp4:
         self.video_codec=settings.vcodec
         self.video_bitrate=settings.vbitrate
         self.video_width=settings.vwidth
+        self.h264_level=settings.h264_level
         self.pix_fmt=settings.pix_fmt
         #Audio settings
         self.audio_codec=settings.acodec
@@ -271,6 +274,10 @@ class MkvtoMp4:
             vwidth = self.video_width
         else:
             vwidth = None
+
+        if self.h264_level and info.video.video_level and info.video.video_level/10 > self.h264_level:
+            self.log.info("Video level %0.1f." % info.video.video_level)
+            vcodec = self.video_codec[0]
 
         self.log.debug("Video codec: %s" % vcodec)
         self.log.debug("Video bitrate: %s" % vbitrate)
@@ -502,7 +509,8 @@ class MkvtoMp4:
             'video': {
                 'codec': vcodec,
                 'map': info.video.index,
-                'bitrate': vbitrate
+                'bitrate': vbitrate,
+                'level': self.h264_level
             },
             'audio': audio_settings,
             'subtitle': subtitle_settings,
