@@ -368,9 +368,14 @@ class FFMpeg(object):
 
     @staticmethod
     def _spawn(cmds):
+        startupinfo = None
+        if os.name == 'nt':
+            import subprocess
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         logger.debug('Spawning ffmpeg with command: ' + ' '.join(cmds))
         return Popen(cmds, shell=False, stdin=PIPE, stdout=PIPE, stderr=PIPE,
-                     close_fds=(os.name != 'nt'))
+                     close_fds=(os.name != 'nt'), startupinfo=startupinfo)
 
     def probe(self, fname, posters_as_video=True):
         """
