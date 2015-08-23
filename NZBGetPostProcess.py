@@ -3,7 +3,7 @@
 ##############################################################################
 ### NZBGET POST-PROCESSING SCRIPT                                          ###
 
-# Converts files and passes them to Sonarr for further processing.
+# Converts files and passes them to Sonarr/CouchPotato/etc for further processing.
 #
 # NOTE: This script requires Python to be installed on your system.
 
@@ -16,19 +16,19 @@
 # Convert file before passing to destination (True, False)
 #SHOULDCONVERT=False
 
-# Category for Couchpotato
+# Comma separated list of categories for Couchpotato
 #CP_CAT=Couchpotato
 
-# Category for Sonarr
+# Comma separated list of categories for Sonarr
 #SONARR_CAT=Sonarr
 
-# Category for Sickbeard
+# Comma separated list of categories for Sickbeard
 #SICKBEARD_CAT=Sickbeard
 
-# Category for Sickrage
+# Comma separated list of categories for Sickrage
 #SICKRAGE_CAT=Sickrage
 
-# Category for bypassing any further processing but still converting
+# Comma separated list of categories for bypassing any further processing but still converting
 #BYPASS_CAT=Bypass
 
 ### NZBGET POST-PROCESSING SCRIPT                                          ###
@@ -73,13 +73,13 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
     category = os.environ['NZBPP_CATEGORY'] # NZB Category to determine destination
     #DEBUG#print "Category is %s." % category
 
-    couchcat = os.environ['NZBPO_CP_CAT'].lower()
-    sonarrcat = os.environ['NZBPO_SONARR_CAT'].lower()
-    sickbeardcat = os.environ['NZBPO_SICKBEARD_CAT'].lower()
-    sickragecat = os.environ['NZBPO_SICKRAGE_CAT'].lower()
-    bypass = os.environ['NZBPO_BYPASS_CAT'].lower()
+    couchcat = [x.strip() for x in os.environ['NZBPO_CP_CAT'].lower().split(',')]
+    sonarrcat = [x.strip() for x in os.environ['NZBPO_SONARR_CAT'].lower().split(',')]
+    sickbeardcat = [x.strip() for x in os.environ['NZBPO_SICKBEARD_CAT'].lower().split(',')]
+    sickragecat = [x.strip() for x in os.environ['NZBPO_SICKRAGE_CAT'].lower().split(',')]
+    bypass = [x.strip() for x in os.environ['NZBPO_BYPASS_CAT'].lower().split(',')]
 
-    categories = [sickbeardcat, couchcat, sonarrcat, sickragecat, bypass]
+    categories = sickbeardcat + couchcat + sonarrcat + sickragecat + bypass
 
     log.debug("Path: %s" % path)
     log.debug("NZB: %s" % nzb)
@@ -170,31 +170,31 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
                         try:
                             output = converter.process(inputfile)
                             log.info("Successfully processed %s." % inputfile)
-                            if (category == categories[2] and settings.relocate_moov):
+                            if (category.lower() in sonarrcat and settings.relocate_moov):
                                 log.debug("Performing QTFS move because video was converted and Sonarr has no post processing.")
                                 converter.QTFS(output['output'])
                         except:
                             log.warning("File processing failed.")
 
-    if (category.lower() == categories[0]):
+    if (category.lower() in sickbeardcat):
         #DEBUG#print "Sickbeard Processing Activated"
         autoProcessTV.processEpisode(path, settings, nzb)
         sys.exit(POSTPROCESS_SUCCESS)
-    elif (category.lower() == categories[1]):
+    elif (category.lower() in couchcat):
         #DEBUG#print "CouchPotato Processing Activated"
         autoProcessMovie.process(path, settings, nzb, status)
         sys.exit(POSTPROCESS_SUCCESS)
-    elif (category.lower() == categories[2]):
+    elif (category.lower() in sonarrcat):
         success = sonarr.processEpisode(path, settings, True)
         if success:
             sys.exit(POSTPROCESS_SUCCESS)
         else:
             sys.exit(POSTPROCESS_ERROR)
-    elif (category.lower() == categories[3]):
+    elif (category.lower() in sickragecat):
         #DEBUG#print "Sickrage Processing Activated"
         autoProcessTVSR.processEpisode(path, settings, nzb)
         sys.exit(POSTPROCESS_SUCCESS)
-    elif (category.lower() == categories[4]):
+    elif (category.lower() in bypass):
         #DEBUG#print "Bypass Further Processing"
         sys.exit(POSTPROCESS_NONE)
 
