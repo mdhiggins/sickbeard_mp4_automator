@@ -435,12 +435,16 @@ class MkvtoMp4:
 
         # Attempt to download subtitles if they are missing using subliminal
         languages = set()
-        if self.swl:
-            for alpha3 in self.swl:
-                languages.add(Language(alpha3))
-        elif self.sdl:
-            languages.add(Language(self.sdl))
-        else:
+        try:
+            if self.swl:
+                for alpha3 in self.swl:
+                    languages.add(Language(alpha3))
+            elif self.sdl:
+                languages.add(Language(self.sdl))
+            else:
+                self.downloadsubs = False
+        except:
+            self.log.exception("Unable to verify subtitle languages for download.")
             self.downloadsubs = False
 
         if self.downloadsubs:
