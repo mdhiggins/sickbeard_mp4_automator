@@ -279,8 +279,8 @@ class MkvtoMp4:
             self.log.info("Video level %0.1f." % info.video.video_level)
             vcodec = self.video_codec[0]
 
-        self.log.debug("Video codec: %s" % vcodec)
-        self.log.debug("Video bitrate: %s" % vbitrate)
+        self.log.debug("Video codec: %s." % vcodec)
+        self.log.debug("Video bitrate: %s." % vbitrate)
 
         #Audio streams
         self.log.info("Reading audio streams.")
