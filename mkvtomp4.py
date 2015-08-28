@@ -443,6 +443,7 @@ class MkvtoMp4:
                 languages.add(Language(self.sdl))
             else:
                 self.downloadsubs = False
+                self.log.error("No valid subtitle language specified, cannot download subtitles.")
         except:
             self.log.exception("Unable to verify subtitle languages for download.")
             self.downloadsubs = False
@@ -456,12 +457,17 @@ class MkvtoMp4:
                 pass
 
             try:
-                video = subliminal.scan_video(os.path.abspath(inputfile.decode(sys.getfilesystemencoding())), subtitles=True, embedded_subtitles=True, original=original)
+                video = subliminal.scan_video(os.path.abspath(inputfile.decode(sys.getfilesystemencoding())), subtitles=True, embedded_subtitles=True)
                 subtitles = subliminal.download_best_subtitles([video], languages, hearing_impaired=False, providers=self.subproviders)
-                subliminal.save_subtitles(subtitles)
+                try:
+                    subliminal.save_subtitles(video, subtitles[video])
+                except:
+                    #Support for older versions of subliminal
+                    subliminal.save_subtitles(subtitles)
+                    self.log.info("Please update to the latest version of subliminal.")
             except Exception as e:
+                self.log.info("Unable to download subtitles.", exc_info=True)
                 self.log.debug("Unable to download subtitles.", exc_info=True)
-
         # External subtitle import
         if self.embedsubs: #Don't bother if we're not embeddeding any subtitles
             src = 1  # FFMPEG input source number
