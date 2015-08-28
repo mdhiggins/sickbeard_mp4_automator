@@ -249,7 +249,7 @@ class MkvtoMp4:
 
         #Video stream
         self.log.info("Reading video stream.")
-        self.log.info("Video codec detected: %s" % info.video.codec)
+        self.log.info("Video codec detected: %s." % info.video.codec)
 
         try:
             vbr = self.estimateVideoBitrate(info)
@@ -259,7 +259,7 @@ class MkvtoMp4:
         vcodec = 'copy' if info.video.codec.lower() in self.video_codec else self.video_codec[0]
         vbitrate = vbr
 
-        self.log.info("Pix Fmt: %s" % info.video.pix_fmt)
+        self.log.info("Pix Fmt: %s." % info.video.pix_fmt)
         if self.pix_fmt and self.pix_fmt.lower() != info.video.pix_fmt.lower():
             vcodec = self.video_codec[0]
 
@@ -310,11 +310,12 @@ class MkvtoMp4:
                         self.log.debug("Channels: 2.")
                         self.log.debug("Bitrate: 256.")
                         self.log.debug("Language: %s" % a.metadata['language'])
+                        iOSbitrate = 256 if (self.audio_bitrate * 2) > 256 else (self.audio_bitrate * 2)
                         audio_settings.update({l: {
                             'map': a.index,
                             'codec': self.iOS,
                             'channels': 2,
-                            'bitrate': 256,
+                            'bitrate': iOSbitrate,
                             'language': a.metadata['language'],
                         }})
                         l += 1
@@ -324,7 +325,7 @@ class MkvtoMp4:
                     self.log.debug("Overriding default channel settings because iOS audio is enabled but the source is stereo [iOS-audio].")
                     acodec = 'copy' if a.codec == self.iOS else self.iOS
                     audio_channels = a.audio_channels
-                    abitrate = a.audio_channels * 128
+                    abitrate = a.audio_channels * 128 if (a.audio_channels * self.audio_bitrate) > (a.audio_channels * 128) else (a.audio_channels * self.audio_bitrate)
                 else:
                     # If desired codec is the same as the source codec, copy to avoid quality loss
                     acodec = 'copy' if a.codec.lower() in self.audio_codec else self.audio_codec[0]
@@ -451,8 +452,10 @@ class MkvtoMp4:
         if self.downloadsubs:
             import subliminal
             self.log.info("Attempting to download subtitles.")
+
+            #Attempt to set the dogpile cache
             try:
-                subliminal.cache_region.configure('dogpile.cache.memory')
+                subliminal.region.configure('dogpile.cache.memory')
             except:
                 pass
 
@@ -651,7 +654,7 @@ class MkvtoMp4:
                 os.makedirs(moveto)
             try:
                 shutil.move(inputfile, moveto)
-                self.log.info("%s moved to %s" % (inputfile, moveto))
+                self.log.info("%s moved to %s." % (inputfile, moveto))
                 files[0] = os.path.join(moveto, os.path.basename(inputfile))
             except Exception as e:
                 self.log.exception("First attempt to move the file has failed.")
@@ -659,7 +662,7 @@ class MkvtoMp4:
                     if os.path.exists(inputfile):
                         self.removeFile(inputfile, 0, 0)
                     shutil.move(inputfile.decode(sys.getfilesystemencoding()), moveto)
-                    self.log.info("%s moved to %s" % (inputfile, moveto))
+                    self.log.info("%s moved to %s." % (inputfile, moveto))
                     files[0] = os.path.join(moveto, os.path.basename(inputfile))
                 except Exception as e:
                     self.log.exception("Unable to move %s to %s" % (inputfile, moveto))
