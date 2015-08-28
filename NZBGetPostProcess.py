@@ -159,7 +159,6 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
 
     if shouldConvert:
         converter = MkvtoMp4(settings, logger=log)
-        converter.output_dir = None
         for r, d, f in os.walk(path):
             for files in f:
                 inputfile = os.path.join(r, files)
@@ -175,7 +174,8 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
                                 converter.QTFS(output['output'])
                         except:
                             log.warning("File processing failed.")
-
+        if converter.output_dir:
+            path = converter.output_dir
     if (category.lower() == categories[0]):
         #DEBUG#print "Sickbeard Processing Activated"
         autoProcessTV.processEpisode(path, settings, nzb)

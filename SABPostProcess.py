@@ -48,7 +48,6 @@ if len(categories) != len(set(categories)):
 if settings.SAB['convert']:
     log.info("Performing conversion")
     converter = MkvtoMp4(settings)
-    converter.output_dir = None
     for r, d, f in os.walk(path):
         for files in f:
             inputfile = os.path.join(r, files)
@@ -63,6 +62,8 @@ if settings.SAB['convert']:
                     log.exception("Error converting file %s." % inputfile)
             else:
                 log.debug("Ignoring file %s." % inputfile)
+    if converter.output_dir:
+        path = converter.output_dir
 else:
     log.info("Passing without conversion.")
 
