@@ -54,7 +54,7 @@ class Tvdb_mp4:
                 self.log.exception("Failed to connect to TVDB, trying again in 20 seconds.")
                 time.sleep(20)
 
-    def writeTags(self, mp4Path, artwork = True):
+    def writeTags(self, mp4Path, artwork=True, thumbnail=False):
         self.log.info("Tagging file: %s." % mp4Path)
         ext = os.path.splitext(mp4Path)[1][1:]
         if ext not in valid_output_extensions:
@@ -89,7 +89,7 @@ class Tvdb_mp4:
         video["----:com.apple.iTunes:iTunEXTC"] = self.setRating()  # iTunes content rating
 
         if artwork:
-            path = self.getArtwork(mp4Path)
+            path = self.getArtwork(mp4Path, thumbnail=thumbnail)
             if path is not None:
                 cover = open(path, 'rb').read()
                 if path.endswith('png'):
@@ -185,7 +185,7 @@ class Tvdb_mp4:
         output.write(footer)
         return output.getvalue()
 
-    def getArtwork(self, mp4Path, filename='cover'):
+    def getArtwork(self, mp4Path, filename='cover', thumbnail=False):
         # Check for local cover.jpg or cover.png artwork in the same directory as the mp4
         extensions = valid_poster_extensions
         poster = None
@@ -198,19 +198,22 @@ class Tvdb_mp4:
                 break
         # Pulls down all the poster metadata for the correct season and sorts them into the Poster object
         if poster is None:
-            posters = posterCollection()
-            try:
-                for bannerid in self.showdata['_banners']['season']['season'].keys():
-                    if str(self.showdata['_banners']['season']['season'][bannerid]['season']) == str(self.season):
-                        poster = Poster()
-                        poster.ratingcount = int(self.showdata['_banners']['season']['season'][bannerid]['ratingcount'])
-                        if poster.ratingcount > 0:
-                            poster.rating = float(self.showdata['_banners']['season']['season'][bannerid]['rating'])
-                        poster.bannerpath = self.showdata['_banners']['season']['season'][bannerid]['_bannerpath']
-                        posters.addPoster(poster)
-                poster = urllib.urlretrieve(posters.topPoster().bannerpath, os.path.join(tempfile.gettempdir(),"poster.jpg"))[0]
-            except:
-                poster = None
+            if thumbnail:
+                poster = urllib.urlretrieve(self.episodedata['filename'], os.path.join(tempfile.gettempdir(),"poster.jpg"))[0]
+            else:
+                posters = posterCollection()
+                try:
+                    for bannerid in self.showdata['_banners']['season']['season'].keys():
+                        if str(self.showdata['_banners']['season']['season'][bannerid]['season']) == str(self.season):
+                            poster = Poster()
+                            poster.ratingcount = int(self.showdata['_banners']['season']['season'][bannerid]['ratingcount'])
+                            if poster.ratingcount > 0:
+                                poster.rating = float(self.showdata['_banners']['season']['season'][bannerid]['rating'])
+                            poster.bannerpath = self.showdata['_banners']['season']['season'][bannerid]['_bannerpath']
+                            posters.addPoster(poster)
+                    poster = urllib.urlretrieve(posters.topPoster().bannerpath, os.path.join(tempfile.gettempdir(),"poster.jpg"))[0]
+                except:
+                    poster = None
         return poster
 
 

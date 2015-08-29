@@ -43,7 +43,7 @@ if len(sys.argv) > 4:
             log.info("Tagging %s with ID %s season %s episode %s." % (inputfile, tvdb_id, season, episode))
             tagmp4 = Tvdb_mp4(tvdb_id, season, episode, original, language=settings.taglanguage)
             tagmp4.setHD(output['x'], output['y'])
-            tagmp4.writeTags(output['output'], settings.artwork)
+            tagmp4.writeTags(output['output'], settings.artwork, settings.thumbnail)
 
         #QTFS
         if settings.relocate_moov:

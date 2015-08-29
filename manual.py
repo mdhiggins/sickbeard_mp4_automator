@@ -200,7 +200,7 @@ def processFile(inputfile, tagdata, relativePath=None):
         if tagmp4 is not None:
             try:
                 tagmp4.setHD(output['x'], output['y'])
-                tagmp4.writeTags(output['output'], settings.artwork)
+                tagmp4.writeTags(output['output'], settings.artwork, settings.thumbnail)
             except Exception as e:
                 print("There was an error tagging the file")
                 print(e)

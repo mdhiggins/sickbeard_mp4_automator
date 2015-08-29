@@ -65,7 +65,7 @@ class ReadSettings:
                         'fullpathguess': 'True',
                         'tagfile': 'True',
                         'tag-language': 'en',
-                        'download-artwork': 'True',
+                        'download-artwork': 'poster',
                         'download-subs': 'False',
                         'embed-subs': 'True',
                         'sub-providers': 'addic7ed, podnapisi, thesubdb, opensubtitles',
@@ -372,7 +372,20 @@ class ReadSettings:
         elif len(self.taglanguage) < 2:
             log.exception("Unable to set tag language, defaulting to English.")
             self.taglanguage = 'en'
-        self.artwork = config.getboolean(section, "download-artwork") # Download and embed artwork
+        self.artwork = config.get(section, "download-artwork").lower() # Download and embed artwork
+        if self.artwork == "poster":
+            self.artwork = True
+            self.thumbnail = False
+        elif self.artwork == "thumb" or self.artwork == "thumbnail":
+            self.artwork = True
+            self.thumbnail = True
+        else:
+            self.thumbnail = False
+            try:
+                self.artwork = config.getboolean(section, "download-artwork")
+            except:
+                self.artwork = True
+                self.log.error("Invalid download-artwork value, defaulting to 'poster'.")
 
         #Read relevant CouchPotato section information
         section = "CouchPotato"

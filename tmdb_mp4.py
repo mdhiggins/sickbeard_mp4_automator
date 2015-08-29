@@ -54,7 +54,7 @@ class tmdb_mp4:
                 self.log.exception("Failed to connect to tMDB, trying again in 20 seconds.")
                 time.sleep(20)
 
-    def writeTags(self, mp4Path, artwork = True):
+    def writeTags(self, mp4Path, artwork=True, thumbnail=False):
         self.log.info("Tagging file: %s." % mp4Path)
         ext = os.path.splitext(mp4Path)[1][1:]
         if ext not in valid_output_extensions:
