@@ -21,9 +21,8 @@ Requirements
 --------------
 - Python 2.7 *(Does NOT work with Python 3)*
 - FFMPEG and FFPROBE binaries
-- Requests module
-- Gevent
 - Python setup_tools
+- See PIP packages for additional requirements
 
 Default Settings
 --------------
@@ -31,7 +30,7 @@ Default Settings
 2. Audio - AAC 2.0 with additional AC3 track when source has >2 channels (ex 5.1)
 3. Subtitles - mov_text
 
-Prerequesite Installation Instructions
+Prerequesite PIP Package Installation Instructions
 --------------
 - `Setup_tools` - https://pypi.python.org/pypi/setuptools#installation-instructions
 - `Requests` - Run `pip install requests`
