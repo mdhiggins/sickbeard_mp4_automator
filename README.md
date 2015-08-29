@@ -39,6 +39,7 @@ Prerequesite Installation Instructions
 - `stevedore` - Run `pip install stevedore` (this will be automatically installed with subliminal)
 - `dateutil` - Run `pip install python-dateutil` (this will be automatically installed with subliminal)
 - `subliminal`- Run `pip install subliminal` to enable automatically downloading subtitles
+- `guessit` - Run `pip install guessit` to use manual.py
 
 General MP4 Configuration
 --------------
