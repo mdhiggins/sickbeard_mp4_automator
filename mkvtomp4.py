@@ -305,12 +305,12 @@ class MkvtoMp4:
                 # Create iOS friendly audio stream if the default audio stream has too many channels (iOS only likes AAC stereo)
                 if self.iOS:
                     if a.audio_channels > 2:
+                        iOSbitrate = 256 if (self.audio_bitrate * 2) > 256 else (self.audio_bitrate * 2)
                         self.log.info("Creating audio stream %s from source audio stream %s [iOS-audio]." % (str(l), a.index))
                         self.log.debug("Audio codec: %s." % self.iOS)
                         self.log.debug("Channels: 2.")
-                        self.log.debug("Bitrate: 256.")
-                        self.log.debug("Language: %s" % a.metadata['language'])
-                        iOSbitrate = 256 if (self.audio_bitrate * 2) > 256 else (self.audio_bitrate * 2)
+                        self.log.debug("Bitrate: %s." % iOSbitrate)
+                        self.log.debug("Language: %s." % a.metadata['language'])
                         audio_settings.update({l: {
                             'map': a.index,
                             'codec': self.iOS,
