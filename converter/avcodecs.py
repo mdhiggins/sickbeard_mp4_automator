@@ -658,6 +658,57 @@ class H264Codec(VideoCodec):
         return optlist
 
 
+class H265Codec(VideoCodec):
+    """
+    H.265/AVC video codec.
+    @see https://trac.ffmpeg.org/wiki/Encode/H.265
+    """
+    codec_name = 'h265'
+    ffmpeg_codec_name = 'libx265'
+    encoder_options = VideoCodec.encoder_options.copy()
+    encoder_options.update({
+        'preset': str,  # common presets are ultrafast, superfast, veryfast,
+        # faster, fast, medium(default), slow, slower, veryslow
+        'quality': int,  # constant rate factor, range:0(lossless)-51(worst)
+        # default:23, recommended: 18-28
+        # http://mewiki.project357.com/wiki/X264_Settings#profile
+        'profile': str,  # default: not-set, for valid values see above link
+        'level': float, # default: not-set, values range from 3.0 to 4.2
+        'tune': str,  # default: not-set, for valid values see above link
+        'wscale': int, # special handlers for the even number requirements of h264
+        'hscale': int # special handlers for the even number requirements of h264
+    })
+
+    def parse_options(self, opt, stream=0):
+        if 'width' in opt:
+            opt['wscale'] = opt['width']
+            del(opt['width'])
+        if 'height' in opt:
+            opt['hscale'] = opt['height']
+            del(opt['height'])
+        return super(H264Codec, self).parse_options(opt, stream)
+
+    def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
+        optlist = []
+        if 'preset' in safe:
+            optlist.extend(['-preset', safe['preset']])
+        if 'quality' in safe:
+            optlist.extend(['-crf', str(safe['quality'])])
+        if 'profile' in safe:
+            optlist.extend(['-profile:v', safe['profile']])
+        if 'level' in safe:
+            optlist.extend(['-level', '%0.1f' % safe['level']])
+        if 'tune' in safe:
+            optlist.extend(['-tune', safe['tune']])
+        if 'wscale' in safe and 'hscale' in safe:
+            optlist.extend(['-vf', 'scale=%s:%s' % (safe['wscale'], safe['hscale'])])
+        elif 'wscale' in safe:
+            optlist.extend(['-vf', 'scale=%s:trunc(ow/a/2)*2' % (safe['wscale'])])
+        elif 'hscale' in safe:
+            optlist.extend(['-vf', 'scale=trunc((oh*a)/2)*2:%s' % (safe['hscale'])])
+        return optlist
+
+
 class DivxCodec(VideoCodec):
     """
     DivX video codec.
@@ -793,7 +844,7 @@ audio_codec_list = [
 ]
 
 video_codec_list = [
-    VideoNullCodec, VideoCopyCodec, TheoraCodec, H264Codec,
+    VideoNullCodec, VideoCopyCodec, TheoraCodec, H264Codec, H265Codec,
     DivxCodec, Vp8Codec, H263Codec, FlvCodec, Mpeg1Codec,
     Mpeg2Codec
 ]
