@@ -339,18 +339,7 @@ def main():
     if os.path.isdir(path):
         tvdbid = int(args['tvdbid']) if args['tvdbid'] else None
         walkDir(path, silent, tvdbid=tvdbid, preserveRelative=args['preserveRelative'], tag=settings.tagfile)
-    elif (os.path.isfile(path)):
-        if (not MkvtoMp4(settings, logger=log).validSource(path)):
-            filename, ext = os.path.splitext(path)
-            print ("Converting " + ext + " to mkv..")
-            call(["ffmpeg", "-i", path, "-codec", "copy", "-y", "-loglevel", "panic", "-nostats", filename + ".mkv"])
-            if (not os.path.isfile(path)):
-                print ("Failed to convert!")
-                exit(1)
-            elif (settings.delete):
-                os.remove(path)
-            path = filename + ".mkv"
-
+    elif (os.path.isfile(path) and MkvtoMp4(settings, logger=log).validSource(path)):
         if (not settings.tagfile):
             tagdata = None
         elif (args['tvdbid'] and not (args['imdbid'] or args['tmdbid'])):
