@@ -291,7 +291,7 @@ def main():
     print("%sbit Python." % (struct.calcsize("P") * 8))
 
     #Concurrent
-    if not args['maxproc'] == False:
+    if not args['maxproc'] == None:
         checkForSpot(args['maxproc'])
 
 
