@@ -343,11 +343,14 @@ def main():
         if (not MkvtoMp4(settings, logger=log).validSource(path)):
             filename, ext = os.path.splitext(path)
             print ("Converting " + ext + " to mkv..")
-            call(["ffmpeg", "-i", path, "-codec", "copy", "-loglevel", "panic", "-nostats", filename + ".mkv"])
-            path = filename + ".mkv"
+            call(["ffmpeg", "-i", path, "-codec", "copy", "-y", "-loglevel", "panic", "-nostats", filename + ".mkv"])
             if (not os.path.isfile(path)):
                 print ("Failed to convert!")
                 exit(1)
+            elif (settings.delete):
+                os.remove(path)
+            path = filename + ".mkv"
+
         if (not settings.tagfile):
             tagdata = None
         elif (args['tvdbid'] and not (args['imdbid'] or args['tmdbid'])):
