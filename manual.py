@@ -9,6 +9,7 @@ import glob
 import argparse
 import struct
 import logging
+from subprocess import call
 from readSettings import ReadSettings
 from tvdb_mp4 import Tvdb_mp4
 from tmdb_mp4 import tmdb_mp4
@@ -291,7 +292,7 @@ def main():
     print("%sbit Python." % (struct.calcsize("P") * 8))
 
     #Concurrent
-    if not args['maxproc'] == False:
+    if not args['maxproc'] == None:
         checkForSpot(args['maxproc'])
 
 
@@ -338,7 +339,15 @@ def main():
     if os.path.isdir(path):
         tvdbid = int(args['tvdbid']) if args['tvdbid'] else None
         walkDir(path, silent, tvdbid=tvdbid, preserveRelative=args['preserveRelative'], tag=settings.tagfile)
-    elif (os.path.isfile(path) and MkvtoMp4(settings, logger=log).validSource(path)):
+    elif (os.path.isfile(path)):
+        if (not MkvtoMp4(settings, logger=log).validSource(path)):
+            filename, ext = os.path.splitext(path)
+            print ("Converting " + ext + " to mkv..")
+            call(["ffmpeg", "-i", path, "-codec", "copy", "-loglevel", "panic", "-nostats", filename + ".mkv"])
+            path = filename + ".mkv"
+            if (not os.path.isfile(path)):
+                print ("Failed to convert!")
+                exit(1)
         if (not settings.tagfile):
             tagdata = None
         elif (args['tvdbid'] and not (args['imdbid'] or args['tmdbid'])):
@@ -360,10 +369,7 @@ def main():
             tagdata = getinfo(path, silent=silent)
         processFile(path, tagdata)
     else:
-        try:
-            print("File %s is not in the correct format" % (path))
-        except:
-            print("File is not in the correct format")
+        print("File %s does not exist" % (path))
 
 
 if __name__ == '__main__':
