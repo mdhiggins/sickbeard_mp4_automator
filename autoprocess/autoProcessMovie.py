@@ -47,6 +47,9 @@ def process(dirName, settings, nzbName=None, status=0, logger=None):
     protocol = settings.CP['protocol']
     web_root = settings.CP['web_root']
 
+    if web_root != "" and not web_root.startswith("/"):
+        web_root = "/" + web_root
+
     myOpener = AuthURLOpener(username, password)
     nzbName1 = str(nzbName)
 
@@ -115,7 +118,7 @@ def process(dirName, settings, nzbName=None, status=0, logger=None):
         movieid = [item["id"] for item in result["movies"]]
         library = [item["library"] for item in result["movies"]]
         identifier = [item["identifier"] for item in library]
-        
+
         log.debug("Movie ID: %s." % movieid)
         log.debug("Library: %s." % library)
         log.debug("Identifier: %s" % identifier)
