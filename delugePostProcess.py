@@ -59,7 +59,7 @@ if settings.deluge['convert']:
     # Perform conversion.
     settings.delete = False
     if not settings.output_dir:
-        settings.output_dir = os.path.join(path, torrent_name)
+        settings.output_dir = os.path.join(path, torrent_name + "-convert")
         if not os.path.exists(settings.output_dir):
             os.mkdir(settings.output_dir)
         delete_dir = settings.output_dir
@@ -80,7 +80,7 @@ if settings.deluge['convert']:
 
     path = converter.output_dir
 else:
-    newpath = os.path.join(path, torrent_name)
+    newpath = os.path.join(path, torrent_name + "-convert")
     if not os.path.exists(newpath):
         os.mkdir(newpath)
     for filename in files:
