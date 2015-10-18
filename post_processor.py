@@ -44,7 +44,7 @@ class PostProcessor:
 
 	def setMovie(self, imdbid):
 		self.log.debug("Setting movie metadata.")
-		self.post_process_directory['MH_IMDBID'] = str(imdbid)
+		self.post_process_environment['MH_IMDBID'] = str(imdbid)
 
 	def run_scripts(self):
 		self.log.debug("Running scripts.")
