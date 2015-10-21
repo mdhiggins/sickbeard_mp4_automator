@@ -19,7 +19,8 @@ Downloaders Supported:
 
 Requirements
 --------------
-- Python 2.7 *(Does NOT work with Python 3)*
+- Python 2.7
+- Python 3 beta support has arrived. Feel free to begin testing and report bugs
 - FFMPEG and FFPROBE binaries
 - Python setup_tools
 - See PIP packages for additional requirements
