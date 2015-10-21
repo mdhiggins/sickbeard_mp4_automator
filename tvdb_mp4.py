@@ -162,7 +162,8 @@ class Tvdb_mp4:
         output.write(castheader)
         for a in self.showdata['_actors'][:5]:
             if a is not None:
-                output.write("<dict><key>name</key><string>" + a['name'].encode('ascii', errors='ignore') + "</string></dict>\n")
+                output.write("<dict><key>name</key><string>%s</string></dict>\n" % a['name'].encode('ascii', errors='ignore'))
+                #output.write("<dict><key>name</key><string>" + a['name'].encode('ascii', errors='ignore').decode() + "</string></dict>\n")
         output.write(subfooter)
 
         # Write screenwriterr
@@ -170,7 +171,7 @@ class Tvdb_mp4:
             output.write(writerheader)
             for name in self.writer.split("|"):
                 if name != "":
-                    output.write("<dict><key>name</key><string>" + name.encode('ascii', errors='ignore') + "</string></dict>\n")
+                    output.write("<dict><key>name</key><string>%s</string></dict>\n" % name.encode('ascii', errors='ignore'))
             output.write(subfooter)
 
         # Write directors
@@ -178,7 +179,7 @@ class Tvdb_mp4:
             output.write(directorheader)
             for name in self.director.split("|"):
                 if name != "":
-                    output.write("<dict><key>name</key><string>" + name.encode('ascii', errors='ignore') + "</string></dict>\n")
+                    output.write("<dict><key>name</key><string>%s</string></dict>\n" % name.encode('ascii', errors='ignore'))
             output.write(subfooter)
 
         # Close XML
@@ -199,7 +200,13 @@ class Tvdb_mp4:
         # Pulls down all the poster metadata for the correct season and sorts them into the Poster object
         if poster is None:
             if thumbnail:
-                poster = urllib.urlretrieve(self.episodedata['filename'], os.path.join(tempfile.gettempdir(),"poster.jpg"))[0]
+                try:
+                    poster = urllib.urlretrieve(self.episodedata['filename'], os.path.join(tempfile.gettempdir(),"poster.jpg"))[0]
+                except:
+                    try:
+                        poster = urllib.request.urlretrieve(self.episodedata['filename'], os.path.join(tempfile.gettempdir(),"poster.jpg"))[0]
+                    except:
+                        poster = None
             else:
                 posters = posterCollection()
                 try:
@@ -210,8 +217,14 @@ class Tvdb_mp4:
                             if poster.ratingcount > 0:
                                 poster.rating = float(self.showdata['_banners']['season']['season'][bannerid]['rating'])
                             poster.bannerpath = self.showdata['_banners']['season']['season'][bannerid]['_bannerpath']
+                            print(poster.bannerpath)
                             posters.addPoster(poster)
-                    poster = urllib.urlretrieve(posters.topPoster().bannerpath, os.path.join(tempfile.gettempdir(),"poster.jpg"))[0]
+                    print("Top poster:")
+                    print(posters.topPoster().bannerpath)
+                    try:
+                        poster = urllib.urlretrieve(posters.topPoster().bannerpath, os.path.join(tempfile.gettempdir(),"poster.jpg"))[0]
+                    except:
+                        poster = urllib.request.urlretrieve(posters.topPoster().bannerpath, os.path.join(tempfile.gettempdir(),"poster.jpg"))[0]
                 except:
                     poster = None
         return poster

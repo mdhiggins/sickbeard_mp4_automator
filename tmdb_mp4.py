@@ -149,25 +149,25 @@ class tmdb_mp4:
         output.write(castheader)
         for a in self.movie.get_cast()[:5]:
             if a is not None:
-                output.write("<dict><key>name</key><string>" + a['name'].encode('ascii', 'ignore') + "</string></dict>\n")
+                output.write("<dict><key>name</key><string>%s</string></dict>\n" % a['name'].encode('ascii', 'ignore'))
         output.write(subfooter)
         # Write screenwriters
         output.write(writerheader)
         for w in self.movie.get_writers()[:5]:
             if w is not None:
-                output.write("<dict><key>name</key><string>" + w['name'].encode('ascii', 'ignore') + "</string></dict>\n")
+                output.write("<dict><key>name</key><string>%s</string></dict>\n" % w['name'].encode('ascii', 'ignore'))
         output.write(subfooter)
         # Write directors
         output.write(directorheader)
         for d in self.movie.get_directors()[:5]:
             if d is not None:
-                output.write("<dict><key>name</key><string>" + d['name'].encode('ascii', 'ignore') + "</string></dict>\n")
+                output.write("<dict><key>name</key><string>%s</string></dict>\n" % d['name'].encode('ascii', 'ignore'))
         output.write(subfooter)
         # Write producers
         output.write(producerheader)
         for p in self.movie.get_producers()[:5]:
             if p is not None:
-                output.write("<dict><key>name</key><string>" + p['name'].encode('ascii', 'ignore') + "</string></dict>\n")
+                output.write("<dict><key>name</key><string>%s</string></dict>\n" % p['name'].encode('ascii', 'ignore'))
         output.write(subfooter)
 
         # Write final footer
@@ -192,7 +192,10 @@ class tmdb_mp4:
             try:
                 poster = urllib.urlretrieve(self.movie.get_poster("l"), os.path.join(tempfile.gettempdir(),"poster.jpg"))[0]
             except:
-                poster = None
+                try:
+                    poster = urllib.request.urlretrieve(self.movie.get_poster("l"), os.path.join(tempfile.gettempdir(),"poster.jpg"))[0]
+                except:
+                    poster = None
         return poster
     #end artwork
 #end tmdb_mp4
