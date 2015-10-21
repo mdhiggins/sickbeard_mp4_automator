@@ -228,6 +228,12 @@ class ReadSettings:
             self.output_format = 'mov'
         self.delete = config.getboolean(section, "delete_original")  # Delete original file
         self.relocate_moov = config.getboolean(section, "relocate_moov")  # Relocate MOOV atom to start of file
+        if self.relocate_moov:
+            try:
+                import qtfaststart
+            except:
+                log.error("Please install QTFastStart via PIP, relocate_moov will be disabled without this module.")
+                self.relocate_moov = False
         self.acodec = config.get(section, "audio-codec").lower()  # Gets the desired audio codec, if no valid codec selected, default to AC3
         if self.acodec == '':
             self.acodec == ['ac3']
