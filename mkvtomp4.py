@@ -7,7 +7,6 @@ import shutil
 import logging
 from converter import Converter
 from extensions import valid_input_extensions, valid_output_extensions, bad_subtitle_codecs, valid_subtitle_extensions, subtitle_codec_extensions
-from qtfaststart import processor, exceptions
 from babelfish import Language
 
 
@@ -594,6 +593,8 @@ class MkvtoMp4:
         temp_ext = '.QTFS'
         # Relocate MOOV atom to the very beginning. Can double the time it takes to convert a file but makes streaming faster
         if self.parseFile(inputfile)[2] in valid_output_extensions and os.path.isfile(inputfile) and self.relocate_moov:
+            from qtfaststart import processor, exceptions
+            
             self.log.info("Relocating MOOV atom to start of file.")
 
             try:
