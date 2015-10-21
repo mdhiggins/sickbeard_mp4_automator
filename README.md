@@ -41,6 +41,7 @@ Prerequesite PIP Package Installation Instructions
 - `subliminal`- Run `pip install subliminal` to enable automatically downloading subtitles
 - `stevedore` - Run `pip install stevedore` (this will be automatically installed with subliminal)
 - `dateutil` - Run `pip install python-dateutil` (this will be automatically installed with subliminal)
+- `qtfaststart` Run `pip install qtfaststart` to enable moving moov atom
 
 General MP4 Configuration
 --------------
