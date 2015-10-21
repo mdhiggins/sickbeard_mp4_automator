@@ -1,5 +1,7 @@
 import os
 import sys
+import locale
+
 try:
     import configparser
 except ImportError:
@@ -17,6 +19,31 @@ class ReadSettings:
             log = logger
         else:
             log = logging.getLogger(__name__)
+
+        # Setup encoding to avoid UTF-8 errors
+        if sys.version[0] == '2':
+            print("SHouldnt see me")
+            SYS_ENCODING = None
+            try:
+                locale.setlocale(locale.LC_ALL, "")
+                SYS_ENCODING = locale.getpreferredencoding()
+            except (locale.Error, IOError):
+                pass
+
+            # For OSes that are poorly configured just force UTF-8
+            if not SYS_ENCODING or SYS_ENCODING in ('ANSI_X3.4-1968', 'US-ASCII', 'ASCII'):
+                SYS_ENCODING = 'UTF-8'
+
+            if not hasattr(sys, "setdefaultencoding"):
+                reload(sys)
+
+            try:
+                # pylint: disable=E1101
+                # On non-unicode builds this will raise an AttributeError, if encoding type is not valid it throws a LookupError
+                sys.setdefaultencoding(SYS_ENCODING)
+            except:
+                log.exception("Sorry, your environment is not setup correctly for utf-8 support. Please fix your setup and try again")
+                sys.exit("Sorry, your environment is not setup correctly for utf-8 support. Please fix your setup and try again")
 
         try:
             from babelfish import Language
@@ -176,7 +203,7 @@ class ReadSettings:
             self.copyto = None
         else:
             self.copyto = self.copyto.split('|')
-            for i in xrange(len(self.copyto)):
+            for i in range(len(self.copyto)):
                 self.copyto[i] = os.path.normpath(self.copyto[i])
                 if not os.path.isdir(self.copyto[i]):
                     try:
