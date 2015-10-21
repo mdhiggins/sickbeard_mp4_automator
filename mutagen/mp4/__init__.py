@@ -575,7 +575,7 @@ class MP4Tags(DictProxy, Metadata):
 
             data += struct.pack(
                 ">I4s2I", len(v) + 16, b"data", version << 24 | flags, 0)
-            data += v
+            data += v.encode('UTF-8')
 
         return Atom.render(b"----", mean + name + data)
 
