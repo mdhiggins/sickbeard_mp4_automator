@@ -22,7 +22,6 @@ class ReadSettings:
 
         # Setup encoding to avoid UTF-8 errors
         if sys.version[0] == '2':
-            print("SHouldnt see me")
             SYS_ENCODING = None
             try:
                 locale.setlocale(locale.LC_ALL, "")
@@ -44,17 +43,6 @@ class ReadSettings:
             except:
                 log.exception("Sorry, your environment is not setup correctly for utf-8 support. Please fix your setup and try again")
                 sys.exit("Sorry, your environment is not setup correctly for utf-8 support. Please fix your setup and try again")
-
-        try:
-            from babelfish import Language
-        except:
-            log.debug("Trying to install SetupTools.")
-            try:
-                import setup
-                setup.ez_setup.main()
-                from babelfish import Language
-            except:
-                log.exception("Please install SetupTools.")
 
         # Default settings for SickBeard
         sb_defaults = {'host': 'localhost',
