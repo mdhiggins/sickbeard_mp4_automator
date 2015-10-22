@@ -111,18 +111,29 @@ SickRage Setup
     - `user` - Username
     - `password` - Password
 
-Sonarr Setup (Tagging Not Supported)
+Sonarr Setup
 --------------
-1. ** YOU MUST INSTALL THE PYTHON REQUESTS LIBRARY ** Run "pip install requests" or "easy_install requests"
-2. Set your Sonarr settings in the autoProcess.ini file
+1. Set your Sonarr settings in the autoProcess.ini file
     - `host` = Sonarr host address (localhost)    #Settings/General/Start-Up
     - `port` = Sonarr port (8989)                 #Settings/General/Start-Up
     - `ssl` = 1 if enabled, 0 if not              #Settings/General/Security
     - `apikey` = Sonarr API Key (required)        #Settings/General/Security
     - `web_root` = URL base empty or e.g. /tv     #Settings/General/Start-Up
 2. Browse to the Settings>Download Client tab and enable advanced settings [Show].
-3. Set the {Drone Factory Interval} to 0 to disable it. (NZBGet will trigger a specific path re-scan, allowing the mp4 conversion to be completed before Sonarr starts moving stuff around).
-    - Sonarr does not currently support post processing scripts so tagging is not currently supported.
+3. Set the Drone Factory Interval' to 0 to disable it, and disable 'Completed Download Handling' in Sonarr settings. The script will trigger a specific path re-scan, allowing the mp4 conversion to be completed before Sonarr starts moving stuff around. This step is optional if you do not desire any processing between the downloading by whichever downloader you choose (NZB or Torrent), but is required if you wish to convert the file to an MP4 before it is handed back to Sonarr.
+4. Setup the postSonarr.py script via Settings > Connect > Connections > + (Add)
+    - `name` - postSonarr
+    - `On Grab` - No
+    - `On Download` - Yes
+    - `On Upgrade` - Yes
+    - `On Rename` - No
+    - Filter Series Tags - optional
+    - Windows Users
+      - `Path` - Full path to your python executable
+      - `Arguments` - Full path to `postSonarr.py`
+    - Nonwindows Users
+      - `Path` - Full path to `postSonarr.py`
+      - `Arguments` - Leave blank
 
 Couch Potato Setup
 --------------
