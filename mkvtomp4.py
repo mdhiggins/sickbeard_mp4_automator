@@ -459,7 +459,7 @@ class MkvtoMp4:
                 pass
 
             try:
-                video = subliminal.scan_video(os.path.abspath(inputfile.decode(sys.getfilesystemencoding())), subtitles=True, embedded_subtitles=True)
+                video = subliminal.scan_video(os.path.abspath(inputfile), subtitles=True, embedded_subtitles=True)
                 subtitles = subliminal.download_best_subtitles([video], languages, hearing_impaired=False, providers=self.subproviders)
                 try:
                     subliminal.save_subtitles(video, subtitles[video])
@@ -594,7 +594,7 @@ class MkvtoMp4:
         # Relocate MOOV atom to the very beginning. Can double the time it takes to convert a file but makes streaming faster
         if self.parseFile(inputfile)[2] in valid_output_extensions and os.path.isfile(inputfile) and self.relocate_moov:
             from qtfaststart import processor, exceptions
-            
+
             self.log.info("Relocating MOOV atom to start of file.")
 
             try:
