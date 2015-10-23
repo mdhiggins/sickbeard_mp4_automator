@@ -35,7 +35,7 @@ class PostProcess(Plugin):
 
         for inputfile in moviefile:
             try:
-                subprocess.Popen([exec_me, imdbid, inputfile, original], shell = (os.name == 'nt'))
+                subprocess.Popen([exec_me, imdbid, inputfile, original], shell = (os.name == 'nt'), stdin=None, stdout=None, stderr=None)
                 log.info("Executing post processing on file %s" % inputfile)
             except:
                 log.error("Failed to execute post processing on file %s" % inputfile)
