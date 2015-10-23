@@ -72,9 +72,6 @@ if settings.deluge['convert']:
             log.info("Converting file %s at location %s." % (inputfile, settings.output_dir))
             try:
                 output = converter.process(inputfile)
-                if (category == categories[2] and settings.relocate_moov):
-                    log.debug("Performing QTFS move because video was converted and Sonarr has no post processing.")
-                    converter.QTFS(output['output'])
             except:
                 log.exception("Error converting file %s." % inputfile)
 
