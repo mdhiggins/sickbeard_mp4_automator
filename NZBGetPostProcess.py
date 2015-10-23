@@ -169,9 +169,6 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
                         try:
                             output = converter.process(inputfile)
                             log.info("Successfully processed %s." % inputfile)
-                            if (category == categories[2] and settings.relocate_moov):
-                                log.debug("Performing QTFS move because video was converted and Sonarr has no post processing.")
-                                converter.QTFS(output['output'])
                         except:
                             log.warning("File processing failed.")
         if converter.output_dir:
