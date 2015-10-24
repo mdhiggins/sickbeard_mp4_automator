@@ -36,6 +36,7 @@ Prerequesite PIP Package Installation Instructions
 - `VC for Python 2.7` (Windows Users Only) - Download and install - http://www.microsoft.com/en-us/download/details.aspx?id=44266
 - `Setup_tools` - https://pypi.python.org/pypi/setuptools#installation-instructions
 - `Requests` - Run `pip install requests`
+- `Requests security package` - Run `pip install requests[security]`
 - `Gevent` - Run `pip install gevent`
 - `babelfish` - Run `pip install babelfish`
 - `guessit` - Run `pip install guessit` to use manual.py
