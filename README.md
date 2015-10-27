@@ -275,12 +275,13 @@ Send a Plex notification as the final step when all processing is completed. Thi
 Post Process Scripts
 --------------
 The script suite supports the ability to write your own post processing scripts that will be executed when all the final processing has been completed. All scripts in the `./post_process` directory will be executed if the `post-process` option is set to `True` in `autoProcess.ini`. Scripts within the `./post_process/resources` directory are protected from execution if additional script resources are required.
+
 The following environmental variables are available for usage:
-    - `MH_FILES` - JSON Array of all files created by the post processing script. The first file in the array is the primary file, and any additional files are copies created by the copy-to option
-    - `MH_TVDBID` - TVDB ID if file processed was a TV show and this information is available
-    - `MH_SEASON` - Season number if file processed was a TV show
-    - `MH_EPISODE` - Episode number if files processed was a TV show
-    - `MH_IMDBID` - IMDB ID if file processed was a movie
+- `MH_FILES` - JSON Array of all files created by the post processing script. The first file in the array is the primary file, and any additional files are copies created by the copy-to option
+- `MH_TVDBID` - TVDB ID if file processed was a TV show and this information is available
+- `MH_SEASON` - Season number if file processed was a TV show
+- `MH_EPISODE` - Episode number if files processed was a TV show
+- `MH_IMDBID` - IMDB ID if file processed was a movie
 A sample script as well as an OS X 'Add to iTunes' script (`iTunes.py`) have been provided.
 *Special thanks to jzucker2 for providing much of the initial code for this feature*
 
