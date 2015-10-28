@@ -20,7 +20,6 @@ class PostProcess(Plugin):
     def callscript(self, message = None, group = None):
 
         log.info('MP4 Automator - Post processing script initialized')
-
         exec_me = os.path.join(path, "postCouchPotato.py")
 
         try:
@@ -35,8 +34,12 @@ class PostProcess(Plugin):
 
         for inputfile in moviefile:
             try:
-                subprocess.Popen([exec_me, imdbid, inputfile, original], shell = (os.name == 'nt'), stdin=None, stdout=None, stderr=None)
                 log.info("Executing post processing on file %s" % inputfile)
+                process = subprocess.Popen([exec_me, imdbid, inputfile, original], shell=(os.name=='nt'), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env={})
+                output, errors = process.communicate()
+                log.info(output)
+                log.info(errors)
+                log.info("Return code: %s" % process.returncode)
             except:
                 log.error("Failed to execute post processing on file %s" % inputfile)
                 log.error(traceback.format_exc())
