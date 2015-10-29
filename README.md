@@ -34,15 +34,16 @@ Default Settings
 Prerequesite PIP Package Installation Instructions
 --------------
 - `VC for Python 2.7` (Windows Users Only) - Download and install - http://www.microsoft.com/en-us/download/details.aspx?id=44266
-- `Setup_tools` - https://pypi.python.org/pypi/setuptools#installation-instructions
-- `Requests` - Run `pip install requests`
-- `Requests security package` - Run `pip install requests[security]`
-- `Gevent` - Run `pip install gevent`
+- `setup_tools` - https://pypi.python.org/pypi/setuptools#installation-instructions
+- `requests` - Run `pip install requests`
+- `requests security package` - Run `pip install requests[security]`
+- `gevent` - Run `pip install gevent`
 - `babelfish` - Run `pip install babelfish`
 - `guessit` - Run `pip install guessit` to use manual.py
 - `subliminal`- Run `pip install subliminal` to enable automatically downloading subtitles
 - `stevedore` - Run `pip install stevedore` (this will be automatically installed with subliminal)
 - `dateutil` - Run `pip install python-dateutil` (this will be automatically installed with subliminal)
+- `deluge-client` Run `pip install deluge-client` if you plan on using Deluge
 - `qtfaststart` Run `pip install qtfaststart` to enable moving moov atom
 
 General MP4 Configuration
