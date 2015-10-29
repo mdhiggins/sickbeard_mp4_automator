@@ -5,7 +5,7 @@ import sys
 from autoprocess import autoProcessTV, autoProcessMovie, autoProcessTVSR, sonarr
 from readSettings import ReadSettings
 from mkvtomp4 import MkvtoMp4
-from deluge import DelugeClient
+from deluge_client import DelugeRPCClient
 import logging
 from logging.config import fileConfig
 
@@ -29,23 +29,24 @@ log.debug("Path: %s." % path)
 log.debug("Torrent: %s." % torrent_name)
 log.debug("Hash: %s." % torrent_id)
 
-client = DelugeClient()
-client.connect(host=settings.deluge['host'], port=int(settings.deluge['port']), username=settings.deluge['user'], password=settings.deluge['pass'])
+client = DelugeRPCClient(host=settings.deluge['host'], port=int(settings.deluge['port']), username=settings.deluge['user'], password=settings.deluge['pass'])
+client.connect()
 
-torrent_files = client.core.get_torrent_status(torrent_id, ['files']).get()['files']
+if client.connected:
+    log.info("Successfully connected to Deluge")
+else:
+    log.error("Failed to connect to Deluge")
+    sys.exit()
+
+torrent_data = client.call('core.get_torrent_status', torrent_id, ['files', 'label'])
+torrent_files = torrent_data['files']
+category = torrent_data['label'].lower()
 
 files = []
 log.debug("List of files in torrent:")
 for contents in torrent_files:
     files.append(contents['path'])
     log.debug(contents['path'])
-
-try:
-    category = client.core.get_torrent_status(torrent_id, ['label']).get()['label'].lower()
-    log.debug("Category: %s" % category)
-except Exception as e:
-    log.exeption("Unable to connect to deluge to retrieve category.")
-    sys.exit()
 
 if category.lower() not in categories:
     log.error("No valid category detected.")
