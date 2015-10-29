@@ -37,7 +37,6 @@ Prerequesite PIP Package Installation Instructions
 - `setup_tools` - https://pypi.python.org/pypi/setuptools#installation-instructions
 - `requests` - Run `pip install requests`
 - `requests security package` - Run `pip install requests[security]`
-- `gevent` - Run `pip install gevent`
 - `babelfish` - Run `pip install babelfish`
 - `guessit` - Run `pip install guessit` to use manual.py
 - `subliminal`- Run `pip install subliminal` to enable automatically downloading subtitles
