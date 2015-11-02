@@ -95,7 +95,7 @@ if (category == categories[0]):
 # Send to CouchPotato
 elif (category == categories[1]):
     log.info("Passing %s directory to Couch Potato." % path)
-    autoProcessMovie.process(path, settings)
+    autoProcessMovie.process(path, settings, torrent_name)
 # Send to Sonarr
 elif (category == categories[2]):
     log.info("Passing %s directory to Sonarr." % path)
