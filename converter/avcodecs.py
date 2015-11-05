@@ -538,6 +538,13 @@ class FdkAacCodec(AudioCodec):
     codec_name = 'libfdk_aac'
     ffmpeg_codec_name = 'libfdk_aac'
 
+class FAacCodec(AudioCodec):
+    """
+    AAC audio codec.
+    """
+    codec_name = 'libfaac'
+    ffmpeg_codec_name = 'libfaac'
+
 
 class Ac3Codec(AudioCodec):
     """
@@ -840,7 +847,7 @@ class DVDSub(SubtitleCodec):
 
 audio_codec_list = [
     AudioNullCodec, AudioCopyCodec, VorbisCodec, AacCodec, Mp3Codec, Mp2Codec,
-    FdkAacCodec, Ac3Codec, DtsCodec, FlacCodec
+    FdkAacCodec, FAacCodec, Ac3Codec, DtsCodec, FlacCodec
 ]
 
 video_codec_list = [
