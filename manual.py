@@ -263,7 +263,8 @@ def main():
     parser.add_argument('-np', '--nopost', action="store_true", help="Overrides and disables the execution of additional post processing scripts")
     parser.add_argument('-pr', '--preserveRelative', action='store_true', help="Preserves relative directories when processing multiple files using the copy-to or move-to functionality")
     parser.add_argument('-cmp4', '--convertmp4', action='store_true', help="Overrides convert-mp4 setting in autoProcess.ini enabling the reprocessing of mp4 files")
-
+    parser.add_argument('-m', '--moveto', help="Override move_to value")
+    
     args = vars(parser.parse_args())
 
     #Setup the silent mode
@@ -301,6 +302,9 @@ def main():
     if (args['nopost']):
         settings.postprocess = False
         print("No post processing enabled")
+    if (args['moveto']):
+        settings.move_to = args['moveto']
+        print("Overriden move_to to " + args['moveto'])
 
     #Establish the path we will be working with
     if (args['input']):
