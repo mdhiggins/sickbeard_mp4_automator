@@ -16,8 +16,7 @@ class PostProcess(Plugin):
     def __init__(self):
         addEvent('renamer.after', self.callscript)
 
-
-    def callscript(self, message = None, group = None):
+    def callscript(self, message=None, group=None):
 
         log.info('MP4 Automator - Post processing script initialized')
         exec_me = os.path.join(path, "postCouchPotato.py")
@@ -35,7 +34,7 @@ class PostProcess(Plugin):
         for inputfile in moviefile:
             try:
                 log.info("Executing post processing on file %s with IMDB ID %s" % (inputfile, imdbid))
-                if os.name=='nt':
+                if os.name == 'nt':
                     process = subprocess.Popen([exec_me, imdbid, inputfile, original], shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 else:
                     process = subprocess.Popen([exec_me, imdbid, inputfile, original], shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env={})

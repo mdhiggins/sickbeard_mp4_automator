@@ -18,7 +18,8 @@ from tmdb_api import tmdb
 from extensions import tmdb_api_key
 from logging.config import fileConfig
 
-if sys.version[0]=="3": raw_input=input
+if sys.version[0] == "3":
+    raw_input = input
 
 fileConfig(os.path.join(os.path.dirname(sys.argv[0]), 'logging.ini'), defaults={'logfilename': os.path.join(os.path.dirname(sys.argv[0]), 'info.log').replace("\\", "/")})
 log = logging.getLogger("MANUAL")
@@ -30,6 +31,7 @@ logging.getLogger("qtfaststart").setLevel(logging.WARNING)
 log.info("Manual processor started.")
 
 settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini", logger=log)
+
 
 def mediatype():
     print("Select media type:")
@@ -50,7 +52,8 @@ def getValue(prompt, num=False):
     print(prompt + ":")
     value = raw_input("#: ").strip(' \"')
     # Remove escape characters in non-windows environments
-    if os.name != 'nt': value = value.replace('\\', '')
+    if os.name != 'nt':
+        value = value.replace('\\', '')
     try:
         value = value.decode(sys.stdout.encoding)
     except:
@@ -78,7 +81,8 @@ def getYesNo():
 def getinfo(fileName=None, silent=False, tag=True, tvdbid=None):
     tagdata = None
     # Try to guess the file is guessing is enabled
-    if fileName is not None: tagdata = guessInfo(fileName, tvdbid)
+    if fileName is not None:
+        tagdata = guessInfo(fileName, tvdbid)
 
     if silent is False:
         if tagdata:
@@ -117,7 +121,7 @@ def guessInfo(fileName, tvdbid=None):
     try:
         if guess['type'] == 'movie':
             return tmdbInfo(guess)
-        elif  guess['type'] == 'episode':
+        elif guess['type'] == 'episode':
             return tvdbInfo(guess, tvdbid)
         else:
             return None
@@ -130,10 +134,10 @@ def tmdbInfo(guessData):
     tmdb.configure(tmdb_api_key)
     movies = tmdb.Movies(guessData["title"].encode('ascii', errors='ignore'), limit=4)
     for movie in movies.iter_results():
-        #Identify the first movie in the collection that matches exactly the movie title
+        # Identify the first movie in the collection that matches exactly the movie title
         foundname = ''.join(e for e in movie["title"] if e.isalnum())
         origname = ''.join(e for e in guessData["title"] if e.isalnum())
-        #origname = origname.replace('&', 'and')
+        # origname = origname.replace('&', 'and')
         if foundname.lower() == origname.lower():
             print("Matched movie title as: %s %s" % (movie["title"].encode(sys.stdout.encoding, errors='ignore'), movie["release_date"].encode(sys.stdout.encoding, errors='ignore')))
             movie = tmdb.Movie(movie["id"])
@@ -167,9 +171,9 @@ def tvdbInfo(guessData, tvdbid=None):
 def processFile(inputfile, tagdata, relativePath=None):
     # Gather tagdata
     if tagdata is False:
-        return # This means the user has elected to skip the file
+        return  # This means the user has elected to skip the file
     elif tagdata is None:
-        tagmp4 = None # No tag data specified but convert the file anyway
+        tagmp4 = None  # No tag data specified but convert the file anyway
     elif tagdata[0] is 1:
         imdbid = tagdata[1]
         tagmp4 = tmdb_mp4(imdbid, language=settings.taglanguage, logger=log)
@@ -221,10 +225,10 @@ def processFile(inputfile, tagdata, relativePath=None):
 
 
 def walkDir(dir, silent=False, preserveRelative=False, tvdbid=None, tag=True):
-    for r,d,f in os.walk(dir):
+    for r, d, f in os.walk(dir):
         for file in f:
             filepath = os.path.join(r, file)
-            relative = os.path.split(os.path.relpath(filepath , dir))[0] if preserveRelative else None
+            relative = os.path.split(os.path.relpath(filepath, dir))[0] if preserveRelative else None
             try:
                 if MkvtoMp4(settings, logger=log).validSource(filepath):
                     try:
@@ -264,21 +268,21 @@ def main():
     parser.add_argument('-pr', '--preserveRelative', action='store_true', help="Preserves relative directories when processing multiple files using the copy-to or move-to functionality")
     parser.add_argument('-cmp4', '--convertmp4', action='store_true', help="Overrides convert-mp4 setting in autoProcess.ini enabling the reprocessing of mp4 files")
     parser.add_argument('-m', '--moveto', help="Override move_to value")
-    
+
     args = vars(parser.parse_args())
 
-    #Setup the silent mode
+    # Setup the silent mode
     silent = args['auto']
     tag = True
 
     print("%sbit Python." % (struct.calcsize("P") * 8))
 
-    #Settings overrides
+    # Settings overrides
     if(args['config']):
         if os.path.exists(args['config']):
             print('Using configuration file "%s"' % (args['config']))
             settings = ReadSettings(os.path.split(args['config'])[0], os.path.split(args['config'])[1], logger=log)
-        elif os.path.exists(os.path.join(os.path.dirname(sys.argv[0]),args['config'])):
+        elif os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), args['config'])):
             print('Using configuration file "%s"' % (args['config']))
             settings = ReadSettings(os.path.dirname(sys.argv[0]), args['config'], logger=log)
         else:
@@ -304,9 +308,9 @@ def main():
         print("No post processing enabled")
     if (args['moveto']):
         settings.move_to = args['moveto']
-        print("Overriden move_to to " + args['moveto'])
+        print("Overriden move-to to " + args['moveto'])
 
-    #Establish the path we will be working with
+    # Establish the path we will be working with
     if (args['input']):
         path = str(args['input']).decode(locale.getpreferredencoding())
         try:
