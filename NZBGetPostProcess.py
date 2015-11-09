@@ -34,7 +34,7 @@
 ### NZBGET POST-PROCESSING SCRIPT                                          ###
 ##############################################################################
 
-import os, sys, re, json
+import os, sys, re, json, traceback
 
 
 #Sanity checks for path string
@@ -56,6 +56,7 @@ try:
 except ImportError:
     pass
     print "[ERROR] Wrong path to sickbeard_mp4_automator: "+os.environ['NZBPO_MP4_FOLDER']
+    print "[ERROR] %s" % traceback.print_exc()
     sys.exit(0)
 
 # Setup Logging
