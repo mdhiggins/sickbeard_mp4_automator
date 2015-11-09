@@ -2,7 +2,7 @@ import sys
 import os
 import logging
 import json
-#from logging.config import fileConfig
+
 
 def processEpisode(dirName, settings, nzbGet=False, logger=None):
 
@@ -29,8 +29,8 @@ def processEpisode(dirName, settings, nzbGet=False, logger=None):
         log.error("%sPython executable path is %s" % (errorprefix, sys.executable))
         return False
 
-    host=settings.Sonarr['host']
-    port=settings.Sonarr['port']
+    host = settings.Sonarr['host']
+    port = settings.Sonarr['port']
     apikey = settings.Sonarr['apikey']
 
     if apikey == '':
@@ -38,16 +38,16 @@ def processEpisode(dirName, settings, nzbGet=False, logger=None):
         return False
 
     try:
-        ssl=int(settings.Sonarr['ssl'])
+        ssl = int(settings.Sonarr['ssl'])
     except:
-        ssl=0
+        ssl = 0
     if ssl:
-        protocol="https://"
+        protocol = "https://"
     else:
-        protocol="http://"
+        protocol = "http://"
 
-    url = protocol+host+":"+port+"/api/command"
-    payload = {'name': 'downloadedepisodesscan','path': dirName}
+    url = protocol + host + ":" + port + "/api/command"
+    payload = {'name': 'downloadedepisodesscan', 'path': dirName}
     headers = {'X-Api-Key': apikey}
 
     log.debug("Sonarr host: %s." % host)
@@ -64,5 +64,5 @@ def processEpisode(dirName, settings, nzbGet=False, logger=None):
         log.info("%sSonarr response: %s." % (infoprefix, rstate['state']))
         return True
     except:
-        log.exception("%sUpdate to Sonarr failed, check if Sonarr is running, autoProcess.ini for errors, or check install of python modules requests." % errorprefix)
+        log.exception("%sUpdate to Sonarr failed, check if Sonarr is running, autoProcess.ini settings and make sure your Sonarr settings are correct (apikey?), or check install of python modules requests." % errorprefix)
         return False
