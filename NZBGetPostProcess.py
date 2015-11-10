@@ -68,7 +68,7 @@ log = logging.getLogger("NZBGetPostProcess")
 # Determine if conversion will take place
 shouldConvert = (os.environ['NZBPO_SHOULDCONVERT'].lower() in ("yes", "true", "t", "1"))
 
-if 'NZBOP_SCRIPTDIR' os.environ and not os.environ['NZBOP_VERSION'][0:5] < '11.0':
+if 'NZBOP_SCRIPTDIR' in os.environ and not os.environ['NZBOP_VERSION'][0:5] < '11.0':
     log.info("Script triggered from NZBGet (11.0 or later).")
 
     path = os.environ['NZBPP_DIRECTORY']  # Path to NZB directory
