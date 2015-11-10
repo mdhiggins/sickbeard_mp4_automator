@@ -34,14 +34,17 @@
 ### NZBGET POST-PROCESSING SCRIPT                                          ###
 ##############################################################################
 
-import os, sys, re, json, traceback
+import os
+import sys
+import re
+import json
+import traceback
 
-
-#Sanity checks for path string
+# Sanity checks for path string
 MP4folder = os.environ['NZBPO_MP4_FOLDER'].strip()
-MP4folder = MP4folder.replace('"','')
-MP4folder = MP4folder.replace("'","")
-MP4folder = MP4folder.replace("\\","/")
+MP4folder = MP4folder.replace('"', '')
+MP4folder = MP4folder.replace("'", "")
+MP4folder = MP4folder.replace("\\", "/")
 if not(MP4folder.endswith("/")):
     MP4folder += "/"
 #DEBUG#print MP4folder+" the original is "+os.environ['NZBPO_MP4_FOLDER']
@@ -54,24 +57,23 @@ try:
     import logging
     from logging.config import fileConfig
 except ImportError:
-    pass
-    print "[ERROR] Wrong path to sickbeard_mp4_automator: "+os.environ['NZBPO_MP4_FOLDER']
-    print "[ERROR] %s" % traceback.print_exc()
+    print("[ERROR] Wrong path to sickbeard_mp4_automator: " + os.environ['NZBPO_MP4_FOLDER'])
+    print("[ERROR] %s" % traceback.print_exc())
     sys.exit(0)
 
 # Setup Logging
 fileConfig(os.path.join(MP4folder, 'logging.ini'), defaults={'logfilename': os.path.join(MP4folder, 'info.log')})
 log = logging.getLogger("NZBGetPostProcess")
 
-#Determine if conversion will take place
+# Determine if conversion will take place
 shouldConvert = (os.environ['NZBPO_SHOULDCONVERT'].lower() in ("yes", "true", "t", "1"))
 
-if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5] < '11.0':
+if 'NZBOP_SCRIPTDIR' os.environ and not os.environ['NZBOP_VERSION'][0:5] < '11.0':
     log.info("Script triggered from NZBGet (11.0 or later).")
 
-    path = os.environ['NZBPP_DIRECTORY'] # Path to NZB directory
-    nzb = os.environ['NZBPP_NZBFILENAME'] # Original NZB name
-    category = os.environ['NZBPP_CATEGORY'] # NZB Category to determine destination
+    path = os.environ['NZBPP_DIRECTORY']  # Path to NZB directory
+    nzb = os.environ['NZBPP_NZBFILENAME']  # Original NZB name
+    category = os.environ['NZBPP_CATEGORY']  # NZB Category to determine destination
     #DEBUG#print "Category is %s." % category
 
     couchcat = os.environ['NZBPO_CP_CAT'].lower()
@@ -90,10 +92,10 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
     # NZBGet argv: all passed as environment variables.
     clientAgent = "nzbget"
     # Exit codes used by NZBGet
-    POSTPROCESS_PARCHECK=92
-    POSTPROCESS_SUCCESS=93
-    POSTPROCESS_ERROR=94
-    POSTPROCESS_NONE=95
+    POSTPROCESS_PARCHECK = 92
+    POSTPROCESS_SUCCESS = 93
+    POSTPROCESS_ERROR = 94
+    POSTPROCESS_NONE = 95
 
     # Check nzbget.conf options
     status = 0
