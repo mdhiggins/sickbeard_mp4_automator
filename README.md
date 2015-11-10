@@ -318,6 +318,8 @@ optional arguments:
                         Specify theMovieDB ID for a movie
   -nm, --nomove         Overrides and disables the custom moving of file
                         options that come from output_dir and move-to
+  -m, --moveto          Override move-to value setting in autoProcess.ini
+                        changing the final destination of the file
   -nc, --nocopy         Overrides and disables the custom copying of file
                         options that come from output_dir and move-to
   -nt, --notag          Overrides and disables tagging when using the
