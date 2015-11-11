@@ -38,7 +38,7 @@ Prerequesite PIP Package Installation Instructions
 - `requests` - Run `pip install requests`
 - `requests security package` - Run `pip install requests[security]`
 - `babelfish` - Run `pip install babelfish`
-- `guessit` - Run `pip install guessit` to use manual.py
+- `guessit` - Run `pip install guessit<2` to use manual.py (requires guessit version 1, version 2 is a complete rewrite, still in alpha, and not backwards compatible)
 - `subliminal`- Run `pip install subliminal` to enable automatically downloading subtitles
 - `stevedore` - Run `pip install stevedore` (this will be automatically installed with subliminal)
 - `dateutil` - Run `pip install python-dateutil` (this will be automatically installed with subliminal)
