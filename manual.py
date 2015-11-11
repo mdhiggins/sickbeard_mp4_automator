@@ -312,7 +312,7 @@ def main():
 
     # Establish the path we will be working with
     if (args['input']):
-        path = str(args['input']).decode(locale.getpreferredencoding())
+        path = (str(args['input']))
         try:
             path = glob.glob(path)[0]
         except:
