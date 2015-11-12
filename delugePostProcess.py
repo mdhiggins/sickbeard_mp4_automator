@@ -24,6 +24,7 @@ if len(sys.argv) < 4:
 path = str(sys.argv[3])
 torrent_name = str(sys.argv[2])
 torrent_id = str(sys.argv[1])
+delete_dir = None
 
 log.debug("Path: %s." % path)
 log.debug("Torrent: %s." % torrent_name)

@@ -86,8 +86,8 @@ def process(dirName, settings, nzbName=None, status=0, logger=None):
         log.info("Opening URL: %s." % url)
 
         r = requests.get(url, params=params)
-        
-        rstate = r.json()        
+
+        rstate = r.json()
 
         log.info("CouchPotatoServer returned %s." % rstate)
         if rstate['success']:
@@ -109,7 +109,7 @@ def process(dirName, settings, nzbName=None, status=0, logger=None):
 
         try:
             urlObj = myOpener.openit(url)
-        except IOError, e:
+        except IOError:
             log.exception("Unable to open URL.")
             sys.exit(1)
 
@@ -141,7 +141,7 @@ def process(dirName, settings, nzbName=None, status=0, logger=None):
 
         try:
             urlObj = myOpener.openit(url)
-        except IOError, e:
+        except IOError:
             log.exception("Unable to open URL.")
             sys.exit(1)
 

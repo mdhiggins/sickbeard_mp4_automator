@@ -11,37 +11,37 @@ from babelfish import Language
 
 
 class MkvtoMp4:
-    def __init__(   self, settings=None,
-                    FFMPEG_PATH="FFMPEG.exe",
-                    FFPROBE_PATH="FFPROBE.exe",
-                    delete=True,
-                    output_extension='mp4',
-                    output_dir=None,
-                    relocate_moov=True,
-                    output_format = 'mp4',
-                    video_codec=['h264', 'x264'],
-                    video_bitrate=None,
-                    video_width=None,
-                    h264_level=None,
-                    audio_codec=['ac3'],
-                    audio_bitrate=256,
-                    iOS=False,
-                    iOSFirst=False,
-                    maxchannels=None,
-                    awl=None,
-                    swl=None,
-                    adl=None,
-                    sdl=None,
-                    scodec='mov_text',
-                    downloadsubs=True,
-                    processMP4=False,
-                    copyto=None,
-                    moveto=None,
-                    embedsubs=True,
-                    providers=['addic7ed', 'podnapisi', 'thesubdb', 'opensubtitles'],
-                    permissions=int("777", 8),
-                    pix_fmt=None,
-                    logger=None):
+    def __init__(self, settings=None,
+                FFMPEG_PATH="FFMPEG.exe",
+                FFPROBE_PATH="FFPROBE.exe",
+                delete=True,
+                output_extension='mp4',
+                output_dir=None,
+                relocate_moov=True,
+                output_format='mp4',
+                video_codec=['h264', 'x264'],
+                video_bitrate=None,
+                video_width=None,
+                h264_level=None,
+                audio_codec=['ac3'],
+                audio_bitrate=256,
+                iOS=False,
+                iOSFirst=False,
+                maxchannels=None,
+                awl=None,
+                swl=None,
+                adl=None,
+                sdl=None,
+                scodec='mov_text',
+                downloadsubs=True,
+                processMP4=False,
+                copyto=None,
+                moveto=None,
+                embedsubs=True,
+                providers=['addic7ed', 'podnapisi', 'thesubdb', 'opensubtitles'],
+                permissions=int("777", 8),
+                pix_fmt=None,
+                logger=None):
         # Setup Logging
         if logger:
             self.log = logger
@@ -49,79 +49,80 @@ class MkvtoMp4:
             self.log = logging.getLogger(__name__)
 
         # Settings
-        self.FFMPEG_PATH=FFMPEG_PATH
-        self.FFPROBE_PATH=FFPROBE_PATH
-        self.delete=delete
-        self.output_extension=output_extension
-        self.output_format=output_format
-        self.output_dir=output_dir
-        self.relocate_moov=relocate_moov
-        self.processMP4=processMP4
-        self.copyto=copyto
-        self.moveto=moveto
-        self.relocate_moov=relocate_moov
-        self.permissions=permissions
+        self.FFMPEG_PATH = FFMPEG_PATH
+        self.FFPROBE_PATH = FFPROBE_PATH
+        self.delete = delete
+        self.output_extension = output_extension
+        self.output_format = output_format
+        self.output_dir = output_dir
+        self.relocate_moov = relocate_moov
+        self.processMP4 = processMP4
+        self.copyto = copyto
+        self.moveto = moveto
+        self.relocate_moov = relocate_moov
+        self.permissions = permissions
         # Video settings
-        self.video_codec=video_codec
-        self.video_bitrate=video_bitrate
-        self.video_width=video_width
-        self.h264_level=h264_level
-        self.pix_fmt=pix_fmt
+        self.video_codec = video_codec
+        self.video_bitrate = video_bitrate
+        self.video_width = video_width
+        self.h264_level = h264_level
+        self.pix_fmt = pix_fmt
         # Audio settings
-        self.audio_codec=audio_codec
-        self.audio_bitrate=audio_bitrate
-        self.iOS=iOS
-        self.iOSFirst=iOSFirst
-        self.maxchannels=maxchannels
-        self.awl=awl
-        self.adl=adl
+        self.audio_codec = audio_codec
+        self.audio_bitrate = audio_bitrate
+        self.iOS = iOS
+        self.iOSFirst = iOSFirst
+        self.maxchannels = maxchannels
+        self.awl = awl
+        self.adl = adl
         # Subtitle settings
-        self.scodec=scodec
-        self.swl=swl
-        self.sdl=sdl
+        self.scodec = scodec
+        self.swl = swl
+        self.sdl = sdl
         self.downloadsubs = downloadsubs
         self.subproviders = providers
         self.embedsubs = embedsubs
 
         # Import settings
-        if settings is not None: self.importSettings(settings)
+        if settings is not None:
+            self.importSettings(settings)
         self.options = None
         self.deletesubs = set()
 
     def importSettings(self, settings):
-        self.FFMPEG_PATH=settings.ffmpeg
-        self.FFPROBE_PATH=settings.ffprobe
-        self.delete=settings.delete
-        self.output_extension=settings.output_extension
-        self.output_format=settings.output_format
-        self.output_dir=settings.output_dir
-        self.relocate_moov=settings.relocate_moov
-        self.processMP4=settings.processMP4
-        self.copyto=settings.copyto
-        self.moveto=settings.moveto
+        self.FFMPEG_PATH = settings.ffmpeg
+        self.FFPROBE_PATH = settings.ffprobe
+        self.delete = settings.delete
+        self.output_extension = settings.output_extension
+        self.output_format = settings.output_format
+        self.output_dir = settings.output_dir
+        self.relocate_moov = settings.relocate_moov
+        self.processMP4 = settings.processMP4
+        self.copyto = settings.copyto
+        self.moveto = settings.moveto
         self.relocate_moov = settings.relocate_moov
         self.permissions = settings.permissions
-        #Video settings
-        self.video_codec=settings.vcodec
-        self.video_bitrate=settings.vbitrate
-        self.video_width=settings.vwidth
-        self.h264_level=settings.h264_level
-        self.pix_fmt=settings.pix_fmt
-        #Audio settings
-        self.audio_codec=settings.acodec
-        self.audio_bitrate=settings.abitrate
-        self.iOS=settings.iOS
-        self.iOSFirst=settings.iOSFirst
-        self.maxchannels=settings.maxchannels
-        self.awl=settings.awl
-        self.adl=settings.adl
-        #Subtitle settings
-        self.scodec=settings.scodec
-        self.swl=settings.swl
-        self.sdl=settings.sdl
-        self.downloadsubs=settings.downloadsubs
-        self.subproviders=settings.subproviders
-        self.embedsubs=settings.embedsubs
+        # Video settings
+        self.video_codec = settings.vcodec
+        self.video_bitrate = settings.vbitrate
+        self.video_width = settings.vwidth
+        self.h264_level = settings.h264_level
+        self.pix_fmt = settings.pix_fmt
+        # Audio settings
+        self.audio_codec = settings.acodec
+        self.audio_bitrate = settings.abitrate
+        self.iOS = settings.iOS
+        self.iOSFirst = settings.iOSFirst
+        self.maxchannels = settings.maxchannels
+        self.awl = settings.awl
+        self.adl = settings.adl
+        # Subtitle settings
+        self.scodec = settings.scodec
+        self.swl = settings.swl
+        self.sdl = settings.sdl
+        self.downloadsubs = settings.downloadsubs
+        self.subproviders = settings.subproviders
+        self.embedsubs = settings.embedsubs
 
         self.log.debug("Settings imported.")
 
@@ -133,7 +134,8 @@ class MkvtoMp4:
         delete = self.delete
         deleted = False
         options = None
-        if not self.validSource(inputfile): return False
+        if not self.validSource(inputfile):
+            return False
 
         if self.needProcessing(inputfile):
             options = self.generateOptions(inputfile, original=original)
@@ -184,12 +186,12 @@ class MkvtoMp4:
 
         dim = self.getDimensions(outputfile)
 
-        return { 'input': inputfile,
-                 'output': outputfile,
-                 'options': options,
-                 'input_deleted': deleted,
-                 'x': dim['x'],
-                 'y': dim['y'] }
+        return {'input': inputfile,
+                'output': outputfile,
+                'options': options,
+                'input_deleted': deleted,
+                'x': dim['x'],
+                'y': dim['y']}
 
     # Determine if a source video file is in a valid format
     def validSource(self, inputfile):
@@ -219,13 +221,14 @@ class MkvtoMp4:
 
     # Get values for width and height to be passed to the tagging classes for proper HD tags
     def getDimensions(self, inputfile):
-        if self.validSource(inputfile): info = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH).probe(inputfile)
+        if self.validSource(inputfile):
+            info = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH).probe(inputfile)
 
         self.log.debug("Height: %s" % info.video.video_height)
         self.log.debug("Width: %s" % info.video.video_width)
 
-        return { 'y': info.video.video_height,
-                 'x': info.video.video_width }
+        return {'y': info.video.video_height,
+                'x': info.video.video_width}
 
     # Estimate the video bitrate
     def estimateVideoBitrate(self, info):
@@ -237,23 +240,23 @@ class MkvtoMp4:
         self.log.debug("Total bitrate is %s." % info.format.bitrate)
         self.log.debug("Total audio bitrate is %s." % audio_bitrate)
         self.log.debug("Estimated video bitrate is %s." % (total_bitrate - audio_bitrate))
-        return ((total_bitrate - audio_bitrate)/1000)*.95
+        return ((total_bitrate - audio_bitrate) / 1000) * .95
 
     # Generate a list of options to be passed to FFMPEG based on selected settings and the source file parameters and streams
     def generateOptions(self, inputfile, original=None):
-        #Get path information from the input file
+        # Get path information from the input file
         input_dir, filename, input_extension = self.parseFile(inputfile)
 
         info = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH).probe(inputfile)
 
-        #Video stream
+        # Video stream
         self.log.info("Reading video stream.")
         self.log.info("Video codec detected: %s." % info.video.codec)
 
         try:
             vbr = self.estimateVideoBitrate(info)
         except:
-            vbr = info.format.bitrate/1000
+            vbr = info.format.bitrate / 1000
 
         vcodec = 'copy' if info.video.codec.lower() in self.video_codec else self.video_codec[0]
         vbitrate = vbr
@@ -274,14 +277,14 @@ class MkvtoMp4:
         else:
             vwidth = None
 
-        if self.h264_level and info.video.video_level and info.video.video_level/10 > self.h264_level:
+        if self.h264_level and info.video.video_level and info.video.video_level / 10 > self.h264_level:
             self.log.info("Video level %0.1f." % info.video.video_level)
             vcodec = self.video_codec[0]
 
         self.log.debug("Video codec: %s." % vcodec)
         self.log.debug("Video bitrate: %s." % vbitrate)
 
-        #Audio streams
+        # Audio streams
         self.log.info("Reading audio streams.")
         audio_settings = {}
         l = 0
@@ -341,7 +344,7 @@ class MkvtoMp4:
                     if self.audio_bitrate is 0:
                         self.log.debug("Attempting to set bitrate based on source stream bitrate.")
                         try:
-                            abitrate = a.bitrate/1000
+                            abitrate = a.bitrate / 1000
                         except:
                             self.log.warning("Unable to determine audio bitrate from source stream %s, defaulting to 256 per channel." % a.index)
                             abitrate = a.audio_channels * 256
@@ -391,8 +394,8 @@ class MkvtoMp4:
                         'map': s.index,
                         'codec': self.scodec,
                         'language': s.metadata['language']
-                        #'forced': s.sub_forced,
-                        #'default': s.sub_default
+                        # 'forced': s.sub_forced,
+                        # 'default': s.sub_default
                     }})
                     self.log.info("Creating subtitle stream %s from source stream %s." % (l, s.index))
                     l = l + 1
@@ -452,7 +455,7 @@ class MkvtoMp4:
             import subliminal
             self.log.info("Attempting to download subtitles.")
 
-            #Attempt to set the dogpile cache
+            # Attempt to set the dogpile cache
             try:
                 subliminal.region.configure('dogpile.cache.memory')
             except:
@@ -464,14 +467,14 @@ class MkvtoMp4:
                 try:
                     subliminal.save_subtitles(video, subtitles[video])
                 except:
-                    #Support for older versions of subliminal
+                    # Support for older versions of subliminal
                     subliminal.save_subtitles(subtitles)
                     self.log.info("Please update to the latest version of subliminal.")
             except Exception as e:
                 self.log.info("Unable to download subtitles.", exc_info=True)
                 self.log.debug("Unable to download subtitles.", exc_info=True)
         # External subtitle import
-        if self.embedsubs: #Don't bother if we're not embeddeding any subtitles
+        if self.embedsubs:  # Don't bother if we're not embeddeding any subtitles
             src = 1  # FFMPEG input source number
             for dirName, subdirList, fileList in os.walk(input_dir):
                 for fname in fileList:
@@ -499,8 +502,7 @@ class MkvtoMp4:
                                     'source': src,
                                     'map': 0,
                                     'codec': 'mov_text',
-                                    'language': lang,
-                                    }})
+                                    'language': lang}})
 
                                 self.log.debug("Path: %s." % os.path.join(dirName, fname))
                                 self.log.debug("Source: %s." % src)
@@ -529,9 +531,11 @@ class MkvtoMp4:
         }
 
         # Add width option
-        if vwidth: options['video']['width'] = vwidth
+        if vwidth:
+            options['video']['width'] = vwidth
         # Add pix_fmt
-        if self.pix_fmt: options['video']['pix_fmt'] = self.pix_fmt
+        if self.pix_fmt:
+            options['video']['pix_fmt'] = self.pix_fmt
 
         self.options = options
         return options
@@ -573,7 +577,7 @@ class MkvtoMp4:
         self.log.info("%s created." % outputfile)
 
         try:
-            os.chmod(outputfile, self.permissions) # Set permissions of newly created file
+            os.chmod(outputfile, self.permissions)  # Set permissions of newly created file
         except:
             self.log.exception("Unable to set new file permissions.")
 
@@ -642,7 +646,10 @@ class MkvtoMp4:
                     try:
                         if os.path.exists(inputfile):
                             self.removeFile(inputfile, 0, 0)
-                        shutil.copy(inputfile.decode(sys.getfilesystemencoding()), d)
+                        try:
+                            shutil.copy(inputfile.decode(sys.getfilesystemencoding()), d)
+                        except:
+                            shutil.copy(inputfile, d)
                         self.log.info("%s copied to %s." % (inputfile, d))
                         files.append(os.path.join(d, os.path.split(inputfile)[1]))
                     except Exception as e:
