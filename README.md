@@ -49,8 +49,8 @@ General MP4 Configuration
 --------------
 1. Rename autoProcess.ini.sample to autoProcess.ini
 2. Set the MP4 variables to your desired output
-    - `ffmpeg` = Path to FFMPEG.exe
-    - `ffprobe` = Path to FFPROBE.exe
+    - `ffmpeg` = Full path to FFMPEG.exe
+    - `ffprobe` = Full path to FFPROBE.exe
     - `output_directory` = you may specify an alternate output directory. Leave blank to use the same directory that the source file is in. All processing will be done in this location. (Do not use for 'Automatically Add to iTunes' folder, iTunes will add prematurely, use `move_to`)
     - `copy_to` = you may specify additional directories for the final product to be replicated to. This will be the last step performed so the file copied will be fully processed. Directories may be separated with a `|` character
     - `move_to` = you may specify one final directory to move the completed file. (Use this option for the 'Automatically Add to iTunes' folder)
