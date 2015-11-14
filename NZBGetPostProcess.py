@@ -173,7 +173,7 @@ if 'NZBOP_SCRIPTDIR' in os.environ and not os.environ['NZBOP_VERSION'][0:5] < '1
                             output = converter.process(inputfile)
                             log.info("Successfully processed %s." % inputfile)
                         except:
-                            log.warning("File processing failed.")
+                            log.exception("File processing failed.")
         if converter.output_dir:
             path = converter.output_dir
     if (category.lower() == categories[0]):
