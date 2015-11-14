@@ -79,8 +79,8 @@ class tmdb_mp4:
                 if genre is None:
                     genre = g['name']
                     break
-                #else:
-                    #genre += ", " + g['name']
+                # else:
+                    # genre += ", " + g['name']
             video["\xa9gen"] = genre  # Genre(s)
         video["----:com.apple.iTunes:iTunMOVI"] = self.xml  # XML - see xmlTags method
         rating = self.rating()
@@ -133,7 +133,7 @@ class tmdb_mp4:
             self.HD = [0]
 
     def xmlTags(self):
-        #constants
+        # constants
         header = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\"><plist version=\"1.0\"><dict>\n"
         castheader = "<key>cast</key><array>\n"
         writerheader = "<key>screenwriters</key><array>\n"
@@ -174,7 +174,7 @@ class tmdb_mp4:
         output.write(footer)
         return output.getvalue()
         output.close()
-    #end xmlTags
+    # end xmlTags
 
     def getArtwork(self, mp4Path, filename='cover'):
         # Check for local artwork in the same directory as the mp4
@@ -187,18 +187,16 @@ class tmdb_mp4:
                 poster = path
                 self.log.info("Local artwork detected, using %s." % path)
                 break
-        #Pulls down all the poster metadata for the correct season and sorts them into the Poster object
+        # Pulls down all the poster metadata for the correct season and sorts them into the Poster object
         if poster is None:
             try:
-                poster = urllib.urlretrieve(self.movie.get_poster("l"), os.path.join(tempfile.gettempdir(),"poster.jpg"))[0]
+                poster = urllib.urlretrieve(self.movie.get_poster("l"), os.path.join(tempfile.gettempdir(), "poster.jpg"))[0]
             except:
                 try:
-                    poster = urllib.request.urlretrieve(self.movie.get_poster("l"), os.path.join(tempfile.gettempdir(),"poster.jpg"))[0]
+                    poster = urllib.request.urlretrieve(self.movie.get_poster("l"), os.path.join(tempfile.gettempdir(), "poster.jpg"))[0]
                 except:
                     poster = None
         return poster
-    #end artwork
-#end tmdb_mp4
 
 
 def main():

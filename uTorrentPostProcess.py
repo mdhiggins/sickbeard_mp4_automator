@@ -13,7 +13,8 @@ log = logging.getLogger("uTorrentPostProcess")
 
 log.info("uTorrent post processing started.")
 
-#Args: %L %T %D %K %F %I Label, Tracker, Directory, single|multi, NameofFile(if single), InfoHash
+# Args: %L %T %D %K %F %I Label, Tracker, Directory, single|multi, NameofFile(if single), InfoHash
+
 
 def _authToken(session=None, host=None, username=None, password=None):
     auth = None
@@ -25,13 +26,14 @@ def _authToken(session=None, host=None, username=None, password=None):
     else:
         log.error("Authentication Failed - Status Code " + response.status_code + ".")
 
-    return auth,session
+    return auth, session
+
 
 def _sendRequest(session, host='http://localhost:8080/', username=None, password=None, params=None, files=None, fnct=None):
     try:
         response = session.post(host + "gui/", auth=(username, password), params=params, files=files, timeout=30)
     except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError), e:
-        log.exception("Problem sending command " + fnct +  " - " + str(e) + ".")
+        log.exception("Problem sending command " + fnct + " - " + str(e) + ".")
         return False
 
     if response.status_code == 200:
@@ -92,7 +94,7 @@ delete_dir = False
 if web_ui:
     session = requests.Session()
     if session:
-        auth,session = _authToken(session, settings.uTorrentHost, settings.uTorrentUsername, settings.uTorrentPassword)
+        auth, session = _authToken(session, settings.uTorrentHost, settings.uTorrentUsername, settings.uTorrentPassword)
         if auth and settings.uTorrentActionBefore:
             params = {'token': auth, 'action': settings.uTorrentActionBefore, 'hash': torrent_hash}
             _sendRequest(session, settings.uTorrentHost, settings.uTorrentUsername, settings.uTorrentPassword, params, None, "Before Function")
