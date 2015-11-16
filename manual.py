@@ -369,7 +369,10 @@ def main():
             tagdata = getinfo(path, silent=silent)
         processFile(path, tagdata)
     else:
-        print("File %s does not exist" % (path))
+        try:
+            print("File %s is not in the correct format" % (path))
+        except:
+            print("File is not in the correct format")
 
 
 if __name__ == '__main__':
