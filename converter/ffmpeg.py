@@ -207,7 +207,6 @@ class MediaStreamInfo(object):
             if key == 'disposition:default':
                 self.sub_default = self.parse_int(val)
 
-
     def __repr__(self):
         d = ''
         metadata_str = ['%s=%s' % (key, value) for key, value
@@ -291,8 +290,7 @@ class MediaInfo(object):
         First video stream, or None if there are no video streams.
         """
         for s in self.streams:
-            if s.type == 'video' and (self.posters_as_video
-                                      or not s.attached_pic):
+            if s.type == 'video' and (self.posters_as_video or not s.attached_pic):
                 return s
         return None
 
@@ -368,6 +366,13 @@ class FFMpeg(object):
 
     @staticmethod
     def _spawn(cmds):
+        clean_cmds = []
+        try:
+            for cmd in cmds:
+                clean_cmds.append(str(cmd))
+            cmds = clean_cmds
+        except:
+            logger.exception("There was an error making all command line parameters a string")
         startupinfo = None
         if os.name == 'nt':
             import subprocess
@@ -488,7 +493,7 @@ class FFMpeg(object):
                 signal.alarm(0)
 
             if not ret:
-                #For small or very fast jobs, ffmpeg may never output a '\r'.  When EOF is reached, yield if we haven't yet.
+                # For small or very fast jobs, ffmpeg may never output a '\r'.  When EOF is reached, yield if we haven't yet.
                 if not yielded:
                     yielded = True
                     yield 10

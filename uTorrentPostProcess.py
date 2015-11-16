@@ -13,7 +13,8 @@ log = logging.getLogger("uTorrentPostProcess")
 
 log.info("uTorrent post processing started.")
 
-#Args: %L %T %D %K %F %I Label, Tracker, Directory, single|multi, NameofFile(if single), InfoHash
+# Args: %L %T %D %K %F %I Label, Tracker, Directory, single|multi, NameofFile(if single), InfoHash
+
 
 def _authToken(session=None, host=None, username=None, password=None):
     auth = None
@@ -25,13 +26,14 @@ def _authToken(session=None, host=None, username=None, password=None):
     else:
         log.error("Authentication Failed - Status Code " + response.status_code + ".")
 
-    return auth,session
+    return auth, session
+
 
 def _sendRequest(session, host='http://localhost:8080/', username=None, password=None, params=None, files=None, fnct=None):
     try:
         response = session.post(host + "gui/", auth=(username, password), params=params, files=files, timeout=30)
     except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError), e:
-        log.exception("Problem sending command " + fnct +  " - " + str(e) + ".")
+        log.exception("Problem sending command " + fnct + " - " + str(e) + ".")
         return False
 
     if response.status_code == 200:
@@ -43,7 +45,7 @@ def _sendRequest(session, host='http://localhost:8080/', username=None, password
 
 if len(sys.argv) < 6:
     log.error("Not enough command line parameters present, are you launching this from uTorrent?")
-    log.error("#Args: %L %T %D %K %F %I Label, Tracker, Directory, single|multi, NameofFile(if single), InfoHash")
+    log.error("#Args: %L %T %D %K %F %I %N Label, Tracker, Directory, single|multi, NameofFile(if single), InfoHash, Name")
     log.error("Length was %s" % str(len(sys.argv)))
     log.error(str(sys.argv[1:]))
     sys.exit()
@@ -53,11 +55,16 @@ path = str(sys.argv[3])
 label = sys.argv[1].lower()
 categories = [settings.uTorrent['cp'], settings.uTorrent['sb'], settings.uTorrent['sonarr'], settings.uTorrent['sr'], settings.uTorrent['bypass']]
 torrent_hash = sys.argv[6]
+try:
+    name = sys.argv[7]
+except:
+    name = sys.argv[6]
 
 log.debug("Path: %s." % path)
 log.debug("Label: %s." % label)
 log.debug("Categories: %s." % categories)
 log.debug("Torrent hash: %s." % torrent_hash)
+log.debug("Torrent name: %s." % name)
 
 if label not in categories:
     log.error("No valid label detected.")
@@ -87,7 +94,7 @@ delete_dir = False
 if web_ui:
     session = requests.Session()
     if session:
-        auth,session = _authToken(session, settings.uTorrentHost, settings.uTorrentUsername, settings.uTorrentPassword)
+        auth, session = _authToken(session, settings.uTorrentHost, settings.uTorrentUsername, settings.uTorrentPassword)
         if auth and settings.uTorrentActionBefore:
             params = {'token': auth, 'action': settings.uTorrentActionBefore, 'hash': torrent_hash}
             _sendRequest(session, settings.uTorrentHost, settings.uTorrentUsername, settings.uTorrentPassword, params, None, "Before Function")
@@ -98,10 +105,10 @@ if settings.uTorrent['convert']:
     log.info("Performing conversion")
     settings.delete = False
     if not settings.output_dir:
-        settings.output_dir = os.path.join(path, torrent_hash)
+        settings.output_dir = os.path.join(path, name)
         if not os.path.exists(settings.output_dir):
             os.mkdir(settings.output_dir)
-        delete_dir = os.path.join(path, torrent_hash)
+        delete_dir = os.path.join(path, name)
 
     converter = MkvtoMp4(settings)
 
@@ -111,9 +118,6 @@ if settings.uTorrent['convert']:
             log.info("Processing file %s." % inputfile)
             try:
                 output = converter.process(inputfile, reportProgress=True)
-                if (label == categories[2] and settings.relocate_moov):
-                    log.debug("Performing QTFS move because video was converted and Sonarr has no post processing.")
-                    converter.QTFS(output['output'])
             except:
                 log.exception("Error converting file %s." % inputfile)
         else:
@@ -139,7 +143,7 @@ if settings.uTorrent['convert']:
 
     path = converter.output_dir
 else:
-    newpath = os.path.join(path, torrent_hash)
+    newpath = os.path.join(path, name)
     if not os.path.exists(newpath):
         os.mkdir(newpath)
         log.debug("Creating temporary directory %s" % newpath)

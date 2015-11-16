@@ -5,7 +5,7 @@ import sys
 from autoprocess import autoProcessTV, autoProcessMovie, autoProcessTVSR, sonarr
 from readSettings import ReadSettings
 from mkvtomp4 import MkvtoMp4
-from deluge import DelugeClient
+from deluge_client import DelugeRPCClient
 import logging
 from logging.config import fileConfig
 
@@ -24,28 +24,30 @@ if len(sys.argv) < 4:
 path = str(sys.argv[3])
 torrent_name = str(sys.argv[2])
 torrent_id = str(sys.argv[1])
+delete_dir = None
 
 log.debug("Path: %s." % path)
 log.debug("Torrent: %s." % torrent_name)
 log.debug("Hash: %s." % torrent_id)
 
-client = DelugeClient()
-client.connect(host=settings.deluge['host'], port=int(settings.deluge['port']), username=settings.deluge['user'], password=settings.deluge['pass'])
+client = DelugeRPCClient(host=settings.deluge['host'], port=int(settings.deluge['port']), username=settings.deluge['user'], password=settings.deluge['pass'])
+client.connect()
 
-torrent_files = client.core.get_torrent_status(torrent_id, ['files']).get()['files']
+if client.connected:
+    log.info("Successfully connected to Deluge")
+else:
+    log.error("Failed to connect to Deluge")
+    sys.exit()
+
+torrent_data = client.call('core.get_torrent_status', torrent_id, ['files', 'label'])
+torrent_files = torrent_data['files']
+category = torrent_data['label'].lower()
 
 files = []
 log.debug("List of files in torrent:")
 for contents in torrent_files:
     files.append(contents['path'])
     log.debug(contents['path'])
-
-try:
-    category = client.core.get_torrent_status(torrent_id, ['label']).get()['label'].lower()
-    log.debug("Category: %s" % category)
-except Exception as e:
-    log.exeption("Unable to connect to deluge to retrieve category.")
-    sys.exit()
 
 if category.lower() not in categories:
     log.error("No valid category detected.")
@@ -59,7 +61,7 @@ if settings.deluge['convert']:
     # Perform conversion.
     settings.delete = False
     if not settings.output_dir:
-        settings.output_dir = os.path.join(path, "temp_dir")
+        settings.output_dir = os.path.join(path, torrent_name + "-convert")
         if not os.path.exists(settings.output_dir):
             os.mkdir(settings.output_dir)
         delete_dir = settings.output_dir
@@ -72,15 +74,12 @@ if settings.deluge['convert']:
             log.info("Converting file %s at location %s." % (inputfile, settings.output_dir))
             try:
                 output = converter.process(inputfile)
-                if (category == categories[2] and settings.relocate_moov):
-                    log.debug("Performing QTFS move because video was converted and Sonarr has no post processing.")
-                    converter.QTFS(output['output'])
             except:
                 log.exception("Error converting file %s." % inputfile)
 
     path = converter.output_dir
 else:
-    newpath = os.path.join(path, "temp_dir")
+    newpath = os.path.join(path, torrent_name + "-convert")
     if not os.path.exists(newpath):
         os.mkdir(newpath)
     for filename in files:
@@ -97,7 +96,7 @@ if (category == categories[0]):
 # Send to CouchPotato
 elif (category == categories[1]):
     log.info("Passing %s directory to Couch Potato." % path)
-    autoProcessMovie.process(path, settings)
+    autoProcessMovie.process(path, settings, torrent_name)
 # Send to Sonarr
 elif (category == categories[2]):
     log.info("Passing %s directory to Sonarr." % path)

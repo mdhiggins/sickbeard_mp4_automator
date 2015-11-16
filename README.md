@@ -19,7 +19,8 @@ Downloaders Supported:
 
 Requirements
 --------------
-- Python 2.7 *(Does NOT work with Python 3)*
+- Python 2.7
+- Python 3 beta support has arrived. Feel free to begin testing and report bugs
 - FFMPEG and FFPROBE binaries
 - Python setup_tools
 - See PIP packages for additional requirements
@@ -33,20 +34,23 @@ Default Settings
 Prerequesite PIP Package Installation Instructions
 --------------
 - `VC for Python 2.7` (Windows Users Only) - Download and install - http://www.microsoft.com/en-us/download/details.aspx?id=44266
-- `Setup_tools` - https://pypi.python.org/pypi/setuptools#installation-instructions
-- `Requests` - Run `pip install requests`
-- `Gevent` - Run `pip install gevent`
-- `guessit` - Run `pip install guessit` to use manual.py
+- `setup_tools` - https://pypi.python.org/pypi/setuptools#installation-instructions
+- `requests` - Run `pip install requests`
+- `requests security package` - Run `pip install requests[security]`
+- `babelfish` - Run `pip install babelfish`
+- `guessit` - Run `pip install guessit<2` to use manual.py (requires guessit version 1, version 2 is a complete rewrite, still in alpha, and not backwards compatible)
 - `subliminal`- Run `pip install subliminal` to enable automatically downloading subtitles
 - `stevedore` - Run `pip install stevedore` (this will be automatically installed with subliminal)
 - `dateutil` - Run `pip install python-dateutil` (this will be automatically installed with subliminal)
+- `deluge-client` Run `pip install deluge-client` if you plan on using Deluge
+- `qtfaststart` Run `pip install qtfaststart` to enable moving moov atom
 
 General MP4 Configuration
 --------------
 1. Rename autoProcess.ini.sample to autoProcess.ini
 2. Set the MP4 variables to your desired output
-    - `ffmpeg` = Path to FFMPEG.exe
-    - `ffprobe` = Path to FFPROBE.exe
+    - `ffmpeg` = Full path to FFMPEG.exe
+    - `ffprobe` = Full path to FFPROBE.exe
     - `output_directory` = you may specify an alternate output directory. Leave blank to use the same directory that the source file is in. All processing will be done in this location. (Do not use for 'Automatically Add to iTunes' folder, iTunes will add prematurely, use `move_to`)
     - `copy_to` = you may specify additional directories for the final product to be replicated to. This will be the last step performed so the file copied will be fully processed. Directories may be separated with a `|` character
     - `move_to` = you may specify one final directory to move the completed file. (Use this option for the 'Automatically Add to iTunes' folder)
@@ -108,18 +112,29 @@ SickRage Setup
     - `user` - Username
     - `password` - Password
 
-Sonarr Setup (Tagging Not Supported)
+Sonarr Setup
 --------------
-1. ** YOU MUST INSTALL THE PYTHON REQUESTS LIBRARY ** Run "pip install requests" or "easy_install requests"
-2. Set your Sonarr settings in the autoProcess.ini file
+1. Set your Sonarr settings in the autoProcess.ini file
     - `host` = Sonarr host address (localhost)    #Settings/General/Start-Up
     - `port` = Sonarr port (8989)                 #Settings/General/Start-Up
     - `ssl` = 1 if enabled, 0 if not              #Settings/General/Security
     - `apikey` = Sonarr API Key (required)        #Settings/General/Security
     - `web_root` = URL base empty or e.g. /tv     #Settings/General/Start-Up
 2. Browse to the Settings>Download Client tab and enable advanced settings [Show].
-3. Set the {Drone Factory Interval} to 0 to disable it. (NZBGet will trigger a specific path re-scan, allowing the mp4 conversion to be completed before Sonarr starts moving stuff around).
-    - Sonarr does not currently support post processing scripts so tagging is not currently supported.
+3. Set the Drone Factory Interval' to 0 to disable it, and disable 'Completed Download Handling' in Sonarr settings. The script will trigger a specific path re-scan, allowing the mp4 conversion to be completed before Sonarr starts moving stuff around. This step is optional if you do not desire any processing between the downloading by whichever downloader you choose (NZB or Torrent), but is required if you wish to convert the file to an MP4 before it is handed back to Sonarr.
+4. Setup the postSonarr.py script via Settings > Connect > Connections > + (Add)
+    - `name` - postSonarr
+    - `On Grab` - No
+    - `On Download` - Yes
+    - `On Upgrade` - Yes
+    - `On Rename` - No
+    - Filter Series Tags - optional
+    - Windows Users
+      - `Path` - Full path to your python executable
+      - `Arguments` - Full path to `postSonarr.py`
+    - Nonwindows Users
+      - `Path` - Full path to `postSonarr.py`
+      - `Arguments` - Leave blank
 
 Couch Potato Setup
 --------------
@@ -197,8 +212,7 @@ uTorrent Setup
 2. Launch uTorrent
 3. Set `Run Program` option
     - Go to `Options > Preferences > Advanced > Run Program`
-    - Point to `uTorrentPostProcess.py` with command line parameters: `%L %T %D %K %F %I` in that exact order.
-    - Reference picture: http://i.imgur.com/7eADkCI.png
+    - Point to `uTorrentPostProcess.py` with command line parameters: `%L %T %D %K %F %I %N` in that exact order.
 3. Set your uTorrent settings in autoProcess.ini
     - `convert` - `True`/`False`. Allows for conversion of files before passing back to the respective download manager.
     - `sickbeard-label` - default `sickbeard` - uTorrent label that should be assigned to torrents that will be sent to Sickbeard for additional processing when download is complete.
@@ -261,12 +275,13 @@ Send a Plex notification as the final step when all processing is completed. Thi
 Post Process Scripts
 --------------
 The script suite supports the ability to write your own post processing scripts that will be executed when all the final processing has been completed. All scripts in the `./post_process` directory will be executed if the `post-process` option is set to `True` in `autoProcess.ini`. Scripts within the `./post_process/resources` directory are protected from execution if additional script resources are required.
+
 The following environmental variables are available for usage:
-    - `MH_FILES` - JSON Array of all files created by the post processing script. The first file in the array is the primary file, and any additional files are copies created by the copy-to option
-    - `MH_TVDBID` - TVDB ID if file processed was a TV show and this information is available
-    - `MH_SEASON` - Season number if file processed was a TV show
-    - `MH_EPISODE` - Episode number if files processed was a TV show
-    - `MH_IMDBID` - IMDB ID if file processed was a movie
+- `MH_FILES` - JSON Array of all files created by the post processing script. The first file in the array is the primary file, and any additional files are copies created by the copy-to option
+- `MH_TVDBID` - TVDB ID if file processed was a TV show and this information is available
+- `MH_SEASON` - Season number if file processed was a TV show
+- `MH_EPISODE` - Episode number if files processed was a TV show
+- `MH_IMDBID` - IMDB ID if file processed was a movie
 A sample script as well as an OS X 'Add to iTunes' script (`iTunes.py`) have been provided.
 *Special thanks to jzucker2 for providing much of the initial code for this feature*
 
@@ -303,6 +318,8 @@ optional arguments:
                         Specify theMovieDB ID for a movie
   -nm, --nomove         Overrides and disables the custom moving of file
                         options that come from output_dir and move-to
+  -m, --moveto          Override move-to value setting in autoProcess.ini
+                        changing the final destination of the file
   -nc, --nocopy         Overrides and disables the custom copying of file
                         options that come from output_dir and move-to
   -nt, --notag          Overrides and disables tagging when using the

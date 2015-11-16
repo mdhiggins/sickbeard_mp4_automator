@@ -5,6 +5,7 @@ import shutil
 import time
 import json
 import logging
+import requests
 
 
 class AuthURLOpener(urllib.FancyURLopener):
@@ -47,6 +48,9 @@ def process(dirName, settings, nzbName=None, status=0, logger=None):
     protocol = settings.CP['protocol']
     web_root = settings.CP['web_root']
 
+    if web_root != "" and not web_root.startswith("/"):
+        web_root = "/" + web_root
+
     myOpener = AuthURLOpener(username, password)
     nzbName1 = str(nzbName)
 
@@ -73,21 +77,20 @@ def process(dirName, settings, nzbName=None, status=0, logger=None):
 
         url = protocol + host + ":" + port + web_root + "/api/" + apikey + "/" + command
 
+        params = {'media_folder': dirName, 'downloader': 'manual'}
+
         log.info("Waiting for %s seconds to allow CPS to process newly extracted files." % str(delay))
 
         time.sleep(delay)
 
         log.info("Opening URL: %s." % url)
 
-        try:
-            urlObj = myOpener.openit(url)
-        except IOError, e:
-            log.exception("Unable to open URL.")
-            sys.exit(1)
+        r = requests.get(url, params=params)
 
-        result = json.load(urlObj)
-        log.info("CouchPotatoServer returned %s." % result)
-        if result['success']:
+        rstate = r.json()
+
+        log.info("CouchPotatoServer returned %s." % rstate)
+        if rstate['success']:
             log.info("%s started on CouchPotatoServer for %s." % (command, nzbName1))
         else:
             log.error("%s has NOT started on CouchPotatoServer for %s." % (command, nzbName1))
@@ -106,7 +109,7 @@ def process(dirName, settings, nzbName=None, status=0, logger=None):
 
         try:
             urlObj = myOpener.openit(url)
-        except IOError, e:
+        except IOError:
             log.exception("Unable to open URL.")
             sys.exit(1)
 
@@ -115,7 +118,7 @@ def process(dirName, settings, nzbName=None, status=0, logger=None):
         movieid = [item["id"] for item in result["movies"]]
         library = [item["library"] for item in result["movies"]]
         identifier = [item["identifier"] for item in library]
-        
+
         log.debug("Movie ID: %s." % movieid)
         log.debug("Library: %s." % library)
         log.debug("Identifier: %s" % identifier)
@@ -138,7 +141,7 @@ def process(dirName, settings, nzbName=None, status=0, logger=None):
 
         try:
             urlObj = myOpener.openit(url)
-        except IOError, e:
+        except IOError:
             log.exception("Unable to open URL.")
             sys.exit(1)
 
