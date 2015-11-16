@@ -59,8 +59,8 @@ class AudioCodec(BaseCodec):
         'bitrate': int,
         'samplerate': int,
         'source': int,
-        'path' : str,
-        'filter' : str,
+        'path': str,
+        'filter': str,
         'map': int
     }
 
@@ -114,7 +114,7 @@ class AudioCodec(BaseCodec):
         if 'language' in safe:
                 lang = str(safe['language'])
         else:
-            lang = 'und' # Never leave blank if not specified, always set to und for undefined
+            lang = 'und'  # Never leave blank if not specified, always set to und for undefined
         optlist.extend(['-metadata:s:a:' + stream, "language=" + lang])
 
         optlist.extend(self._codec_specific_produce_ffmpeg_list(safe))
@@ -140,7 +140,7 @@ class SubtitleCodec(BaseCodec):
         'default': int,
         'map': int,
         'source': int,
-        'path' : str
+        'path': str
     }
 
     def parse_options(self, opt, stream=0):
@@ -184,7 +184,7 @@ class SubtitleCodec(BaseCodec):
         if 'language' in safe:
                 lang = str(safe['language'])
         else:
-            lang = 'und' # Never leave blank if not specified, always set to und for undefined
+            lang = 'und'  # Never leave blank if not specified, always set to und for undefined
         optlist.extend(['-metadata:s:s:' + stream, "language=" + lang])
 
         optlist.extend(self._codec_specific_produce_ffmpeg_list(safe))
@@ -379,7 +379,7 @@ class VideoCodec(BaseCodec):
         if optlist.count('-vf') > 1:
             vf = []
             while optlist.count('-vf') > 0:
-                vf.append(optlist.pop(optlist.index('-vf')+1))
+                vf.append(optlist.pop(optlist.index('-vf') + 1))
                 del optlist[optlist.index('-vf')]
 
             vfstring = ""
@@ -485,6 +485,7 @@ class SubtitleCopyCodec(BaseCodec):
                        'source': str}
 
     optlist = []
+
     def parse_options(self, opt, stream=0):
         safe = self.safe_options(opt)
         stream = str(stream)
@@ -496,6 +497,7 @@ class SubtitleCopyCodec(BaseCodec):
             optlist.extend(['-map', s + ':' + str(safe['map'])])
         optlist.extend(['-c:s:' + stream, copy])
         return optlist
+
 
 # Audio Codecs
 class VorbisCodec(AudioCodec):
@@ -537,6 +539,7 @@ class FdkAacCodec(AudioCodec):
     """
     codec_name = 'libfdk_aac'
     ffmpeg_codec_name = 'libfdk_aac'
+
 
 class FAacCodec(AudioCodec):
     """
@@ -629,10 +632,10 @@ class H264Codec(VideoCodec):
         # default:23, recommended: 18-28
         # http://mewiki.project357.com/wiki/X264_Settings#profile
         'profile': str,  # default: not-set, for valid values see above link
-        'level': float, # default: not-set, values range from 3.0 to 4.2
+        'level': float,  # default: not-set, values range from 3.0 to 4.2
         'tune': str,  # default: not-set, for valid values see above link
-        'wscale': int, # special handlers for the even number requirements of h264
-        'hscale': int # special handlers for the even number requirements of h264
+        'wscale': int,  # special handlers for the even number requirements of h264
+        'hscale': int  # special handlers for the even number requirements of h264
     })
 
     def parse_options(self, opt, stream=0):
@@ -646,6 +649,10 @@ class H264Codec(VideoCodec):
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         optlist = []
+        if 'level' in safe:
+            if safe['level'] < 3.0 or safe['level'] > 4.2:
+                del safe['level']
+
         if 'preset' in safe:
             optlist.extend(['-preset', safe['preset']])
         if 'quality' in safe:
@@ -680,10 +687,10 @@ class H265Codec(VideoCodec):
         # default:23, recommended: 18-28
         # http://mewiki.project357.com/wiki/X264_Settings#profile
         'profile': str,  # default: not-set, for valid values see above link
-        'level': float, # default: not-set, values range from 3.0 to 4.2
+        'level': float,  # default: not-set, values range from 3.0 to 4.2
         'tune': str,  # default: not-set, for valid values see above link
-        'wscale': int, # special handlers for the even number requirements of h264
-        'hscale': int # special handlers for the even number requirements of h264
+        'wscale': int,  # special handlers for the even number requirements of h264
+        'hscale': int  # special handlers for the even number requirements of h264
     })
 
     def parse_options(self, opt, stream=0):
@@ -697,6 +704,7 @@ class H265Codec(VideoCodec):
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         optlist = []
+
         if 'preset' in safe:
             optlist.extend(['-preset', safe['preset']])
         if 'quality' in safe:
@@ -812,6 +820,7 @@ class WebVTTCodec(SubtitleCodec):
     """
     codec_name = 'webvtt'
     ffmpeg_codec_name = 'webvtt'
+
 
 class SSA(SubtitleCodec):
     """
