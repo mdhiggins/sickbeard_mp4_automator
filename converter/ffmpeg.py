@@ -214,8 +214,7 @@ class MediaStreamInfo(object):
         metadata_str = ', '.join(metadata_str)
 
         if self.type == 'audio':
-            d = 'type=%s, codec=%s, channels=%d, rate=%.0f' % (self.type,
-                self.codec, self.audio_channels, self.audio_samplerate)
+            d = 'type=%s, codec=%s, channels=%d, rate=%.0f' % (self.type, self.codec, self.audio_channels, self.audio_samplerate)
         elif self.type == 'video':
             d = 'type=%s, codec=%s, width=%d, height=%d, fps=%.1f' % (
                 self.type, self.codec, self.video_width, self.video_height,
