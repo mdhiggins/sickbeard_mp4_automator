@@ -202,26 +202,27 @@ def processFile(inputfile, tagdata, relativePath=None):
     if MkvtoMp4(settings, logger=log).validSource(inputfile):
         converter = MkvtoMp4(settings, logger=log)
         output = converter.process(inputfile, True)
-        if tagmp4 is not None:
-            try:
-                tagmp4.setHD(output['x'], output['y'])
-                tagmp4.writeTags(output['output'], settings.artwork, settings.thumbnail)
-            except Exception as e:
-                print("There was an error tagging the file")
-                print(e)
-        if settings.relocate_moov:
-            converter.QTFS(output['output'])
-        output_files = converter.replicate(output['output'], relativePath=relativePath)
-        if settings.postprocess:
-            post_processor = PostProcessor(output_files)
-            if tagdata:
-                if tagdata[0] is 1:
-                    post_processor.setMovie(tagdata[1])
-                elif tagdata[0] is 2:
-                    post_processor.setMovie(tagdata[1])
-                elif tagdata[0] is 3:
-                    post_processor.setTV(tagdata[1], tagdata[2], tagdata[3])
-            post_processor.run_scripts()
+        if output:
+            if tagmp4 is not None:
+                try:
+                    tagmp4.setHD(output['x'], output['y'])
+                    tagmp4.writeTags(output['output'], settings.artwork, settings.thumbnail)
+                except Exception as e:
+                    print("There was an error tagging the file")
+                    print(e)
+            if settings.relocate_moov:
+                converter.QTFS(output['output'])
+            output_files = converter.replicate(output['output'], relativePath=relativePath)
+            if settings.postprocess:
+                post_processor = PostProcessor(output_files)
+                if tagdata:
+                    if tagdata[0] is 1:
+                        post_processor.setMovie(tagdata[1])
+                    elif tagdata[0] is 2:
+                        post_processor.setMovie(tagdata[1])
+                    elif tagdata[0] is 3:
+                        post_processor.setTV(tagdata[1], tagdata[2], tagdata[3])
+                post_processor.run_scripts()
 
 
 def walkDir(dir, silent=False, preserveRelative=False, tvdbid=None, tag=True):

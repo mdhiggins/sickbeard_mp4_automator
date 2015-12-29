@@ -5,43 +5,43 @@ import json
 import sys
 import shutil
 import logging
-from converter import Converter
+from converter import Converter, FFMpegConvertError
 from extensions import valid_input_extensions, valid_output_extensions, bad_subtitle_codecs, valid_subtitle_extensions, subtitle_codec_extensions
 from babelfish import Language
 
 
 class MkvtoMp4:
     def __init__(self, settings=None,
-                FFMPEG_PATH="FFMPEG.exe",
-                FFPROBE_PATH="FFPROBE.exe",
-                delete=True,
-                output_extension='mp4',
-                output_dir=None,
-                relocate_moov=True,
-                output_format='mp4',
-                video_codec=['h264', 'x264'],
-                video_bitrate=None,
-                video_width=None,
-                h264_level=None,
-                audio_codec=['ac3'],
-                audio_bitrate=256,
-                iOS=False,
-                iOSFirst=False,
-                maxchannels=None,
-                awl=None,
-                swl=None,
-                adl=None,
-                sdl=None,
-                scodec='mov_text',
-                downloadsubs=True,
-                processMP4=False,
-                copyto=None,
-                moveto=None,
-                embedsubs=True,
-                providers=['addic7ed', 'podnapisi', 'thesubdb', 'opensubtitles'],
-                permissions=int("777", 8),
-                pix_fmt=None,
-                logger=None):
+                 FFMPEG_PATH="FFMPEG.exe",
+                 FFPROBE_PATH="FFPROBE.exe",
+                 delete=True,
+                 output_extension='mp4',
+                 output_dir=None,
+                 relocate_moov=True,
+                 output_format='mp4',
+                 video_codec=['h264', 'x264'],
+                 video_bitrate=None,
+                 video_width=None,
+                 h264_level=None,
+                 audio_codec=['ac3'],
+                 audio_bitrate=256,
+                 iOS=False,
+                 iOSFirst=False,
+                 maxchannels=None,
+                 awl=None,
+                 swl=None,
+                 adl=None,
+                 sdl=None,
+                 scodec='mov_text',
+                 downloadsubs=True,
+                 processMP4=False,
+                 copyto=None,
+                 moveto=None,
+                 embedsubs=True,
+                 providers=['addic7ed', 'podnapisi', 'thesubdb', 'opensubtitles'],
+                 permissions=int("777", 8),
+                 pix_fmt=None,
+                 logger=None):
         # Setup Logging
         if logger:
             self.log = logger
@@ -566,20 +566,28 @@ class MkvtoMp4:
 
         conv = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH).convert(inputfile, outputfile, options, timeout=None, preopts=['-fix_sub_duration'], postopts=['-threads', 'auto'])
 
-        for timecode in conv:
-            if reportProgress:
-                try:
-                    sys.stdout.write('[{0}] {1}%\r'.format('#' * (timecode / 10) + ' ' * (10 - (timecode / 10)), timecode))
-                except:
-                    sys.stdout.write(str(timecode))
-                sys.stdout.flush()
-
-        self.log.info("%s created." % outputfile)
-
         try:
-            os.chmod(outputfile, self.permissions)  # Set permissions of newly created file
-        except:
-            self.log.exception("Unable to set new file permissions.")
+            for timecode in conv:
+                if reportProgress:
+                    try:
+                        sys.stdout.write('[{0}] {1}%\r'.format('#' * (timecode / 10) + ' ' * (10 - (timecode / 10)), timecode))
+                    except:
+                        sys.stdout.write(str(timecode))
+                    sys.stdout.flush()
+
+            self.log.info("%s created." % outputfile)
+
+            try:
+                os.chmod(outputfile, self.permissions)  # Set permissions of newly created file
+            except:
+                self.log.exception("Unable to set new file permissions.")
+
+        except FFMpegConvertError:
+            self.log.exception("Error converting file, FFMPEG error.")
+            if os.path.isfile(outputfile):
+                self.removeFile(outputfile)
+                self.log.error("%s deleted." % outputfile)
+            outputfile = None
 
         return outputfile, inputfile
 

@@ -32,29 +32,29 @@ try:
         log.info('File is valid')
         output = converter.process(inputfile, original=original)
 
-        # Tag with metadata
-        if settings.tagfile:
-            log.info('Tagging file with IMDB ID %s', imdbid)
-            tagmp4 = tmdb_mp4(imdbid, original=original, language=settings.taglanguage)
-            tagmp4.setHD(output['x'], output['y'])
-            tagmp4.writeTags(output['output'], settings.artwork)
+        if output:
+            # Tag with metadata
+            if settings.tagfile:
+                log.info('Tagging file with IMDB ID %s', imdbid)
+                tagmp4 = tmdb_mp4(imdbid, original=original, language=settings.taglanguage)
+                tagmp4.setHD(output['x'], output['y'])
+                tagmp4.writeTags(output['output'], settings.artwork)
 
-        # QTFS
-        if settings.relocate_moov:
-            converter.QTFS(output['output'])
+            # QTFS
+            if settings.relocate_moov:
+                converter.QTFS(output['output'])
 
-        # Copy to additional locations
-        output_files = converter.replicate(output['output'])
+            # Copy to additional locations
+            output_files = converter.replicate(output['output'])
 
-        # Run any post process scripts
-        if settings.postprocess:
-            post_processor = PostProcessor(output_files, log)
-            post_processor.setMovie(imdbid)
-            post_processor.run_scripts()
+            # Run any post process scripts
+            if settings.postprocess:
+                post_processor = PostProcessor(output_files, log)
+                post_processor.setMovie(imdbid)
+                post_processor.run_scripts()
 
+            plex.refreshPlex(settings, 'movie', log)
     else:
         log.info('File %s is invalid, ignoring' % inputfile)
 except:
     log.exception('File processing failed: %s' % inputfile)
-
-plex.refreshPlex(settings, 'movie', log)

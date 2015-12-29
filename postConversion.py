@@ -38,34 +38,35 @@ if len(sys.argv) > 4:
 
         output = converter.process(inputfile, original=original)
 
-        # Tag with metadata
-        if settings.tagfile:
-            log.info("Tagging %s with ID %s season %s episode %s." % (inputfile, tvdb_id, season, episode))
-            tagmp4 = Tvdb_mp4(tvdb_id, season, episode, original, language=settings.taglanguage)
-            tagmp4.setHD(output['x'], output['y'])
-            tagmp4.writeTags(output['output'], settings.artwork, settings.thumbnail)
+        if output:
+            # Tag with metadata
+            if settings.tagfile:
+                log.info("Tagging %s with ID %s season %s episode %s." % (inputfile, tvdb_id, season, episode))
+                tagmp4 = Tvdb_mp4(tvdb_id, season, episode, original, language=settings.taglanguage)
+                tagmp4.setHD(output['x'], output['y'])
+                tagmp4.writeTags(output['output'], settings.artwork, settings.thumbnail)
 
-        # QTFS
-        if settings.relocate_moov:
-            converter.QTFS(output['output'])
+            # QTFS
+            if settings.relocate_moov:
+                converter.QTFS(output['output'])
 
-        # Copy to additional locations
-        output_files = converter.replicate(output['output'])
+            # Copy to additional locations
+            output_files = converter.replicate(output['output'])
 
-        # run any post process scripts
-        if settings.postprocess:
-            post_processor = PostProcessor(output_files, log)
-            post_processor.setTV(tvdb_id, season, episode)
-            post_processor.run_scripts()
+            # run any post process scripts
+            if settings.postprocess:
+                post_processor = PostProcessor(output_files, log)
+                post_processor.setTV(tvdb_id, season, episode)
+                post_processor.run_scripts()
 
-        try:
-            refresh = json.load(urllib.urlopen(settings.getRefreshURL(tvdb_id)))
-            for item in refresh:
-                log.debug(refresh[item])
-        except (IOError, ValueError):
-            log.exception("Couldn't refresh Sickbeard, check your autoProcess.ini settings.")
+            try:
+                refresh = json.load(urllib.urlopen(settings.getRefreshURL(tvdb_id)))
+                for item in refresh:
+                    log.debug(refresh[item])
+            except (IOError, ValueError):
+                log.exception("Couldn't refresh Sickbeard, check your autoProcess.ini settings.")
 
-        plex.refreshPlex(settings, 'show', log)
+            plex.refreshPlex(settings, 'show', log)
 
 else:
     log.error("Not enough command line arguments present %s." % len(sys.argv))
