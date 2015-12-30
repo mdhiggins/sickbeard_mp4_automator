@@ -18,16 +18,22 @@
 
 
 import sys
-import urllib
+try:
+    from urllib.request import FancyURLopener
+    from urllib.parse import urlencode
+except ImportError:
+    from urllib import FancyURLopener
+    from urllib import urlencode
 import os.path
 import logging
 
-class AuthURLOpener(urllib.FancyURLopener):
+
+class AuthURLOpener(FancyURLopener):
     def __init__(self, user, pw):
         self.username = user
         self.password = pw
         self.numTries = 0
-        urllib.FancyURLopener.__init__(self)
+        FancyURLopener.__init__(self)
 
     def prompt_user_passwd(self, host, realm):
         if self.numTries == 0:
@@ -38,7 +44,7 @@ class AuthURLOpener(urllib.FancyURLopener):
 
     def openit(self, url):
         self.numTries = 0
-        return urllib.FancyURLopener.open(self, url)
+        return FancyURLopener.open(self, url)
 
 
 def processEpisode(dirName, settings, nzbName=None, logger=None):
@@ -68,7 +74,7 @@ def processEpisode(dirName, settings, nzbName=None, logger=None):
     params['quiet'] = 1
 
     params['dir'] = dirName
-    if nzbName != None:
+    if nzbName is not None:
         params['nzbName'] = nzbName
 
     myOpener = AuthURLOpener(username, password)
@@ -78,7 +84,7 @@ def processEpisode(dirName, settings, nzbName=None, logger=None):
     else:
         protocol = "http://"
 
-    url = protocol + host + ":" + port + web_root + "/home/postprocess/processEpisode?" + urllib.urlencode(params)
+    url = protocol + host + ":" + port + web_root + "/home/postprocess/processEpisode?" + urlencode(params)
 
     log.debug('Host: %s.' % host)
     log.debug('Port: %s.' % port)

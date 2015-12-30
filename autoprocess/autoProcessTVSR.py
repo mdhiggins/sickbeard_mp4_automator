@@ -12,6 +12,7 @@ import logging
 
 sys.path.insert(1, os.path.abspath(os.path.join(os.path.dirname(__file__), 'lib')))
 
+
 def processEpisode(dir_to_process, settings, org_NZB_name=None, status=None, logger=None):
 
     # Setup logging
@@ -28,11 +29,9 @@ def processEpisode(dir_to_process, settings, org_NZB_name=None, status=None, log
 
     # Try importing Python 2 modules using new names
     try:
-        import urllib2
         from urllib import urlencode
     # On error import Python 3 modules
     except ImportError:
-        import urllib.request as urllib2
         from urllib.parse import urlencode
 
     host = settings.Sickrage['host']
@@ -59,10 +58,10 @@ def processEpisode(dir_to_process, settings, org_NZB_name=None, status=None, log
     params['quiet'] = 1
 
     params['dir'] = dir_to_process
-    if org_NZB_name != None:
+    if org_NZB_name is not None:
         params['nzbName'] = org_NZB_name
 
-    if status != None:
+    if status is not None:
         params['failed'] = status
 
     if ssl:
@@ -89,7 +88,7 @@ def processEpisode(dir_to_process, settings, org_NZB_name=None, status=None, log
         sess.post(login_url, data={'username': username, 'password': password}, stream=True, verify=False)
         result = sess.get(url, params=params, stream=True, verify=False)
         lastline = None
-        
+
         for line in result.iter_lines():
             if line:
                 log.debug(line.strip())

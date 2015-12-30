@@ -1,7 +1,11 @@
 #!/usr/bin/env python
-import urllib
+try:
+    from urllib.request import urlopen
+except ImportError:
+    from urllib import urlopen
 import logging
 from xml.dom import minidom
+
 
 def refreshPlex(settings, source_type, logger=None):
     if logger:
@@ -31,11 +35,11 @@ def refreshPlex(settings, source_type, logger=None):
         log.debug("Base URL: %s." % base_url)
 
         try:
-            xml_sections = minidom.parse(urllib.urlopen(base_url))
+            xml_sections = minidom.parse(urlopen(base_url))
             sections = xml_sections.getElementsByTagName('Directory')
             for s in sections:
                 if s.getAttribute('type') == source_type:
                     url = refresh_url % s.getAttribute('key')
-                    x = urllib.urlopen(url)
+                    x = urlopen(url)
         except Exception:
             log.exception("Unable to refresh plex, check your settings.")

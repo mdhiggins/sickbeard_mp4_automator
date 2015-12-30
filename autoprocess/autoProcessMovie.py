@@ -1,5 +1,8 @@
 import sys
-import urllib
+try:
+    from urllib.request import FancyURLopener
+except ImportError:
+    from urllib import FancyURLopener
 import os.path
 import shutil
 import time
@@ -8,12 +11,12 @@ import logging
 import requests
 
 
-class AuthURLOpener(urllib.FancyURLopener):
+class AuthURLOpener(FancyURLopener):
     def __init__(self, user, pw):
         self.username = user
         self.password = pw
         self.numTries = 0
-        urllib.FancyURLopener.__init__(self)
+        FancyURLopener.__init__(self)
 
     def prompt_user_passwd(self, host, realm):
         if self.numTries == 0:
@@ -24,7 +27,7 @@ class AuthURLOpener(urllib.FancyURLopener):
 
     def openit(self, url):
         self.numTries = 0
-        return urllib.FancyURLopener.open(self, url)
+        return FancyURLopener.open(self, url)
 
 
 def process(dirName, settings, nzbName=None, status=0, logger=None):
