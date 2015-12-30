@@ -1,5 +1,9 @@
 import os
 import sys
+try:
+    from urllib.request import urlretrieve
+except ImportError:
+    from urllib import urlretrieve
 import urllib
 try:
     from StringIO import StringIO
@@ -200,12 +204,9 @@ class Tvdb_mp4:
         if poster is None:
             if thumbnail:
                 try:
-                    poster = urllib.urlretrieve(self.episodedata['filename'], os.path.join(tempfile.gettempdir(), "poster.jpg"))[0]
+                    poster = urlretrieve(self.episodedata['filename'], os.path.join(tempfile.gettempdir(), "poster.jpg"))[0]
                 except:
-                    try:
-                        poster = urllib.request.urlretrieve(self.episodedata['filename'], os.path.join(tempfile.gettempdir(), "poster.jpg"))[0]
-                    except:
-                        poster = None
+                    poster = None
             else:
                 posters = posterCollection()
                 try:
@@ -217,10 +218,8 @@ class Tvdb_mp4:
                                 poster.rating = float(self.showdata['_banners']['season']['season'][bannerid]['rating'])
                             poster.bannerpath = self.showdata['_banners']['season']['season'][bannerid]['_bannerpath']
                             posters.addPoster(poster)
-                    try:
-                        poster = urllib.urlretrieve(posters.topPoster().bannerpath, os.path.join(tempfile.gettempdir(), "poster.jpg"))[0]
-                    except:
-                        poster = urllib.request.urlretrieve(posters.topPoster().bannerpath, os.path.join(tempfile.gettempdir(), "poster.jpg"))[0]
+
+                        poster = urlretrieve(posters.topPoster().bannerpath, os.path.join(tempfile.gettempdir(), "poster.jpg"))[0]
                 except:
                     poster = None
         return poster
