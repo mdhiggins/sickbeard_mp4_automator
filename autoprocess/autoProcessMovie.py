@@ -122,7 +122,7 @@ def process(dirName, settings, nzbName=None, status=0, logger=None):
 
         n = 0
         result = json.load(urlObj)
-        movieid = [item["imdb"] for item in result["movies"]]
+        movieid = [item["info"]["imdb"] for item in result["movies"]]
 
         log.debug("Movie ID: %s." % movieid)
 
