@@ -101,11 +101,15 @@ def process(dirName, settings, nzbName=None, status=0, logger=None):
     else:
         log.info("Download of %s has failed." % nzbName1)
         log.info("Trying to re-cue the next highest ranked release.")
-        a = nzbName1.find('.cp(') + 4
-        b = nzbName1[a:].find(')') + a
-        imdbid = nzbName1[a:b]
+        try:
+            a = nzbName1.find('.cp(') + 4
+            b = nzbName1[a:].find(')') + a
+            imdbid = nzbName1[a:b]
 
-        log.debug("Attempt to determine IMDBID resulted in '%s'." % imdbid)
+            log.debug("Attempt to determine IMDBID resulted in '%s'." % imdbid)
+        except:
+            log.exception("Unable to determine release IMDB ID for requeueing.")
+            sys.exit()
 
         url = protocol + host + ":" + port + web_root + "/api/" + apikey + "/movie.list"
         log.info("Opening URL: %s." % url)
@@ -118,13 +122,9 @@ def process(dirName, settings, nzbName=None, status=0, logger=None):
 
         n = 0
         result = json.load(urlObj)
-        movieid = [item["id"] for item in result["movies"]]
-        library = [item["library"] for item in result["movies"]]
-        identifier = [item["identifier"] for item in library]
+        movieid = [item["imdb"] for item in result["movies"]]
 
         log.debug("Movie ID: %s." % movieid)
-        log.debug("Library: %s." % library)
-        log.debug("Identifier: %s" % identifier)
 
         for index in range(len(movieid)):
             if identifier[index] == imdbid:
