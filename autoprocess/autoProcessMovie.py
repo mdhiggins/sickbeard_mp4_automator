@@ -127,7 +127,7 @@ def process(dirName, settings, nzbName=None, status=0, logger=None):
         log.debug("Movie ID: %s." % movieid)
 
         for index in range(len(movieid)):
-            if identifier[index] == imdbid:
+            if movieid[index] == imdbid:
                 movid = str(movieid[index])
                 log.info("Found movie id %s in database for release %s." % (movid, nzbName1))
                 n = n + 1
