@@ -366,6 +366,9 @@ class MkvtoMp4:
                     'bitrate': abitrate,
                     'language': a.metadata['language'],
                 }})
+
+                if acodec == 'copy' and a.codec == 'aac':
+                    audio_settings[l]['bsf'] = 'aac_adtstoasc'
                 l = l + 1
 
         # Subtitle streams
