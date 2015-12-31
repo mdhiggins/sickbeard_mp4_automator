@@ -431,7 +431,8 @@ class AudioCopyCodec(BaseCodec):
     codec_name = 'copy'
     encoder_options = {'language': str,
                        'source': str,
-                       'map': int}
+                       'map': int,
+                       'bsf': str}
 
     def parse_options(self, opt, stream=0):
         safe = self.safe_options(opt)
@@ -444,6 +445,8 @@ class AudioCopyCodec(BaseCodec):
             s = str(0)
         if 'map' in safe:
             optlist.extend(['-map', s + ':' + str(safe['map'])])
+        if 'bsf' in safe:
+            optlist.extend(['-bsf:a:' + stream, str(safe['bsf'])])
         if 'language' in safe:
             l = safe['language']
             if len(l) > 3:
