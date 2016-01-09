@@ -258,8 +258,12 @@ class MkvtoMp4:
         except:
             vbr = info.format.bitrate / 1000
 
-        vcodec = 'copy' if info.video.codec.lower() in self.video_codec else self.video_codec[0]
-        vbitrate = vbr
+        if info.video.codec.lower() in self.video_codec:
+            vcodec = 'copy'
+            vbitrate = None
+        else:
+            vcodec = self.video_codec[0]
+            vbitrate = self.video_bitrate if self.video_bitrate else vbr
 
         self.log.info("Pix Fmt: %s." % info.video.pix_fmt)
         if self.pix_fmt and self.pix_fmt.lower() != info.video.pix_fmt.lower():
