@@ -139,7 +139,7 @@ def process(dirName, settings, nzbName=None, status=0, logger=None):
             log.error("Exiting postprocessing script")
             sys.exit(1)
 
-        url = protocol + host + ":" + port + web_root + "/api/" + apikey + "/movie.searcher.try_next/?id=" + movid
+        url = protocol + host + ":" + port + web_root + "/api/" + apikey + "/movie.searcher.try_next/?media_id=" + movid
         log.info("Opening URL: %s." % url)
 
         try:
