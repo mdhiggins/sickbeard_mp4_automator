@@ -400,7 +400,8 @@ class MkvtoMp4:
                     subtitle_settings.update({l: {
                         'map': s.index,
                         'codec': self.scodec,
-                        'language': s.metadata['language']
+                        'language': s.metadata['language'],
+                        'encoding': 'UTF-8'
                         # 'forced': s.sub_forced,
                         # 'default': s.sub_default
                     }})

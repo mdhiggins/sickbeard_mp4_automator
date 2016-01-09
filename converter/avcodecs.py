@@ -140,7 +140,8 @@ class SubtitleCodec(BaseCodec):
         'default': int,
         'map': int,
         'source': int,
-        'path': str
+        'path': str,
+        'encoding': str
     }
 
     def parse_options(self, opt, stream=0):
@@ -171,11 +172,12 @@ class SubtitleCodec(BaseCodec):
         safe = self._codec_specific_parse_options(safe)
 
         optlist = []
-        optlist.extend(['-sub_charenc', 'UTF-8'])
         optlist.extend(['-c:s:' + stream, self.ffmpeg_codec_name])
         stream = str(stream)
         if 'map' in safe:
             optlist.extend(['-map', s + ':' + str(safe['map'])])
+        if 'encoding' in safe:
+            optlist.extend(['-sub_charenc', str(safe['encoding'])])
         if 'path' in safe:
             optlist.extend(['-i', str(safe['path'])])
         if 'default' in safe:
