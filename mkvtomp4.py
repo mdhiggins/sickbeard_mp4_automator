@@ -260,7 +260,6 @@ class MkvtoMp4:
 
         if info.video.codec.lower() in self.video_codec:
             vcodec = 'copy'
-            vbitrate = None
         else:
             vcodec = self.video_codec[0]
             vbitrate = self.video_bitrate if self.video_bitrate else vbr
