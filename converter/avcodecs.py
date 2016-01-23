@@ -695,8 +695,8 @@ class H265Codec(VideoCodec):
         'profile': str,  # default: not-set, for valid values see above link
         'level': float,  # default: not-set, values range from 3.0 to 4.2
         'tune': str,  # default: not-set, for valid values see above link
-        'wscale': int,  # special handlers for the even number requirements of h264
-        'hscale': int  # special handlers for the even number requirements of h264
+        'wscale': int,  # special handlers for the even number requirements of h265
+        'hscale': int  # special handlers for the even number requirements of h265
     })
 
     def parse_options(self, opt, stream=0):
@@ -706,7 +706,7 @@ class H265Codec(VideoCodec):
         if 'height' in opt:
             opt['hscale'] = opt['height']
             del(opt['height'])
-        return super(H264Codec, self).parse_options(opt, stream)
+        return super(H265Codec, self).parse_options(opt, stream)
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         optlist = []
