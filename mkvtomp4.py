@@ -424,14 +424,16 @@ class MkvtoMp4:
                         self.log.info("Wasn't able to determine subtitle file extension, defaulting to '.srt'.")
                         extension = 'srt'
 
+                    forced = ".forced" if s.sub_forced else ""
+
                     input_dir, filename, input_extension = self.parseFile(inputfile)
                     output_dir = input_dir if self.output_dir is None else self.output_dir
-                    outputfile = os.path.join(output_dir, filename + "." + s.metadata['language'] + "." + extension)
+                    outputfile = os.path.join(output_dir, filename + "." + s.metadata['language'] + forced + "." + extension)
 
                     i = 2
                     while os.path.isfile(outputfile):
                         self.log.debug("%s exists, appending %s to filename." % (outputfile, i))
-                        outputfile = os.path.join(output_dir, filename + "." + s.metadata['language'] + "." + str(i) + "." + extension)
+                        outputfile = os.path.join(output_dir, filename + "." + s.metadata['language'] + forced + "." + str(i) + "." + extension)
                         i += 1
                     try:
                         self.log.info("Ripping %s subtitle from source stream %s into external file." % (s.metadata['language'], s.index))
