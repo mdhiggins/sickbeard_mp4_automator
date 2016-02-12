@@ -712,14 +712,12 @@ class MkvtoMp4:
                 os.remove(filename)
                 # Replaces the newly deleted file with another by renaming (replacing an original with a newly created file)
                 if replacement is not None:
-                    try:
-                        os.rename(replacement, filename)
-                        filename = replacement
-                    except:
-                        self.log.exception("Unable to rename file.")
+                    os.rename(replacement, filename)
+                    filename = replacement
+                    self.log.exception("Unable to replace file.")
                 break
-            except OSError:
-                self.log.exception("Unable to remove file %s." % filename)
+            except:
+                self.log.exception("Unable to remove or replace file %s." % filename)
                 if delay > 0:
                     self.log.debug("Delaying for %s seconds before retrying." % delay)
                     time.sleep(delay)
