@@ -714,7 +714,6 @@ class MkvtoMp4:
                 if replacement is not None:
                     os.rename(replacement, filename)
                     filename = replacement
-                    self.log.error("Unable to replace file.")
                 break
             except:
                 self.log.exception("Unable to remove or replace file %s." % filename)
