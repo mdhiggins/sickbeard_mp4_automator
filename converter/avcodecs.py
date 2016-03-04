@@ -678,6 +678,15 @@ class H264Codec(VideoCodec):
         return optlist
 
 
+class H264QSV(H264Codec):
+    """
+    H.264/AVC video codec.
+    @see http://ffmpeg.org/trac/ffmpeg/wiki/x264EncodingGuide
+    """
+    codec_name = 'h264qsv'
+    ffmpeg_codec_name = 'h264_qsv'
+
+
 class H265Codec(VideoCodec):
     """
     H.265/AVC video codec.
@@ -866,7 +875,7 @@ audio_codec_list = [
 ]
 
 video_codec_list = [
-    VideoNullCodec, VideoCopyCodec, TheoraCodec, H264Codec, H265Codec,
+    VideoNullCodec, VideoCopyCodec, TheoraCodec, H264Codec, H264QSV, H265Codec,
     DivxCodec, Vp8Codec, H263Codec, FlvCodec, Mpeg1Codec,
     Mpeg2Codec
 ]
