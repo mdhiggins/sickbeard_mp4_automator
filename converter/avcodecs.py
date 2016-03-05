@@ -686,6 +686,11 @@ class H264QSV(H264Codec):
     codec_name = 'h264qsv'
     ffmpeg_codec_name = 'h264_qsv'
 
+    def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
+        optlist = []
+        optlist.extend(['-lookahead', '0'])
+        return optlist
+
 
 class H265Codec(VideoCodec):
     """
