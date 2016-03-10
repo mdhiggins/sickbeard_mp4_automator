@@ -83,7 +83,7 @@ else
     cd $tmpDIR
     echo 'libvpx installation...'
     sleep 2
-    git clone --depth 1 http://git.chromium.org/webm/libvpx.git || ( echo 'Check internet connection...' && exit 1 )
+    git clone --depth 1 https://chromium.googlesource.com/webm/libvpx.git || ( echo 'Check internet connection...' && exit 1 )
     cd libvpx
     ./configure --prefix="$HOME/ffmpeg_build" --disable-examples
     make
