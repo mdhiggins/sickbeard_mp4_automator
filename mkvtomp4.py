@@ -544,6 +544,10 @@ class MkvtoMp4:
             'postopts': ['-threads', self.threads]
         }
 
+        # If using h264qsv, add the codec in front of the input for decoding
+        if vcodec == "h264qsv" and info.video.codec.lower() == "h264":
+            options['preopts'].extend(['-vcodec', 'h264_qsv'])
+
         # Add width option
         if vwidth:
             options['video']['width'] = vwidth
