@@ -688,7 +688,7 @@ class H264QSV(H264Codec):
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         optlist = []
-        optlist.extend(['-lookahead', '0'])
+        optlist.extend(['-look_ahead', '0'])
         return optlist
 
 
