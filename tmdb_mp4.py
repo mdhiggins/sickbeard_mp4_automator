@@ -63,12 +63,14 @@ class tmdb_mp4:
         if ext not in valid_output_extensions:
             self.log.error("File is not the correct format.")
             sys.exit()
+
+        video = MP4(mp4Path)
         try:
-            MP4(mp4Path).delete()
+            video.delete()
+            video.save()
         except IOError:
             self.log.debug("Unable to clear original tags, attempting to proceed.")
 
-        video = MP4(mp4Path)
         video["\xa9nam"] = self.title  # Movie title
         video["desc"] = self.shortdescription  # Short description
         video["ldes"] = self.description  # Long description
