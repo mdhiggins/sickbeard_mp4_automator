@@ -33,6 +33,7 @@ class MkvtoMp4:
                  adl=None,
                  sdl=None,
                  scodec='mov_text',
+                 subencoding='utf-8',
                  downloadsubs=True,
                  processMP4=False,
                  copyto=None,
@@ -84,6 +85,7 @@ class MkvtoMp4:
         self.downloadsubs = downloadsubs
         self.subproviders = providers
         self.embedsubs = embedsubs
+        self.subencoding = subencoding
 
         # Import settings
         if settings is not None:
@@ -126,6 +128,7 @@ class MkvtoMp4:
         self.downloadsubs = settings.downloadsubs
         self.subproviders = settings.subproviders
         self.embedsubs = settings.embedsubs
+        self.subencoding = settings.subencoding
 
         self.log.debug("Settings imported.")
 
@@ -419,7 +422,7 @@ class MkvtoMp4:
                         'map': s.index,
                         'codec': self.scodec,
                         'language': s.metadata['language'],
-                        'encoding': 'UTF-8'
+                        'encoding': self.subencoding,
                         # 'forced': s.sub_forced,
                         # 'default': s.sub_default
                     }})

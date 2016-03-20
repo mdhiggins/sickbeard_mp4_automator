@@ -78,6 +78,7 @@ class ReadSettings:
                         'subtitle-codec': 'mov_text',
                         'subtitle-language': '',
                         'subtitle-default-language': '',
+                        'subtitle-encoding': 'utf-8',
                         'convert-mp4': 'False',
                         'fullpathguess': 'True',
                         'tagfile': 'True',
@@ -366,6 +367,10 @@ class ReadSettings:
             self.swl = None
         else:
             self.swl = self.swl.replace(' ', '').split(',')
+
+        self.subencoding = config.get(section, 'subtitle-encoding').strip().lower()
+        if self.subencoding == '':
+            self.subencoding = None
 
         self.adl = config.get(section, 'audio-default-language').strip().lower()  # What language to default an undefinied audio language tag to. If blank, it will remain undefined. This is useful for single language releases which tend to leave things tagged as und
         if self.adl == "" or len(self.adl) > 3:
