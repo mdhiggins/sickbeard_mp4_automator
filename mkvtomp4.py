@@ -292,6 +292,22 @@ class MkvtoMp4:
 
         # Audio streams
         self.log.info("Reading audio streams.")
+
+        overrideLang = True
+        for a in info.audio:
+            try:
+                if a.metadata['language'].strip() == "" or a.metadata['language'] is None:
+                    a.metadata['language'] = 'und'
+            except KeyError:
+                a.metadata['language'] = 'und'
+            if (a.metadata['language'] == 'und' and self.adl) or a.metadata['language'].lower() in self.awl:
+                overrideLang = False
+                break
+
+        if overrideLang:
+            self.awl = None
+            self.log.info("No audio streams detected in any appropriate language, relaxing restrictions so there will be some audio stream present.")
+
         audio_settings = {}
         l = 0
         for a in info.audio:
