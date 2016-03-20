@@ -29,11 +29,11 @@ class BaseCodec(object):
         for k, v in opts.items():
             if k in self.encoder_options:
                 typ = self.encoder_options[k]
-                try:
-                    safe[k] = typ(v)
-                except:
-                    pass
-
+                if typ:
+                    try:
+                        safe[k] = typ(v)
+                    except:
+                        pass
         return safe
 
 
