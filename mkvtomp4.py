@@ -303,7 +303,7 @@ class MkvtoMp4:
                     a.metadata['language'] = 'und'
             except KeyError:
                 a.metadata['language'] = 'und'
-            if (a.metadata['language'] == 'und' and self.adl) or a.metadata['language'].lower() in self.awl:
+            if (a.metadata['language'] == 'und' and self.adl) or (self.awl and a.metadata['language'].lower() in self.awl):
                 overrideLang = False
                 break
 
