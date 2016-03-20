@@ -27,13 +27,12 @@ class BaseCodec(object):
         # Only copy options that are expected and of correct type
         # (and do typecasting on them)
         for k, v in opts.items():
-            if k in self.encoder_options:
+            if k in self.encoder_options and v is not None:
                 typ = self.encoder_options[k]
-                if typ:
-                    try:
-                        safe[k] = typ(v)
-                    except:
-                        pass
+                try:
+                    safe[k] = typ(v)
+                except:
+                    pass
         return safe
 
 
@@ -170,7 +169,7 @@ class SubtitleCodec(BaseCodec):
             s = str(0)
 
         if 'encoding' in safe:
-            if not safe['encoding'] or safe['encoding'] == "" or safe['encoding'].lower() == "none":
+            if not safe['encoding']:
                 del safe['encoding']
 
         safe = self._codec_specific_parse_options(safe)
