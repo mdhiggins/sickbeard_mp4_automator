@@ -170,7 +170,7 @@ class SubtitleCodec(BaseCodec):
             s = str(0)
 
         if 'encoding' in safe:
-            if not safe['encoding'] or safe['encoding'] == "":
+            if not safe['encoding'] or safe['encoding'] == "" or safe['encoding'] == "None":
                 del safe['encoding']
 
         safe = self._codec_specific_parse_options(safe)
