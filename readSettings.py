@@ -75,6 +75,7 @@ class ReadSettings:
                         'video-bitrate': '',
                         'video-max-width': '',
                         'h264-max-level': '',
+                        'use-qsv-decoder-with-encoder': 'True',
                         'subtitle-codec': 'mov_text',
                         'subtitle-language': '',
                         'subtitle-default-language': '',
@@ -336,6 +337,7 @@ class ReadSettings:
                 log.exception("Invalid h264 level, defaulting to none.")
                 self.h264_level = None
 
+        self.qsv_decoder = config.getboolean(section, "use-qsv-decoder-with-encoder")  # Use Intel QuickSync Decoder when using QuickSync Encoder
         self.pix_fmt = config.get(section, "pix-fmt").strip().lower()
         if self.pix_fmt == '':
             self.pix_fmt = None

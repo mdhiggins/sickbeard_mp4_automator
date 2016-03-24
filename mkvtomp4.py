@@ -23,6 +23,7 @@ class MkvtoMp4:
                  video_bitrate=None,
                  video_width=None,
                  h264_level=None,
+                 qsv_decoder=True,
                  audio_codec=['ac3'],
                  audio_bitrate=256,
                  iOS=False,
@@ -69,6 +70,7 @@ class MkvtoMp4:
         self.video_bitrate = video_bitrate
         self.video_width = video_width
         self.h264_level = h264_level
+        self.qsv_decoder = qsv_decoder
         self.pix_fmt = pix_fmt
         # Audio settings
         self.audio_codec = audio_codec
@@ -112,6 +114,7 @@ class MkvtoMp4:
         self.video_bitrate = settings.vbitrate
         self.video_width = settings.vwidth
         self.h264_level = settings.h264_level
+        self.qsv_decoder = settings.qsv_decoder
         self.pix_fmt = settings.pix_fmt
         # Audio settings
         self.audio_codec = settings.acodec
@@ -564,7 +567,7 @@ class MkvtoMp4:
         }
 
         # If using h264qsv, add the codec in front of the input for decoding
-        if vcodec == "h264qsv" and info.video.codec.lower() == "h264":
+        if vcodec == "h264qsv" and info.video.codec.lower() == "h264" and self.qsv_decoder and (info.video.video_level / 10) < 5:
             options['preopts'].extend(['-vcodec', 'h264_qsv'])
 
         # Add width option
