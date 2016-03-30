@@ -681,6 +681,15 @@ class H264Codec(VideoCodec):
         return optlist
 
 
+class NVEncH264(H264Codec):
+    """
+    Nvidia H.264/AVC video codec.
+    @see http://ffmpeg.org/trac/ffmpeg/wiki/x264EncodingGuide
+    """
+    codec_name = 'nvenc_h264'
+    ffmpeg_codec_name = 'nvenc_h264'
+
+
 class H264QSV(H264Codec):
     """
     H.264/AVC video codec.
@@ -745,6 +754,15 @@ class H265Codec(VideoCodec):
         elif 'hscale' in safe:
             optlist.extend(['-vf', 'scale=trunc((oh*a)/2)*2:%s' % (safe['hscale'])])
         return optlist
+
+
+class NVEncH265(H265Codec):
+    """
+    Nvidia H.265/AVC video codec.
+    @see https://trac.ffmpeg.org/wiki/Encode/H.265
+    """
+    codec_name = 'nvenc_h265'
+    ffmpeg_codec_name = 'nvenc_hevc'
 
 
 class DivxCodec(VideoCodec):
@@ -884,7 +902,7 @@ audio_codec_list = [
 
 video_codec_list = [
     VideoNullCodec, VideoCopyCodec, TheoraCodec, H264Codec, H264QSV, H265Codec,
-    DivxCodec, Vp8Codec, H263Codec, FlvCodec, Mpeg1Codec,
+    DivxCodec, Vp8Codec, H263Codec, FlvCodec, Mpeg1Codec, NVEncH264, NVEncH265,
     Mpeg2Codec
 ]
 
