@@ -372,14 +372,9 @@ class FFMpeg(object):
             cmds = clean_cmds
         except:
             logger.exception("There was an error making all command line parameters a string")
-        startupinfo = None
-        if os.name == 'nt':
-            import subprocess
-            startupinfo = subprocess.STARTUPINFO()
-            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         logger.debug('Spawning ffmpeg with command: ' + ' '.join(cmds))
         return Popen(cmds, shell=False, stdin=PIPE, stdout=PIPE, stderr=PIPE,
-                     close_fds=(os.name != 'nt'), startupinfo=startupinfo)
+                     close_fds=(os.name != 'nt'), startupinfo=None)
 
     def probe(self, fname, posters_as_video=True):
         """
