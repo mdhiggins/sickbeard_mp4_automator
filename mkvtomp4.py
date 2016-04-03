@@ -274,7 +274,7 @@ class MkvtoMp4:
         vbitrate = self.video_bitrate if self.video_bitrate else vbr
 
         self.log.info("Pix Fmt: %s." % info.video.pix_fmt)
-        if self.pix_fmt and self.pix_fmt.lower() != info.video.pix_fmt.lower():
+        if self.pix_fmt and info.video.pix_fmt.lower() not in self.pix_fmt:
             vcodec = self.video_codec[0]
 
         if self.video_bitrate is not None and vbr > self.video_bitrate:
@@ -573,9 +573,10 @@ class MkvtoMp4:
         # Add width option
         if vwidth:
             options['video']['width'] = vwidth
+
         # Add pix_fmt
         if self.pix_fmt:
-            options['video']['pix_fmt'] = self.pix_fmt
+            options['video']['pix_fmt'] = self.pix_fmt[0]
 
         self.options = options
         return options
