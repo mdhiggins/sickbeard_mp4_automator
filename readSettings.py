@@ -79,7 +79,7 @@ class ReadSettings:
                         'subtitle-codec': 'mov_text',
                         'subtitle-language': '',
                         'subtitle-default-language': '',
-                        'subtitle-encoding': 'utf-8',
+                        'subtitle-encoding': '',
                         'convert-mp4': 'False',
                         'fullpathguess': 'True',
                         'tagfile': 'True',
