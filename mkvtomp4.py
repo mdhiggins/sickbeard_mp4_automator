@@ -33,7 +33,7 @@ class MkvtoMp4:
                  swl=None,
                  adl=None,
                  sdl=None,
-                 scodec='mov_text',
+                 scodec=['mov_text'],
                  subencoding='utf-8',
                  downloadsubs=True,
                  processMP4=False,
@@ -423,7 +423,7 @@ class MkvtoMp4:
                 if self.swl is None or s.metadata['language'].lower() in self.swl:
                     subtitle_settings.update({l: {
                         'map': s.index,
-                        'codec': self.scodec,
+                        'codec': self.scodec[0],
                         'language': s.metadata['language'],
                         'encoding': self.subencoding,
                         # 'forced': s.sub_forced,
@@ -433,42 +433,43 @@ class MkvtoMp4:
                     l = l + 1
             elif s.codec.lower() not in bad_subtitle_codecs and not self.embedsubs:
                 if self.swl is None or s.metadata['language'].lower() in self.swl:
-                    ripsub = {0: {
-                        'map': s.index,
-                        'codec': self.scodec,
-                        'language': s.metadata['language']
-                    }}
-                    options = {
-                        'format': self.scodec,
-                        'subtitle': ripsub,
-                    }
+                    for codec in self.scodec:
+                        ripsub = {0: {
+                            'map': s.index,
+                            'codec': codec,
+                            'language': s.metadata['language']
+                        }}
+                        options = {
+                            'format': codec,
+                            'subtitle': ripsub,
+                        }
 
-                    try:
-                        extension = subtitle_codec_extensions[self.scodec]
-                    except:
-                        self.log.info("Wasn't able to determine subtitle file extension, defaulting to '.srt'.")
-                        extension = 'srt'
+                        try:
+                            extension = subtitle_codec_extensions[codec]
+                        except:
+                            self.log.info("Wasn't able to determine subtitle file extension, defaulting to '.srt'.")
+                            extension = 'srt'
 
-                    forced = ".forced" if s.sub_forced else ""
+                        forced = ".forced" if s.sub_forced else ""
 
-                    input_dir, filename, input_extension = self.parseFile(inputfile)
-                    output_dir = input_dir if self.output_dir is None else self.output_dir
-                    outputfile = os.path.join(output_dir, filename + "." + s.metadata['language'] + forced + "." + extension)
+                        input_dir, filename, input_extension = self.parseFile(inputfile)
+                        output_dir = input_dir if self.output_dir is None else self.output_dir
+                        outputfile = os.path.join(output_dir, filename + "." + s.metadata['language'] + forced + "." + extension)
 
-                    i = 2
-                    while os.path.isfile(outputfile):
-                        self.log.debug("%s exists, appending %s to filename." % (outputfile, i))
-                        outputfile = os.path.join(output_dir, filename + "." + s.metadata['language'] + forced + "." + str(i) + "." + extension)
-                        i += 1
-                    try:
-                        self.log.info("Ripping %s subtitle from source stream %s into external file." % (s.metadata['language'], s.index))
-                        conv = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH).convert(inputfile, outputfile, options, timeout=None)
-                        for timecode in conv:
-                                pass
+                        i = 2
+                        while os.path.isfile(outputfile):
+                            self.log.debug("%s exists, appending %s to filename." % (outputfile, i))
+                            outputfile = os.path.join(output_dir, filename + "." + s.metadata['language'] + forced + "." + str(i) + "." + extension)
+                            i += 1
+                        try:
+                            self.log.info("Ripping %s subtitle from source stream %s into external file." % (s.metadata['language'], s.index))
+                            conv = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH).convert(inputfile, outputfile, options, timeout=None)
+                            for timecode in conv:
+                                    pass
 
-                        self.log.info("%s created." % outputfile)
-                    except:
-                        self.log.exception("Unabled to create external subtitle file for stream %s." % (s.index))
+                            self.log.info("%s created." % outputfile)
+                        except:
+                            self.log.exception("Unabled to create external subtitle file for stream %s." % (s.index))
 
         # Attempt to download subtitles if they are missing using subliminal
         languages = set()
