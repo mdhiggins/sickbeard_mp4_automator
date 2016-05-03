@@ -353,18 +353,29 @@ class ReadSettings:
         self.scodec = config.get(section, 'subtitle-codec').strip().lower()
         if not self.scodec or self.scodec == "":
             if self.embedsubs:
-                self.scodec = 'mov_text'
+                self.scodec = ['mov_text']
             else:
-                self.scodec = 'srt'
+                self.scodec = ['srt']
             log.warning("Invalid subtitle codec, defaulting to '%s'." % self.scodec)
+        else:
+            self.scodec = self.scodec.replace(' ', '').split(',')
 
-        if self.embedsubs and self.scodec not in valid_internal_subcodecs:
-            log.warning("Invalid interal subtitle codec %s, defaulting to 'mov_text'." % self.scodec)
-            self.scodec = 'mov_text'
+        if self.embedsubs:
+            if len(self.scodec) > 1:
+                log.warning("Can only embed one subtitle type, defaulting to 'mov_text'.")
+                self.scodec = ['mov_text']
+            if self.scodec[0] not in valid_internal_subcodecs:
+                log.warning("Invalid interal subtitle codec %s, defaulting to 'mov_text'." % self.scodec[0])
+                self.scodec = ['mov_text']
+        else:
+            for codec in self.scodec:
+                if not codec in valid_external_subcodecs:
+                    log.warning("Invalid external subtitle codec %s, ignoring." % codec)
+                    self.scodec.remove(codec)
 
-        if not self.embedsubs and self.scodec not in valid_external_subcodecs:
-            log.warning("Invalid external subtitle codec %s, defaulting to 'srt'." % self.scodec)
-            self.scodec = 'srt'
+            if len(self.scodec) == 0:
+                log.warning("No valid subtitle formats found, defaulting to 'srt'.")
+                self.scodec = ['srt']
 
         self.swl = config.get(section, 'subtitle-language').strip().lower()  # List of acceptable languages for subtitle streams to be carried over from the original file, separated by a comma. Blank for all
         if self.swl == '':
