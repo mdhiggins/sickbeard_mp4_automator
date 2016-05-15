@@ -206,8 +206,9 @@ class Tvdb_mp4:
         if poster is None:
             if thumbnail:
                 try:
-                    poster = urlretrieve(self.episodedata['filename'], os.path.join(tempfile.gettempdir(), "poster.jpg"))[0]
+                    poster = urlretrieve(self.episodedata['filename'], os.path.join(tempfile.gettempdir(), "poster-tvdb.jpg"))[0]
                 except:
+                    self.log.error("Exception while retrieving poster %s.", str(err))
                     poster = None
             else:
                 posters = posterCollection()
