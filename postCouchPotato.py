@@ -28,6 +28,12 @@ log.debug("Original file name: %s" % original)
 
 try:
     log.info('Processing file: %s', inputfile)
+    log.info('Moving file from %s to %s', inputfile, inputfile.lower())
+    os.rename(inputfile, inputfile.lower())
+    log.info('Resetting input file variable')
+    inputfile = inputfile.lower()
+    log.info('Processing input file: %s', inputfile)
+
     if MkvtoMp4(settings).validSource(inputfile):
         log.info('File is valid')
         output = converter.process(inputfile, original=original)
