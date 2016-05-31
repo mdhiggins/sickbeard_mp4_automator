@@ -45,6 +45,8 @@ class ReadSettings:
                 log.exception("Sorry, your environment is not setup correctly for utf-8 support. Please fix your setup and try again")
                 sys.exit("Sorry, your environment is not setup correctly for utf-8 support. Please fix your setup and try again")
 
+        log.info(sys.executable)
+
         # Default settings for SickBeard
         sb_defaults = {'host': 'localhost',
                        'port': '8081',
