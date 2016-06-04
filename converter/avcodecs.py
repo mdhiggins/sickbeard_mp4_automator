@@ -60,7 +60,8 @@ class AudioCodec(BaseCodec):
         'source': int,
         'path': str,
         'filter': str,
-        'map': int
+        'map': int,
+        'disposition': str,
     }
 
     def parse_options(self, opt, stream=0):
@@ -102,6 +103,8 @@ class AudioCodec(BaseCodec):
             optlist.extend(['-i', str(safe['path'])])
         if 'map' in safe:
             optlist.extend(['-map', s + ':' + str(safe['map'])])
+        if 'disposition' in safe:
+            optlist.extend(['-disposition:a:' + stream, str(safe['disposition'])])
         if 'channels' in safe:
             optlist.extend(['-ac:a:' + stream, str(safe['channels'])])
         if 'bitrate' in safe:
@@ -437,7 +440,8 @@ class AudioCopyCodec(BaseCodec):
     encoder_options = {'language': str,
                        'source': str,
                        'map': int,
-                       'bsf': str}
+                       'bsf': str,
+                       'disposition' : str}
 
     def parse_options(self, opt, stream=0):
         safe = self.safe_options(opt)
@@ -461,6 +465,8 @@ class AudioCopyCodec(BaseCodec):
         else:
             lang = 'und'
         optlist.extend(['-metadata:s:a:' + stream, "language=" + lang])
+        if 'disposition' in safe:
+            optlist.extend(['-disposition:a:' + stream, str(safe['disposition'])])
         return optlist
 
 

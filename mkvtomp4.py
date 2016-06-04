@@ -341,12 +341,19 @@ class MkvtoMp4:
                         self.log.debug("Channels: 2.")
                         self.log.debug("Bitrate: %s." % iOSbitrate)
                         self.log.debug("Language: %s." % a.metadata['language'])
+                        if l == 0:
+                            disposition = 'default'
+                            self.log.info("Audio track is number %s setting disposition to %s" % (str(l),disposition))
+                        else:
+                            disposition = 'none'
+                            self.log.info("Audio track is number %s setting disposition to %s" % (str(l),disposition))
                         audio_settings.update({l: {
                             'map': a.index,
                             'codec': self.iOS,
                             'channels': 2,
                             'bitrate': iOSbitrate,
                             'language': a.metadata['language'],
+                            'disposition': disposition,
                         }})
                         l += 1
                 # If the iOS audio option is enabled and the source audio channel is only stereo, the additional iOS channel will be skipped and a single AAC 2.0 channel will be made regardless of codec preference to avoid multiple stereo channels
@@ -386,13 +393,19 @@ class MkvtoMp4:
                 if self.iOS and self.iOSFirst:
                     self.log.debug("Not creating any additional iOS audio streams.")
                     self.iOS = False
-
+                if l == 0:
+                    disposition = 'default'
+                    self.log.info("Audio Track is number %s setting disposition to %s" % (a.index, disposition))
+                else:
+                    disposition = 'none'
+                    self.log.info("Audio Track is number %s setting disposition to %s" % (a.index, disposition))
                 audio_settings.update({l: {
                     'map': a.index,
                     'codec': acodec,
                     'channels': audio_channels,
                     'bitrate': abitrate,
                     'language': a.metadata['language'],
+                    'disposition': disposition,
                 }})
 
                 if acodec == 'copy' and a.codec == 'aac':
