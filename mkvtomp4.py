@@ -343,10 +343,10 @@ class MkvtoMp4:
                         self.log.debug("Language: %s." % a.metadata['language'])
                         if l == 0:
                             disposition = 'default'
-                            self.log.info("Audio track is number %s setting disposition to %s" % (str(l),disposition))
+                            self.log.info("Audio track is number %s setting disposition to %s" % (str(l), disposition))
                         else:
                             disposition = 'none'
-                            self.log.info("Audio track is number %s setting disposition to %s" % (str(l),disposition))
+                            self.log.info("Audio track is number %s setting disposition to %s" % (str(l), disposition))
                         audio_settings.update({l: {
                             'map': a.index,
                             'codec': self.iOS,
