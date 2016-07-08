@@ -9,7 +9,7 @@ Media Managers Supported:
 - Sickbeard
 - SickRage
 - CouchPotato
-- Sonarr (tagging not supported, see below)
+- Sonarr
 
 Downloaders Supported:
 - SABNZBD
@@ -40,7 +40,7 @@ Prerequesite PIP Package Installation Instructions
 - `requests-cache` - Run `pip install requests-cache`
 - `babelfish` - Run `pip install babelfish`
 - `guessit` - Run `pip install guessit<2` to use manual.py (requires guessit version 1, version 2 is a complete rewrite, still in alpha, and not backwards compatible)
-- `subliminal`- Run `pip install subliminal` to enable automatically downloading subtitles
+- `subliminal`- Run `pip install subliminal<2` to enable automatically downloading subtitles
 - `stevedore` - Run `pip install stevedore` (this will be automatically installed with subliminal)
 - `dateutil` - Run `pip install python-dateutil` (this will be automatically installed with subliminal)
 - `deluge-client` Run `pip install deluge-client` if you plan on using Deluge
