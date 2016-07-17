@@ -68,7 +68,6 @@ class Tvdb_mp4:
         video = MP4(mp4Path)
         try:
             video.delete()
-            video.save()
         except IOError:
             self.log.debug("Unable to clear original tags, attempting to proceed.")
 
