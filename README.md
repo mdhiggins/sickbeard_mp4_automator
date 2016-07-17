@@ -31,8 +31,9 @@ Default Settings
 2. Audio - AAC 2.0 with additional AC3 track when source has >2 channels (ex 5.1)
 3. Subtitles - mov_text
 
-Prerequesite PIP Package Installation Instructions (Windows users should enter commands in Powershell - using '<' doesn't work in cmd)
+Prerequesite PIP Package Installation Instructions
 --------------
+Note: Windows users should enter commands in Powershell - using '<' doesn't work in cmd
 - `VC for Python 2.7` (Windows Users Only) - Download and install - http://www.microsoft.com/en-us/download/details.aspx?id=44266
 - `setup_tools` - https://pypi.python.org/pypi/setuptools#installation-instructions
 - `requests` - Run `pip install requests`
