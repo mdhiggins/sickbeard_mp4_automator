@@ -333,34 +333,33 @@ class MkvtoMp4:
             # Proceed if no whitelist is set, or if the language is in the whitelist
             if self.awl is None or a.metadata['language'].lower() in self.awl:
                 # Create iOS friendly audio stream if the default audio stream has too many channels (iOS only likes AAC stereo)
-                if self.iOS:
-                    if a.audio_channels > 2:
-                        iOSbitrate = 256 if (self.audio_bitrate * 2) > 256 else (self.audio_bitrate * 2)
-                        self.log.info("Creating audio stream %s from source audio stream %s [iOS-audio]." % (str(l), a.index))
-                        self.log.debug("Audio codec: %s." % self.iOS)
-                        self.log.debug("Channels: 2.")
-                        self.log.debug("Bitrate: %s." % iOSbitrate)
-                        self.log.debug("Language: %s." % a.metadata['language'])
-                        if l == 0:
-                            disposition = 'default'
-                            self.log.info("Audio track is number %s setting disposition to %s" % (str(l), disposition))
-                        else:
-                            disposition = 'none'
-                            self.log.info("Audio track is number %s setting disposition to %s" % (str(l), disposition))
-                        audio_settings.update({l: {
-                            'map': a.index,
-                            'codec': self.iOS,
-                            'channels': 2,
-                            'bitrate': iOSbitrate,
-                            'language': a.metadata['language'],
-                            'disposition': disposition,
-                        }})
-                        l += 1
+                if self.iOS and a.audio_channels > 2:
+                    iOSbitrate = 256 if (self.audio_bitrate * 2) > 256 else (self.audio_bitrate * 2)
+                    self.log.info("Creating audio stream %s from source audio stream %s [iOS-audio]." % (str(l), a.index))
+                    self.log.debug("Audio codec: %s." % self.iOS[0])
+                    self.log.debug("Channels: 2.")
+                    self.log.debug("Bitrate: %s." % iOSbitrate)
+                    self.log.debug("Language: %s." % a.metadata['language'])
+                    if l == 0:
+                        disposition = 'default'
+                        self.log.info("Audio track is number %s setting disposition to %s" % (str(l), disposition))
+                    else:
+                        disposition = 'none'
+                        self.log.info("Audio track is number %s setting disposition to %s" % (str(l), disposition))
+                    audio_settings.update({l: {
+                        'map': a.index,
+                        'codec': self.iOS[0],
+                        'channels': 2,
+                        'bitrate': iOSbitrate,
+                        'language': a.metadata['language'],
+                        'disposition': disposition,
+                    }})
+                    l += 1
                 # If the iOS audio option is enabled and the source audio channel is only stereo, the additional iOS channel will be skipped and a single AAC 2.0 channel will be made regardless of codec preference to avoid multiple stereo channels
                 self.log.info("Creating audio stream %s from source stream %s." % (str(l), a.index))
                 if self.iOS and a.audio_channels <= 2:
                     self.log.debug("Overriding default channel settings because iOS audio is enabled but the source is stereo [iOS-audio].")
-                    acodec = 'copy' if a.codec == self.iOS else self.iOS
+                    acodec = 'copy' if a.codec in self.iOS else self.iOS[0]
                     audio_channels = a.audio_channels
                     abitrate = a.audio_channels * 128 if (a.audio_channels * self.audio_bitrate) > (a.audio_channels * 128) else (a.audio_channels * self.audio_bitrate)
                 else:

@@ -106,10 +106,10 @@ class ReadSettings:
                        'web_root': ''}
         # Default settings for Sonarr
         sonarr_defaults = {'host': 'localhost',
-                       'port': '8989',
-                       'apikey': '',
-                       'ssl': 'False',
-                       'web_root': ''}
+                           'port': '8989',
+                           'apikey': '',
+                           'ssl': 'False',
+                           'web_root': ''}
         # Default uTorrent settings
         utorrent_defaults = {'couchpotato-label': 'couchpotato',
                              'sickbeard-label': 'sickbeard',
@@ -255,7 +255,10 @@ class ReadSettings:
             self.iOS = False
         else:
             if self.iOS.lower() in ['true', 'yes', 't', '1']:
-                self.iOS = 'aac'
+                self.iOS = ['aac']
+            else:
+                self.iOS = self.iOS.lower().replace(' ', '').split(',')
+
         self.iOSFirst = config.getboolean(section, "ios-first-track-only")  # Enables the iOS audio option only for the first track
 
         self.downloadsubs = config.getboolean(section, "download-subs")  # Enables downloading of subtitles from the internet sources using subliminal
@@ -371,7 +374,7 @@ class ReadSettings:
                 self.scodec = ['mov_text']
         else:
             for codec in self.scodec:
-                if not codec in valid_external_subcodecs:
+                if codec not in valid_external_subcodecs:
                     log.warning("Invalid external subtitle codec %s, ignoring." % codec)
                     self.scodec.remove(codec)
 
