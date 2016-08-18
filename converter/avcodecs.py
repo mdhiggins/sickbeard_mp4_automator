@@ -114,7 +114,7 @@ class AudioCodec(BaseCodec):
         if 'filter' in safe:
             optlist.extend(['-filter:a:' + stream, str(safe['filter'])])
         if 'language' in safe:
-                lang = str(safe['language'])
+            lang = str(safe['language'])
         else:
             lang = 'und'  # Never leave blank if not specified, always set to und for undefined
         optlist.extend(['-metadata:s:a:' + stream, "language=" + lang])
@@ -191,7 +191,7 @@ class SubtitleCodec(BaseCodec):
         if 'forced' in safe:
             optlist.extend(['-metadata:s:s:' + stream, "disposition:forced=" + str(safe['forced'])])
         if 'language' in safe:
-                lang = str(safe['language'])
+            lang = str(safe['language'])
         else:
             lang = 'und'  # Never leave blank if not specified, always set to und for undefined
         optlist.extend(['-metadata:s:s:' + stream, "language=" + lang])
@@ -441,7 +441,7 @@ class AudioCopyCodec(BaseCodec):
                        'source': str,
                        'map': int,
                        'bsf': str,
-                       'disposition' : str}
+                       'disposition': str}
 
     def parse_options(self, opt, stream=0):
         safe = self.safe_options(opt)
