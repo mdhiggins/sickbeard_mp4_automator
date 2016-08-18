@@ -456,14 +456,13 @@ class AudioCopyCodec(BaseCodec):
             optlist.extend(['-map', s + ':' + str(safe['map'])])
         if 'bsf' in safe:
             optlist.extend(['-bsf:a:' + stream, str(safe['bsf'])])
+        lang = 'und'
         if 'language' in safe:
             l = safe['language']
             if len(l) > 3:
                 del safe['language']
             else:
                 lang = str(safe['language'])
-        else:
-            lang = 'und'
         optlist.extend(['-metadata:s:a:' + stream, "language=" + lang])
         if 'disposition' in safe:
             optlist.extend(['-disposition:a:' + stream, str(safe['disposition'])])
