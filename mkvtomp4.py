@@ -629,7 +629,8 @@ class MkvtoMp4:
             for timecode in conv:
                 if reportProgress:
                     try:
-                        sys.stdout.write('[{0}] {1}%\r'.format('#' * (timecode / 10) + ' ' * (10 - (timecode / 10)), timecode))
+                        sys.stdout.write('\r')
+                        sys.stdout.write('[{0}] {1}%'.format('#' * (timecode / 10) + ' ' * (10 - (timecode / 10)), timecode))
                     except:
                         sys.stdout.write(str(timecode))
                     sys.stdout.flush()
