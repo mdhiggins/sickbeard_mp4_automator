@@ -68,10 +68,12 @@ class ReadSettings:
                         'relocate_moov': 'True',
                         'ios-audio': 'True',
                         'ios-first-track-only': 'False',
+                        'ios-audio-filter': '',
                         'max-audio-channels': '',
                         'audio-language': '',
                         'audio-default-language': '',
                         'audio-codec': 'ac3',
+                        'audio-filter': '',
                         'audio-channel-bitrate': '256',
                         'video-codec': 'h264, x264',
                         'video-bitrate': '',
@@ -250,6 +252,10 @@ class ReadSettings:
         if self.abitrate > 256:
             log.warning("Audio bitrate >256 may create errors with common codecs.")
 
+        self.afilter = config.get(section, "audio-filter").lower().strip()  # Audio filter
+        if self.afilter == '':
+            self.afilter = None
+
         self.iOS = config.get(section, "ios-audio")  # Creates a second audio channel if the standard output methods are different from this for iOS compatability
         if self.iOS == "" or self.iOS.lower() in ['false', 'no', 'f', '0']:
             self.iOS = False
@@ -260,6 +266,10 @@ class ReadSettings:
                 self.iOS = self.iOS.lower().replace(' ', '').split(',')
 
         self.iOSFirst = config.getboolean(section, "ios-first-track-only")  # Enables the iOS audio option only for the first track
+
+        self.iOSfilter = config.get(section, "ios-audio-filter").lower().strip()  # iOS audio filter
+        if self.iOSfilter == '':
+            self.iOSfilter = None
 
         self.downloadsubs = config.getboolean(section, "download-subs")  # Enables downloading of subtitles from the internet sources using subliminal
         if self.downloadsubs:

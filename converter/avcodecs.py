@@ -96,6 +96,11 @@ class AudioCodec(BaseCodec):
         else:
             s = str(0)
 
+        if 'filter' in safe:
+            x = safe['filter']
+            if len(x) < 1:
+                del safe['filter']
+
         safe = self._codec_specific_parse_options(safe)
         optlist = []
         optlist.extend(['-c:a:' + stream, self.ffmpeg_codec_name])

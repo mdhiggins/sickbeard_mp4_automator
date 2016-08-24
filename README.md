@@ -41,7 +41,7 @@ Note: Windows users should enter commands in Powershell - using '<' doesn't work
 - `requests-cache` - Run `pip install requests-cache`
 - `babelfish` - Run `pip install babelfish`
 - `guessit` - Run `pip install guessit<2` to use manual.py (requires guessit version 1, version 2 is a complete rewrite, still in alpha, and not backwards compatible)
-- `subliminal`- Run `pip install subliminal<2` to enable automatically downloading subtitles 
+- `subliminal`- Run `pip install subliminal<2` to enable automatically downloading subtitles
 - `stevedore` - Run `pip install stevedore` (this will be automatically installed with subliminal)
 - `dateutil` - Run `pip install python-dateutil` (this will be automatically installed with subliminal)
 - `deluge-client` Run `pip install deluge-client` if you plan on using Deluge
@@ -63,6 +63,7 @@ General MP4 Configuration
     - `relocate_moov` = True/False - relocates the MOOV atom to the beginning of the file for better streaming
     - `ios-audio` = creates a 2nd copy of an audio stream that will be iOS compatible (AAC Stereo) if the normal output will not be. If a stereo source stream is detected with this option enabled, an AAC stereo stream will be the only one produced (essentially overriding the codec option) to avoid multiple stereo audio stream copies in different codecs. Instead of 'true' you may also set this option to a specific codec to override the default.
     - `ios-first-track-only` = Applies the `ios-audio` option only to the first audio track encountered in the source video file. This prevents making dual audio streams for additional alternative language codecs or commentary tracks that may be present in the source file.
+    - `ios-audio-filter` = Applies FFMPEG audio filter option to ONLY the iOS audio channels created by the script. iOS audio counterpart to the `audio-filter` option below.
     - `max-audio-channels` = Sets a maximum number of audio channels. This may provide an alternative to the iOS audio option, where instead users can simply select the desired output codec and the max number of audio channels without the creation of an additional audio track.
     - `video-codec` = set your desired video codecs. May specify multiple comma separated values (ex: h264, x264). The first value specified will be the default conversion choice when an undesired codec is encountered; any codecs specified here will be remuxed/copied rather than converted.
     - `video-bitrate` = allows you to set a maximum video bitrate in Kbps. If the source file exceeds the video-bitrate it will be transcoded to the specified video-bitrate, even if they source file is already in the correct video codec. If the source file is in the correct video codec and does not exceed the video-bitrate setting, then it will be copied without transcoding. Leave blank to disable this setting.
@@ -73,6 +74,7 @@ General MP4 Configuration
     - `audio-channel-bitrate` = set the bitrate for each audio channel. Default is 256. Setting this value to 0 will attempt to mirror the bitrate of the audio source, but this can be unreliable as bitrates vary between different codecs.
     - `audio-language` = 3 letter language code for audio streams you wish to copy. Leave blank to copy all. Separate multiple audio streams with commas (ex: eng,spa)
     - `audio-default-language` = If an audio stream with an unidentified/untagged language is detected, you can default that language tag to whatever this value is (ex: eng). This is useful for many single-audio releases which don't bother to tag the audio stream as anything
+    - `audio-filter` = Applies FFMPEG audio filter. Make sure you specify all parameters are you would using the `-af` option with FFMPEG command line
     - `subtitle-codec` = set your desired subtitle codec. If you're embedding subs, `mov_text` is the only option supported. If you're creating external subtitle files, `srt` or `webvtt` are accepted.
     - `subtitle-language` = same as audio-language but for subtitles. Set to `nil` to disable copying of subtitles.
     - `subtitle-language-default` = same as audio-language-default but for subtitles
