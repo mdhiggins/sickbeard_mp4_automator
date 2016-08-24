@@ -289,7 +289,7 @@ class MkvtoMp4:
         else:
             vwidth = None
 
-        if self.h264_level and info.video.video_level and (info.video.video_level / 10 > self.h264_level):
+        if '264' in info.video.codec.lower() and self.h264_level and info.video.video_level and (info.video.video_level / 10 > self.h264_level):
             self.log.info("Video level %0.1f." % (info.video.video_level / 10))
             vcodec = self.video_codec[0]
 
