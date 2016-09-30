@@ -657,8 +657,10 @@ class MkvtoMp4:
             except:
                 self.log.exception("Unable to set new file permissions.")
 
-        except FFMpegConvertError:
+        except FFMpegConvertError as e:
             self.log.exception("Error converting file, FFMPEG error.")
+            self.log.error(e.cmd)
+            self.log.error(e.output)
             if os.path.isfile(outputfile):
                 self.removeFile(outputfile)
                 self.log.error("%s deleted." % outputfile)
