@@ -105,7 +105,7 @@ if settings.uTorrent['convert']:
     log.info("Performing conversion")
     settings.delete = False
     if not settings.output_dir:
-        settings.output_dir = os.path.join(path, name)
+        settings.output_dir = os.path.join(path, ("%s-convert" % name))
         if not os.path.exists(settings.output_dir):
             os.mkdir(settings.output_dir)
         delete_dir = os.path.join(path, name)
