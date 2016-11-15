@@ -79,6 +79,7 @@ class ReadSettings:
                         'video-bitrate': '',
                         'video-max-width': '',
                         'h264-max-level': '',
+                        'aac_adtstoasc': 'False',
                         'use-qsv-decoder-with-encoder': 'True',
                         'subtitle-codec': 'mov_text',
                         'subtitle-language': '',
@@ -298,6 +299,8 @@ class ReadSettings:
             self.postprocess = config.getboolean(section, 'post-process')
         except:
             self.postprocess = False
+
+        self.aac_adtstoasc = config.getboolean(section, 'aac_adtstoasc')
 
         # Setup variable for maximum audio channels
         self.maxchannels = config.get(section, 'max-audio-channels')

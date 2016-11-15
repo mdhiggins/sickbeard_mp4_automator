@@ -54,6 +54,7 @@ sub-providers = addic7ed,podnapisi,thesubdb,opensubtitles
 permissions = 0777
 post-process = False
 pix-fmt =
+aac_adtstoasc = False
 
 [CouchPotato]
 host = localhost
