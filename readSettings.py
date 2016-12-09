@@ -125,14 +125,16 @@ class ReadSettings:
                              'action_after': 'removedata',
                              'host': 'http://localhost:8080/',
                              'username': '',
-                             'password': ''}
+                             'password': '',
+                             'output_directory': ''}
         # Default SAB settings
         sab_defaults = {'convert': 'True',
                         'Sickbeard-category': 'sickbeard',
                         'Sickrage-category': 'sickrage',
                         'Couchpotato-category': 'couchpotato',
                         'Sonarr-category': 'sonarr',
-                        'Bypass-category': 'bypass'}
+                        'Bypass-category': 'bypass',
+                        'output_directory': ''}
         # Default Sickrage Settings
         sr_defaults = {'host': 'localhost',
                        'port': '8081',
@@ -152,7 +154,8 @@ class ReadSettings:
                            'host': 'localhost',
                            'port': '58846',
                            'username': '',
-                           'password': ''}
+                           'password': '',
+                           'output_directory': ''}
 
         # Default Plex Settings
         plex_defaults = {'host': 'localhost',
@@ -489,6 +492,11 @@ class ReadSettings:
             self.uTorrent['convert'] = config.getboolean(section, "convert")
         except:
             self.uTorrent['convert'] = False
+        self.uTorrent['output_dir'] = config.get(section, "output_directory")
+        if self.uTorrent['output_dir'] == '':
+            self.uTorrent['output_dir'] = None
+        else:
+            self.uTorrent['output_dir'] = os.path.normpath(self.raw(self.uTorrent['output_dir']))  # Output directory
         self.uTorrentWebUI = config.getboolean(section, "webui")
         self.uTorrentActionBefore = config.get(section, "action_before").lower()
         self.uTorrentActionAfter = config.get(section, "action_after").lower()
@@ -512,6 +520,11 @@ class ReadSettings:
         self.deluge['port'] = config.get(section, "port")
         self.deluge['user'] = config.get(section, "username")
         self.deluge['pass'] = config.get(section, "password")
+        self.deluge['output_dir'] = config.get(section, "output_directory")
+        if self.deluge['output_dir'] == '':
+            self.deluge['output_dir'] = None
+        else:
+            self.deluge['output_dir'] = os.path.normpath(self.raw(self.deluge['output_dir']))  # Output directory
 
         # Read relevant Sonarr section information
         section = "Sonarr"
@@ -556,6 +569,11 @@ class ReadSettings:
         self.SAB['sr'] = config.get(section, "Sickrage-category").lower()
         self.SAB['sonarr'] = config.get(section, "Sonarr-category").lower()
         self.SAB['bypass'] = config.get(section, "Bypass-category").lower()
+        self.SAB['output_dir'] = config.get(section, "output_directory")
+        if self.SAB['output_dir'] == '':
+            self.SAB['output_dir'] = None
+        else:
+            self.SAB['output_dir'] = os.path.normpath(self.raw(self.SAB['output_dir']))  # Output directory
 
         # Read Plex section information
         section = "Plex"

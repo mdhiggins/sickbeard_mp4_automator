@@ -47,6 +47,11 @@ if len(categories) != len(set(categories)):
 
 if settings.SAB['convert']:
     log.info("Performing conversion")
+    # Check for custom uTorrent output_dir
+    if settings.SAB['output_dir']:
+        settings.output_dir = settings.SAB['output_dir']
+        log.debug("Overriding output_dir to %s." % settings.SAB['output_dir'])
+    
     converter = MkvtoMp4(settings)
     for r, d, f in os.walk(path):
         for files in f:

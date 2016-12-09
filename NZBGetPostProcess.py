@@ -31,6 +31,9 @@
 # Category for bypassing any further processing but still converting
 #BYPASS_CAT=Bypass
 
+# Custom output_directory setting
+#OUTPUT_DIR=
+
 ### NZBGET POST-PROCESSING SCRIPT                                          ###
 ##############################################################################
 
@@ -48,6 +51,18 @@ MP4folder = MP4folder.replace("\\", "/")
 if not(MP4folder.endswith("/")):
     MP4folder += "/"
 #DEBUG#print MP4folder+" the original is "+os.environ['NZBPO_MP4_FOLDER']
+
+output_dir = os.environment['NZBPO_OUTPUT_DIR'].stip()
+if len(output_dir) > 0:
+    output_dir = os.environ['NZBPO_MP4_FOLDER'].strip()
+    output_dir = MP4folder.replace('"', '')
+    output_dir = MP4folder.replace("'", "")
+    output_dir = MP4folder.replace("\\", "/")
+    if not(output_dir.endswith("/")):
+        output_dir += "/"
+    #DEBUG#print Overriding output directory
+else:
+    output_dir = None
 
 sys.path.append(MP4folder)
 try:
@@ -161,6 +176,8 @@ if 'NZBOP_SCRIPTDIR' in os.environ and not os.environ['NZBOP_VERSION'][0:5] < '1
     settings = ReadSettings(MP4folder, "autoProcess.ini")
 
     if shouldConvert:
+        if output_dir:
+            settings.output_dir = output_dir
         converter = MkvtoMp4(settings, logger=log)
         for r, d, f in os.walk(path):
             for files in f:

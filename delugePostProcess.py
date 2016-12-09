@@ -58,6 +58,11 @@ if len(categories) != len(set(categories)):
     sys.exit()
 
 if settings.deluge['convert']:
+    # Check for custom Deluge output_dir
+    if settings.deluge['output_dir']:
+        settings.output_dir = settings.deluge['output_dir']
+        log.debug("Overriding output_dir to %s." % settings.deluge['output_dir'])
+
     # Perform conversion.
     settings.delete = False
     if not settings.output_dir:

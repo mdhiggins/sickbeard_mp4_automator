@@ -81,6 +81,7 @@ action_after = removedata
 host = http://localhost:8080/
 username =
 password =
+output_directory =
 
 [Deluge]
 host = localhost
@@ -93,6 +94,7 @@ sickbeard-label = sickbeard
 port = 58846
 sickrage-label = sickrage
 couchpotato-label = couchpotato
+output_directory =
 
 [SABNZBD]
 convert = True
@@ -101,6 +103,7 @@ sonarr-category = sonarr
 bypass-category = bypass
 couchpotato-category = couchpotato
 sickbeard-category = sickbeard
+output_directory =
 
 [Sickrage]
 host = localhost
