@@ -295,7 +295,7 @@ class ReadSettings:
         try:
             self.permissions = int(self.permissions, 8)
         except:
-            self.log.exception("Invalid permissions, defaulting to 777.")
+            log.exception("Invalid permissions, defaulting to 777.")
             self.permissions = int("0777", 8)
 
         try:
@@ -450,7 +450,7 @@ class ReadSettings:
                 self.artwork = config.getboolean(section, "download-artwork")
             except:
                 self.artwork = True
-                self.log.error("Invalid download-artwork value, defaulting to 'poster'.")
+                log.error("Invalid download-artwork value, defaulting to 'poster'.")
 
         # Read relevant CouchPotato section information
         section = "CouchPotato"
