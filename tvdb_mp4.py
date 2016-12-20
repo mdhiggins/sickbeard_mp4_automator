@@ -166,7 +166,7 @@ class Tvdb_mp4:
         # Write actors
         output.write(castheader)
         for a in self.showdata['_actors'][:5]:
-            if a is not None:
+            if a is not None and a['name'] is not None:
                 output.write("<dict><key>name</key><string>%s</string></dict>\n" % a['name'].encode('ascii', errors='ignore'))
         output.write(subfooter)
 
