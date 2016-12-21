@@ -582,6 +582,20 @@ class Ac3Codec(AudioCodec):
                 opt['channels'] = 6
         return super(Ac3Codec, self).parse_options(opt, stream)
 
+class EAc3Codec(AudioCodec):
+    """
+    Dolby Digital Plus/EAC3 audio codec.
+    """
+    codec_name = 'eac3'
+    ffmpeg_codec_name = 'eac3'
+
+    def parse_options(self, opt, stream=0):
+        if 'channels' in opt:
+            c = opt['channels']
+            if c > 6:
+                opt['channels'] = 6
+        return super(EAc3Codec, self).parse_options(opt, stream)
+
 
 class FlacCodec(AudioCodec):
     """
@@ -907,7 +921,7 @@ class DVDSub(SubtitleCodec):
 
 audio_codec_list = [
     AudioNullCodec, AudioCopyCodec, VorbisCodec, AacCodec, Mp3Codec, Mp2Codec,
-    FdkAacCodec, FAacCodec, Ac3Codec, DtsCodec, FlacCodec
+    FdkAacCodec, FAacCodec, EAc3Codec, Ac3Codec, DtsCodec, FlacCodec
 ]
 
 video_codec_list = [
