@@ -592,8 +592,12 @@ class EAc3Codec(AudioCodec):
     def parse_options(self, opt, stream=0):
         if 'channels' in opt:
             c = opt['channels']
-            if c > 6:
-                opt['channels'] = 6
+            if c > 8:
+                opt['channels'] = 8
+        if 'bitrate' in opt:
+            br = opt['bitrate']
+            if br > 640:
+                opt['bitrate'] = 640
         return super(EAc3Codec, self).parse_options(opt, stream)
 
 
