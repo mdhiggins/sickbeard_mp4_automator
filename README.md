@@ -220,10 +220,10 @@ uTorrent Setup
 3. Set `Run Program` option
     - Go to `Options > Preferences > Advanced > Run Program`
     - Point to `uTorrentPostProcess.py` with command line parameters: `%L %T %D %K %F %I %N` in that exact order.
-3. Set your uTorrent settings in autoProcess.ini
+4. Set your uTorrent settings in autoProcess.ini
     - `convert` - `True`/`False`. Allows for conversion of files before passing back to the respective download manager.
     - `sickbeard-label` - default `sickbeard` - uTorrent label that should be assigned to torrents that will be sent to Sickbeard for additional processing when download is complete.
-    - `sickrage-label - default `sickrage` - uTorrent label that should be assigned to torrents that will be sent to Sickrage for additional processing when download is complete.
+    - `sickrage-label` - default `sickrage` - uTorrent label that should be assigned to torrents that will be sent to Sickrage for additional processing when download is complete.
     - `couchpotato-label` - default `couchpotato` - uTorrent label that should be assigned to torrents that will be sent to Couch Potato for additional processing when download is complete.
     - `sonarr-label` - default `sonarr` - uTorrent label that should be assigned to torrents that will be sent to Sonarr for additional processing when download is complete.
     - `bypass-label` - default `bypass` - label that should be assigned to torrents that will not be sent anywhere when download is complete. Useful if you wish to convert files without additional processing.
@@ -233,7 +233,7 @@ uTorrent Setup
     - `hostname` - your uTorrent Web UI URL, eg `http://localhost:8080/` including the trailing slash.
     - `username` - your uTorrent Web UI username.
     - `password` - your uTorrent Web UI password.
-4. Verify that whatever media manager you are using is assigning the label to match the label settings specified here so that file will be passed back to the appropriate location
+5. Verify that whatever media manager you are using is assigning the label to match the label settings specified here so that file will be passed back to the appropriate location
 
 Deluge Daemon
 --------------
@@ -344,19 +344,19 @@ Examples
 ```
 Movies (using IMDB ID):
 manual.py -i mp4path -m imdbid
-Example: manual.py -i 'C:\The Matrix.mkv' -imdb tt0133093
+Example: manual.py -i "C:\The Matrix.mkv -imdb tt0133093
 
 Movies (using TMDB ID)
 manual.py -i mp4path -tmdb tmdbid
-Example: manual.py -i 'C:\The Matrix.mkv' -tmdb 603
+Example: manual.py -i "C:\The Matrix.mkv" -tmdb 603
 
 TV
 manual.py -i mp4path -tv tvdbid -s season -e episode
-Example: manual.py -i 'C:\Futurama S03E10.mkv' -tv 73871‎ -s 3 -e 10
+Example: manual.py -i "C:\Futurama S03E10.mkv" -tv 73871‎ -s 3 -e 10
 
 Auto Single File (will gather movie ID or TV show ID / season / spisode from the file name if possible)
 manual.py -i mp4path -silent
-Example: manual.py -i 'C:\Futurama S03E10.mkv' -a
+Example: manual.py -i "C:\Futurama S03E10.mkv" -a
 
 Directory (you will be prompted at each file for the type of file and ID)
 manual.py -i directory_path
@@ -370,7 +370,7 @@ Process a directory but manually specific TVDB ID (Good for shows that don't cor
 manual.py -i directory -a -tv tvdbid
 Example: manual.py -i C:\TV\Futurama\ -a -tv 73871
 ```
-You may also simply run `manual.py -i 'C:\The Matrix.mkv'` and the script will prompt you for the missing information or attempt to guess based on the file name.
+You may also simply run `manual.py -i 'C:\The Matrix.mkv` and the script will prompt you for the missing information or attempt to guess based on the file name.
 You may run the script with a `--auto` or `-a` switch, which will let the script guess the tagging information based on the file name, avoiding any need for user input. This is the most ideal option for large batch file operations.
 The script may also be pointed to a directory, where it will process all files in the directory. If you run the script without the `-silent` switch, you will be prompted for each file with options on how to tag, to convert without tagging, or skip.
 
