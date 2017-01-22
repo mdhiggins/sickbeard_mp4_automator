@@ -187,8 +187,8 @@ NZBGet Setup
         - `BYPASS_CAT` - default `bypass` - category of downloads that may be converted but won't be passed on further
     - Save changes
     - Reload NZBGet
-4. Verify that whatever media manager you are using is assigning the category to match the label settings specified here so that file will be passed back to the appropriate location
-	- Set `PostScript` to NZBGetPostProcess.py
+4. When assigning categories in NZBGet and your chosen media manager, ensure they match the label settings specified here so that file will be passed back to the appropriate location.
+	- In the relevant category set `PostScript` to NZBGetPostProcess.py to ensure mp4_automator is called.
 
 SABNZBD Setup
 --------------
