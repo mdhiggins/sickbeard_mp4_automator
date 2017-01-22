@@ -171,7 +171,7 @@ Couch Potato Setup
 NZBGet Setup
 --------------
 1. Copy the script NZBGetPostProcess.py to NZBGet's script folder.
-    - Default location is ~/downloads/scripts/
+    - Default location is /opt/nzbget/scripts/
 2. Start/Restart NZBGet
 3. Configure NZBGETPOSTPROCESS
     - Access NZBGet's WebUI
