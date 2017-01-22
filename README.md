@@ -42,7 +42,7 @@ Note: Windows users should enter commands in Powershell - using '<' doesn't work
 - `babelfish` - Run `pip install babelfish`
 - `guessit` - Run `pip install "guessit<2"` to use manual.py (requires guessit version 1, version 2 is a complete rewrite, still in alpha, and not backwards compatible)
 - `subliminal`- Run `pip install "subliminal<2"` to enable automatically downloading subtitles
-- `stevedore` - Run `pip install stevedore` (this will be automatically installed with subliminal)
+- `stevedore` - Run `pip install stevedore==1.19.1` (this will be automatically installed with subliminal, so if subliminal is installed, run pip uninstall stevedore, pip install stevedore==1.19.1)
 - `dateutil` - Run `pip install python-dateutil` (this will be automatically installed with subliminal)
 - `deluge-client` Run `pip install deluge-client` if you plan on using Deluge
 - `qtfaststart` Run `pip install qtfaststart` to enable moving moov atom
