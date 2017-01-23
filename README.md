@@ -42,7 +42,7 @@ Note: Windows users should enter commands in Powershell - using '<' doesn't work
 - `babelfish` - Run `pip install babelfish`
 - `guessit` - Run `pip install "guessit<2"` to use manual.py (requires guessit version 1, version 2 is a complete rewrite, still in alpha, and not backwards compatible)
 - `subliminal`- Run `pip install "subliminal<2"` to enable automatically downloading subtitles
-- `stevedore` - Run `pip install stevedore` (this will be automatically installed with subliminal)
+- `stevedore` - Run `pip install stevedore==1.19.1` (requires stevedore version 1.19.1. This will be automatically installed with subliminal, so if subliminal is installed run `pip uninstall stevedore` then `pip install stevedore==1.19.1`)
 - `dateutil` - Run `pip install python-dateutil` (this will be automatically installed with subliminal)
 - `deluge-client` Run `pip install deluge-client` if you plan on using Deluge
 - `qtfaststart` Run `pip install qtfaststart` to enable moving moov atom
@@ -171,7 +171,7 @@ Couch Potato Setup
 NZBGet Setup
 --------------
 1. Copy the script NZBGetPostProcess.py to NZBGet's script folder.
-    - Default location is ~/downloads/scripts/
+    - Default location is /opt/nzbget/scripts/
 2. Start/Restart NZBGet
 3. Configure NZBGETPOSTPROCESS
     - Access NZBGet's WebUI
@@ -187,8 +187,8 @@ NZBGet Setup
         - `BYPASS_CAT` - default `bypass` - category of downloads that may be converted but won't be passed on further
     - Save changes
     - Reload NZBGet
-4. Verify that whatever media manager you are using is assigning the category to match the label settings specified here so that file will be passed back to the appropriate location
-	- Set `PostScript` to NZBGetPostProcess.py
+4. When assigning categories in NZBGet and your chosen media manager, ensure they match the label settings specified here so that file will be passed back to the appropriate location.
+	- In the relevant category set `PostScript` to NZBGetPostProcess.py to ensure mp4_automator is called.
 
 SABNZBD Setup
 --------------
