@@ -10,6 +10,7 @@ Media Managers Supported:
 - SickRage
 - CouchPotato
 - Sonarr
+- Radarr
 
 Downloaders Supported:
 - SABNZBD
@@ -140,6 +141,30 @@ Sonarr Setup
       - `Arguments` - Full path to `postSonarr.py`
     - Nonwindows Users
       - `Path` - Full path to `postSonarr.py`
+      - `Arguments` - Leave blank
+
+Radarr Setup
+--------------
+1. Set your Radarr settings in the autoProcess.ini file
+    - `host` = Radarr host address (localhost)    #Settings/General/Start-Up
+    - `port` = Radarr port (7878)                 #Settings/General/Start-Up
+    - `ssl` = 1 if enabled, 0 if not              #Settings/General/Security
+    - `apikey` = Radarr API Key (required)        #Settings/General/Security
+    - `web_root` = URL base empty or e.g. /tv     #Settings/General/Start-Up
+2. Browse to the Settings>Download Client tab and enable advanced settings [Show].
+3. Set the Drone Factory Interval' to 0 to disable it, and disable 'Completed Download Handling' in Radarr settings. The script will trigger a specific path re-scan, allowing the mp4 conversion to be completed before Radarr starts moving stuff around. This step is optional if you do not desire any processing between the downloading by whichever downloader you choose (NZB or Torrent), but is required if you wish to convert the file to an MP4 before it is handed back to Radarr.
+4. Setup the postRadarr.py script via Settings > Connect > Connections > + (Add)
+    - `name` - postRadarr
+    - `On Grab` - No
+    - `On Download` - Yes
+    - `On Upgrade` - Yes
+    - `On Rename` - No
+    - Filter Series Tags - optional
+    - Windows Users
+      - `Path` - Full path to your python executable
+      - `Arguments` - Full path to `postRadarr.py`
+    - Nonwindows Users
+      - `Path` - Full path to `postRadarr.py`
       - `Arguments` - Leave blank
 
 Couch Potato Setup
