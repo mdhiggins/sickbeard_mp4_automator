@@ -10,6 +10,7 @@ Media Managers Supported:
 - SickRage
 - CouchPotato
 - Sonarr
+- Radarr
 
 Downloaders Supported:
 - SABNZBD
@@ -142,26 +143,50 @@ Sonarr Setup
       - `Path` - Full path to `postSonarr.py`
       - `Arguments` - Leave blank
 
-Couch Potato Setup
+Radarr Setup
 --------------
-1. Set your Couch Potato settings to the autoProcess.ini file
-    - `host` - default `localhost` - Couch Potato host address
-    - `port` - default `5050` - Couch Potato port (5050)
+1. Set your Radarr settings in the autoProcess.ini file
+    - `host` = Radarr host address (localhost)    #Settings/General/Start-Up
+    - `port` = Radarr port (7878)                 #Settings/General/Start-Up
+    - `ssl` = 1 if enabled, 0 if not              #Settings/General/Security
+    - `apikey` = Radarr API Key (required)        #Settings/General/Security
+    - `web_root` = URL base empty or e.g. /tv     #Settings/General/Start-Up
+2. Browse to the Settings>Download Client tab and enable advanced settings [Show].
+3. Set the Drone Factory Interval' to 0 to disable it, and disable 'Completed Download Handling' in Radarr settings. The script will trigger a specific path re-scan, allowing the mp4 conversion to be completed before Radarr starts moving stuff around. This step is optional if you do not desire any processing between the downloading by whichever downloader you choose (NZB or Torrent), but is required if you wish to convert the file to an MP4 before it is handed back to Radarr.
+4. Setup the postRadarr.py script via Settings > Connect > Connections > + (Add)
+    - `name` - postRadarr
+    - `On Grab` - No
+    - `On Download` - Yes
+    - `On Upgrade` - Yes
+    - `On Rename` - No
+    - Filter Series Tags - optional
+    - Windows Users
+      - `Path` - Full path to your python executable
+      - `Arguments` - Full path to `postRadarr.py`
+    - Nonwindows Users
+      - `Path` - Full path to `postRadarr.py`
+      - `Arguments` - Leave blank
+
+CouchPotato Setup
+--------------
+1. Set your CouchPotato settings to the autoProcess.ini file
+    - `host` - default `localhost` - CouchPotato host address
+    - `port` - default `5050` - CouchPotato port (5050)
     - `ssl` - `1` if enabled, `0` if not
-    - `api_key` - Couch Potato API Key
-    - `username` - your Couch Potato username
-    - `password` - your Couch Potato password
+    - `api_key` - CouchPotato API Key
+    - `username` - your CouchPotato username
+    - `password` - your CouchPotato password
 2. Edit `main.py` in the `setup\PostProcess` folder
     - Set the path variable to the script location
     - By default it points to `C:\\Scripts\\`
     - Use double backslahses
-2. Copy the PostProcess directory from the setup folder included with this script to the Couch Potato `custom_plugins` directory
-    - Navigate to the About page in Couch Potato, where the installation directory is displayed.
-    - Go to this folder and copy the PostProcess folder (the whole folder, not just the contents) to the Couch Potato `custom_plugins` directory
+2. Copy the PostProcess directory from the setup folder included with this script to the CouchPotato `custom_plugins` directory
+    - Navigate to the About page in CouchPotato, where the installation directory is displayed.
+    - Go to this folder and copy the PostProcess folder (the whole folder, not just the contents) to the CouchPotato `custom_plugins` directory
     - Delete any `.pyc` files you find.
-    - Restart Couch Potato
-    - Verify in Couch Potato logs that PostProcess was loaded.
-3. If you're using one of the post download scripts ([SAB|NZBGet|uTorrent|deluge]PostProcess.py), disable automatic checking of the renamer folder, the script will automatically notify Couch Potato when it is complete to check for new videos to be renamed and relocated. Leaving this on may cause conflicts and CouchPotato may try to relocate/rename the file before processing is completed.
+    - Restart CouchPotato
+    - Verify in CouchPotato logs that PostProcess was loaded.
+3. If you're using one of the post download scripts ([SAB|NZBGet|uTorrent|deluge]PostProcess.py), disable automatic checking of the renamer folder, the script will automatically notify CouchPotato when it is complete to check for new videos to be renamed and relocated. Leaving this on may cause conflicts and CouchPotato may try to relocate/rename the file before processing is completed.
     - Set `Run Every` to `0`
     - Set `Force Every` to `0`
     - If you aren't using one of these scripts and are using an unsupported downloader, you will need to have CouchPotato periodically check the folder for files, otherwise the post downloader scripts will manually trigger a renamer scan. Using manual triggers is helpful because it prevents a coincidental renamer scan during other processing events.
