@@ -113,11 +113,18 @@ class ReadSettings:
                            'apikey': '',
                            'ssl': 'False',
                            'web_root': ''}
+        # Default settings for Radarr
+        radarr_defaults = {'host': 'localhost',
+                           'port': '7878',
+                           'apikey': '',
+                           'ssl': 'False',
+                           'web_root': ''}
         # Default uTorrent settings
         utorrent_defaults = {'couchpotato-label': 'couchpotato',
                              'sickbeard-label': 'sickbeard',
                              'sickrage-label': 'sickrage',
                              'sonarr-label': 'sonarr',
+                             'radarr-label': 'radarr',
                              'bypass-label': 'bypass',
                              'convert': 'True',
                              'webui': 'False',
@@ -133,6 +140,7 @@ class ReadSettings:
                         'Sickrage-category': 'sickrage',
                         'Couchpotato-category': 'couchpotato',
                         'Sonarr-category': 'sonarr',
+                        'Radarr-category': 'radarr',
                         'Bypass-category': 'bypass',
                         'output_directory': ''}
         # Default Sickrage Settings
@@ -149,6 +157,7 @@ class ReadSettings:
                            'sickbeard-label': 'sickbeard',
                            'sickrage-label': 'sickrage',
                            'sonarr-label': 'sonarr',
+                           'radarr-label': 'radarr',
                            'bypass-label': 'bypass',
                            'convert': 'True',
                            'host': 'localhost',
@@ -163,7 +172,7 @@ class ReadSettings:
                          'refresh': 'true',
                          'token': ''}
 
-        defaults = {'SickBeard': sb_defaults, 'CouchPotato': cp_defaults, 'Sonarr': sonarr_defaults, 'MP4': mp4_defaults, 'uTorrent': utorrent_defaults, 'SABNZBD': sab_defaults, 'Sickrage': sr_defaults, 'Deluge': deluge_defaults, 'Plex': plex_defaults}
+        defaults = {'SickBeard': sb_defaults, 'CouchPotato': cp_defaults, 'Sonarr': sonarr_defaults, 'Radarr': radarr_defaults, 'MP4': mp4_defaults, 'uTorrent': utorrent_defaults, 'SABNZBD': sab_defaults, 'Sickrage': sr_defaults, 'Deluge': deluge_defaults, 'Plex': plex_defaults}
         write = False  # Will be changed to true if a value is missing from the config file and needs to be written
 
         config = configparser.SafeConfigParser()
@@ -487,6 +496,7 @@ class ReadSettings:
         self.uTorrent['sb'] = config.get(section, "sickbeard-label").lower()
         self.uTorrent['sr'] = config.get(section, "sickrage-label").lower()
         self.uTorrent['sonarr'] = config.get(section, "sonarr-label").lower()
+        self.uTorrent['radarr'] = config.get(section, "radarr-label").lower()
         self.uTorrent['bypass'] = config.get(section, "bypass-label").lower()
         try:
             self.uTorrent['convert'] = config.getboolean(section, "convert")
@@ -511,6 +521,7 @@ class ReadSettings:
         self.deluge['sb'] = config.get(section, "sickbeard-label").lower()
         self.deluge['sr'] = config.get(section, "sickrage-label").lower()
         self.deluge['sonarr'] = config.get(section, "sonarr-label").lower()
+        self.deluge['radarr'] = config.get(section, "radarr-label").lower()
         self.deluge['bypass'] = config.get(section, "bypass-label").lower()
         try:
             self.deluge['convert'] = config.getboolean(section, "convert")
@@ -534,6 +545,15 @@ class ReadSettings:
         self.Sonarr['apikey'] = config.get(section, "apikey")
         self.Sonarr['ssl'] = config.get(section, "ssl")
         self.Sonarr['web_root'] = config.get(section, "web_root")
+
+        # Read relevant Radarr section information
+        section = "Radarr"
+        self.Radarr = {}
+        self.Radarr['host'] = config.get(section, "host")
+        self.Radarr['port'] = config.get(section, "port")
+        self.Radarr['apikey'] = config.get(section, "apikey")
+        self.Radarr['ssl'] = config.get(section, "ssl")
+        self.Radarr['web_root'] = config.get(section, "web_root")
 
         # Read Sickbeard section information
         section = "SickBeard"
@@ -568,6 +588,7 @@ class ReadSettings:
         self.SAB['sb'] = config.get(section, "Sickbeard-category").lower()
         self.SAB['sr'] = config.get(section, "Sickrage-category").lower()
         self.SAB['sonarr'] = config.get(section, "Sonarr-category").lower()
+        self.SAB['radarr'] = config.get(section, "Radarr-category").lower()
         self.SAB['bypass'] = config.get(section, "Bypass-category").lower()
         self.SAB['output_dir'] = config.get(section, "output_directory")
         if self.SAB['output_dir'] == '':

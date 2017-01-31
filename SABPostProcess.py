@@ -2,7 +2,7 @@
 
 import os
 import sys
-from autoprocess import autoProcessTV, autoProcessMovie, autoProcessTVSR, sonarr
+from autoprocess import autoProcessTV, autoProcessMovie, autoProcessTVSR, sonarr, radarr
 from readSettings import ReadSettings
 from mkvtomp4 import MkvtoMp4
 import logging
@@ -27,7 +27,7 @@ if len(sys.argv) < 8:
 # 7 Status of post processing. 0 = OK, 1=failed verification, 2=failed unpack, 3=1+2
 
 settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
-categories = [settings.SAB['sb'], settings.SAB['cp'], settings.SAB['sonarr'], settings.SAB['sr'], settings.SAB['bypass']]
+categories = [settings.SAB['sb'], settings.SAB['cp'], settings.SAB['sonarr'], settings.SAB['radarr'], settings.SAB['sr'], settings.SAB['bypass']]
 category = str(sys.argv[5]).lower()
 path = str(sys.argv[1])
 nzb = str(sys.argv[2])
@@ -51,7 +51,7 @@ if settings.SAB['convert']:
     if settings.SAB['output_dir']:
         settings.output_dir = settings.SAB['output_dir']
         log.debug("Overriding output_dir to %s." % settings.SAB['output_dir'])
-    
+
     converter = MkvtoMp4(settings)
     for r, d, f in os.walk(path):
         for files in f:
@@ -82,8 +82,11 @@ elif (category == categories[2]):
     log.info("Passing %s directory to Sonarr." % path)
     sonarr.processEpisode(path, settings)
 elif (category == categories[3]):
+    log.info("Passing %s directory to Radarr." % path)
+    radarr.processMovie(path, settings)
+elif (category == categories[4]):
     log.info("Passing %s directory to Sickrage." % path)
     autoProcessTVSR.processEpisode(path, settings, nzb)
 # Bypass
-elif (category == categories[4]):
+elif (category == categories[5]):
     log.info("Bypassing any further processing as per category.")

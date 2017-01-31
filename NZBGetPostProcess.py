@@ -22,6 +22,9 @@
 # Category for Sonarr
 #SONARR_CAT=Sonarr
 
+# Category for Radarr
+#RADARR_CAT=Radarr
+
 # Category for Sickbeard
 #SICKBEARD_CAT=Sickbeard
 
@@ -68,7 +71,7 @@ sys.path.append(MP4folder)
 try:
     from readSettings import ReadSettings
     from mkvtomp4 import MkvtoMp4
-    from autoprocess import autoProcessMovie, autoProcessTV, autoProcessTVSR, sonarr
+    from autoprocess import autoProcessMovie, autoProcessTV, autoProcessTVSR, sonarr, radarr
     import logging
     from logging.config import fileConfig
 except ImportError:
@@ -93,11 +96,12 @@ if 'NZBOP_SCRIPTDIR' in os.environ and not os.environ['NZBOP_VERSION'][0:5] < '1
 
     couchcat = os.environ['NZBPO_CP_CAT'].lower()
     sonarrcat = os.environ['NZBPO_SONARR_CAT'].lower()
+    radarrcat = os.environ['NZBPO_RADARR_CAT'].lower()
     sickbeardcat = os.environ['NZBPO_SICKBEARD_CAT'].lower()
     sickragecat = os.environ['NZBPO_SICKRAGE_CAT'].lower()
     bypass = os.environ['NZBPO_BYPASS_CAT'].lower()
 
-    categories = [sickbeardcat, couchcat, sonarrcat, sickragecat, bypass]
+    categories = [sickbeardcat, couchcat, sonarrcat, radarrcat, sickragecat, bypass]
 
     log.debug("Path: %s" % path)
     log.debug("NZB: %s" % nzb)
@@ -202,16 +206,24 @@ if 'NZBOP_SCRIPTDIR' in os.environ and not os.environ['NZBOP_VERSION'][0:5] < '1
         autoProcessMovie.process(path, settings, nzb, status)
         sys.exit(POSTPROCESS_SUCCESS)
     elif (category.lower() == categories[2]):
+        #DEBUG#print "Sonarr Processing Activated"
         success = sonarr.processEpisode(path, settings, True)
         if success:
             sys.exit(POSTPROCESS_SUCCESS)
         else:
             sys.exit(POSTPROCESS_ERROR)
     elif (category.lower() == categories[3]):
+        #DEBUG#print "Radarr Processing Activated"
+        success = radarr.processMovie(path, settings, True)
+        if success:
+            sys.exit(POSTPROCESS_SUCCESS)
+        else:
+            sys.exit(POSTPROCESS_ERROR)
+    elif (category.lower() == categories[4]):
         #DEBUG#print "Sickrage Processing Activated"
         autoProcessTVSR.processEpisode(path, settings, nzb)
         sys.exit(POSTPROCESS_SUCCESS)
-    elif (category.lower() == categories[4]):
+    elif (category.lower() == categories[5]):
         #DEBUG#print "Bypass Further Processing"
         sys.exit(POSTPROCESS_NONE)
 

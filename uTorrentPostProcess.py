@@ -2,7 +2,7 @@ import os
 import re
 import sys
 import shutil
-from autoprocess import autoProcessTV, autoProcessMovie, autoProcessTVSR, sonarr
+from autoprocess import autoProcessTV, autoProcessMovie, autoProcessTVSR, sonarr, radarr
 from readSettings import ReadSettings
 from mkvtomp4 import MkvtoMp4
 import logging
@@ -53,7 +53,7 @@ if len(sys.argv) < 6:
 settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
 path = str(sys.argv[3])
 label = sys.argv[1].lower()
-categories = [settings.uTorrent['cp'], settings.uTorrent['sb'], settings.uTorrent['sonarr'], settings.uTorrent['sr'], settings.uTorrent['bypass']]
+categories = [settings.uTorrent['cp'], settings.uTorrent['sb'], settings.uTorrent['sonarr'], settings.uTorrent['radarr'], settings.uTorrent['sr'], settings.uTorrent['bypass']]
 torrent_hash = sys.argv[6]
 try:
     name = sys.argv[7]
@@ -138,9 +138,6 @@ if settings.uTorrent['convert']:
                     try:
                         output = converter.process(inputfile)
                         ignore.append(output['output'])
-                        if (label == categories[2] and settings.relocate_moov):
-                            log.debug("Performing QTFS move because video was converted and Sonarr has no post processing.")
-                            converter.QTFS(output['output'])
                     except:
                         log.exception("Error converting file %s." % inputfile)
                 else:
@@ -175,9 +172,12 @@ elif label == categories[2]:
     log.info("Passing %s directory to Sonarr." % path)
     sonarr.processEpisode(path, settings)
 elif label == categories[3]:
+    log.info("Passing %s directory to Radarr." % path)
+    radarr.processMovie(path, settings)
+elif label == categories[4]:
     log.info("Passing %s directory to Sickrage." % path)
     autoProcessTVSR.processEpisode(path, settings)
-elif label == categories[4]:
+elif label == categories[5]:
     log.info("Bypassing any further processing as per category.")
 
 # Run a uTorrent action after conversion.

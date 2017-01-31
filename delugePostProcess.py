@@ -2,7 +2,7 @@
 
 import os
 import sys
-from autoprocess import autoProcessTV, autoProcessMovie, autoProcessTVSR, sonarr
+from autoprocess import autoProcessTV, autoProcessMovie, autoProcessTVSR, sonarr, radarr
 from readSettings import ReadSettings
 from mkvtomp4 import MkvtoMp4
 from deluge_client import DelugeRPCClient
@@ -15,7 +15,7 @@ log = logging.getLogger("delugePostProcess")
 log.info("Deluge post processing started.")
 
 settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
-categories = [settings.deluge['sb'], settings.deluge['cp'], settings.deluge['sonarr'], settings.deluge['sr'], settings.deluge['bypass']]
+categories = [settings.deluge['sb'], settings.deluge['cp'], settings.deluge['sonarr'], settings.deluge['radarr'], settings.deluge['sr'], settings.deluge['bypass']]
 
 if len(sys.argv) < 4:
     log.error("Not enough command line parameters present, are you launching this from deluge?")
@@ -107,9 +107,12 @@ elif (category == categories[2]):
     log.info("Passing %s directory to Sonarr." % path)
     sonarr.processEpisode(path, settings)
 elif (category == categories[3]):
+    log.info("Passing %s directory to Radarr." % path)
+    radarr.processMovie(path, settings)
+elif (category == categories[4]):
     log.info("Passing %s directory to Sickrage." % path)
     autoProcessTVSR.processEpisode(path, settings)
-elif (category == categories[4]):
+elif (category == categories[5]):
     log.info("Bypassing any further processing as per category.")
 
 if delete_dir:
