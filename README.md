@@ -167,7 +167,7 @@ Radarr Setup
       - `Path` - Full path to `postRadarr.py`
       - `Arguments` - Leave blank
 
-Couch Potato Setup
+CouchPotato Setup
 --------------
 1. Set your Couch Potato settings to the autoProcess.ini file
     - `host` - default `localhost` - Couch Potato host address
