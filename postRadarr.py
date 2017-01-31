@@ -20,7 +20,7 @@ log.info(os.environ)
 
 inputfile = os.environ.get('radarr_moviefile_path')
 original = os.environ.get('radarr_moviefile_scenename')
-imdbid = os.environ.get('radarr_movie_id')
+imdbid = os.environ.get('radarr_movie_imdbid')
 
 converter = MkvtoMp4(settings)
 
