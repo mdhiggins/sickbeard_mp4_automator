@@ -597,7 +597,7 @@ class MkvtoMp4:
         }
 
         if len(options['subtitle']) > 0:
-            option['preopts'] = ['-fix_sub_duration']
+            options['preopts'] = ['-fix_sub_duration']
 
         # If using h264qsv, add the codec in front of the input for decoding
         if vcodec == "h264qsv" and info.video.codec.lower() == "h264" and self.qsv_decoder and (info.video.video_level / 10) < 5:
