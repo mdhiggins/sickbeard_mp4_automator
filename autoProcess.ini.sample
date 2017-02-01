@@ -4,21 +4,21 @@ port = 8081
 username =
 password =
 web_root =
-ssl = 0
+ssl = False
 api_key =
 
 [Sonarr]
 host = localhost
 port = 8989
 web_root =
-ssl = 0
+ssl = False
 apikey =
 
 [Radarr]
 host = localhost
 port = 7878
 web_root =
-ssl = 0
+ssl = False
 apikey =
 
 [MP4]
@@ -69,11 +69,11 @@ port = 5050
 username =
 password =
 web_root =
-ssl = 0
+ssl = False
 apikey =
 delay = 65
 method = renamer
-delete_failed = 0
+delete_failed = False
 
 [uTorrent]
 convert =
@@ -118,7 +118,7 @@ port = 8081
 username =
 password =
 web_root =
-ssl = 0
+ssl = False
 api_key =
 
 [Plex]
