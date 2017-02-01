@@ -335,6 +335,7 @@ optional arguments:
   -i INPUT, --input INPUT
                         The source that will be converted. May be a file or a
                         directory
+  --config              Specify an alternate configuration file location
   -a, --auto            Enable auto mode, the script will not prompt you for
                         any further input, good for batch files. It will guess
                         the metadata using guessit
