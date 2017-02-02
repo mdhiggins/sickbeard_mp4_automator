@@ -632,7 +632,7 @@ class ReadSettings:
         return sickbeard_url
 
     def writeConfig(self, config, cfgfile):
-            fp = open(cfgfile, "wb")
+            fp = open(cfgfile, "w")
             try:
                 config.write(fp)
             except IOError:
