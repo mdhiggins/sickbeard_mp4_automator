@@ -269,5 +269,6 @@ def main():
         else:
             print("Wrong file type")
 
+
 if __name__ == '__main__':
     main()
