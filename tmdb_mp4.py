@@ -195,8 +195,8 @@ class tmdb_mp4:
         if poster is None:
             try:
                 poster = urlretrieve(self.movie.get_poster("l"), os.path.join(tempfile.gettempdir(), "poster-tmdb.jpg"))[0]
-            except:
-                self.log.error("Exception while retrieving poster %s.", str(err))
+            except Exception as e:
+                self.log.error("Exception while retrieving poster %s.", str(e))
                 poster = None
         return poster
 
