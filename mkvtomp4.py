@@ -47,7 +47,9 @@ class MkvtoMp4:
                  permissions=int("777", 8),
                  pix_fmt=None,
                  logger=None,
-                 threads='auto'):
+                 threads='auto',
+                 preopts=None,
+                 postopts=None):
         # Setup Logging
         if logger:
             self.log = logger
@@ -68,6 +70,8 @@ class MkvtoMp4:
         self.moveto = moveto
         self.relocate_moov = relocate_moov
         self.permissions = permissions
+        self.preopts = preopts
+        self.postopts = postopts
         # Video settings
         self.video_codec = video_codec
         self.video_bitrate = video_bitrate
@@ -115,6 +119,8 @@ class MkvtoMp4:
         self.moveto = settings.moveto
         self.relocate_moov = settings.relocate_moov
         self.permissions = settings.permissions
+        self.preopts = settings.preopts
+        self.postopts = settings.postopts
         # Video settings
         self.video_codec = settings.vcodec
         self.video_bitrate = settings.vbitrate
@@ -599,6 +605,12 @@ class MkvtoMp4:
 
         if len(options['subtitle']) > 0:
             options['preopts'].append('-fix_sub_duration')
+
+        if self.preopts:
+            options['preopts'].extend(self.preopts)
+
+        if self.postopts:
+            options['postopts'].extend(self.postopts)
 
         # If using h264qsv, add the codec in front of the input for decoding
         if vcodec == "h264qsv" and info.video.codec.lower() == "h264" and self.qsv_decoder and (info.video.video_level / 10) < 5:

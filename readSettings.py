@@ -95,7 +95,9 @@ class ReadSettings:
                         'sub-providers': 'addic7ed, podnapisi, thesubdb, opensubtitles',
                         'permissions': '777',
                         'post-process': 'False',
-                        'pix-fmt': ''}
+                        'pix-fmt': '',
+                        'preopts': '',
+                        'postopts': ''}
         # Default settings for CouchPotato
         cp_defaults = {'host': 'localhost',
                        'port': '5050',
@@ -460,6 +462,16 @@ class ReadSettings:
             except:
                 self.artwork = True
                 log.error("Invalid download-artwork value, defaulting to 'poster'.")
+
+        self.preopts = config.get(section, "preopts").lower()
+        if self.preopts == '':
+            self.preopts == None
+        else:
+
+        self.postopts = config.get(section, "postopts").lower()
+        if self.postopts == '':
+            self.postopts == None
+        else:
 
         # Read relevant CouchPotato section information
         section = "CouchPotato"
