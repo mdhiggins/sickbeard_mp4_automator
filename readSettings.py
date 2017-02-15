@@ -467,11 +467,13 @@ class ReadSettings:
         if self.preopts == '':
             self.preopts == None
         else:
+            self.preopts = self.preopts.split(',')
 
         self.postopts = config.get(section, "postopts").lower()
         if self.postopts == '':
             self.postopts == None
         else:
+            self.postopts = self.postopts.split(',')
 
         # Read relevant CouchPotato section information
         section = "CouchPotato"
