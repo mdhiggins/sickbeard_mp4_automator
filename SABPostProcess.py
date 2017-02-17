@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
-import os
 import sys
-from autoprocess import autoProcessTV, autoProcessMovie, autoProcessTVSR, sonarr, radarr
+import os
+import logging
 from readSettings import ReadSettings
 from mkvtomp4 import MkvtoMp4
-import logging
+from autoprocess import autoProcessTV, autoProcessMovie, autoProcessTVSR, sonarr, radarr
 from logging.config import fileConfig
 
 fileConfig(os.path.join(os.path.dirname(sys.argv[0]), 'logging.ini'), defaults={'logfilename': os.path.join(os.path.dirname(sys.argv[0]), 'info.log').replace("\\", "/")})
@@ -56,14 +56,20 @@ if settings.SAB['convert']:
     for r, d, f in os.walk(path):
         for files in f:
             inputfile = os.path.join(r, files)
-            if MkvtoMp4(settings).validSource(inputfile):
-                log.info("Processing file %s." % inputfile)
-                try:
+            try:
+                log.info('Processing file: %s', inputfile)
+                if MkvtoMp4(settings).validSource(inputfile):
+                    log.info('File is valid')
                     output = converter.process(inputfile)
-                except:
-                    log.exception("Error converting file %s." % inputfile)
-            else:
-                log.debug("Ignoring file %s." % inputfile)
+
+                    if output:
+                        # QTFS
+                        if settings.relocate_moov:
+                            converter.QTFS(output['output'])
+                else:
+                    log.info('File %s is invalid, ignoring' % inputfile)
+            except:
+                log.exception('File processing failed: %s' % inputfile)
     if converter.output_dir:
         path = converter.output_dir
 else:
