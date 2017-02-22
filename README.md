@@ -107,7 +107,7 @@ Sick Beard Setup
 
 Medusa Setup
 --------------
-1. Open the configuration page in Sickrage and scroll down to the option labelled "Extra Scripts". Here enter the path to python followed by the full script path. Examples:
+1. Open the configuration page in Medusa and scroll down to the option labelled "Extra Scripts". Here enter the path to python followed by the full script path. Examples:
     - `C:\\Python27\\python.exe C:\\sickbeard_mp4_automator\\postConversion.py`
     - `/usr/bin/python /home/user/sickbeard_mp4_automator/postConversion.py`
 2. Set the Medusa variables in autoProcess.ini under the [Sickrage] or [Sickbeard] section:
