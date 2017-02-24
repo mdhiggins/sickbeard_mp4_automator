@@ -606,6 +606,10 @@ class FlacCodec(AudioCodec):
     """
     codec_name = 'flac'
     ffmpeg_codec_name = 'flac'
+    flac_experimental_enable = ['-strict', 'experimental']
+
+    def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
+        return self.flac_experimental_enable
 
 
 class DtsCodec(AudioCodec):
