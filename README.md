@@ -32,7 +32,7 @@ Default Settings
 2. Audio - AAC 2.0 with additional AC3 track when source has >2 channels (ex 5.1)
 3. Subtitles - mov_text
 
-Prerequesite PIP Package Installation Instructions
+Prerequisite PIP Package Installation Instructions
 --------------
 Note: Windows users should enter commands in Powershell - using '<' doesn't work in cmd
 - `VC for Python 2.7` (Windows Users Only) - Download and install - http://www.microsoft.com/en-us/download/details.aspx?id=44266
@@ -90,7 +90,7 @@ General MP4 Configuration
     **YOU MUST INSTALL SUBLIMINAL AND ITS DEPENDENCIES FOR THIS TO WORK.** You must run `pip install subliminal` in order for this feature to be enabled.
     - `sub-providers` = Comma separated values for potential subtitle providers. Must specify at least 1 provider to enable `download-subs`. Providers include `podnapisi` `thesubdb` `opensubtitles` `tvsubtitles` `addic7ed`
 
-Sick Beard Setup
+Sickbeard Setup
 --------------
 1. Open Sickbeard's config.ini in Sick Beard installation folder
     - Set "extra_scripts" value in the general section to the full path to "python postConversion.py" using double backslashes
