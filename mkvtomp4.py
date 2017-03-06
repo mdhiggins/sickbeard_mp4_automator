@@ -790,7 +790,8 @@ class MkvtoMp4:
             except:
                 self.log.debug("Unable to set file permissions before deletion. This is not always required.")
             try:
-                os.remove(filename)
+                if os.path.exists(filename):
+                    os.remove(filename)
                 # Replaces the newly deleted file with another by renaming (replacing an original with a newly created file)
                 if replacement is not None:
                     os.rename(replacement, filename)
