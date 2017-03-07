@@ -24,6 +24,7 @@ if len(sys.argv) < 4:
 path = str(sys.argv[3])
 torrent_name = str(sys.argv[2])
 torrent_id = str(sys.argv[1])
+origpath = os.path.join(path, torrent_name)
 delete_dir = None
 
 log.debug("Path: %s." % path)
@@ -115,10 +116,37 @@ elif (category == categories[4]):
 elif (category == categories[5]):
     log.info("Bypassing any further processing as per category.")
 
+# Reset back to user preferences
+settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
+
+# Delete original path
+if settings.delete:
+	for filename in files:
+		inputfile = os.path.join(origpath, filename)
+		try:
+			converter.removeFile(inputfile)
+			log.info("Successfully removed original file %s." % inputfile)
+		except:
+			log.exception("Unable to delete original file %s." % inputfile)
+	try:
+		os.rmdir(origpath)
+		log.debug("Successfully removed original directory %s." % origpath)
+	except:
+		log.exception("Unable to delete original directory %s." % origpath)
+	
+# Delete conversion path
 if delete_dir:
     if os.path.exists(delete_dir):
-        try:
-            os.rmdir(delete_dir)
-            log.debug("Successfully removed tempoary directory %s." % delete_dir)
-        except:
-            log.exception("Unable to delete temporary directory.")
+		tempfiles = os.listdir(dir)
+		for filename in tempfiles:
+			file = os.path.join(path, filename)
+			try:
+				converter.removeFile(file)
+				log.debug("Successfully removed tempoary file %s." % file)
+			except:
+				log.exception("Unable to delete temporary file %s." % file)
+		try:
+			os.rmdir(delete_dir)
+			log.debug("Successfully removed tempoary directory %s." % delete_dir)
+		except:
+			log.exception("Unable to delete temporary directory %s." % delete_dir)
