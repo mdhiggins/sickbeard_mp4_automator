@@ -122,7 +122,11 @@ settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
 # Delete original path
 if settings.delete:
 	for filename in files:
+<<<<<<< HEAD
 		inputfile = os.path.join(originputpath, filename)
+=======
+		inputfile = os.path.join(origpath, filename)
+>>>>>>> master
 		try:
 			converter.removeFile(inputfile)
 			log.info("Successfully removed original file %s." % inputfile)
@@ -137,7 +141,11 @@ if settings.delete:
 # Delete conversion path
 if delete_dir:
     if os.path.exists(delete_dir):
+<<<<<<< HEAD
 		tempfiles = os.listdir(delete_dir)
+=======
+		tempfiles = os.listdir(dir)
+>>>>>>> master
 		for filename in tempfiles:
 			file = os.path.join(path, filename)
 			try:
