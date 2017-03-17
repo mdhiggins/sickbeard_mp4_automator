@@ -34,6 +34,7 @@ delete_original = True
 relocate_moov = True
 video-codec = h264,x264
 video-bitrate =
+video-crf =
 video-max-width =
 h264-max-level =
 use-qsv-decoder-with-encoder = True

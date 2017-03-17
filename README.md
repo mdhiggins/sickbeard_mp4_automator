@@ -68,6 +68,7 @@ General MP4 Configuration
     - `max-audio-channels` = Sets a maximum number of audio channels. This may provide an alternative to the iOS audio option, where instead users can simply select the desired output codec and the max number of audio channels without the creation of an additional audio track.
     - `video-codec` = set your desired video codecs. May specify multiple comma separated values (ex: h264, x264). The first value specified will be the default conversion choice when an undesired codec is encountered; any codecs specified here will be remuxed/copied rather than converted.
     - `video-bitrate` = allows you to set a maximum video bitrate in Kbps. If the source file exceeds the video-bitrate it will be transcoded to the specified video-bitrate, even if they source file is already in the correct video codec. If the source file is in the correct video codec and does not exceed the video-bitrate setting, then it will be copied without transcoding. Leave blank to disable this setting.
+    - `video-crf` = allows you to set the CRF which will override the video bitrate setting for those that prefer CRF. Video-bitrate setting will still be used to determine a maximum bitrate that will trigger transcoding.
     - `video-max-width` = set a max video width to downsize higher resolution video files. Aspect ratio will be preserved.
     - `h264-max-level` = set your max h264 level. Use the decimal format. Levels lower than the specified value, if otherwise appropriate, will be copied without transcoding. Example - `4.0`.
     - `pix_fmt` = set the video pix_fmt. If you don't know what this is just leave it blank.
@@ -213,7 +214,7 @@ NZBGet Setup
     - Save changes
     - Reload NZBGet
 4. When assigning categories in NZBGet and your chosen media manager, ensure they match the label settings specified here so that file will be passed back to the appropriate location.
-	- In the relevant category set `PostScript` to NZBGetPostProcess.py to ensure mp4_automator is called.
+    - In the relevant category set `PostScript` to NZBGetPostProcess.py to ensure mp4_automator is called.
 
 SABNZBD Setup
 --------------

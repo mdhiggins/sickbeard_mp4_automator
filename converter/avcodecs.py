@@ -237,6 +237,7 @@ class VideoCodec(BaseCodec):
     encoder_options = {
         'codec': str,
         'bitrate': int,
+        'crf': int,
         'fps': int,
         'width': int,
         'height': int,
@@ -321,6 +322,11 @@ class VideoCodec(BaseCodec):
             if br < 16 or br > 15000:
                 del safe['bitrate']
 
+        if 'crf' in safe:
+            crf = safe['crf']
+            if crf < 0 or crf > 51:
+                del safe['crf']
+
         w = None
         h = None
 
@@ -374,6 +380,8 @@ class VideoCodec(BaseCodec):
             optlist.extend(['-pix_fmt', str(safe['pix_fmt'])])
         if 'bitrate' in safe:
             optlist.extend(['-vb', str(safe['bitrate']) + 'k'])  # FIXED
+        if 'crf' in safe:
+            optlist.extend(['-crf', str(safe['crf'])])
         if 'filter' in safe:
             if filters:
                 filters = '%s;%s' % (filters, str(safe['filter']))

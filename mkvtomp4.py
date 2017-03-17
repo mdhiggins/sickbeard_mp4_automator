@@ -21,6 +21,7 @@ class MkvtoMp4:
                  output_format='mp4',
                  video_codec=['h264', 'x264'],
                  video_bitrate=None,
+                 vcrf=None,
                  video_width=None,
                  h264_level=None,
                  qsv_decoder=True,
@@ -75,6 +76,7 @@ class MkvtoMp4:
         # Video settings
         self.video_codec = video_codec
         self.video_bitrate = video_bitrate
+        self.vcrf = vcrf
         self.video_width = video_width
         self.h264_level = h264_level
         self.qsv_decoder = qsv_decoder
@@ -124,6 +126,7 @@ class MkvtoMp4:
         # Video settings
         self.video_codec = settings.vcodec
         self.video_bitrate = settings.vbitrate
+        self.vcrf = settings.vcrf
         self.video_width = settings.vwidth
         self.h264_level = settings.h264_level
         self.qsv_decoder = settings.qsv_decoder
@@ -602,6 +605,11 @@ class MkvtoMp4:
             'preopts': [],
             'postopts': ['-threads', self.threads]
         }
+
+        # If a CRF option is set, override the determine bitrate
+        if self.vcrf:
+            del options['video']['bitrate']
+            options['video']['crf'] = self.vcrf
 
         if len(options['subtitle']) > 0:
             options['preopts'].append('-fix_sub_duration')
