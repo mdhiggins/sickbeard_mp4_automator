@@ -555,6 +555,13 @@ class AacCodec(AudioCodec):
     ffmpeg_codec_name = 'aac'
     aac_experimental_enable = ['-strict', 'experimental']
 
+    def parse_options(self, opt, stream=0):
+        if 'channels' in opt:
+            c = opt['channels']
+            if c > 6:
+                opt['channels'] = 6
+        return super(AacCodec, self).parse_options(opt, stream)
+
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         return self.aac_experimental_enable
 
@@ -566,6 +573,13 @@ class FdkAacCodec(AudioCodec):
     codec_name = 'libfdk_aac'
     ffmpeg_codec_name = 'libfdk_aac'
 
+    def parse_options(self, opt, stream=0):
+        if 'channels' in opt:
+            c = opt['channels']
+            if c > 6:
+                opt['channels'] = 6
+        return super(FdkAacCodec, self).parse_options(opt, stream)
+
 
 class FAacCodec(AudioCodec):
     """
@@ -573,6 +587,13 @@ class FAacCodec(AudioCodec):
     """
     codec_name = 'libfaac'
     ffmpeg_codec_name = 'libfaac'
+
+    def parse_options(self, opt, stream=0):
+        if 'channels' in opt:
+            c = opt['channels']
+            if c > 6:
+                opt['channels'] = 6
+        return super(FAacCodec, self).parse_options(opt, stream)
 
 
 class Ac3Codec(AudioCodec):
