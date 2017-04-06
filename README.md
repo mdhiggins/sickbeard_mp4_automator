@@ -36,7 +36,7 @@ Prerequisite PIP Package Installation Instructions
 --------------
 Note: Windows users should enter commands in Powershell - using '<' doesn't work in cmd
 - `VC for Python 2.7` (Windows Users Only) - Download and install - http://www.microsoft.com/en-us/download/details.aspx?id=44266
-- `setup_tools` - https://pypi.python.org/pypi/setuptools#installation-instructions
+- `setuptools` - https://pypi.python.org/pypi/setuptools#installation-instructions
 - `requests` - Run `pip install requests`
 - `requests security package` - Run `pip install requests[security]`
 - `requests-cache` - Run `pip install requests-cache`
