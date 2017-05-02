@@ -21,7 +21,7 @@ checkStatus(){
     fi
 }
 
-if [ "$(whoami)" == "sysadmin" ] || [ "$(whoami)" == "root" ] ; then
+if [ "$(whoami)" -eq "sysadmin" ] || [ "$(whoami)" -eq "root" ]; then
     echo 'Removing existing packages...'
     sudo apt-get remove ffmpeg x264 libav-tools libvpx-dev libx264-dev yasm -y
     checkStatus()
