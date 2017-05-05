@@ -167,7 +167,8 @@ class ReadSettings:
                            'port': '58846',
                            'username': '',
                            'password': '',
-                           'output_directory': ''}
+                           'output_directory': '',
+                           'remove': 'false'}
 
         # Default Plex Settings
         plex_defaults = {'host': 'localhost',
@@ -557,6 +558,7 @@ class ReadSettings:
         self.deluge['user'] = config.get(section, "username")
         self.deluge['pass'] = config.get(section, "password")
         self.deluge['output_dir'] = config.get(section, "output_directory")
+        self.deluge['remove'] = config.getboolean(section, "remove")
         if self.deluge['output_dir'] == '':
             self.deluge['output_dir'] = None
         else:
