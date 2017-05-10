@@ -44,6 +44,7 @@ class MkvtoMp4:
                  copyto=None,
                  moveto=None,
                  embedsubs=True,
+                 embedonlyinternalsubs=True,
                  providers=['addic7ed', 'podnapisi', 'thesubdb', 'opensubtitles'],
                  permissions=int("777", 8),
                  pix_fmt=None,
@@ -99,6 +100,7 @@ class MkvtoMp4:
         self.downloadsubs = downloadsubs
         self.subproviders = providers
         self.embedsubs = embedsubs
+        self.embedonlyinternalsubs = embedonlyinternalsubs
         self.subencoding = subencoding
 
         # Import settings
@@ -149,6 +151,7 @@ class MkvtoMp4:
         self.downloadsubs = settings.downloadsubs
         self.subproviders = settings.subproviders
         self.embedsubs = settings.embedsubs
+        self.embedonlyinternalsubs = settings.embedonlyinternalsubs
         self.subencoding = settings.subencoding
 
         self.log.debug("Settings imported.")
@@ -548,7 +551,7 @@ class MkvtoMp4:
                 self.log.info("Unable to download subtitles.", exc_info=True)
                 self.log.debug("Unable to download subtitles.", exc_info=True)
         # External subtitle import
-        if self.embedsubs:  # Don't bother if we're not embeddeding any subtitles
+        if self.embedsubs and not self.embedonlyinternalsubs:  # Don't bother if we're not embeddeding subtitles and external subtitles
             src = 1  # FFMPEG input source number
             for dirName, subdirList, fileList in os.walk(input_dir):
                 for fname in fileList:

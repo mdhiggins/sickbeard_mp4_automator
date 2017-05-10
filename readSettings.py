@@ -93,6 +93,7 @@ class ReadSettings:
                         'download-artwork': 'poster',
                         'download-subs': 'False',
                         'embed-subs': 'True',
+                        'embed-only-internal-subs': 'False',
                         'sub-providers': 'addic7ed, podnapisi, thesubdb, opensubtitles',
                         'permissions': '777',
                         'post-process': 'False',
@@ -303,6 +304,8 @@ class ReadSettings:
             self.subproviders = self.subproviders.lower().replace(' ', '').split(',')
 
         self.embedsubs = config.getboolean(section, 'embed-subs')
+
+        self.embedonlyinternalsubs = config.getboolean(section, 'embed-only-internal-subs')
 
         self.permissions = config.get(section, 'permissions')
         try:
