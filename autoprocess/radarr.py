@@ -46,12 +46,14 @@ def processMovie(dirName, settings, nzbGet=False, logger=None):
     else:
         protocol = "http://"
 
-    url = protocol + host + ":" + port + "/api/command"
+    webroot = settings.Radarr['webroot']
+    url = protocol + host + ":" +  port + webroot + "/api/command"
     payload = {'name': 'DownloadedMoviesScan', 'path': dirName}
     headers = {'X-Api-Key': apikey}
 
     log.debug("Radarr host: %s." % host)
     log.debug("Radarr port: %s." % port)
+    log.debug("Radarr webroot: %s." % webroot)
     log.debug("Radarr apikey: %s." % apikey)
     log.debug("Radarr protocol: %s." % protocol)
     log.debug("URL '%s' with payload '%s.'" % (url, payload))

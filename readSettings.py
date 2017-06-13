@@ -572,6 +572,10 @@ class ReadSettings:
         self.Sonarr['apikey'] = config.get(section, "apikey")
         self.Sonarr['ssl'] = config.get(section, "ssl")
         self.Sonarr['web_root'] = config.get(section, "web_root")
+        if not self.Sonarr['web_root'].startswith("/")":
+            self.Sonarr['web_root'] = "/" + self.Sonarr['web_root']
+        if self.Sonarr['web_root'].endswith("/"):
+            self.Sonarr['web_root'] = self.Sonarr['web_root'][:-1]
 
         # Read relevant Radarr section information
         section = "Radarr"
@@ -581,6 +585,10 @@ class ReadSettings:
         self.Radarr['apikey'] = config.get(section, "apikey")
         self.Radarr['ssl'] = config.get(section, "ssl")
         self.Radarr['web_root'] = config.get(section, "web_root")
+        if self.Radarr['web_root'][:1] != "/":
+            self.Radarr['web_root'] = "/" + self.Radarr['web_root']
+        if self.Radarr['web_root'].endswith("/"):
+            self.Radarr['web_root'] = self.Radarr['web_root'][:-1]
 
         # Read Sickbeard section information
         section = "SickBeard"

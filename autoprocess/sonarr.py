@@ -46,12 +46,14 @@ def processEpisode(dirName, settings, nzbGet=False, logger=None):
     else:
         protocol = "http://"
 
-    url = protocol + host + ":" + port + "/api/command"
+    webroot = settings.Sonarr['webroot']
+    url = protocol + host + ":" + port + webroot + "/api/command"
     payload = {'name': 'downloadedepisodesscan', 'path': dirName}
     headers = {'X-Api-Key': apikey}
 
     log.debug("Sonarr host: %s." % host)
     log.debug("Sonarr port: %s." % port)
+    log.debug("Sonarr webroot: %s." % webroot)
     log.debug("Sonarr apikey: %s." % apikey)
     log.debug("Sonarr protocol: %s." % protocol)
     log.debug("URL '%s' with payload '%s.'" % (url, payload))
