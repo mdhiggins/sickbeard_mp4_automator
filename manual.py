@@ -115,6 +115,9 @@ def getinfo(fileName=None, silent=False, tag=True, tvdbid=None):
 
 
 def guessInfo(fileName, tvdbid=None):
+    if tvdbid:
+        guess = guessit.guess_episode_info(fileName)
+        return tvdbInfo(guess, tvdbid)
     if not settings.fullpathguess:
         fileName = os.path.basename(fileName)
     guess = guessit.guess_file_info(fileName)
@@ -343,7 +346,7 @@ def main():
                 tmdbid = int(args['tmdbid'])
                 tagdata = [2, tmdbid]
         else:
-            tagdata = getinfo(path, silent=silent)
+            tagdata = getinfo(path, silent=silent, tvdbid=tvdbid)
         processFile(path, tagdata)
     else:
         try:
