@@ -324,14 +324,13 @@ def main():
     else:
         path = getValue("Enter path to file")
 
+    tvdbid = int(args['tvdbid']) if args['tvdbid'] else None
     if os.path.isdir(path):
-        tvdbid = int(args['tvdbid']) if args['tvdbid'] else None
         walkDir(path, silent, tvdbid=tvdbid, preserveRelative=args['preserveRelative'], tag=settings.tagfile)
     elif (os.path.isfile(path) and MkvtoMp4(settings, logger=log).validSource(path)):
         if (not settings.tagfile):
             tagdata = None
         elif (args['tvdbid'] and not (args['imdbid'] or args['tmdbid'])):
-            tvdbid = int(args['tvdbid']) if args['tvdbid'] else None
             season = int(args['season']) if args['season'] else None
             episode = int(args['episode']) if args['episode'] else None
             if (tvdbid and season and episode):
