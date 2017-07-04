@@ -145,7 +145,8 @@ if settings.uTorrent['convert']:
 
     path = converter.output_dir
 else:
-    newpath = os.path.join(path, name)
+    copyname = os.path.join(path, ("%s-copy" % name))
+    newpath = os.path.join(path, copyname)
     if not os.path.exists(newpath):
         os.mkdir(newpath)
         log.debug("Creating temporary directory %s" % newpath)
