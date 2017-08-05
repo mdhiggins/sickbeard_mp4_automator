@@ -28,8 +28,10 @@ class MkvtoMp4:
                  audio_codec=['ac3'],
                  audio_bitrate=256,
                  audio_filter=None,
+                 audio_copyoriginal=False,
                  iOS=False,
                  iOSFirst=False,
+                 iOSLast=False,
                  iOS_filter=None,
                  maxchannels=None,
                  aac_adtstoasc=False,
@@ -87,11 +89,13 @@ class MkvtoMp4:
         self.audio_filter = audio_filter
         self.iOS = iOS
         self.iOSFirst = iOSFirst
+        self.iOSLast = iOSLast
         self.iOS_filter = iOS_filter
         self.maxchannels = maxchannels
         self.awl = awl
         self.adl = adl
         self.aac_adtstoasc = aac_adtstoasc
+        self.audio_copyoriginal = audio_copyoriginal
         # Subtitle settings
         self.scodec = scodec
         self.swl = swl
@@ -137,11 +141,13 @@ class MkvtoMp4:
         self.audio_filter = settings.afilter
         self.iOS = settings.iOS
         self.iOSFirst = settings.iOSFirst
+        self.iOSLast = settings.iOSLast
         self.iOS_filter = settings.iOSfilter
         self.maxchannels = settings.maxchannels
         self.awl = settings.awl
         self.adl = settings.adl
         self.aac_adtstoasc = settings.aac_adtstoasc
+        self.audio_copyoriginal = settings.audio_copyoriginal
         # Subtitle settings
         self.scodec = settings.scodec
         self.swl = settings.swl
@@ -349,6 +355,7 @@ class MkvtoMp4:
                 a.metadata['language'] = self.adl
 
             # Proceed if no whitelist is set, or if the language is in the whitelist
+            iosdata = None
             if self.awl is None or a.metadata['language'].lower() in self.awl:
                 # Create iOS friendly audio stream if the default audio stream has too many channels (iOS only likes AAC stereo)
                 if self.iOS and a.audio_channels > 2:
@@ -365,7 +372,7 @@ class MkvtoMp4:
                     else:
                         disposition = 'none'
                         self.log.info("Audio track is number %s setting disposition to %s" % (str(l), disposition))
-                    audio_settings.update({l: {
+                    iosdata = {
                         'map': a.index,
                         'codec': self.iOS[0],
                         'channels': 2,
@@ -373,8 +380,10 @@ class MkvtoMp4:
                         'filter': self.iOS_filter,
                         'language': a.metadata['language'],
                         'disposition': disposition,
-                    }})
-                    l += 1
+                        }
+                    if not settings.iOSLast:
+                        audio_settings.update({l: iosdata})
+                        l += 1
                 # If the iOS audio option is enabled and the source audio channel is only stereo, the additional iOS channel will be skipped and a single AAC 2.0 channel will be made regardless of codec preference to avoid multiple stereo channels
                 self.log.info("Creating audio stream %s from source stream %s." % (str(l), a.index))
                 if self.iOS and a.audio_channels <= 2:
@@ -436,7 +445,22 @@ class MkvtoMp4:
 
                 if acodec == 'copy' and a.codec == 'aac' and self.aac_adtstoasc:
                     audio_settings[l]['bsf'] = 'aac_adtstoasc'
-                l = l + 1
+                l += 1
+
+                #Add the iOS track last instead
+                if iOSLast and iosdata:
+                    iosdata['disposition'] = 'none'
+                    audio_settings.update({l: iosdata})
+                    l += 1
+
+                if settings.audio_copyoriginal and acodec != 'copy':
+                    self.log.info("Adding copy of original audio track in format %s" % a.codec)
+                    audio_settings.update({l: {
+                        'map': a.index,
+                        'codec': 'copy',
+                        'language': a.metadata['language'],
+                        'disposition': 'none',
+                    }})
 
         # Subtitle streams
         subtitle_settings = {}
