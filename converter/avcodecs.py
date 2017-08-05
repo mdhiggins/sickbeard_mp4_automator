@@ -806,6 +806,7 @@ class H265Codec(VideoCodec):
             optlist.extend(['-vf', 'scale=%s:trunc(ow/a/2)*2' % (safe['wscale'])])
         elif 'hscale' in safe:
             optlist.extend(['-vf', 'scale=trunc((oh*a)/2)*2:%s' % (safe['hscale'])])
+        optlist.extend(['-tag:v', 'hvc1'])
         return optlist
 
 
