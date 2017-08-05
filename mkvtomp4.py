@@ -381,7 +381,7 @@ class MkvtoMp4:
                         'language': a.metadata['language'],
                         'disposition': disposition,
                         }
-                    if not settings.iOSLast:
+                    if not self.iOSLast:
                         audio_settings.update({l: iosdata})
                         l += 1
                 # If the iOS audio option is enabled and the source audio channel is only stereo, the additional iOS channel will be skipped and a single AAC 2.0 channel will be made regardless of codec preference to avoid multiple stereo channels
@@ -453,7 +453,7 @@ class MkvtoMp4:
                     audio_settings.update({l: iosdata})
                     l += 1
 
-                if settings.audio_copyoriginal and acodec != 'copy':
+                if self.audio_copyoriginal and acodec != 'copy':
                     self.log.info("Adding copy of original audio track in format %s" % a.codec)
                     audio_settings.update({l: {
                         'map': a.index,
