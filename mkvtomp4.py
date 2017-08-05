@@ -448,7 +448,7 @@ class MkvtoMp4:
                 l += 1
 
                 #Add the iOS track last instead
-                if iOSLast and iosdata:
+                if self.iOSLast and iosdata:
                     iosdata['disposition'] = 'none'
                     audio_settings.update({l: iosdata})
                     l += 1
