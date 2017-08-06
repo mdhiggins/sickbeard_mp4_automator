@@ -815,7 +815,7 @@ class NVEncH265(H265Codec):
     Nvidia H.265/AVC video codec.
     """
     codec_name = 'nvenc_h265'
-    ffmpeg_codec_name = 'nvenc_hevc'
+    ffmpeg_codec_name = 'hevc_nvenc'
 
 
 class DivxCodec(VideoCodec):
