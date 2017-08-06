@@ -111,8 +111,10 @@ if settings.uTorrent['convert']:
     settings.delete = False
     if not settings.output_dir:
         suffix = "-convert"
-        name = name[:260-len(suffix)]
+        # name = name[:260-len(suffix)]
         settings.output_dir = os.path.join(path, ("%s%s" % (name, suffix)))
+        if len(settings.output_dir) > 260 and os.name == 'nt':
+            settings.output_dir = '\\\\?\\' + settings.output_dir
         if not os.path.exists(settings.output_dir):
             os.mkdir(settings.output_dir)
         delete_dir = settings.output_dir
@@ -148,9 +150,10 @@ if settings.uTorrent['convert']:
     path = converter.output_dir
 else:
     suffix = "-copy"
-    name = name[:260-len(suffix)]
-    copyname = os.path.join(path, ("%s%s" % (name, suffix)))
-    newpath = os.path.join(path, copyname)
+    # name = name[:260-len(suffix)]
+    newpath = os.path.join(path, ("%s%s" % (name, suffix)))
+    if len(newpath) > 260 and os.name == 'nt':
+        settings.output_dir = '\\\\?\\' + settings.output_dir
     if not os.path.exists(newpath):
         os.mkdir(newpath)
         log.debug("Creating temporary directory %s" % newpath)
