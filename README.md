@@ -374,8 +374,8 @@ optional arguments:
 Examples
 ```
 Movies (using IMDB ID):
-manual.py -i mp4path -m imdbid
-Example: manual.py -i "C:\The Matrix.mkv -imdb tt0133093
+manual.py -i mp4path -imdb imdbid
+Example: manual.py -i "C:\The Matrix.mkv" -imdb tt0133093
 
 Movies (using TMDB ID)
 manual.py -i mp4path -tmdb tmdbid
