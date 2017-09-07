@@ -202,9 +202,9 @@ class MediaStreamInfo(object):
                 self.pix_fmt = val
 
         if self.type == 'subtitle':
-            if key == 'disposition:forced':
+            if key == 'DISPOSITION:forced':
                 self.sub_forced = self.parse_int(val)
-            if key == 'disposition:default':
+            if key == 'DISPOSITION:default':
                 self.sub_default = self.parse_int(val)
 
     def __repr__(self):
