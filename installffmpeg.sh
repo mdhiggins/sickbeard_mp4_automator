@@ -21,7 +21,7 @@ checkStatus(){
     fi
 }
 
-if [ "$(whoami)" -eq "sysadmin" ] || [ "$(whoami)" -eq "root" ]; then
+if [ "$(whoami)" != "sysadmin" ] || [ "$(whoami)" != "root" ]; then
     echo 'Removing existing packages...'
     sudo apt-get remove ffmpeg x264 libav-tools libvpx-dev libx264-dev yasm -y
     checkStatus()
@@ -47,13 +47,13 @@ if [ "$(whoami)" -eq "sysadmin" ] || [ "$(whoami)" -eq "root" ]; then
     cd $tmpDIR
 
     echo 'Downloading yasm'
-    wget http://www.tortall.net/projects/yasm/releases/yasm-1.2.0.tar.gz || ( echo 'Check internet connection...' && exit 1 )
+    wget http://www.tortall.net/projects/yasm/releases/yasm-1.3.0.tar.gz || ( echo 'Check internet connection...' && exit 1 )
 
-    tar xvzf yasm-1.2.0.tar.gz
-    cd yasm-1.2.0
+    tar xvzf yasm-1.3.0.tar.gz
+    cd yasm-1.3.0
     ./configure --prefix="$HOME/ffmpeg_build" --bindir="$HOME/bin"
     make
-    sudo checkinstall --pkgname=yasm --pkgversion="1.2.0" --backup=no --deldoc=yes --fstrans=no --default
+    sudo checkinstall --pkgname=yasm --pkgversion="1.3.0" --backup=no --deldoc=yes --fstrans=no --default
     checkStatus()
 
     cd $tmpDIR
