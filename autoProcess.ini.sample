@@ -38,6 +38,7 @@ video-crf =
 video-max-width =
 h264-max-level =
 use-qsv-decoder-with-encoder = True
+enable_dxva2_gpu_decode = False
 ios-audio = True
 ios-first-track-only = False
 ios-audio-filter =
