@@ -36,9 +36,12 @@ try:
             # Tag with metadata
             if settings.tagfile:
                 log.info('Tagging file with IMDB ID %s', imdbid)
-                tagmp4 = tmdb_mp4(imdbid, original=original, language=settings.taglanguage)
-                tagmp4.setHD(output['x'], output['y'])
-                tagmp4.writeTags(output['output'], settings.artwork)
+                try:
+                    tagmp4 = tmdb_mp4(imdbid, original=original, language=settings.taglanguage)
+                    tagmp4.setHD(output['x'], output['y'])
+                    tagmp4.writeTags(output['output'], settings.artwork)
+                except:
+                    log.error("Unable to tag file")
 
             # QTFS
             if settings.relocate_moov:

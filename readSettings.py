@@ -68,6 +68,7 @@ class ReadSettings:
                         'relocate_moov': 'True',
                         'ios-audio': 'True',
                         'ios-first-track-only': 'False',
+                        'ios-move-last': 'False',
                         'ios-audio-filter': '',
                         'max-audio-channels': '',
                         'audio-language': '',
@@ -75,6 +76,7 @@ class ReadSettings:
                         'audio-codec': 'ac3',
                         'audio-filter': '',
                         'audio-channel-bitrate': '256',
+                        'audio-copy-original': 'False',
                         'video-codec': 'h264, x264',
                         'video-bitrate': '',
                         'video-crf': '',
@@ -94,6 +96,7 @@ class ReadSettings:
                         'download-artwork': 'poster',
                         'download-subs': 'False',
                         'embed-subs': 'True',
+                        'embed-only-internal-subs': 'False',
                         'sub-providers': 'addic7ed, podnapisi, thesubdb, opensubtitles',
                         'permissions': '777',
                         'post-process': 'False',
@@ -270,6 +273,8 @@ class ReadSettings:
         if self.abitrate > 256:
             log.warning("Audio bitrate >256 may create errors with common codecs.")
 
+        self.audio_copyoriginal = config.getboolean(section, "audio-copy-original")  # Copies the original audio track regardless of format if a converted track is being generated
+
         self.afilter = config.get(section, "audio-filter").lower().strip()  # Audio filter
         if self.afilter == '':
             self.afilter = None
@@ -284,6 +289,8 @@ class ReadSettings:
                 self.iOS = self.iOS.lower().replace(' ', '').split(',')
 
         self.iOSFirst = config.getboolean(section, "ios-first-track-only")  # Enables the iOS audio option only for the first track
+
+        self.iOSLast = config.getboolean(section, "ios-move-last")  # Moves the iOS audio track to the last in the series of tracks
 
         self.iOSfilter = config.get(section, "ios-audio-filter").lower().strip()  # iOS audio filter
         if self.iOSfilter == '':
@@ -304,6 +311,8 @@ class ReadSettings:
             self.subproviders = self.subproviders.lower().replace(' ', '').split(',')
 
         self.embedsubs = config.getboolean(section, 'embed-subs')
+
+        self.embedonlyinternalsubs = config.getboolean(section, 'embed-only-internal-subs')
 
         self.permissions = config.get(section, 'permissions')
         try:

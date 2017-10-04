@@ -37,9 +37,12 @@ if MkvtoMp4(settings).validSource(inputfile):
         # Tag with metadata
         if settings.tagfile:
             log.info('Tagging file with IMDB ID %s', imdbid)
-            tagmp4 = tmdb_mp4(imdbid, original=original, language=settings.taglanguage)
-            tagmp4.setHD(output['x'], output['y'])
-            tagmp4.writeTags(output['output'], settings.artwork, settings.thumbnail)
+            try:
+                tagmp4 = tmdb_mp4(imdbid, original=original, language=settings.taglanguage)
+                tagmp4.setHD(output['x'], output['y'])
+                tagmp4.writeTags(output['output'], settings.artwork, settings.thumbnail)
+            except:
+                log.error("Unable to tag file")
 
         # QTFS
         if settings.relocate_moov:

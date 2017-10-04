@@ -41,9 +41,12 @@ if MkvtoMp4(settings).validSource(inputfile):
         # Tag with metadata
         if settings.tagfile:
             log.info("Tagging %s with ID %s season %s episode %s." % (inputfile, tvdb_id, season, episode))
-            tagmp4 = Tvdb_mp4(tvdb_id, season, episode, original, language=settings.taglanguage)
-            tagmp4.setHD(output['x'], output['y'])
-            tagmp4.writeTags(output['output'], settings.artwork, settings.thumbnail)
+            try:
+                tagmp4 = Tvdb_mp4(tvdb_id, season, episode, original, language=settings.taglanguage)
+                tagmp4.setHD(output['x'], output['y'])
+                tagmp4.writeTags(output['output'], settings.artwork, settings.thumbnail)
+            except:
+                log.error("Unable to tag file")
 
         # QTFS
         if settings.relocate_moov:
