@@ -66,7 +66,7 @@ General MP4 Configuration
     - `ios-first-track-only` = Applies the `ios-audio` option only to the first audio track encountered in the source video file. This prevents making dual audio streams for additional alternative language codecs or commentary tracks that may be present in the source file.
     - `ios-audio-filter` = Applies FFMPEG audio filter option to ONLY the iOS audio channels created by the script. iOS audio counterpart to the `audio-filter` option below.
     - `ios-move-last` = Rearranges the iOS audio track to be after the converted track instead of first and changes the default disposition accordingly
-     - `ios_tag_hevc` = Tags hevc tracks as hvc1 so that they can be played natively on iOS 11 or iTunes
+     - `ios_tag_hevc` = Tags hevc (x265) tracks as hvc1 so that they can be played natively on iOS 11 or iTunes
     - `max-audio-channels` = Sets a maximum number of audio channels. This may provide an alternative to the iOS audio option, where instead users can simply select the desired output codec and the max number of audio channels without the creation of an additional audio track.
     - `enable_dxva2_gpu_decode` = Enable GPU decoding by using DXVA2 - Windows only. Will automatically fallback to cpu decoding when it encounters a video that it cannot decode due to unsupported pixel/color/codec.
     - `video-codec` = set your desired video codecs. May specify multiple comma separated values (ex: h264, x264). The first value specified will be the default conversion choice when an undesired codec is encountered; any codecs specified here will be remuxed/copied rather than converted.
