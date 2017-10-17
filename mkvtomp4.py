@@ -653,7 +653,7 @@ class MkvtoMp4:
         if self.postopts:
             options['postopts'].extend(self.postopts)
         
-        if ('hevc' in info.video.codec.lower() or 'x265' in info.video.codec.lower()) and self.ios_tag_hevc == True:
+        if ('hevc' in info.video.codec.lower() or 'x265' in info.video.codec.lower()) and self.iOS_tag_hevc == True:
             options['postopts'].extend(['-tag:v','hvc1'])
             self.log.info("Tagging hevc video stream as hvc1")
         
