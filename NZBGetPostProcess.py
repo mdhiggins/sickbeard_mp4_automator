@@ -59,10 +59,9 @@ output_dir = None
 if 'NZBPO_OUTPUT_DIR' in os.environ:
     output_dir = os.environ['NZBPO_OUTPUT_DIR'].strip()
     if len(output_dir) > 0:
-        output_dir = os.environ['NZBPO_MP4_FOLDER'].strip()
-        output_dir = MP4folder.replace('"', '')
-        output_dir = MP4folder.replace("'", "")
-        output_dir = MP4folder.replace("\\", "/")
+        output_dir = output_dir.replace('"', '')
+        output_dir = output_dir.replace("'", "")
+        output_dir = output_dir.replace("\\", "/")
         if not(output_dir.endswith("/")):
             output_dir += "/"
         #DEBUG#print Overriding output directory
