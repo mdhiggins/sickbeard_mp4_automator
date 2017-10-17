@@ -70,6 +70,7 @@ class ReadSettings:
                         'ios-first-track-only': 'False',
                         'ios-move-last': 'False',
                         'ios-audio-filter': '',
+                        'iOS-tag-hevc':'False',
                         'max-audio-channels': '',
                         'audio-language': '',
                         'audio-default-language': '',
@@ -295,7 +296,9 @@ class ReadSettings:
         self.iOSfilter = config.get(section, "ios-audio-filter").lower().strip()  # iOS audio filter
         if self.iOSfilter == '':
             self.iOSfilter = None
-
+        
+        self.iOS_tag_hevc = config.getboolean(section, "iOS-tag-hevc")
+        
         self.downloadsubs = config.getboolean(section, "download-subs")  # Enables downloading of subtitles from the internet sources using subliminal
         if self.downloadsubs:
             try:

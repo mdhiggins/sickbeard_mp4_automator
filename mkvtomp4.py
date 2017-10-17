@@ -34,6 +34,7 @@ class MkvtoMp4:
                  iOSFirst=False,
                  iOSLast=False,
                  iOS_filter=None,
+                 iOS_tag_hevc=False,
                  maxchannels=None,
                  aac_adtstoasc=False,
                  awl=None,
@@ -86,6 +87,7 @@ class MkvtoMp4:
         self.qsv_decoder = qsv_decoder
         self.dxva2_decoder = settings.dxva2_decoder
         self.pix_fmt = pix_fmt
+        self.iOS_tag_hevc = iOS_tag_hevc
         # Audio settings
         self.audio_codec = audio_codec
         self.audio_bitrate = audio_bitrate
@@ -140,6 +142,7 @@ class MkvtoMp4:
         self.qsv_decoder = settings.qsv_decoder
         self.dxva2_decoder = settings.dxva2_decoder
         self.pix_fmt = settings.pix_fmt
+        self.iOS_tag_hevc = settings.iOS_tag_hevc
         # Audio settings
         self.audio_codec = settings.acodec
         self.audio_bitrate = settings.abitrate
@@ -649,7 +652,11 @@ class MkvtoMp4:
 
         if self.postopts:
             options['postopts'].extend(self.postopts)
-
+        
+        if ('hevc' in info.video.codec.lower() or 'x265' in info.video.codec.lower()) and self.ios_tag_hevc == True:
+            options['postopts'].extend(['-tag:v','hvc1'])
+            self.log.info("Tagging hevc video stream as hvc1")
+        
         # If using h264qsv, add the codec in front of the input for decoding
         if vcodec == "h264qsv" and info.video.codec.lower() == "h264" and self.qsv_decoder and (info.video.video_level / 10) < 5:
             options['preopts'].extend(['-vcodec', 'h264_qsv'])
