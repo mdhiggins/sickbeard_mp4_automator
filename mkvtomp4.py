@@ -386,7 +386,7 @@ class MkvtoMp4:
                         'filter': self.iOS_filter,
                         'language': a.metadata['language'],
                         'disposition': disposition,
-                        }
+                    }
                     if not self.iOSLast:
                         audio_settings.update({l: iosdata})
                         l += 1
@@ -453,7 +453,7 @@ class MkvtoMp4:
                     audio_settings[l]['bsf'] = 'aac_adtstoasc'
                 l += 1
 
-                #Add the iOS track last instead
+                # Add the iOS track last instead
                 if self.iOSLast and iosdata:
                     iosdata['disposition'] = 'none'
                     audio_settings.update({l: iosdata})
@@ -654,8 +654,8 @@ class MkvtoMp4:
         if vcodec == "h264qsv" and info.video.codec.lower() == "h264" and self.qsv_decoder and (info.video.video_level / 10) < 5:
             options['preopts'].extend(['-vcodec', 'h264_qsv'])
 
-        if self.dxva2_decoder: # DXVA2 will fallback to CPU decoding when it hits a file that it cannot handle, so we don't need to check if the file is supported.
-            options['preopts'].extend(['-hwaccel', 'dxva2' ])
+        if self.dxva2_decoder:  # DXVA2 will fallback to CPU decoding when it hits a file that it cannot handle, so we don't need to check if the file is supported.
+            options['preopts'].extend(['-hwaccel', 'dxva2'])
 
         # Add width option
         if vwidth:
