@@ -665,6 +665,11 @@ class MkvtoMp4:
         if self.pix_fmt:
             options['video']['pix_fmt'] = self.pix_fmt[0]
 
+        # HEVC Tagging for copied streams
+        if info.video.codec.lower() in ['x265', 'h265', 'hevc'] and vcodec == 'copy':
+            options['postopts'].extend(['-tag:v', 'hvc1'])
+            self.log.info("Tagging copied video stream as hvc1")
+
         self.options = options
         return options
 
