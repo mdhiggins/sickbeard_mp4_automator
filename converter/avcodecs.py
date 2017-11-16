@@ -810,6 +810,19 @@ class H265Codec(VideoCodec):
         return optlist
 
 
+class HEVCQSV(H265Codec):
+    """
+    HEVC video codec.
+    """
+    codec_name = 'hevcqsv'
+    ffmpeg_codec_name = 'hevc_qsv'
+
+    def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
+        optlist = []
+        optlist.extend(['-look_ahead', '0'])
+        return optlist
+
+
 class NVEncH265(H265Codec):
     """
     Nvidia H.265/AVC video codec.
@@ -954,7 +967,7 @@ audio_codec_list = [
 ]
 
 video_codec_list = [
-    VideoNullCodec, VideoCopyCodec, TheoraCodec, H264Codec, H264QSV, H265Codec,
+    VideoNullCodec, VideoCopyCodec, TheoraCodec, H264Codec, H264QSV, HEVCQSV, H265Codec,
     DivxCodec, Vp8Codec, H263Codec, FlvCodec, Mpeg1Codec, NVEncH264, NVEncH265,
     Mpeg2Codec
 ]
