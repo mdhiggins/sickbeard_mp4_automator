@@ -355,6 +355,10 @@ class MkvtoMp4:
 
             self.log.info("Audio detected for stream #%s: %s [%s]." % (a.index, a.codec, a.metadata['language']))
 
+            if a.codec.lower() == 'truehd': # Need to skip it early so that it flags the next track as default.
+                self.log.info( "MP4 containers do not support truehd audio, and converting it is inconsistent due to video/audio sync issues. Skipping stream %s as typically the 2nd audio track is the AC3 core of the truehd stream." % a.index )
+                continue
+
             # Set undefined language to default language if specified
             if self.adl is not None and a.metadata['language'] == 'und':
                 self.log.debug("Undefined language detected, defaulting to [%s]." % self.adl)
