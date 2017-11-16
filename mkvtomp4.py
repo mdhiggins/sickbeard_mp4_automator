@@ -657,15 +657,12 @@ class MkvtoMp4:
         if self.postopts:
             options['postopts'].extend(self.postopts)
 
-        # If using h264qsv, add the codec in front of the input for decoding
-        if vcodec == "h264qsv" and info.video.codec.lower() == "h264" and self.qsv_decoder and (info.video.video_level / 10) < 5:
-            options['preopts'].extend(['-vcodec', 'h264_qsv'])
-
-        if info.video.codec.lower() == "hevc" and self.hevc_qsv_decoder:
-            options['preopts'].extend(['-vcodec', 'hevc_qsv'])
-
         if self.dxva2_decoder:  # DXVA2 will fallback to CPU decoding when it hits a file that it cannot handle, so we don't need to check if the file is supported.
             options['preopts'].extend(['-hwaccel', 'dxva2'])
+        elif info.video.codec.lower() == "hevc" and self.hevc_qsv_decoder:
+            options['preopts'].extend(['-vcodec', 'hevc_qsv'])
+        elif info.video.codec.lower() == "h264" and self.qsv_decoder and (info.video.video_level / 10) < 5:
+            options['preopts'].extend(['-vcodec', 'h264_qsv'])
 
         # Add width option
         if vwidth:
