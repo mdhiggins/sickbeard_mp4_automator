@@ -86,7 +86,7 @@ class MkvtoMp4:
         self.h264_level = h264_level
         self.qsv_decoder = qsv_decoder
         self.hevc_qsv_decoder = hevc_qsv_decoder
-        self.dxva2_decoder = settings.dxva2_decoder
+        self.dxva2_decoder = dxva2_decoder
         self.pix_fmt = pix_fmt
         # Audio settings
         self.audio_codec = audio_codec
