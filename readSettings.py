@@ -84,6 +84,7 @@ class ReadSettings:
                         'h264-max-level': '',
                         'aac_adtstoasc': 'False',
                         'use-qsv-decoder-with-encoder': 'True',
+                        'use-hevc-qsv-decoder': 'False',
                         'enable_dxva2_gpu_decode': 'False',
                         'subtitle-codec': 'mov_text',
                         'subtitle-language': '',
@@ -392,6 +393,7 @@ class ReadSettings:
                 self.h264_level = None
 
         self.qsv_decoder = config.getboolean(section, "use-qsv-decoder-with-encoder")  # Use Intel QuickSync Decoder when using QuickSync Encoder
+        self.hevc_qsv_decoder = config.getboolean( section, "use-hevc-qsv-decoder") #only supported on 6th gen intel and up.
         self.dxva2_decoder = config.getboolean( section, "enable_dxva2_gpu_decode" )
         self.pix_fmt = config.get(section, "pix-fmt").strip().lower()
         if self.pix_fmt == '':
