@@ -661,7 +661,7 @@ class MkvtoMp4:
             options['preopts'].extend(['-hwaccel', 'dxva2'])
         elif info.video.codec.lower() == "hevc" and self.hevc_qsv_decoder:
             options['preopts'].extend(['-vcodec', 'hevc_qsv'])
-        elif info.video.codec.lower() == "h264" and self.qsv_decoder and (info.video.video_level / 10) < 5:
+        elif vcodec == "h264qsv" and info.video.codec.lower() == "h264" and self.qsv_decoder and (info.video.video_level / 10) < 5:
             options['preopts'].extend(['-vcodec', 'h264_qsv'])
 
         # Add width option
