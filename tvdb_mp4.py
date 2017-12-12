@@ -29,6 +29,7 @@ class Tvdb_mp4:
             try:
                 self.tvdb_show = Tvdb(interactive=False, cache=False, banners=True, actors=True, forceConnect=True, language=language)
                 self.show = show
+                self.showid = show
                 self.season = season
                 self.episode = episode
                 self.rating = None
@@ -205,7 +206,7 @@ class Tvdb_mp4:
         if poster is None:
             if thumbnail:
                 try:
-                    poster = urlretrieve(self.episodedata['filename'], os.path.join(tempfile.gettempdir(), "poster-tvdb.jpg"))[0]
+                    poster = urlretrieve(self.episodedata['filename'], os.path.join(tempfile.gettempdir(), "poster-%s.jpg" % self.title))[0]
                 except Exception as e:
                     self.log.error("Exception while retrieving poster %s.", str(e))
                     poster = None
@@ -221,7 +222,7 @@ class Tvdb_mp4:
                             poster.bannerpath = self.showdata['_banners']['season']['season'][bannerid]['_bannerpath']
                             posters.addPoster(poster)
 
-                    poster = urlretrieve(posters.topPoster().bannerpath, os.path.join(tempfile.gettempdir(), "poster.jpg"))[0]
+                    poster = urlretrieve(posters.topPoster().bannerpath, os.path.join(tempfile.gettempdir(), "poster-%s.jpg" % self.title))[0]
                 except:
                     poster = None
         return poster
