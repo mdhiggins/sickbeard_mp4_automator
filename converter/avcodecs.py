@@ -746,6 +746,20 @@ class NVEncH264(H264Codec):
     ffmpeg_codec_name = 'nvenc_h264'
 
 
+class H264VAAPI(H264Codec):
+    """
+    H.264/AVC video codec.
+    """
+    codec_name = 'h264vaapi'
+    ffmpeg_codec_name = 'h264_vaapi'
+
+    def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
+        optlist = []
+        optlist.extend(['-vaapi_device', '/dev/dri/renderD128'])
+        optlist.extend(['-vf', "format=nv12,hwupload"])
+        return optlist
+
+
 class H264QSV(H264Codec):
     """
     H.264/AVC video codec.
@@ -964,7 +978,7 @@ audio_codec_list = [
 video_codec_list = [
     VideoNullCodec, VideoCopyCodec, TheoraCodec, H264Codec, H264QSV, HEVCQSV, H265Codec,
     DivxCodec, Vp8Codec, H263Codec, FlvCodec, Mpeg1Codec, NVEncH264, NVEncH265,
-    Mpeg2Codec
+    Mpeg2Codec, H264VAAPI
 ]
 
 subtitle_codec_list = [
