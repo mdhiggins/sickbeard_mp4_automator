@@ -756,7 +756,24 @@ class H264VAAPI(H264Codec):
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         optlist = []
         optlist.extend(['-vaapi_device', '/dev/dri/renderD128'])
+        if 'preset' in safe:
+            optlist.extend(['-preset', safe['preset']])
+        if 'quality' in safe:
+            optlist.extend(['-crf', str(safe['quality'])])
+        if 'profile' in safe:
+            optlist.extend(['-profile:v', safe['profile']])
+        if 'level' in safe:
+            optlist.extend(['-level', '%0.0f' % (safe['level'] * 10)])  # Automatically multiplied by 10
+        if 'tune' in safe:
+            optlist.extend(['-tune', safe['tune']])
+        # Start VF
         optlist.extend(['-vf', "format=nv12,hwupload"])
+        if 'wscale' in safe and 'hscale' in safe:
+            optlist.extend(['-vf', 'scale=%s:%s' % (safe['wscale'], safe['hscale'])])
+        elif 'wscale' in safe:
+            optlist.extend(['-vf', 'scale=%s:trunc(ow/a/2)*2' % (safe['wscale'])])
+        elif 'hscale' in safe:
+            optlist.extend(['-vf', 'scale=trunc((oh*a)/2)*2:%s' % (safe['hscale'])])
         return optlist
 
 
