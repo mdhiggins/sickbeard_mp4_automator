@@ -817,11 +817,6 @@ class HEVCQSV(H265Codec):
     codec_name = 'hevcqsv'
     ffmpeg_codec_name = 'hevc_qsv'
 
-    def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
-        optlist = []
-        optlist.extend(['-look_ahead', '0'])
-        return optlist
-
 
 class NVEncH265(H265Codec):
     """
