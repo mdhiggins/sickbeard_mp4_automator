@@ -114,6 +114,7 @@ remove = false
 convert = True
 sickrage-category = sickrage
 sonarr-category = sonarr
+radarr-category = radarr
 bypass-category = bypass
 couchpotato-category = couchpotato
 sickbeard-category = sickbeard
