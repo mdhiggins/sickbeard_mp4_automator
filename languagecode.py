@@ -25,7 +25,7 @@ def getAlpha3TCode(code):  # We need to make sure that language codes are alpha3
     elif len(code) == 2:
         lang = Language.fromalpha2(code).alpha3t
 
-    return str(lang)
+    return lang
 
 
 def validateLangCode(code):
