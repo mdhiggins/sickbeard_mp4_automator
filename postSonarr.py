@@ -2,6 +2,9 @@
 import os
 import sys
 import logging
+import requests
+import json
+import time
 from readSettings import ReadSettings
 from autoprocess import plex
 from tvdb_mp4 import Tvdb_mp4
@@ -20,6 +23,7 @@ inputfile = os.environ.get('sonarr_episodefile_path')
 original = os.environ.get('sonarr_episodefile_scenename')
 tvdb_id = int(os.environ.get('sonarr_series_tvdbid'))
 season = int(os.environ.get('sonarr_episodefile_seasonnumber'))
+
 try:
     episode = int(os.environ.get('sonarr_episodefile_episodenumbers'))
 except:
@@ -55,7 +59,81 @@ if MkvtoMp4(settings).validSource(inputfile):
         # Copy to additional locations
         output_files = converter.replicate(output['output'])
 
-        # run any post process scripts
+        # Update Sonarr to continue monitored status
+        try:
+            host = settings.Sonarr['host']
+            port = settings.Sonarr['port']
+            webroot = settings.Sonarr['web_root']
+            apikey = settings.Sonarr['apikey']
+            if apikey != '':
+                try:
+                    ssl = int(settings.Sonarr['ssl'])
+                except:
+                    ssl = 0
+                if ssl:
+                    protocol = "https://"
+                else:
+                    protocol = "http://"
+
+                seriesID = os.environ.get('sonarr_series_id')
+                log.debug("Sonarr host: %s." % host)
+                log.debug("Sonarr port: %s." % port)
+                log.debug("Sonarr webroot: %s." % webroot)
+                log.debug("Sonarr apikey: %s." % apikey)
+                log.debug("Sonarr protocol: %s." % protocol)
+                log.debug("Sonarr sonarr_series_id: %s." % seriesID)
+                headers = {'X-Api-Key': apikey}
+
+                # First trigger rescan
+                payload = {'name': 'RescanSeries', 'seriesId': seriesID}
+                url = protocol + host + ":" + port + webroot + "/api/command"
+                r = requests.post(url, json=payload, headers=headers)
+                rstate = r.json()
+                log.info("Sonarr response: ID %d %s." % (rstate['id'], rstate['state']))
+                log.info(str(rstate)) # debug
+
+                # Then wait for it to finish
+                url = protocol + host + ":" + port + webroot + "/api/command/" + str(rstate['id'])
+                log.info("Requesting episode information from Sonarr for series ID %s." % seriesID)
+                r = requests.get(url, headers=headers)
+                command = r.json()
+                while command['state'] not in ['complete', 'completed']:
+                    log.info(str(command['state']))
+                    time.sleep(5)
+                    r = requests.get(url, headers=headers)
+                    command = r.json()
+                log.info("Command completed")
+                log.info(str(command))
+
+                # Then get episode information
+                url = protocol + host + ":" + port + webroot + "/api/episode?seriesId=" + seriesID
+                log.info("Requesting updated episode information from Sonarr for series ID %s." % seriesID)
+                r = requests.get(url, headers=headers)
+                payload = r.json()
+                sonarrepinfo = None
+                for ep in payload:
+                    if int(ep['episodeNumber']) == episode and int(ep['seasonNumber']) == season:
+                        sonarrepinfo = ep
+                        break
+                sonarrepinfo['monitored'] = True
+
+                # Then set that episode to monitored
+                log.info("Sending PUT request with following payload:") # debug
+                log.info(str(sonarrepinfo)) # debug
+
+                url = protocol + host + ":" + port + webroot + "/api/episode/" + str(sonarrepinfo['id'])
+                r = requests.put(url, json=sonarrepinfo, headers=headers)
+                success = r.json()
+
+                log.info("PUT request returned:") # debug
+                log.info(str(success)) # debug
+                log.info("Sonarr monitoring information updated for episode %s." % success['title'])
+            else:
+                log.error("Your Sonarr API Key can not be blank. Update autoProcess.ini.")
+        except:
+            log.exception("Sonarr monitor status update failed.")
+
+        # Run any post process scripts
         if settings.postprocess:
             post_processor = PostProcessor(output_files, log)
             post_processor.setTV(tvdb_id, season, episode)
