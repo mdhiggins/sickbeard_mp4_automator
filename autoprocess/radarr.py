@@ -1,7 +1,6 @@
 import sys
 import os
 import logging
-import json
 
 
 def processMovie(dirName, settings, nzbGet=False, logger=None):
@@ -61,7 +60,7 @@ def processMovie(dirName, settings, nzbGet=False, logger=None):
     log.info("%sRequesting Radarr to scan directory '%s'." % (infoprefix, dirName))
 
     try:
-        r = requests.post(url, data=json.dumps(payload), headers=headers)
+        r = requests.post(url, json=payload, headers=headers)
         rstate = r.json()
         log.info("%sRadarr response: %s." % (infoprefix, rstate['state']))
         return True
