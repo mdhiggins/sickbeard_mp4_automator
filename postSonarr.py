@@ -3,7 +3,6 @@ import os
 import sys
 import logging
 import requests
-import json
 import time
 from readSettings import ReadSettings
 from autoprocess import plex
