@@ -60,6 +60,7 @@ class AudioCodec(BaseCodec):
         'source': int,
         'path': str,
         'filter': str,
+        'profile': str,
         'map': int,
         'disposition': str,
     }
@@ -101,6 +102,11 @@ class AudioCodec(BaseCodec):
             if len(x) < 1:
                 del safe['filter']
 
+        if 'profile' in safe:
+            x = safe['profile']
+            if len(x) < 1:
+                del safe['profile']
+
         safe = self._codec_specific_parse_options(safe)
         optlist = []
         optlist.extend(['-c:a:' + stream, self.ffmpeg_codec_name])
@@ -118,6 +124,8 @@ class AudioCodec(BaseCodec):
             optlist.extend(['-ar:a:' + stream, str(safe['samplerate'])])
         if 'filter' in safe:
             optlist.extend(['-filter:a:' + stream, str(safe['filter'])])
+        if 'profile' in safe:
+            optlist.extend(['-profile:a:' + stream, str(safe['profile'])])
         if 'language' in safe:
             lang = str(safe['language'])
         else:
@@ -183,7 +191,7 @@ class SubtitleCodec(BaseCodec):
         safe = self._codec_specific_parse_options(safe)
 
         optlist = []
-        if 'encoding' in safe:
+        if 'encoding' in safe and not (safe['codec'] or safe['codec'] in ['mov_text']):
             optlist.extend(['-sub_charenc', str(safe['encoding'])])
         optlist.extend(['-c:s:' + stream, self.ffmpeg_codec_name])
         stream = str(stream)
@@ -578,6 +586,12 @@ class FdkAacCodec(AudioCodec):
             c = opt['channels']
             if c > 6:
                 opt['channels'] = 6
+        if 'profile' in opt:
+            c = opt['channels']
+            p = opt['profile']
+            if p == 'aac_he_v2' and not c == 2:
+                opt['channels'] = 2
+
         return super(FdkAacCodec, self).parse_options(opt, stream)
 
 

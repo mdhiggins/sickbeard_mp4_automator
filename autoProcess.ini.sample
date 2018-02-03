@@ -43,6 +43,7 @@ enable_dxva2_gpu_decode = False
 ios-audio = True
 ios-first-track-only = False
 ios-audio-filter =
+ios-audio-profile =
 ios-move-last = False
 max-audio-channels =
 audio-codec = ac3

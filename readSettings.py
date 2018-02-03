@@ -70,6 +70,7 @@ class ReadSettings:
                         'ios-first-track-only': 'False',
                         'ios-move-last': 'False',
                         'ios-audio-filter': '',
+                        'ios-audio-profile': '',
                         'max-audio-channels': '',
                         'audio-language': '',
                         'audio-default-language': '',
@@ -280,6 +281,10 @@ class ReadSettings:
         if self.afilter == '':
             self.afilter = None
 
+        self.aprofile = config.get(section, "audio-profile").lower().strip()  # Audio profile
+        if self.aprofile == '':
+            self.aprofile = None
+
         self.iOS = config.get(section, "ios-audio")  # Creates a second audio channel if the standard output methods are different from this for iOS compatability
         if self.iOS == "" or self.iOS.lower() in ['false', 'no', 'f', '0']:
             self.iOS = False
@@ -296,6 +301,10 @@ class ReadSettings:
         self.iOSfilter = config.get(section, "ios-audio-filter").lower().strip()  # iOS audio filter
         if self.iOSfilter == '':
             self.iOSfilter = None
+
+        self.iOSprofile = config.get(section, "ios-audio-profile").lower().strip()  # iOS audio profile
+        if self.iOSprofile == '':
+            self.iOSprofile = None
 
         self.downloadsubs = config.getboolean(section, "download-subs")  # Enables downloading of subtitles from the internet sources using subliminal
         if self.downloadsubs:

@@ -30,11 +30,13 @@ class MkvtoMp4:
                  audio_codec=['ac3'],
                  audio_bitrate=256,
                  audio_filter=None,
+                 audio_profile=None,
                  audio_copyoriginal=False,
                  iOS=False,
                  iOSFirst=False,
                  iOSLast=False,
                  iOS_filter=None,
+                 iOS_profile=None,
                  maxchannels=None,
                  aac_adtstoasc=False,
                  awl=None,
@@ -92,10 +94,12 @@ class MkvtoMp4:
         self.audio_codec = audio_codec
         self.audio_bitrate = audio_bitrate
         self.audio_filter = audio_filter
+        self.audio_profile = audio_profile
         self.iOS = iOS
         self.iOSFirst = iOSFirst
         self.iOSLast = iOSLast
         self.iOS_filter = iOS_filter
+        self.iOS_profile = iOS_profile
         self.maxchannels = maxchannels
         self.awl = awl
         self.adl = adl
@@ -147,10 +151,12 @@ class MkvtoMp4:
         self.audio_codec = settings.acodec
         self.audio_bitrate = settings.abitrate
         self.audio_filter = settings.afilter
+        self.audio_profile = settings.aprofile
         self.iOS = settings.iOS
         self.iOSFirst = settings.iOSFirst
         self.iOSLast = settings.iOSLast
         self.iOS_filter = settings.iOSfilter
+        self.iOS_profile = settings.iOSprofile
         self.maxchannels = settings.maxchannels
         self.awl = settings.awl
         self.adl = settings.adl
@@ -377,6 +383,7 @@ class MkvtoMp4:
                     self.log.debug("Audio codec: %s." % self.iOS[0])
                     self.log.debug("Channels: 2.")
                     self.log.debug("Filter: %s." % self.iOS_filter)
+                    self.log.debug("Profile: %s." % self.iOS_profile)
                     self.log.debug("Bitrate: %s." % iOSbitrate)
                     self.log.debug("Language: %s." % a.metadata['language'])
                     if l == 0:
@@ -391,6 +398,7 @@ class MkvtoMp4:
                         'channels': 2,
                         'bitrate': iOSbitrate,
                         'filter': self.iOS_filter,
+                        'profile': self.iOS_profile,
                         'language': a.metadata['language'],
                         'disposition': disposition,
                     }
@@ -404,6 +412,7 @@ class MkvtoMp4:
                     acodec = 'copy' if a.codec in self.iOS else self.iOS[0]
                     audio_channels = a.audio_channels
                     afilter = self.iOS_filter
+                    aprofile = self.iOS_profile
                     abitrate = a.audio_channels * 128 if (a.audio_channels * self.audio_bitrate) > (a.audio_channels * 128) else (a.audio_channels * self.audio_bitrate)
                 else:
                     # If desired codec is the same as the source codec, copy to avoid quality loss
@@ -426,12 +435,15 @@ class MkvtoMp4:
                             self.log.warning("Unable to determine audio bitrate from source stream %s, defaulting to 256 per channel." % a.index)
                             abitrate = a.audio_channels * 256
                     afilter = self.audio_filter
+                    aprofile = self.audio_profile
+
 
                 self.log.debug("Audio codec: %s." % acodec)
                 self.log.debug("Channels: %s." % audio_channels)
                 self.log.debug("Bitrate: %s." % abitrate)
                 self.log.debug("Language: %s" % a.metadata['language'])
                 self.log.debug("Filter: %s" % afilter)
+                self.log.debug("Profile: %s" % aprofile)
 
                 # If the iOSFirst option is enabled, disable the iOS option after the first audio stream is processed
                 if self.iOS and self.iOSFirst:
@@ -452,6 +464,7 @@ class MkvtoMp4:
                     'channels': audio_channels,
                     'bitrate': abitrate,
                     'filter': afilter,
+                    'profile': aprofile,
                     'language': a.metadata['language'],
                     'disposition': disposition,
                 }})
