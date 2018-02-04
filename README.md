@@ -78,6 +78,7 @@ General MP4 Configuration
     - `pix_fmt` = set the video pix_fmt. If you don't know what this is just leave it blank.
     - `audio-codec` = set your desired audio codecs. May specify multiple comma separated values (ex: ac3, aac). The first value specified will be the default conversion choice when an undesired codec is encountered; any codecs specified here will be remuxed/copied rather than converted.
     - `audio-channel-bitrate` = set the bitrate for each audio channel. Default is 256. Setting this value to 0 will attempt to mirror the bitrate of the audio source, but this can be unreliable as bitrates vary between different codecs.
+    - `audio-vbr` = allows you to set the Variable bitrate which will override the video bitrate setting for those that prefer VBR. Currently only libfdk_aac, libvorbis, libmp3lame are supported.
     - `audio-language` = 3 letter language code for audio streams you wish to copy. Leave blank to copy all. Separate multiple audio streams with commas (ex: eng,spa)
     - `audio-default-language` = If an audio stream with an unidentified/untagged language is detected, you can default that language tag to whatever this value is (ex: eng). This is useful for many single-audio releases which don't bother to tag the audio stream as anything
     - `audio-filter` = Applies FFMPEG audio filter. Make sure you specify all parameters as you would using the `-af` option with FFMPEG command line

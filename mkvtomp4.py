@@ -6,7 +6,8 @@ import sys
 import shutil
 import logging
 from converter import Converter, FFMpegConvertError
-from extensions import valid_input_extensions, valid_output_extensions, bad_subtitle_codecs, valid_subtitle_extensions, subtitle_codec_extensions
+from extensions import valid_input_extensions, valid_output_extensions, bad_subtitle_codecs, valid_subtitle_extensions, \
+    subtitle_codec_extensions, valid_vbr_audio_codecs
 from babelfish import Language
 
 
@@ -29,6 +30,7 @@ class MkvtoMp4:
                  dxva2_decoder=False,
                  audio_codec=['ac3'],
                  audio_bitrate=256,
+                 avbr=None,
                  audio_filter=None,
                  audio_profile=None,
                  audio_copyoriginal=False,
@@ -93,6 +95,7 @@ class MkvtoMp4:
         # Audio settings
         self.audio_codec = audio_codec
         self.audio_bitrate = audio_bitrate
+        self.avbr = avbr
         self.audio_filter = audio_filter
         self.audio_profile = audio_profile
         self.iOS = iOS
@@ -150,6 +153,7 @@ class MkvtoMp4:
         # Audio settings
         self.audio_codec = settings.acodec
         self.audio_bitrate = settings.abitrate
+        self.avbr = settings.avbr
         self.audio_filter = settings.afilter
         self.audio_profile = settings.aprofile
         self.iOS = settings.iOS
@@ -375,16 +379,18 @@ class MkvtoMp4:
 
             # Proceed if no whitelist is set, or if the language is in the whitelist
             iosdata = None
+
             if self.awl is None or a.metadata['language'].lower() in self.awl:
                 # Create iOS friendly audio stream if the default audio stream has too many channels (iOS only likes AAC stereo)
                 if self.iOS and a.audio_channels > 2:
+                    vbrUsable = True if self.iOS[0] in valid_vbr_audio_codecs else False
                     iOSbitrate = 256 if (self.audio_bitrate * 2) > 256 else (self.audio_bitrate * 2)
                     self.log.info("Creating audio stream %s from source audio stream %s [iOS-audio]." % (str(l), a.index))
                     self.log.debug("Audio codec: %s." % self.iOS[0])
                     self.log.debug("Channels: 2.")
                     self.log.debug("Filter: %s." % self.iOS_filter)
                     self.log.debug("Profile: %s." % self.iOS_profile)
-                    self.log.debug("Bitrate: %s." % iOSbitrate)
+                    self.log.debug("Bitrate: %s." % "Variable" if vbrUsable else iOSbitrate)
                     self.log.debug("Language: %s." % a.metadata['language'])
                     if l == 0:
                         disposition = 'default'
@@ -396,7 +402,8 @@ class MkvtoMp4:
                         'map': a.index,
                         'codec': self.iOS[0],
                         'channels': 2,
-                        'bitrate': iOSbitrate,
+                        'bitrate': None if vbrUsable else iOSbitrate,
+                        'vbr': self.avbr if vbrUsable else None,
                         'filter': self.iOS_filter,
                         'profile': self.iOS_profile,
                         'language': a.metadata['language'],
@@ -437,10 +444,10 @@ class MkvtoMp4:
                     afilter = self.audio_filter
                     aprofile = self.audio_profile
 
-
+                vbrUsable = True if acodec in valid_vbr_audio_codecs else False
                 self.log.debug("Audio codec: %s." % acodec)
                 self.log.debug("Channels: %s." % audio_channels)
-                self.log.debug("Bitrate: %s." % abitrate)
+                self.log.debug("Bitrate: %s." % "Variable" if vbrUsable else abitrate)
                 self.log.debug("Language: %s" % a.metadata['language'])
                 self.log.debug("Filter: %s" % afilter)
                 self.log.debug("Profile: %s" % aprofile)
@@ -458,11 +465,15 @@ class MkvtoMp4:
                     disposition = 'none'
                     self.log.info("Audio Track is number %s setting disposition to %s" % (a.index, disposition))
 
+                # If a VBR option is set, override the bitrate
+
+
                 audio_settings.update({l: {
                     'map': a.index,
                     'codec': acodec,
                     'channels': audio_channels,
-                    'bitrate': abitrate,
+                    'bitrate': None if vbrUsable else abitrate,
+                    'vbr': self.avbr if vbrUsable else None,
                     'filter': afilter,
                     'profile': aprofile,
                     'language': a.metadata['language'],

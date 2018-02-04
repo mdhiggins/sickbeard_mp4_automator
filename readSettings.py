@@ -76,7 +76,9 @@ class ReadSettings:
                         'audio-default-language': '',
                         'audio-codec': 'ac3',
                         'audio-filter': '',
+                        'audio-profile': '',
                         'audio-channel-bitrate': '256',
+                        'audio-vbr': '',
                         'audio-copy-original': 'False',
                         'video-codec': 'h264, x264',
                         'video-bitrate': '',
@@ -213,11 +215,6 @@ class ReadSettings:
         self.ffmpeg = os.path.normpath(self.raw(config.get(section, "ffmpeg")))  # Location of FFMPEG.exe
         self.ffprobe = os.path.normpath(self.raw(config.get(section, "ffprobe")))  # Location of FFPROBE.exe
         self.threads = config.get(section, "threads")  # Number of FFMPEG threads
-        try:
-            if int(self.threads) < 1:
-                self.threads = "auto"
-        except:
-            self.threads = "auto"
 
         self.output_dir = config.get(section, "output_directory")
         if self.output_dir == '':
@@ -284,6 +281,16 @@ class ReadSettings:
         self.aprofile = config.get(section, "audio-profile").lower().strip()  # Audio profile
         if self.aprofile == '':
             self.aprofile = None
+
+        self.avbr = config.get(section, "audio-vbr")
+        if self.avbr == '':
+            self.avbr = None
+        else:
+            try:
+                self.avbr = int(self.avbr)
+            except:
+                log.exception("Invalid VBR setting, defaulting to none.")
+                self.avbr = None
 
         self.iOS = config.get(section, "ios-audio")  # Creates a second audio channel if the standard output methods are different from this for iOS compatability
         if self.iOS == "" or self.iOS.lower() in ['false', 'no', 'f', '0']:
