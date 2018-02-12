@@ -23,6 +23,7 @@ class MkvtoMp4:
                  video_bitrate=None,
                  vcrf=None,
                  video_width=None,
+                 video_profile=None,
                  h264_level=None,
                  qsv_decoder=True,
                  hevc_qsv_decoder=False,
@@ -83,6 +84,7 @@ class MkvtoMp4:
         self.video_bitrate = video_bitrate
         self.vcrf = vcrf
         self.video_width = video_width
+        self.video_profile = video_profile
         self.h264_level = h264_level
         self.qsv_decoder = qsv_decoder
         self.hevc_qsv_decoder = hevc_qsv_decoder
@@ -138,6 +140,7 @@ class MkvtoMp4:
         self.video_bitrate = settings.vbitrate
         self.vcrf = settings.vcrf
         self.video_width = settings.vwidth
+        self.video_profile = settings.vprofile
         self.h264_level = settings.h264_level
         self.qsv_decoder = settings.qsv_decoder
         self.hevc_qsv_decoder = settings.hevc_qsv_decoder
@@ -308,7 +311,11 @@ class MkvtoMp4:
 
         self.log.info("Pix Fmt: %s." % info.video.pix_fmt)
         if self.pix_fmt and info.video.pix_fmt.lower() not in self.pix_fmt:
+            self.log.debug("Overriding video pix_fmt. Codec cannot be copied because pix_fmt is not approved.")
             vcodec = self.video_codec[0]
+            pix_fmt = self.pix_fmt[0]
+        else:
+            pix_fmt = None
 
         if self.video_bitrate is not None and vbr > self.video_bitrate:
             self.log.debug("Overriding video bitrate. Codec cannot be copied because video bitrate is too high.")
@@ -328,6 +335,14 @@ class MkvtoMp4:
 
         self.log.debug("Video codec: %s." % vcodec)
         self.log.debug("Video bitrate: %s." % vbitrate)
+
+        self.log.info("Profile: %s." % info.video.profile)
+        if self.video_profile and info.video.profile.lower() not in self.video_profile:
+            self.log.debug("Video profile is not supported. Video stream can no longer be copied.")
+            vcodec = self.video_codec[0]
+            vprofile = self.video_profile[0]
+        else:
+            vprofile = None
 
         # Audio streams
         self.log.info("Reading audio streams.")
@@ -635,7 +650,9 @@ class MkvtoMp4:
                 'codec': vcodec,
                 'map': info.video.index,
                 'bitrate': vbitrate,
-                'level': self.h264_level
+                'level': self.h264_level,
+                'profile': vprofile,
+                'pix_fmt': pix_fmt
             },
             'audio': audio_settings,
             'subtitle': subtitle_settings,
@@ -667,10 +684,6 @@ class MkvtoMp4:
         # Add width option
         if vwidth:
             options['video']['width'] = vwidth
-
-        # Add pix_fmt
-        if self.pix_fmt:
-            options['video']['pix_fmt'] = self.pix_fmt[0]
 
         # HEVC Tagging for copied streams
         if info.video.codec.lower() in ['x265', 'h265', 'hevc'] and vcodec == 'copy':
