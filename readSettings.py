@@ -493,12 +493,14 @@ class ReadSettings:
             self.preopts = None
         else:
             self.preopts = self.preopts.split(',')
+            [o.strip() for o in self.preopts]
 
         self.postopts = config.get(section, "postopts").lower()
         if self.postopts == '':
             self.postopts = None
         else:
             self.postopts = self.postopts.split(',')
+            [o.strip() for o in self.postopts]
 
         # Read relevant CouchPotato section information
         section = "CouchPotato"
