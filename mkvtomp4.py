@@ -314,6 +314,8 @@ class MkvtoMp4:
             self.log.debug("Overriding video pix_fmt. Codec cannot be copied because pix_fmt is not approved.")
             vcodec = self.video_codec[0]
             pix_fmt = self.pix_fmt[0]
+            if self.video_profile:
+                vprofile = self.video_profile[0]
         else:
             pix_fmt = None
 
@@ -337,10 +339,12 @@ class MkvtoMp4:
         self.log.debug("Video bitrate: %s." % vbitrate)
 
         self.log.info("Profile: %s." % info.video.profile)
-        if self.video_profile and info.video.profile.lower() not in self.video_profile:
+        if self.video_profile and info.video.profile.lower().replace(" ", "") not in self.video_profile:
             self.log.debug("Video profile is not supported. Video stream can no longer be copied.")
             vcodec = self.video_codec[0]
             vprofile = self.video_profile[0]
+            if self.pix_fmt:
+                pix_fmt = self.pix_fmt[0]
         else:
             vprofile = None
 
