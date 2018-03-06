@@ -82,6 +82,7 @@ class ReadSettings:
                         'video-bitrate': '',
                         'video-crf': '',
                         'video-max-width': '',
+                        'video-profile': '',
                         'h264-max-level': '',
                         'aac_adtstoasc': 'False',
                         'use-qsv-decoder-with-encoder': 'True',
@@ -393,6 +394,12 @@ class ReadSettings:
                 log.exception("Invalid h264 level, defaulting to none.")
                 self.h264_level = None
 
+        self.vprofile = config.get(section, "video-profile")
+        if self.vprofile == '':
+            self.vprofile = None
+        else:
+            self.vprofile = self.vprofile.lower().strip().replace(' ', '').split(',')
+
         self.qsv_decoder = config.getboolean(section, "use-qsv-decoder-with-encoder")  # Use Intel QuickSync Decoder when using QuickSync Encoder
         self.hevc_qsv_decoder = config.getboolean( section, "use-hevc-qsv-decoder") #only supported on 6th gen intel and up.
         self.dxva2_decoder = config.getboolean( section, "enable_dxva2_gpu_decode" )
@@ -400,7 +407,7 @@ class ReadSettings:
         if self.pix_fmt == '':
             self.pix_fmt = None
         else:
-            self.pix_fmt = self.pix_fmt.replace(' ', '').split(',')
+            self.pix_fmt = self.pix_fmt.lower().replace(' ', '').split(',')
 
         self.awl = config.get(section, 'audio-language').strip().lower()  # List of acceptable languages for audio streams to be carried over from the original file, separated by a comma. Blank for all
         self.awl = languagecode.validateLangCode(self.awl.replace(' ', '').split(','))
@@ -484,12 +491,14 @@ class ReadSettings:
             self.preopts = None
         else:
             self.preopts = self.preopts.split(',')
+            [o.strip() for o in self.preopts]
 
         self.postopts = config.get(section, "postopts").lower()
         if self.postopts == '':
             self.postopts = None
         else:
             self.postopts = self.postopts.split(',')
+            [o.strip() for o in self.postopts]
 
         # Read relevant CouchPotato section information
         section = "CouchPotato"

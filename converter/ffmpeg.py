@@ -121,6 +121,7 @@ class MediaStreamInfo(object):
         self.video_fps = None
         self.video_level = None
         self.pix_fmt = None
+        self.profile = None
         self.audio_channels = None
         self.audio_samplerate = None
         self.attached_pic = None
@@ -169,6 +170,8 @@ class MediaStreamInfo(object):
             self.audio_samplerate = self.parse_float(val)
         elif key == 'DISPOSITION:attached_pic':
             self.attached_pic = self.parse_int(val)
+        elif key == 'profile':
+            self.profile = val
 
         if key.startswith('TAG:'):
             key = key.split('TAG:')[1].lower()
