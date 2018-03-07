@@ -91,11 +91,13 @@ if MkvtoMp4(settings).validSource(inputfile):
                 log.info("Waiting rescan to complete")
                 r = requests.get(url, headers=headers)
                 command = r.json()
-                while command['state'] not in ['complete', 'completed']:
+                attempts = 0
+                while command['state'].lower() not in ['complete', 'completed'] and attempts < 6:
                     log.info(str(command['state']))
-                    time.sleep(5)
+                    time.sleep(10)
                     r = requests.get(url, headers=headers)
                     command = r.json()
+                    attempts += 1
                 log.info("Command completed")
                 log.debug(str(command))
 
