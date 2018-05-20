@@ -443,6 +443,8 @@ class FFMpeg(object):
         """
         if os.name == 'nt':
             timeout = 0
+            if len(outfile) > 260:
+                outfile = '\\\\?\\' + outfile
 
         if not os.path.exists(infile):
             raise FFMpegError("Input file doesn't exist: " + infile)

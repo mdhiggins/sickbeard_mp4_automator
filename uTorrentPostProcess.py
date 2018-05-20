@@ -110,11 +110,13 @@ if settings.uTorrent['convert']:
     log.info("Performing conversion")
     settings.delete = False
     if not settings.output_dir:
-        suffix = "-convert"
-        # name = name[:260-len(suffix)]
-        settings.output_dir = os.path.join(path, ("%s%s" % (name, suffix)))
-        if len(settings.output_dir) > 260 and os.name == 'nt':
-            settings.output_dir = '\\\\?\\' + settings.output_dir
+        suffix = "convert"
+        if str(sys.argv[4]) == 'single':
+            log.info("Single File Torrent")
+            settings.output_dir = os.path.join(path, ("%s-%s" % (name, suffix)))
+        else:
+            log.info("Multi File Torrent")
+            settings.output_dir = os.path.abspath(os.path.join(path, '..', ("%s-%s" % (name, suffix))))
         if not os.path.exists(settings.output_dir):
             os.mkdir(settings.output_dir)
         delete_dir = settings.output_dir
@@ -141,7 +143,10 @@ if settings.uTorrent['convert']:
                     log.info("Processing file %s." % inputfile)
                     try:
                         output = converter.process(inputfile)
-                        ignore.append(output['output'])
+                        if output is not False:
+                            ignore.append(output['output'])
+                        else:
+                            log.error("Converting file failed %s." % inputfile)
                     except:
                         log.exception("Error converting file %s." % inputfile)
                 else:
@@ -149,11 +154,14 @@ if settings.uTorrent['convert']:
 
     path = converter.output_dir
 else:
-    suffix = "-copy"
+    suffix = "copy"
     # name = name[:260-len(suffix)]
-    newpath = os.path.join(path, ("%s%s" % (name, suffix)))
-    if len(newpath) > 260 and os.name == 'nt':
-        settings.output_dir = '\\\\?\\' + settings.output_dir
+    if str(sys.argv[4]) == 'single':
+        log.info("Single File Torrent")
+        newpath = os.path.join(path, ("%s-%s" % (name, suffix)))
+    else:
+        log.info("Multi File Torrent")
+        newpath = os.path.abspath(os.path.join(path, '..', ("%s-%s" % (name, suffix))))
     if not os.path.exists(newpath):
         os.mkdir(newpath)
         log.debug("Creating temporary directory %s" % newpath)
