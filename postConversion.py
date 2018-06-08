@@ -5,6 +5,7 @@ import json
 import urllib
 import struct
 import logging
+from extensions import valid_tagging_extensions
 from readSettings import ReadSettings
 from autoprocess import plex
 from tvdb_mp4 import Tvdb_mp4
@@ -40,7 +41,7 @@ if len(sys.argv) > 4:
 
         if output:
             # Tag with metadata
-            if settings.tagfile:
+            if settings.tagfile and output['output_extension'] in valid_tagging_extensions:
                 log.info("Tagging %s with ID %s season %s episode %s." % (inputfile, tvdb_id, season, episode))
                 try:
                     tagmp4 = Tvdb_mp4(tvdb_id, season, episode, original, language=settings.taglanguage)
@@ -50,7 +51,7 @@ if len(sys.argv) > 4:
                     log.error("Unable to tag file")
 
             # QTFS
-            if settings.relocate_moov:
+            if settings.relocate_moov and output['output_extension'] in valid_tagging_extensions:
                 converter.QTFS(output['output'])
 
             # Copy to additional locations

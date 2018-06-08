@@ -6,7 +6,7 @@ import sys
 import shutil
 import logging
 from converter import Converter, FFMpegConvertError
-from extensions import valid_input_extensions, valid_output_extensions, bad_subtitle_codecs, valid_subtitle_extensions, subtitle_codec_extensions
+from extensions import valid_input_extensions, valid_output_extensions, bad_subtitle_codecs, valid_subtitle_extensions, subtitle_codec_extensions, valid_tagging_extensions
 from babelfish import Language
 
 
@@ -233,17 +233,21 @@ class MkvtoMp4:
                     self.log.debug("Unable to delete subtitle %s." % subfile)
 
         dim = self.getDimensions(outputfile)
+        input_extension = self.parseFile(inputfile)[2].lower()
+        output_extension = self.parseFile(outputfile)[2].lower()
 
         return {'input': inputfile,
-                'output': outputfile,
-                'options': options,
+                'input_extension': input_extension,
                 'input_deleted': deleted,
+                'output': outputfile,
+                'output_extension': output_extension,
+                'options': options,
                 'x': dim['x'],
                 'y': dim['y']}
 
     # Determine if a source video file is in a valid format
     def validSource(self, inputfile):
-        input_dir, filename, input_extension = self.parseFile(inputfile)
+        input_extension = self.parseFile(inputfile)[2]
         # Make sure the input_extension is some sort of recognized extension, and that the file actually exists
         if (input_extension.lower() in valid_input_extensions or input_extension.lower() in valid_output_extensions):
             if (os.path.isfile(inputfile)):
@@ -258,7 +262,7 @@ class MkvtoMp4:
 
     # Determine if a file meets the criteria for processing
     def needProcessing(self, inputfile):
-        input_dir, filename, input_extension = self.parseFile(inputfile)
+        input_extension = self.parseFile(inputfile)[2]
         # Make sure input and output extensions are compatible. If processMP4 is true, then make sure the input extension is a valid output extension and allow to proceed as well
         if (input_extension.lower() in valid_input_extensions or (self.processMP4 is True and input_extension.lower() in valid_output_extensions)) and self.output_extension.lower() in valid_output_extensions:
             self.log.debug("%s needs processing." % inputfile)
@@ -380,7 +384,7 @@ class MkvtoMp4:
 
             self.log.info("Audio detected for stream #%s: %s [%s]." % (a.index, a.codec, a.metadata['language']))
 
-            if a.codec.lower() == 'truehd': # Need to skip it early so that it flags the next track as default.
+            if self.output_extension in valid_tagging_extensions and a.codec.lower() == 'truehd': # Need to skip it early so that it flags the next track as default.
                 self.log.info("MP4 containers do not support truehd audio, and converting it is inconsistent due to video/audio sync issues. Skipping stream %s as typically the 2nd audio track is the AC3 core of the truehd stream." % a.index )
                 continue
 

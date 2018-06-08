@@ -2,6 +2,7 @@
 import os
 import sys
 import logging
+from extensions import valid_tagging_extensions
 from readSettings import ReadSettings
 from autoprocess import plex
 from tmdb_mp4 import tmdb_mp4
@@ -37,7 +38,7 @@ if MkvtoMp4(settings).validSource(inputfile):
 
     if output:
         # Tag with metadata
-        if settings.tagfile:
+        if settings.tagfile and output['output_extension'] in valid_tagging_extensions:
             log.info('Tagging file with IMDB ID %s', imdbid)
             try:
                 tagmp4 = tmdb_mp4(imdbid, original=original, language=settings.taglanguage)
@@ -47,7 +48,7 @@ if MkvtoMp4(settings).validSource(inputfile):
                 log.error("Unable to tag file")
 
         # QTFS
-        if settings.relocate_moov:
+        if settings.relocate_moov and output['output_extension'] in valid_tagging_extensions:
             converter.QTFS(output['output'])
 
         # Copy to additional locations
