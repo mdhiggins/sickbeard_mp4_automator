@@ -52,6 +52,7 @@ audio-default-language =
 audio-channel-bitrate =
 audio-filter =
 audio-copy-original = False
+audio-first-track-of-language = False
 subtitle-codec = mov_text
 subtitle-language =
 subtitle-default-language =

@@ -77,6 +77,7 @@ class ReadSettings:
                         'audio-filter': '',
                         'audio-channel-bitrate': '256',
                         'audio-copy-original': 'False',
+                        'audio-first-track-of-language': 'False',
                         'video-codec': 'h264, x264',
                         'video-bitrate': '',
                         'video-crf': '',
@@ -280,6 +281,8 @@ class ReadSettings:
         self.afilter = config.get(section, "audio-filter").lower().strip()  # Audio filter
         if self.afilter == '':
             self.afilter = None
+
+        self.audio_first_language_track = config.getboolean(section, "audio-first-track-of-language") # Only take the first audio track in a whitelisted language, then no more
 
         self.iOS = config.get(section, "ios-audio")  # Creates a second audio channel if the standard output methods are different from this for iOS compatability
         if self.iOS == "" or self.iOS.lower() in ['false', 'no', 'f', '0']:

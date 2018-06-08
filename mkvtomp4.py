@@ -32,6 +32,7 @@ class MkvtoMp4:
                  audio_bitrate=256,
                  audio_filter=None,
                  audio_copyoriginal=False,
+                 audio_first_language_track=False,
                  iOS=False,
                  iOSFirst=False,
                  iOSLast=False,
@@ -103,6 +104,7 @@ class MkvtoMp4:
         self.adl = adl
         self.aac_adtstoasc = aac_adtstoasc
         self.audio_copyoriginal = audio_copyoriginal
+        self.audio_first_language_track = audio_first_language_track
         # Subtitle settings
         self.scodec = scodec
         self.swl = swl
@@ -159,6 +161,7 @@ class MkvtoMp4:
         self.adl = settings.adl
         self.aac_adtstoasc = settings.aac_adtstoasc
         self.audio_copyoriginal = settings.audio_copyoriginal
+        self.audio_first_language_track = settings.audio_first_language_track
         # Subtitle settings
         self.scodec = settings.scodec
         self.swl = settings.swl
@@ -378,7 +381,7 @@ class MkvtoMp4:
             self.log.info("Audio detected for stream #%s: %s [%s]." % (a.index, a.codec, a.metadata['language']))
 
             if a.codec.lower() == 'truehd': # Need to skip it early so that it flags the next track as default.
-                self.log.info( "MP4 containers do not support truehd audio, and converting it is inconsistent due to video/audio sync issues. Skipping stream %s as typically the 2nd audio track is the AC3 core of the truehd stream." % a.index )
+                self.log.info("MP4 containers do not support truehd audio, and converting it is inconsistent due to video/audio sync issues. Skipping stream %s as typically the 2nd audio track is the AC3 core of the truehd stream." % a.index )
                 continue
 
             # Set undefined language to default language if specified
@@ -493,6 +496,14 @@ class MkvtoMp4:
                         'language': a.metadata['language'],
                         'disposition': 'none',
                     }})
+
+                # Remove the language if we only want the first track from a given language
+                if self.audio_first_language_track and self.awl:
+                    try:
+                        self.awl.remove(a.metadata['language'].lower())
+                        self.log.debug("Removing language from whitelist to prevent multiple tracks of the same: %s." % a.metadata['language'])
+                    except:
+                        self.log.error("Unable to remove language %s from whitelist." % a.metadata['language'])
 
         # Subtitle streams
         subtitle_settings = {}
