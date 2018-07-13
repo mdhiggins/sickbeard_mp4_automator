@@ -12,10 +12,10 @@ from logging.config import fileConfig
 import time
 import requests
 
-logpath = '/var/log'
+logpath = '/var/log/sickbeard_mp4_automator'
 if os.name == 'nt':
     logpath = os.path.dirname(sys.argv[0])
-fileConfig(os.path.join(os.path.dirname(sys.argv[0]), 'logging.ini'), defaults={'logfilename': os.path.join(logpath, 'info.log')})
+fileConfig(os.path.join(os.path.dirname(sys.argv[0]), 'logging.ini'), defaults={'logfilename': os.path.join(logpath, 'index.log')})
 log = logging.getLogger("RadarrPostConversion")
 
 log.info("Radarr extra script post processing started.")

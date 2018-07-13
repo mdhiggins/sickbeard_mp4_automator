@@ -22,10 +22,10 @@ from logging.config import fileConfig
 if sys.version[0] == "3":
     raw_input = input
 
-logpath = '/var/log'
+logpath = '/var/log/sickbeard_mp4_automator'
 if os.name == 'nt':
     logpath = os.path.dirname(sys.argv[0])
-fileConfig(os.path.join(os.path.dirname(sys.argv[0]), 'logging.ini'), defaults={'logfilename': os.path.join(logpath, 'sickbeard_mp4_automator.log')})
+fileConfig(os.path.join(os.path.dirname(sys.argv[0]), 'logging.ini'), defaults={'logfilename': os.path.join(logpath, 'index.log')})
 log = logging.getLogger("MANUAL")
 logging.getLogger("subliminal").setLevel(logging.CRITICAL)
 logging.getLogger("requests").setLevel(logging.WARNING)
