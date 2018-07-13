@@ -11,7 +11,10 @@ from autoprocess import plex
 from post_processor import PostProcessor
 from logging.config import fileConfig
 
-fileConfig(os.path.join(os.path.dirname(sys.argv[0]), 'logging.ini'), defaults={'logfilename': os.path.join(os.path.dirname(sys.argv[0]), 'info.log')})
+logpath = '/var/log'
+if os.name == 'nt':
+    logpath = os.path.dirname(sys.argv[0])
+fileConfig(os.path.join(os.path.dirname(sys.argv[0]), 'logging.ini'), defaults={'logfilename': os.path.join(logpath, 'sickbeard_mp4_automator.log')})
 log = logging.getLogger("CouchPotatoPostConversion")
 
 log.info('MP4 Automator - Post processing script initialized')

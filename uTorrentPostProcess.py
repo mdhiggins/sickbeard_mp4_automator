@@ -8,7 +8,10 @@ from mkvtomp4 import MkvtoMp4
 import logging
 from logging.config import fileConfig
 
-fileConfig(os.path.join(os.path.dirname(sys.argv[0]), 'logging.ini'), defaults={'logfilename': os.path.join(os.path.dirname(sys.argv[0]), 'info.log').replace("\\", "/")})
+logpath = '/var/log'
+if os.name == 'nt':
+    logpath = os.path.dirname(sys.argv[0])
+fileConfig(os.path.join(os.path.dirname(sys.argv[0]), 'logging.ini'), defaults={'logfilename': os.path.join(logpath, 'sickbeard_mp4_automator.log')})
 log = logging.getLogger("uTorrentPostProcess")
 
 log.info("uTorrent post processing started.")

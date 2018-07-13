@@ -12,7 +12,10 @@ from logging.config import fileConfig
 import time
 import requests
 
-fileConfig(os.path.join(os.path.dirname(sys.argv[0]), 'logging.ini'), defaults={'logfilename': os.path.join(os.path.dirname(sys.argv[0]), 'info.log')})
+logpath = '/var/log'
+if os.name == 'nt':
+    logpath = os.path.dirname(sys.argv[0])
+fileConfig(os.path.join(os.path.dirname(sys.argv[0]), 'logging.ini'), defaults={'logfilename': os.path.join(logpath, 'info.log')})
 log = logging.getLogger("RadarrPostConversion")
 
 log.info("Radarr extra script post processing started.")
