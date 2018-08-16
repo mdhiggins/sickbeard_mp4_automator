@@ -87,7 +87,9 @@ elif not os.path.isdir(logpath):
         os.mkdir(logpath)
     except:
         logpath = MP4folder
-fileConfig(os.path.join(MP4folder, 'logging.ini'), defaults={'logfilename': os.path.join(logpath, 'index.log')})
+configPath = os.path.abspath(os.path.join(MP4folder, 'logging.ini')).replace("\\", "\\\\")
+logPath = os.path.abspath(os.path.join(logpath, 'index.log')).replace("\\", "\\\\")
+fileConfig(configPath, defaults={'logfilename': logPath})
 log = logging.getLogger("NZBGetPostProcess")
 
 # Determine if conversion will take place

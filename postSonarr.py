@@ -20,7 +20,9 @@ elif not os.path.isdir(logpath):
         os.mkdir(logpath)
     except:
         logpath = os.path.dirname(sys.argv[0])
-fileConfig(os.path.join(os.path.dirname(sys.argv[0]), 'logging.ini'), defaults={'logfilename': os.path.join(logpath, 'index.log')})
+configPath = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'logging.ini')).replace("\\", "\\\\")
+logPath = os.path.abspath(os.path.join(logpath, 'index.log')).replace("\\", "\\\\")
+fileConfig(configPath, defaults={'logfilename': logPath})
 log = logging.getLogger("SonarrPostConversion")
 
 log.info("Sonarr extra script post processing started.")
