@@ -26,7 +26,7 @@ def configure(api_key, language='en'):
     config['urls']['movie.search'] = "https://api.themoviedb.org/3/search/movie?query=%%s&api_key=%(apikey)s&page=%%s" % (config)
     config['urls']['movie.info'] = "https://api.themoviedb.org/3/movie/%%s?api_key=%(apikey)s" % (config)
     config['urls']['people.search'] = "https://api.themoviedb.org/3/search/person?query=%%s&api_key=%(apikey)s&page=%%s" % (config)
-    config['urls']['collection.info'] = "https://api.themoviedb.org/3/collection/%%s&api_key=%(apikey)s" % (config)
+    config['urls']['collection.info'] = "https://api.themoviedb.org/3/collection/%%s?api_key=%(apikey)s" % (config)
     config['urls']['movie.alternativetitles'] = "https://api.themoviedb.org/3/movie/%%s/alternative_titles?api_key=%(apikey)s" % (config)
     config['urls']['movie.casts'] = "https://api.themoviedb.org/3/movie/%%s/casts?api_key=%(apikey)s" % (config)
     config['urls']['movie.images'] = "https://api.themoviedb.org/3/movie/%%s/images?api_key=%(apikey)s" % (config)
