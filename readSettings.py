@@ -215,9 +215,9 @@ class ReadSettings:
         self.ffprobe = os.path.normpath(self.raw(config.get(section, "ffprobe")))  # Location of FFPROBE.exe
         self.threads = config.get(section, "threads")  # Number of FFMPEG threads
         try:
-            self.threads = int(self.threads)
+            int(self.threads)
         except:
-            self.threads = 0
+            self.threads = "0"
 
         self.output_dir = config.get(section, "output_directory")
         if self.output_dir == '':
