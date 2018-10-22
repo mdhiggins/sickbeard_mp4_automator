@@ -9,6 +9,7 @@ except ImportError:
 import logging
 from extensions import *
 from babelfish import Language
+from sys import platform
 
 
 class ReadSettings:
@@ -47,6 +48,15 @@ class ReadSettings:
 
         log.info(sys.executable)
 
+        # Determin the platform, assign the aproperiate ffmpeg and ffprobe
+        ffmpeg = 'ffmpeg.exe'
+        ffprobe = 'ffprobe.exe'
+        if not platform == 'windows':
+            # This isn't Windows, so set without exe
+            ffmpeg = 'ffmpeg'
+            ffprobe = 'ffprobe'
+
+
         # Default settings for SickBeard
         sb_defaults = {'host': 'localhost',
                        'port': '8081',
@@ -56,8 +66,8 @@ class ReadSettings:
                        'username': '',
                        'password': ''}
         # Default MP4 conversion settings
-        mp4_defaults = {'ffmpeg': 'ffmpeg.exe',
-                        'ffprobe': 'ffprobe.exe',
+        mp4_defaults = {'ffmpeg': ffmpeg,
+                        'ffprobe': ffprobe,
                         'threads': '0',
                         'output_directory': '',
                         'copy_to': '',
