@@ -55,9 +55,16 @@ class ReadSettings:
                        'web_root': '',
                        'username': '',
                        'password': ''}
+
+        ffmpeg = 'ffmpeg'
+        ffprobe = 'ffprobe'
+        if os.name == 'nt':
+            ffmpeg = 'ffmpeg.exe'
+            ffprobe = 'ffprobe.exe'
+
         # Default MP4 conversion settings
-        mp4_defaults = {'ffmpeg': 'ffmpeg.exe',
-                        'ffprobe': 'ffprobe.exe',
+        mp4_defaults = {'ffmpeg': ffmpeg,
+                        'ffprobe': ffprobe,
                         'threads': '0',
                         'output_directory': '',
                         'copy_to': '',
