@@ -580,6 +580,11 @@ class MkvtoMp4:
                             self.log.info("%s created." % outputfile)
                         except:
                             self.log.exception("Unabled to create external subtitle file for stream %s." % (s.index))
+                        
+                        try:
+                            os.chmod(outputfile, self.permissions)  # Set permissions of newly created file
+                        except:
+                            self.log.exception("Unable to set new file permissions.")
 
         # Attempt to download subtitles if they are missing using subliminal
         languages = set()
