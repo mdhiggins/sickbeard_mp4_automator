@@ -5,7 +5,6 @@ import json
 import sys
 import shutil
 import logging
-from copy import deepcopy
 from converter import Converter, FFMpegConvertError
 from extensions import valid_input_extensions, valid_output_extensions, bad_subtitle_codecs, valid_subtitle_extensions, subtitle_codec_extensions, valid_tagging_extensions
 from babelfish import Language
@@ -123,7 +122,6 @@ class MkvtoMp4:
         self.deletesubs = set()
 
     def importSettings(self, settings):
-        settings = deepcopy(settings)
         self.FFMPEG_PATH = settings.ffmpeg
         self.FFPROBE_PATH = settings.ffprobe
         self.threads = settings.threads
