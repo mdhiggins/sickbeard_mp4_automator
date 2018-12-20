@@ -7,6 +7,7 @@ from readSettings import ReadSettings
 from mkvtomp4 import MkvtoMp4
 import logging
 from logging.config import fileConfig
+import portalocker
 
 logpath = '/var/log/sickbeard_mp4_automator'
 if os.name == 'nt':
@@ -20,6 +21,29 @@ configPath = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'logging
 logPath = os.path.abspath(os.path.join(logpath, 'index.log')).replace("\\", "\\\\")
 fileConfig(configPath, defaults={'logfilename': logPath})
 log = logging.getLogger("uTorrentPostProcess")
+
+filepath = '/var/log/'
+if os.name == 'nt':
+	filepath = os.path.dirname(sys.argv[0])
+elif not os.path.isdir(filepath):
+	try:
+		os.mkdir(filepath)
+	except:
+		filepath = os.path.dirname(sys.argv[0])
+filepath = os.path.abspath(os.path.join(filepath, 'lock')).replace("\\", "\\\\")
+
+x = open(filepath, 'r+')
+print("checking Lock")
+while True:
+    try:
+		portalocker.lock(x, portalocker.LOCK_EX)
+		break
+    except pywintypes.error as e:
+        # raise on unrelated error
+        if e.errno != errno.EAGAIN:
+			raise
+        else:
+			time.sleep(30)
 
 log.info("uTorrent post processing started.")
 
