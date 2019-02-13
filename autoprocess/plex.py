@@ -35,11 +35,27 @@ def refreshPlex(settings, source_type, logger=None):
         log.debug("Base URL: %s." % base_url)
 
         try:
-            xml_sections = minidom.parse(urlopen(base_url))
-            sections = xml_sections.getElementsByTagName('Directory')
-            for s in sections:
-                if s.getAttribute('type') == source_type:
-                    url = refresh_url % s.getAttribute('key')
-                    x = urlopen(url)
+            refresh(base_url, refresh_url, source_type)
+        except IOError:
+            try:
+                import ssl
+                ctx = ssl.create_default_context()
+                ctx.check_hostname = False
+                ctx.verify_mode = ssl.CERT_NONE
+                refresh_url = refresh_url.replace("http://", "https://")
+                base_url = base_url.replace("http://", "https://")
+                refresh(base_url, refresh_url, source_type, ctx=ctx)
+            except:
+                log.error(refresh_url)
+                log.error(base_url)
+                log.error("Unable to refresh plex https, check your settings.")
         except Exception:
             log.exception("Unable to refresh plex, check your settings.")
+
+def refresh(base_url, refresh_url, source_type, ctx=None):
+    xml_sections = minidom.parse(urlopen(base_url, context=ctx))
+    sections = xml_sections.getElementsByTagName('Directory')
+    for s in sections:
+        if s.getAttribute('type') == source_type:
+            url = refresh_url % s.getAttribute('key')
+            urlopen(url, context=ctx)

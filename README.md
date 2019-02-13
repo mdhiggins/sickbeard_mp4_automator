@@ -314,6 +314,11 @@ Send a Plex notification as the final step when all processing is completed. Thi
     - `port` - Plex port. Default `32400`
     - `token` - Plex Home Token
 
+If you have secure connections enabled with Plex you will need to add your local IP addresss that the refresh requests are coming from to allow them to trigger the refresh, otherwise you will get an HTTP error. You can alternatively not force encryption by changing `Secure Connections` from `Required` to `Preferred` but this is not recommended as its less secure.
+
+Found under Plex Server Settings > Network > Advanced
+![image](https://user-images.githubusercontent.com/3608298/52716936-e61b4b80-2f6d-11e9-8537-83ab9321948b.png)
+
 Post Process Scripts
 --------------
 The script suite supports the ability to write your own post processing scripts that will be executed when all the final processing has been completed. All scripts in the `./post_process` directory will be executed if the `post-process` option is set to `True` in `autoProcess.ini`. Scripts within the `./post_process/resources` directory are protected from execution if additional script resources are required.
