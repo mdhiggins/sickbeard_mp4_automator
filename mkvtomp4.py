@@ -5,7 +5,6 @@ import json
 import sys
 import shutil
 import logging
-from copy import deepcopy
 from converter import Converter, FFMpegConvertError
 from extensions import valid_input_extensions, valid_output_extensions, bad_subtitle_codecs, valid_subtitle_extensions, subtitle_codec_extensions, valid_tagging_extensions
 from babelfish import Language
@@ -123,7 +122,6 @@ class MkvtoMp4:
         self.deletesubs = set()
 
     def importSettings(self, settings):
-        settings = deepcopy(settings)
         self.FFMPEG_PATH = settings.ffmpeg
         self.FFPROBE_PATH = settings.ffprobe
         self.threads = settings.threads
@@ -376,6 +374,7 @@ class MkvtoMp4:
             self.log.info("No audio streams detected in any appropriate language, relaxing restrictions so there will be some audio stream present.")
 
         audio_settings = {}
+        blocked_audio_languages = []
         l = 0
         for a in info.audio:
             try:
@@ -397,7 +396,7 @@ class MkvtoMp4:
 
             # Proceed if no whitelist is set, or if the language is in the whitelist
             iosdata = None
-            if self.awl is None or a.metadata['language'].lower() in self.awl:
+            if self.awl is None or (a.metadata['language'].lower() in self.awl and a.metadata['language'].lower() not in blocked_audio_languages):
                 # Create iOS friendly audio stream if the default audio stream has too many channels (iOS only likes AAC stereo)
                 if self.iOS and a.audio_channels > 2:
                     iOSbitrate = 256 if (self.audio_bitrate * 2) > 256 else (self.audio_bitrate * 2)
@@ -506,7 +505,7 @@ class MkvtoMp4:
                 # Remove the language if we only want the first track from a given language
                 if self.audio_first_language_track and self.awl:
                     try:
-                        self.awl.remove(a.metadata['language'].lower())
+                        blocked_audio_languages.append(a.metadata['language'].lower())
                         self.log.debug("Removing language from whitelist to prevent multiple tracks of the same: %s." % a.metadata['language'])
                     except:
                         self.log.error("Unable to remove language %s from whitelist." % a.metadata['language'])
