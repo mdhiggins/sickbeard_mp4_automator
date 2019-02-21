@@ -13,10 +13,7 @@ from post_processor import PostProcessor
 from logging.config import fileConfig
 
 logpath = '/var/log/sickbeard_mp4_automator'
-if os.environ.get('sonarr_eventtype') == "Test":
-    print "Sonarr event type is Test"
-    sys.exit(0)
-elif os.name == 'nt':
+if os.name == 'nt':
     logpath = os.path.dirname(sys.argv[0])
 elif not os.path.isdir(logpath):
     try:
