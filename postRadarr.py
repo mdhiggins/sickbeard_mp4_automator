@@ -13,6 +13,10 @@ import time
 import requests
 
 logpath = '/var/log/sickbeard_mp4_automator'
+
+if os.environ.get('radarr_eventtype') == "Test":
+    sys.exit(0)
+
 if os.name == 'nt':
     logpath = os.path.dirname(sys.argv[0])
 elif not os.path.isdir(logpath):
@@ -142,3 +146,4 @@ if MkvtoMp4(settings).validSource(inputfile):
             post_processor.run_scripts()
 
         plex.refreshPlex(settings, 'movie', log)
+sys.exit(0)
