@@ -51,14 +51,22 @@ else:
     sys.exit()
 
 torrent_data = client.call('core.get_torrent_status', torrent_id, ['files', 'label'])
-torrent_files = torrent_data['files']
-category = torrent_data['label'].lower()
+try:
+    torrent_files = torrent_data[b'files']
+    category = torrent_data[b'label'].lower().decode()
+except:
+    torrent_files = torrent_data['files']
+    category = torrent_data['label'].lower()
 
 files = []
 log.debug("List of files in torrent:")
 for contents in torrent_files:
-    files.append(contents['path'])
-    log.debug(contents['path'])
+    try:
+        files.append(contents[b'path'].decode())
+        log.debug(contents[b'path'].decode())
+    except:
+        files.append(contents['path'])
+        log.debug(contents['path'])
 
 if category.lower() not in categories:
     log.error("No valid category detected.")
