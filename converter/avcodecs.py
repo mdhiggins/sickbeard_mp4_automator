@@ -742,8 +742,8 @@ class NVEncH264(H264Codec):
     """
     Nvidia H.264/AVC video codec.
     """
-    codec_name = 'nvenc_h264'
-    ffmpeg_codec_name = 'nvenc_h264'
+    codec_name = 'h264_nvenc'
+    ffmpeg_codec_name = 'h264_nvenc'
 
 
 class H264VAAPI(H264Codec):
@@ -853,7 +853,7 @@ class NVEncH265(H265Codec):
     """
     Nvidia H.265/AVC video codec.
     """
-    codec_name = 'nvenc_h265'
+    codec_name = 'h265_nvenc'
     ffmpeg_codec_name = 'hevc_nvenc'
 
 
