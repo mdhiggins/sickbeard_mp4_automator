@@ -47,6 +47,7 @@ ios-audio-filter =
 ios-move-last = False
 max-audio-channels =
 audio-codec = ac3
+ignore-trudhd = true
 audio-language =
 audio-default-language =
 audio-channel-bitrate =

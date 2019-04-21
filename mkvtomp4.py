@@ -29,6 +29,7 @@ class MkvtoMp4:
                  hevc_qsv_decoder=False,
                  dxva2_decoder=False,
                  audio_codec=['ac3'],
+                 ignore_truehd=True,
                  audio_bitrate=256,
                  audio_filter=None,
                  audio_copyoriginal=False,
@@ -102,6 +103,7 @@ class MkvtoMp4:
         self.maxchannels = maxchannels
         self.awl = awl
         self.adl = adl
+        self.ignore_truehd = ignore_truehd
         self.aac_adtstoasc = aac_adtstoasc
         self.audio_copyoriginal = audio_copyoriginal
         self.audio_first_language_track = audio_first_language_track
@@ -159,6 +161,7 @@ class MkvtoMp4:
         self.maxchannels = settings.maxchannels
         self.awl = settings.awl
         self.adl = settings.adl
+        self.ignore_truehd = settings.ignore_truehd
         self.aac_adtstoasc = settings.aac_adtstoasc
         self.audio_copyoriginal = settings.audio_copyoriginal
         self.audio_first_language_track = settings.audio_first_language_track
@@ -385,7 +388,7 @@ class MkvtoMp4:
 
             self.log.info("Audio detected for stream #%s: %s [%s]." % (a.index, a.codec, a.metadata['language']))
 
-            if self.output_extension in valid_tagging_extensions and a.codec.lower() == 'truehd': # Need to skip it early so that it flags the next track as default.
+            if self.output_extension in valid_tagging_extensions and a.codec.lower() == 'truehd' and self.ignore_truehd:  # Need to skip it early so that it flags the next track as default.
                 self.log.info("MP4 containers do not support truehd audio, and converting it is inconsistent due to video/audio sync issues. Skipping stream %s as typically the 2nd audio track is the AC3 core of the truehd stream." % a.index )
                 continue
 
