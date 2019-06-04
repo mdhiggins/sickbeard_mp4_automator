@@ -148,7 +148,8 @@ class SubtitleCodec(BaseCodec):
         'map': int,
         'source': int,
         'path': str,
-        'encoding': str
+        'encoding': str,
+        'disposition': str,
     }
 
     def parse_options(self, opt, stream=0):
@@ -189,6 +190,8 @@ class SubtitleCodec(BaseCodec):
         stream = str(stream)
         if 'map' in safe:
             optlist.extend(['-map', s + ':' + str(safe['map'])])
+        if 'disposition' in safe:
+            optlist.extend(['-disposition:s:' + stream, str(safe['disposition'])])
         if 'path' in safe:
             optlist.extend(['-i', str(safe['path'])])
         if 'default' in safe:
