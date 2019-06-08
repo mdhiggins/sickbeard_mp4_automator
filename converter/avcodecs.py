@@ -757,6 +757,14 @@ class VideotoolboxEncH264(H264Codec):
     ffmpeg_codec_name = 'h264_videotoolbox'
 
 
+class OMXH264(H264Codec):
+    """
+    OMX H.264/AVC video codec.
+    """
+    codec_name = 'h264_omx'
+    ffmpeg_codec_name = 'h264_omx'
+
+
 class H264VAAPI(H264Codec):
     """
     H.264/AVC video codec.
@@ -1006,7 +1014,7 @@ audio_codec_list = [
 video_codec_list = [
     VideoNullCodec, VideoCopyCodec, TheoraCodec, H264Codec, H264QSV, HEVCQSV, H265Codec,
     DivxCodec, Vp8Codec, H263Codec, FlvCodec, Mpeg1Codec, NVEncH264, NVEncH265,
-    Mpeg2Codec, H264VAAPI
+    Mpeg2Codec, H264VAAPI, OMXH264, VideotoolboxEncH264
 ]
 
 subtitle_codec_list = [
