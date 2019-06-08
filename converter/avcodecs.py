@@ -749,6 +749,14 @@ class NVEncH264(H264Codec):
     ffmpeg_codec_name = 'h264_nvenc'
 
 
+class VideotoolboxEncH264(H264Codec):
+    """
+    Videotoolbox H.264/AVC video codec.
+    """
+    codec_name = 'h264_videotoolbox'
+    ffmpeg_codec_name = 'h264_videotoolbox'
+
+
 class H264VAAPI(H264Codec):
     """
     H.264/AVC video codec.
