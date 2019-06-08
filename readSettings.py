@@ -506,14 +506,14 @@ class ReadSettings:
                 self.artwork = True
                 log.error("Invalid download-artwork value, defaulting to 'poster'.")
 
-        self.preopts = config.get(section, "preopts").lower()
+        self.preopts = config.get(section, "preopts")
         if self.preopts == '':
             self.preopts = None
         else:
             self.preopts = self.preopts.split(',')
             [o.strip() for o in self.preopts]
 
-        self.postopts = config.get(section, "postopts").lower()
+        self.postopts = config.get(section, "postopts")
         if self.postopts == '':
             self.postopts = None
         else:
