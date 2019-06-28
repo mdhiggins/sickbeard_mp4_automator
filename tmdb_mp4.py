@@ -1,9 +1,6 @@
 import os
 import sys
-try:
-    from urllib.request import urlretrieve
-except ImportError:
-    from urllib import urlretrieve
+import requests
 try:
     from StringIO import StringIO
 except ImportError:
@@ -14,6 +11,12 @@ import logging
 from tmdb_api import tmdb
 from mutagen.mp4 import MP4, MP4Cover
 from extensions import valid_output_extensions, valid_poster_extensions, tmdb_api_key
+
+
+def urlretrieve(url: str, fn: str):
+    with open(fn, 'wb') as f:
+        f.write(requests.get(url, allow_redirects=True, timeout=30).content)
+    return (fn, f)
 
 
 class tmdb_mp4:
