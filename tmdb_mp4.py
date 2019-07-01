@@ -13,7 +13,7 @@ from mutagen.mp4 import MP4, MP4Cover
 from extensions import valid_output_extensions, valid_poster_extensions, tmdb_api_key
 
 
-def urlretrieve(url: str, fn: str):
+def urlretrieve(url, fn):
     with open(fn, 'wb') as f:
         f.write(requests.get(url, allow_redirects=True, timeout=30).content)
     return (fn, f)
