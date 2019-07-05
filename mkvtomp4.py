@@ -747,6 +747,10 @@ class MkvtoMp4:
         self.log.debug("Output directory: %s." % output_dir)
         self.log.debug("Output file: %s." % outputfile)
 
+        if len(options['audio']) == 0:
+            self.error.info("Conversion has no audio tracks, aborting")
+            return inputfile, ""
+
         if self.output_extension == input_extension and len([x for x in [options['video']] + [x for x in options['audio'].values()] + [x for x in options['subtitle'].values()] if x['codec'] != 'copy']) == 0:
             self.log.info("Input and output extensions match and every codec is copy, this file probably doesn't need conversion, returning.")
             self.log.info(inputfile)
