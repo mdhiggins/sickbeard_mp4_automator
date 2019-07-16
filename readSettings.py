@@ -113,8 +113,7 @@ class ReadSettings:
                         'post-process': 'False',
                         'pix-fmt': '',
                         'preopts': '',
-                        'postopts': '',
-                        'exit-on-fail': 'False'}
+                        'postopts': ''}
         # Default settings for CouchPotato
         cp_defaults = {'host': 'localhost',
                        'port': '5050',
@@ -520,10 +519,6 @@ class ReadSettings:
         else:
             self.postopts = self.postopts.split(',')
             [o.strip() for o in self.postopts]
-        
-        self.exit_on_fail = config.getboolean(section, "exit-on-fail")
-        if self.exit_on_fail == '':
-            self.exit_on_fail = False
 
         # Read relevant CouchPotato section information
         section = "CouchPotato"

@@ -23,13 +23,6 @@ log = logging.getLogger("qBittorrentPostProcess")
 
 log.info("qBittorrent post processing started.")
 
-# %L: Category - label
-# %T: Current tracker - tracker
-# %R: Root path (first torrent subdirectory path) - directory
-# %F: Content path (same as root path for multifile torrent) - single|multi
-# %N: Torrent name - name
-# %I: Info hash
-
 if len(sys.argv) != 7:
     log.error("Not enough command line parameters present, are you launching this from qBittorrent?")
     log.error("#Args: %L %T %R %F %N %I Category, Tracker, RootPath, ContentPath , TorrentName, InfoHash")
@@ -55,7 +48,6 @@ if root_path == content_path:
     single_file = False
 else:
     single_file = True
-
 
 if label not in categories:
     log.error("No valid label detected.")
