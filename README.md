@@ -16,6 +16,7 @@ Downloaders Supported:
 - SABNZBD
 - NZBGet
 - uTorrent
+- qBittorrent
 - Deluge Daemon
 
 Requirements
@@ -47,6 +48,7 @@ Note: Windows users should enter commands in Powershell - using '<' doesn't work
 - `dateutil` - Run `pip install python-dateutil` (this will be automatically installed with subliminal)
 - `deluge-client` Run `pip install deluge-client` if you plan on using Deluge
 - `qtfaststart` Run `pip install qtfaststart` to enable moving moov atom
+- `python-qbittorrent` Run `pip install python-qbittorrent` to enable support for qBittorrent
 
 General MP4 Configuration
 --------------
@@ -268,6 +270,28 @@ uTorrent Setup
     - `hostname` - your uTorrent Web UI URL, eg `http://localhost:8080/` including the trailing slash.
     - `username` - your uTorrent Web UI username.
     - `password` - your uTorrent Web UI password.
+5. Verify that whatever media manager you are using is assigning the label to match the label settings specified here so that file will be passed back to the appropriate location
+
+qBittorrent Setup
+--------------
+1. Verify that you have installed the **python-qbittorrent library**
+    - `pip install python-qbittorrent`
+2. Launch qBittorrent
+3. Set `Run Program` option
+    - Go to `Tools > Options > Run external program on torrent completion`
+    - Point to `qBittorrentPostProcess.py` with command line parameters: `"%L" "%T" "%R" "%F" "%N" "%I"` in that exact order.
+4. Set your qBittorrent settings in autoProcess.ini
+    - `convert` - `True`/`False`. Allows for conversion of files before passing back to the respective download manager.
+    - `sickbeard-label` - default `sickbeard` - qBittorrent label that should be assigned to torrents that will be sent to Sickbeard for additional processing when download is complete.
+    - `sickrage-label` - default `sickrage` - qBittorrent label that should be assigned to torrents that will be sent to Sickrage for additional processing when download is complete.
+    - `couchpotato-label` - default `couchpotato` - qBittorrent label that should be assigned to torrents that will be sent to Couch Potato for additional processing when download is complete.
+    - `sonarr-label` - default `sonarr` - qBittorrent label that should be assigned to torrents that will be sent to Sonarr for additional processing when download is complete.
+    - `bypass-label` - default `bypass` - label that should be assigned to torrents that will not be sent anywhere when download is complete. Useful if you wish to convert files without additional processing.
+    - `action_before` - pause
+    - `action_after` - pause/delete
+    - `hostname` - your qBittorrent Web UI URL, eg `http://localhost:8080/` including the trailing slash.
+    - `username` - your qBittorrent Web UI username.
+    - `password` - your qBittorrent Web UI password.
 5. Verify that whatever media manager you are using is assigning the label to match the label settings specified here so that file will be passed back to the appropriate location
 
 Deluge Daemon
