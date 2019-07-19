@@ -89,7 +89,6 @@ if settings.qBittorrent['convert']:
       settings.output_dir = os.path.abspath(os.path.join(root_path, '..', ("%s-%s" % (name, suffix))))
       if not os.path.exists(settings.output_dir):
           os.mkdir(settings.output_dir)
-      delete_dir = settings.output_dir
 
     converter = MkvtoMp4(settings)
 
