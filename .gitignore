@@ -2,6 +2,7 @@
 ## sickbeard-mp4-automator
 #############################
 autoProcess.ini
+/.venv
 
 #################
 ## Eclipse

@@ -36,8 +36,20 @@ Prerequisite PIP Package Installation Instructions
 --------------
 Note: Windows users should enter commands in Powershell - using '<' doesn't work in cmd
 - `VC for Python 2.7` (Windows Users Only) - Download and install - http://www.microsoft.com/en-us/download/details.aspx?id=44266
-- `setuptools` - https://pypi.python.org/pypi/setuptools#installation-instructions
-- Python dependencies - Run `pip install -r requirements.txt`
+
+Install the tool used to set up isolated Python environments:
+
+    $ pip install virtualenv
+
+If you have `make` available (most OSes do already, and there are ways to
+install it under Windows), you can just use the provided `Makefile`:
+
+	$ make
+
+Otherwise, use these steps to duplicate what the `Makefile` does:
+
+	$ virtualenv .venv
+	$ .venv/bin/pip install -r requirements.txt
 
 
 General MP4 Configuration
