@@ -37,16 +37,8 @@ Prerequisite PIP Package Installation Instructions
 Note: Windows users should enter commands in Powershell - using '<' doesn't work in cmd
 - `VC for Python 2.7` (Windows Users Only) - Download and install - http://www.microsoft.com/en-us/download/details.aspx?id=44266
 - `setuptools` - https://pypi.python.org/pypi/setuptools#installation-instructions
-- `requests` - Run `pip install requests`
-- `requests security package` - Run `pip install requests[security]`
-- `requests-cache` - Run `pip install requests-cache`
-- `babelfish` - Run `pip install babelfish`
-- `guessit` - Run `pip install "guessit<2"` to use manual.py (requires guessit version 1, version 2 is a complete rewrite, still in alpha, and not backwards compatible)
-- `subliminal`- Run `pip install "subliminal<2"` to enable automatically downloading subtitles
-- `stevedore` - Run `pip install stevedore==1.19.1` (requires stevedore version 1.19.1. This will be automatically installed with subliminal, so if subliminal is installed run `pip uninstall stevedore` then `pip install stevedore==1.19.1`)
-- `dateutil` - Run `pip install python-dateutil` (this will be automatically installed with subliminal)
-- `deluge-client` Run `pip install deluge-client` if you plan on using Deluge
-- `qtfaststart` Run `pip install qtfaststart` to enable moving moov atom
+- Python dependencies - Run `pip install -r requirements.txt`
+
 
 General MP4 Configuration
 --------------
