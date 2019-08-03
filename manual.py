@@ -367,4 +367,11 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except Exception:
+        if os.environ.get('DEBUG'):
+            import pdb
+            log.exception('Debugging exception')
+            pdb.post_mortem()
+        raise
