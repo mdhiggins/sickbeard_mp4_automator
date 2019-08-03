@@ -12,11 +12,14 @@ endif
 ## Top-level targets
 
 .PHONY: default
-default: .venv/$(PYTHON_BIN_DIR)/guessit$(PYTHON_EXT)
+default: .venv/$(PYTHON_BIN_DIR)/guessit$(PYTHON_EXT) autoProcess.ini
 	.venv/$(PYTHON_BIN_DIR)/python$(PYTHON_EXT) manual.py -h
 
 
 ## Real targets
+
+autoProcess.ini:
+	cp "$(@).sample" "$(@)"
 
 .venv/$(PYTHON_BIN_DIR)/guessit$(PYTHON_EXT): .venv setup.py requirements.txt
 	.venv/$(PYTHON_BIN_DIR)/pip install -r requirements.txt
