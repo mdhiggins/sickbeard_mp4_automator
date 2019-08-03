@@ -340,7 +340,7 @@ class FFMpeg(object):
 
         def which(name):
             path = os.environ.get('PATH', os.defpath)
-            for d in path.split(':'):
+            for d in path.split(os.pathsep):
                 fpath = os.path.join(d, name)
                 if os.path.exists(fpath) and os.access(fpath, os.X_OK):
                     return fpath
