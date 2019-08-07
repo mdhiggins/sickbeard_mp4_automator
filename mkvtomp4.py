@@ -1,16 +1,30 @@
 from __future__ import unicode_literals
 import os
+import re
 import time
 import json
 import sys
 import shutil
 import logging
+
+import converter
 from converter import Converter, FFMpegConvertError
 from extensions import valid_input_extensions, valid_output_extensions, bad_subtitle_codecs, valid_subtitle_extensions, subtitle_codec_extensions, valid_tagging_extensions
 from babelfish import Language
 
 
 class MkvtoMp4:
+
+    CODECS_LINE_RE = re.compile(
+        r'^ [A-Z.]{6} ([^ ]+) +(.+)$', re.M)
+    CODECS_DECODERS_RE = re.compile(
+        r' \(decoders: ([^)]+) \)')
+    CODECS_ENCODERS_RE = re.compile(
+        r' \(encoders: ([^)]+) \)')
+    DECODER_SYNONYMS = {
+        'mpeg1video': 'mpeg1',
+        'mpeg2video': 'mpeg2'}
+
     def __init__(self, settings=None,
                  FFMPEG_PATH="FFMPEG.exe",
                  FFPROBE_PATH="FFPROBE.exe",
@@ -25,9 +39,6 @@ class MkvtoMp4:
                  video_width=None,
                  video_profile=None,
                  h264_level=None,
-                 qsv_decoder=True,
-                 hevc_qsv_decoder=False,
-                 dxva2_decoder=False,
                  audio_codec=['ac3'],
                  ignore_truehd=True,
                  audio_bitrate=256,
@@ -88,9 +99,6 @@ class MkvtoMp4:
         self.video_width = video_width
         self.video_profile = video_profile
         self.h264_level = h264_level
-        self.qsv_decoder = qsv_decoder
-        self.hevc_qsv_decoder = hevc_qsv_decoder
-        self.dxva2_decoder = dxva2_decoder
         self.pix_fmt = pix_fmt
         # Audio settings
         self.audio_codec = audio_codec
@@ -140,15 +148,14 @@ class MkvtoMp4:
         self.preopts = settings.preopts
         self.postopts = settings.postopts
         # Video settings
+        self.hwaccels = settings.hwaccels
+        self.hwaccel_decoders = settings.hwaccel_decoders
         self.video_codec = settings.vcodec
         self.video_bitrate = settings.vbitrate
         self.vcrf = settings.vcrf
         self.video_width = settings.vwidth
         self.video_profile = settings.vprofile
         self.h264_level = settings.h264_level
-        self.qsv_decoder = settings.qsv_decoder
-        self.hevc_qsv_decoder = settings.hevc_qsv_decoder
-        self.dxva2_decoder = settings.dxva2_decoder
         self.pix_fmt = settings.pix_fmt
         # Audio settings
         self.audio_codec = settings.acodec
@@ -258,6 +265,9 @@ class MkvtoMp4:
                 return True
             else:
                 self.log.debug("%s not found." % inputfile)
+                if os.environ.get('DEBUG'):
+                    import pdb
+                    pdb.set_trace()
                 return False
         else:
             self.log.debug("%s is invalid with extension %s." % (inputfile, input_extension))
@@ -278,12 +288,11 @@ class MkvtoMp4:
     def getDimensions(self, inputfile):
         if self.validSource(inputfile):
             info = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH).probe(inputfile)
-
-            self.log.debug("Height: %s" % info.video.video_height)
-            self.log.debug("Width: %s" % info.video.video_width)
-
-            return {'y': info.video.video_height,
-                    'x': info.video.video_width}
+            if info is not None:
+                self.log.debug("Height: %s" % info.video.video_height)
+                self.log.debug("Width: %s" % info.video.video_width)
+                return {'y': info.video.video_height,
+                        'x': info.video.video_width}
 
         return {'y': 0,
                 'x': 0}
@@ -305,7 +314,8 @@ class MkvtoMp4:
         # Get path information from the input file
         input_dir, filename, input_extension = self.parseFile(inputfile)
 
-        info = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH).probe(inputfile)
+        converter = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH)
+        info = converter.probe(inputfile)
 
         # Video stream
         self.log.info("Reading video stream.")
@@ -713,20 +723,51 @@ class MkvtoMp4:
             options['postopts'].extend(self.postopts)
 
         if vcodec != 'copy':
-            # Figure out any decoding pre-options
-            if self.dxva2_decoder:
-                # DXVA2 will fallback to CPU decoding when it hits a file that
-                # it cannot handle, so we don't need to check if the file is
-                # supported.
-                options['preopts'].extend(['-hwaccel', 'dxva2'])
-            elif info.video.codec.lower() == "hevc" and self.hevc_qsv_decoder:
-                options['preopts'].extend(['-vcodec', 'hevc_qsv'])
-            elif (
-                    vcodec == "h264qsv" and
-                    info.video.codec.lower() == "h264" and
-                    self.qsv_decoder and
-                    (info.video.video_level / 10) < 5):
-                options['preopts'].extend(['-vcodec', 'h264_qsv'])
+            # Look up which codecs and which decoders/encoders are available
+            # in this build of ffmpeg
+            codecs = converter.ffmpeg._get_stdout([
+                converter.ffmpeg.ffprobe_path, '-codecs'])
+            codecs = {
+                line_match.group(1): line_match.group(2)
+                for line_match in self.CODECS_LINE_RE.finditer(codecs)}
+            for codec, coders in codecs.items():
+                decoders_match = self.CODECS_DECODERS_RE.search(coders)
+                encoders_match = self.CODECS_ENCODERS_RE.search(coders)
+                codecs[codec] = dict(
+                    decoders=decoders_match and decoders_match.group(
+                        1).split() or [],
+                    encoders=encoders_match and encoders_match.group(
+                        1).split() or [])
+
+            # Lookup which hardware acceleration platforms are available
+            # in this build of ffmpeg
+            hwaccels = [
+                hwaccel.strip() for hwaccel in converter.ffmpeg._get_stdout([
+                    converter.ffmpeg.ffmpeg_path, '-hwaccels'
+                ]).split('\n')[1:]
+                if hwaccel.strip()]
+
+            # Find the first of the specified hardware acceleration platform
+            # that is available in this build of ffmpeg.  The order of
+            # specified hardware acceleration platforms determines priority.
+            for hwaccel in self.hwaccels:
+                if hwaccel not in hwaccels:
+                    self.log.warn(
+                        'The %r hwaccel is not supported '
+                        'by this ffmpeg build', hwaccel)
+                options['preopts'].extend(['-hwaccel', hwaccel])
+
+                # If there's a decoder for this acceleration platform, also
+                # use it
+                source_codec = self.DECODER_SYNONYMS.get(
+                    info.video.codec, info.video.codec)
+                decoder = '{0}_{1}'.format(source_codec, hwaccel)
+                if (
+                        decoder in codecs[info.video.codec]['decoders'] and
+                        decoder in self.hwaccel_decoders):
+                    options['preopts'].extend(['-vcodec', decoder])
+
+                break
 
         # Add width option
         if vwidth:
@@ -757,7 +798,7 @@ class MkvtoMp4:
         self.log.debug("Output file: %s." % outputfile)
 
         if len(options['audio']) == 0:
-            self.error.info("Conversion has no audio tracks, aborting")
+            self.log.info("Conversion has no audio tracks, aborting")
             return inputfile, ""
 
         if self.output_extension == input_extension and len([x for x in [options['video']] + [x for x in options['audio'].values()] + [x for x in options['subtitle'].values()] if x['codec'] != 'copy']) == 0:
