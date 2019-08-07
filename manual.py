@@ -32,7 +32,6 @@ elif not os.path.isdir(logpath):
         logpath = os.path.dirname(sys.argv[0])
 configPath = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'logging.ini')).replace("\\", "\\\\")
 logPath = os.path.abspath(os.path.join(logpath, 'index.log')).replace("\\", "\\\\")
-fileConfig(configPath, defaults={'logfilename': logPath})
 
 log = logging.getLogger("MANUAL")
 logging.getLogger("subliminal").setLevel(logging.CRITICAL)
@@ -368,6 +367,7 @@ def main():
 
 if __name__ == '__main__':
     try:
+        fileConfig(configPath, defaults={'logfilename': logPath})
         main()
     except Exception:
         if os.environ.get('DEBUG'):
