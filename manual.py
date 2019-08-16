@@ -133,6 +133,7 @@ def guessInfo(fileName, tvdbid=None):
     if not settings.fullpathguess:
         fileName = os.path.basename(fileName)
     guess = guessit.guess_file_info(fileName)
+    print("Guessing title of '%s' for file '%s'" % (guess["title"], fileName))
     try:
         if guess['type'] == 'movie':
             return tmdbInfo(guess)
@@ -141,7 +142,7 @@ def guessInfo(fileName, tvdbid=None):
         else:
             return None
     except Exception as e:
-        print(e)
+        print("Guessing title failed: %s" % (str(e.args[0])))
         return None
 
 
@@ -155,12 +156,18 @@ def tmdbInfo(guessData):
         # origname = origname.replace('&', 'and')
         if foundname.lower() == origname.lower():
             print("Matched movie title as: %s %s" % (movie["title"].encode(sys.stdout.encoding, errors='ignore'), movie["release_date"].encode(sys.stdout.encoding, errors='ignore')))
+        foundReleaseYear = ''.join(e for e in movie["release_date"][:4] if e.isalnum())
+        origReleaseYear = guessData["year"]
+        if foundname.lower() == origname.lower() and str(foundReleaseYear) == str(origReleaseYear):
+            print("Matched movie title as: % s %s" % (movie["title"].encode(sys.stdout.encoding, errors='ignore'), movie["release_date"].encode(sys.stdout.encoding, errors='ignore')))
             movie = tmdb.Movie(movie["id"])
             if isinstance(movie, dict):
                 tmdbid = movie["id"]
             else:
                 tmdbid = movie.get_id()
             return 2, tmdbid
+        else:
+            print("Did not find movie. Original: '%s', Found: '%s'" % (origname.lower(), foundname.lower()))
     return None
 
 
