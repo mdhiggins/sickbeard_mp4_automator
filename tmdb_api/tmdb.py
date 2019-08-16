@@ -96,12 +96,16 @@ class Movies(Core):
         self.limit = limit
         self.update_configuration()
         title = self.escape(title)
-        self.movies = self.getJSON(config['urls']['movie.search'] % (title,str(1)), language=language)
+        requestUri = config['urls']['movie.search'] % (title,str(1))
+        print("Retrieving movie data at: %s" % (requestUri))
+        self.movies = self.getJSON(requestUri, language=language)
         pages = self.movies["total_pages"]
         if not self.limit:
             if int(pages) > 1:                  #
                 for i in range(2,int(pages)+1): #  Thanks @tBuLi
-                    self.movies["results"].extend(self.getJSON(config['urls']['movie.search'] % (title,str(i)), language=language)["results"])
+                    requestUri = config['urls']['movie.search'] % (title,str(i))
+                    print("Retrieving movie data at: %s" % (requestUri))
+                    self.movies["results"].extend(self.getJSON(requestUri, language=language)["results"])
 
     def __iter__(self):
         for i in self.movies["results"]:
