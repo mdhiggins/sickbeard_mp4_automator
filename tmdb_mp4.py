@@ -60,6 +60,7 @@ class tmdb_mp4:
                 break
             except Exception as e:
                 self.log.exception("Failed to connect to tMDB, trying again in 20 seconds.")
+                self.log.info(json.dumps(self.movie.__dict__))
                 time.sleep(20)
 
     def writeTags(self, mp4Path, artwork=True, thumbnail=False):
