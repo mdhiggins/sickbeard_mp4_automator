@@ -99,6 +99,20 @@ username =
 password =
 output_directory =
 
+[qBittorrent]
+convert =
+couchpotato-label = couchpotato
+sickbeard-label = sickbeard
+sonarr-label = sonarr
+bypass-label = bypass
+sickrage-label = sickrage
+action_before = pause
+action_after = resume
+host = http://localhost:8080/
+username =
+password =
+output_directory =
+
 [Deluge]
 host = localhost
 username =

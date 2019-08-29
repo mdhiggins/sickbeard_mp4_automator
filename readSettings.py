@@ -573,6 +573,30 @@ class ReadSettings:
         self.uTorrentUsername = config.get(section, "username")
         self.uTorrentPassword = config.get(section, "password")
 
+        # Read relevant qBittorrent section information
+        section = "qBittorrent"
+        self.qBittorrent = {}
+        self.qBittorrent['cp'] = config.get(section, "couchpotato-label").lower()
+        self.qBittorrent['sb'] = config.get(section, "sickbeard-label").lower()
+        self.qBittorrent['sr'] = config.get(section, "sickrage-label").lower()
+        self.qBittorrent['sonarr'] = config.get(section, "sonarr-label").lower()
+        self.qBittorrent['radarr'] = config.get(section, "radarr-label").lower()
+        self.qBittorrent['bypass'] = config.get(section, "bypass-label").lower()
+        try:
+            self.qBittorrent['convert'] = config.getboolean(section, "convert")
+        except:
+            self.qBittorrent['convert'] = False
+        self.qBittorrent['output_dir'] = config.get(section, "output_directory")
+        if self.qBittorrent['output_dir'] == '':
+            self.qBittorrent['output_dir'] = None
+        else:
+            self.qBittorrent['output_dir'] = os.path.normpath(self.raw(self.qBittorrent['output_dir']))  # Output directory        
+        self.qBittorrentActionBefore = config.get(section, "action_before").lower()
+        self.qBittorrentActionAfter = config.get(section, "action_after").lower()
+        self.qBittorrentHost = config.get(section, "host").lower()
+        self.qBittorrentUsername = config.get(section, "username")
+        self.qBittorrentPassword = config.get(section, "password")
+
         # Read relevant Deluge section information
         section = "Deluge"
         self.deluge = {}
