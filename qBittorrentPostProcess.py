@@ -66,13 +66,13 @@ except ImportError:
 
 delete_dir = False
 
-qb = Client(settings.qBittorrentHost)
+qb = Client(settings.qBittorrent['host'])
+qb.login(settings.qBittorrent['username'], settings.qBittorrent['password'])
 
-if settings.qBittorrentActionBefore:
-  qb.login(settings.qBittorrentUsername, settings.qBittorrentPassword)
-  if settings.qBittorrentActionBefore == 'pause': #currently only support pausing
-    log.debug("Sending action %s to qBittorrent" % settings.qBittorrentActionBefore)
-    qb.pause(torrent_hash)
+if settings.qBittorrent['actionBefore']:
+    if settings.qBittorrent['actionBefore'] == 'pause':  # currently only support pausing
+        log.debug("Sending action %s to qBittorrent" % settings.qBittorrent['actionBefore'])
+        qb.pause(torrent_hash)
 
 if settings.qBittorrent['convert']:
     # Check for custom qBittorrent output_dir
@@ -84,16 +84,16 @@ if settings.qBittorrent['convert']:
     log.info("Performing conversion")
     settings.delete = False
     if not settings.output_dir:
-      #If the user hasn't set an output directory, go up one from the root path and create a directory there as [name]-convert
-      suffix = "convert"
-      settings.output_dir = os.path.abspath(os.path.join(root_path, '..', ("%s-%s" % (name, suffix))))
-      if not os.path.exists(settings.output_dir):
-          os.mkdir(settings.output_dir)
+        # If the user hasn't set an output directory, go up one from the root path and create a directory there as [name]-convert
+        suffix = "convert"
+        settings.output_dir = os.path.abspath(os.path.join(root_path, '..', ("%s-%s" % (name, suffix))))
+        if not os.path.exists(settings.output_dir):
+            os.mkdir(settings.output_dir)
 
     converter = MkvtoMp4(settings)
 
     if single_file:
-        #single file
+        # single file
         inputfile = content_path
         if MkvtoMp4(settings).validSource(inputfile):
             log.info("Processing file %s." % inputfile)
@@ -132,11 +132,11 @@ else:
     else:
         log.info("Multi File Torrent")
         newpath = os.path.abspath(os.path.join(root_path, '..', ("%s-%s" % (name, suffix))))
-    
+
     if not os.path.exists(newpath):
         os.mkdir(newpath)
         log.debug("Creating temporary directory %s" % newpath)
-    
+
     if single_file:
         inputfile = content_path
         shutil.copy(inputfile, newpath)
@@ -169,15 +169,14 @@ elif label == categories[5]:
     log.info("Bypassing any further processing as per category.")
 
 # Run a qbittorrent action after conversion.
-if settings.qBittorrentActionAfter:
-    qb.login(settings.qBittorrentUsername, settings.qBittorrentPassword)
-    #currently only support resuming or deleting torrent
-    if settings.qBittorrentActionAfter == 'resume': 
-        log.debug("Sending action %s to qBittorrent" % settings.qBittorrentActionBefore)
+if settings.qBittorrent['actionAfter']:
+    # currently only support resuming or deleting torrent
+    if settings.qBittorrent['actionAfter'] == 'resume':
+        log.debug("Sending action %s to qBittorrent" % settings.qBittorrent['actionAfter'])
         qb.resume(torrent_hash)
-    elif settings.qBittorrentActionAfter == 'delete':
-        #this will delete the torrent from qBittorrent but it WILL NOT delete the data
-        log.debug("Sending action %s to qBittorrent" % settings.qBittorrentActionBefore)
+    elif settings.qBittorrent['actionAfter'] == 'delete':
+        # this will delete the torrent from qBittorrent but it WILL NOT delete the data
+        log.debug("Sending action %s to qBittorrent" % settings.qBittorrent['actionAfter'])
         qb.delete(torrent_hash)
 
 if delete_dir:
