@@ -286,6 +286,7 @@ qBittorrent Setup
     - `sickrage-label` - default `sickrage` - qBittorrent label that should be assigned to torrents that will be sent to Sickrage for additional processing when download is complete.
     - `couchpotato-label` - default `couchpotato` - qBittorrent label that should be assigned to torrents that will be sent to Couch Potato for additional processing when download is complete.
     - `sonarr-label` - default `sonarr` - qBittorrent label that should be assigned to torrents that will be sent to Sonarr for additional processing when download is complete.
+    - `radarr-label` - default `radarr` - qBittorrent label that should be assigned to torrents that will be sent to Radarr for additional processing when download is complete.
     - `bypass-label` - default `bypass` - label that should be assigned to torrents that will not be sent anywhere when download is complete. Useful if you wish to convert files without additional processing.
     - `action_before` - pause
     - `action_after` - resume/delete
