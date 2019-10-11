@@ -180,6 +180,10 @@ if settings.qBittorrent['actionAfter']:
         # this will delete the torrent from qBittorrent but it WILL NOT delete the data
         log.debug("Sending action %s to qBittorrent" % settings.qBittorrent['actionAfter'])
         qb.delete(torrent_hash)
+    elif settings.qBittorrent['actionAfter'] == 'deletePerm':
+        # this will delete the torrent from qBittorrent and delete data
+        log.debug("Sending action %s to qBittorrent" % settings.qBittorrent['actionAfter'])
+        qb.delete_permanently(torrent_hash)
 
 if delete_dir:
     if os.path.exists(delete_dir):
