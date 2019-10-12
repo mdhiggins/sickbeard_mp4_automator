@@ -289,7 +289,7 @@ qBittorrent Setup
     - `radarr-label` - default `radarr` - qBittorrent label that should be assigned to torrents that will be sent to Radarr for additional processing when download is complete.
     - `bypass-label` - default `bypass` - label that should be assigned to torrents that will not be sent anywhere when download is complete. Useful if you wish to convert files without additional processing.
     - `action_before` - pause
-    - `action_after` - resume/delete
+    - `action_after` - resume/delete/deletedata
     - `hostname` - your qBittorrent Web UI URL, eg `http://localhost:8080/` including the trailing slash.
     - `username` - your qBittorrent Web UI username.
     - `password` - your qBittorrent Web UI password.
