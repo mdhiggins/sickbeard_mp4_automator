@@ -241,7 +241,7 @@ class Converter(object):
             optlist = self.parse_options(options, twopass)
             for timecode in self.ffmpeg.convert(infile, outfile, optlist,
                                                 timeout=timeout, preopts=preopts, postopts=postopts):
-                yield int((100.0 * timecode) / info.format.duration)
+                yield (float((100.0 * timecode) / info.format.duration), info.format.duration)
 
     def probe(self, fname, posters_as_video=True):
         """
