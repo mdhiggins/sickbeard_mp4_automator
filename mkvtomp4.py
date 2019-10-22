@@ -776,7 +776,8 @@ class MkvtoMp4:
                 if reportProgress:
                     try:
                         sys.stdout.write('\r')
-                        sys.stdout.write('[{0}] {1}%'.format('#' * (timecode / 10) + ' ' * (10 - (timecode / 10)), timecode))
+                        percent = '{0:.2f}%'.format(timecode[0], timecode[1]).zfill(6)
+                        sys.stdout.write(percent)
                     except:
                         sys.stdout.write(str(timecode))
                     sys.stdout.flush()
