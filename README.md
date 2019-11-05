@@ -20,8 +20,7 @@ Downloaders Supported:
 
 Requirements
 --------------
-- Python 2.7
-- Python 3 beta support has arrived. Feel free to begin testing and report bugs
+- Python 3.7
 - FFMPEG and FFPROBE binaries
 - Python setup_tools
 - See PIP packages for additional requirements
@@ -41,9 +40,9 @@ Note: Windows users should enter commands in Powershell - using '<' doesn't work
 - `requests security package` - Run `pip install requests[security]`
 - `requests-cache` - Run `pip install requests-cache`
 - `babelfish` - Run `pip install babelfish`
-- `guessit` - Run `pip install "guessit<2"` to use manual.py (requires guessit version 1, version 2 is a complete rewrite, still in alpha, and not backwards compatible)
-- `subliminal`- Run `pip install "subliminal<2"` to enable automatically downloading subtitles
-- `stevedore` - Run `pip install stevedore==1.19.1` (requires stevedore version 1.19.1. This will be automatically installed with subliminal, so if subliminal is installed run `pip uninstall stevedore` then `pip install stevedore==1.19.1`)
+- `guessit` - Run `pip install "guessit==3.1"` to use manual.py
+- `subliminal`- Run `pip install subliminal` to enable automatically downloading subtitles
+- `stevedore` - Run `pip install stevedore`
 - `dateutil` - Run `pip install python-dateutil` (this will be automatically installed with subliminal)
 - `deluge-client` Run `pip install deluge-client` if you plan on using Deluge
 - `qtfaststart` Run `pip install qtfaststart` to enable moving moov atom

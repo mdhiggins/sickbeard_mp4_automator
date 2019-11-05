@@ -615,7 +615,7 @@ class MkvtoMp4:
                 pass
 
             try:
-                video = subliminal.scan_video(os.path.abspath(inputfile), subtitles=True, embedded_subtitles=True)
+                video = subliminal.scan_video(os.path.abspath(inputfile))
                 subtitles = subliminal.download_best_subtitles([video], languages, hearing_impaired=False, providers=self.subproviders)
                 try:
                     subliminal.save_subtitles(video, subtitles[video])
