@@ -329,6 +329,8 @@ class MkvtoMp4:
             pix_fmt = self.pix_fmt[0]
             if self.video_profile:
                 vprofile = self.video_profile[0]
+        elif self.pix_fmt:
+            pix_fmt = self.pix_fmt[0]
         else:
             pix_fmt = None
 
@@ -342,7 +344,7 @@ class MkvtoMp4:
             vcodec = self.video_codec[0]
             vwidth = self.video_width
         else:
-            vwidth = None
+            vwidth = self.video_width
 
         if '264' in info.video.codec.lower() and self.h264_level and info.video.video_level and (info.video.video_level / 10 > self.h264_level):
             self.log.info("Video level %0.1f." % (info.video.video_level / 10))
@@ -358,6 +360,8 @@ class MkvtoMp4:
             vprofile = self.video_profile[0]
             if self.pix_fmt:
                 pix_fmt = self.pix_fmt[0]
+        elif self.video_profile:
+            vprofile = self.video_profile[0]
         else:
             vprofile = None
 
