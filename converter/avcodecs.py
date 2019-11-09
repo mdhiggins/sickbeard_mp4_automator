@@ -856,7 +856,7 @@ class H265VAAPI(H265Codec):
     H.265/AVC VAAPI ideo codec.
     """
     codec_name = 'h265vaapi'
-    ffmpeg_codec_name = 'h265_vaapi'
+    ffmpeg_codec_name = 'hevc_vaapi'
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         optlist = super(H265VAAPI, self)._codec_specific_produce_ffmpeg_list(safe, stream)
