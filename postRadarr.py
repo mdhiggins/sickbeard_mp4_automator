@@ -98,6 +98,10 @@ if MkvtoMp4(settings).validSource(inputfile):
                 url = protocol + host + ":" + port + webroot + "/api/command"
                 r = requests.post(url, json=payload, headers=headers)
                 rstate = r.json()
+                try:
+                    rstate = rstate[0]
+                except:
+                    pass
                 log.info("Radarr response: ID %d %s." % (rstate['id'], rstate['state']))
                 log.debug(str(rstate))
 
