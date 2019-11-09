@@ -320,11 +320,6 @@ class VideoCodec(BaseCodec):
             if f < 1 or f > 120:
                 del safe['fps']
 
-        if 'bitrate' in safe:
-            br = safe['bitrate']
-            if br < 16 or br > 15000:
-                del safe['bitrate']
-
         if 'crf' in safe:
             crf = safe['crf']
             if crf < 0 or crf > 51:
@@ -861,8 +856,9 @@ class H265VAAPI(H265Codec):
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         optlist = super(H265VAAPI, self)._codec_specific_produce_ffmpeg_list(safe, stream)
         optlist.extend(['-vaapi_device', '/dev/dri/renderD128'])
-        optlist.extend(['-vf', 'scale_vaapi=format=p010'])
-        optlist.extend(['-hwaccel_output_format', 'vaapi'])
+        # optlist.extend(['-vf', 'scale_vaapi=format=p010'])
+        #optlist.extend(['-hwaccel_output_format', 'vaapi'])
+        optlist.extend(['-vf', 'format=nv12,hwupload'])
         return optlist
 
 
