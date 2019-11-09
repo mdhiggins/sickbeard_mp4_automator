@@ -859,6 +859,8 @@ class H265VAAPI(H265Codec):
         # optlist.extend(['-vf', 'scale_vaapi=format=p010'])
         # optlist.extend(['-hwaccel_output_format', 'vaapi'])
         optlist.extend(['-vf', 'format=nv12,hwupload'])
+        if 'bitrate' in safe:
+            optlist.extend(['-maxrate:v', str(safe['bitrate']) + 'k'])
         return optlist
 
 
