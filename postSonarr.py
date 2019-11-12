@@ -35,13 +35,30 @@ settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
 
 inputfile = os.environ.get('sonarr_episodefile_path')
 original = os.environ.get('sonarr_episodefile_scenename')
-tvdb_id = int(os.environ.get('sonarr_series_tvdbid'))
-season = int(os.environ.get('sonarr_episodefile_seasonnumber'))
+
+#Added error correction for null arguments:
 
 try:
-    episode = int(os.environ.get('sonarr_episodefile_episodenumbers'))
+    tvdb_id = int(os.environ.get('sonarr_series_tvdbid'))
 except:
-    episode = int(os.environ.get('sonarr_episodefile_episodenumbers').split(",")[0])
+    tvdb_id = int()
+
+
+try:
+    season = int(os.environ.get('sonarr_episodefile_seasonnumber'))
+except:
+    season = int()
+
+
+try:
+    try:
+        episode = int(os.environ.get('sonarr_episodefile_episodenumbers'))
+    except:
+        episode = int(os.environ.get('sonarr_episodefile_episodenumbers').split(",")[0])
+except:
+    episode = int()
+
+
 
 converter = MkvtoMp4(settings)
 

@@ -1,6 +1,7 @@
 import sys
 import os
 import logging
+import json
 
 
 def processEpisode(dirName, settings, nzbGet=False, logger=None):
@@ -46,7 +47,10 @@ def processEpisode(dirName, settings, nzbGet=False, logger=None):
         protocol = "http://"
 
     webroot = settings.Sonarr['web_root']
-    url = protocol + host + ":" + port + webroot + "/api/command"
+    
+    #Removed webroot
+    url = protocol + host + ":" + port + "/api/command"
+    
     payload = {'name': 'downloadedepisodesscan', 'path': dirName}
     headers = {'X-Api-Key': apikey}
 
@@ -60,7 +64,7 @@ def processEpisode(dirName, settings, nzbGet=False, logger=None):
     log.info("%sRequesting Sonarr to scan directory '%s'." % (infoprefix, dirName))
 
     try:
-        r = requests.post(url, json=payload, headers=headers)
+        r = requests.post(url, data=json.dumps(payload), headers=headers) #replaced json with "data" & dump payload
         rstate = r.json()
         log.info("%sSonarr response: %s." % (infoprefix, rstate['state']))
         return True
