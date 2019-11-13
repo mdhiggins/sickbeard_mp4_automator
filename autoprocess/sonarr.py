@@ -48,9 +48,7 @@ def processEpisode(dirName, settings, nzbGet=False, logger=None):
 
     webroot = settings.Sonarr['web_root']
     
-    #Removed webroot
-    url = protocol + host + ":" + port + "/api/command"
-    
+    url = protocol + host + ":" + port + webroot + "/api/command"
     payload = {'name': 'downloadedepisodesscan', 'path': dirName}
     headers = {'X-Api-Key': apikey}
 
@@ -60,7 +58,6 @@ def processEpisode(dirName, settings, nzbGet=False, logger=None):
     log.debug("Sonarr apikey: %s." % apikey)
     log.debug("Sonarr protocol: %s." % protocol)
     log.debug("URL '%s' with payload '%s.'" % (url, payload))
-
     log.info("%sRequesting Sonarr to scan directory '%s'." % (infoprefix, dirName))
 
     try:
