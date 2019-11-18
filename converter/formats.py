@@ -107,6 +107,15 @@ class WebVTTFormat(BaseFormat):
     format_name = 'webvtt'
     ffmpeg_format_name = 'webvtt'
 
+
+class PGSFormat(BaseFormat):
+    """
+    PGS subtitle format
+    """
+    format_name = 'pgs'
+    ffmpeg_format_name = 'sup'
+
+
 class SsaFormat(BaseFormat):
     """
     SSA subtitle format
@@ -114,8 +123,9 @@ class SsaFormat(BaseFormat):
     format_name = 'ass'
     ffmpeg_format_name = 'ass'
 
+
 format_list = [
     OggFormat, AviFormat, MkvFormat, WebmFormat, FlvFormat,
     MovFormat, Mp4Format, MpegFormat, Mp3Format, SrtFormat,
-    WebVTTFormat, SsaFormat
+    WebVTTFormat, SsaFormat, PGSFormat
 ]

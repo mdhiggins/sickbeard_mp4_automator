@@ -5,12 +5,13 @@ valid_audio_codecs = ['aac', 'ac3', 'dts', 'eac3']
 valid_poster_extensions = ['jpg', 'png']
 valid_subtitle_extensions = ['srt', 'vtt', 'ass']
 valid_formats = ['mp4', 'mov']
-bad_subtitle_codecs = ['pgssub', 'dvdsub', 's_hdmv/pgs', 'hdmv_pgs_subtitle', 'dvd_subtitle', 'pgssub', 'dvb_teletext', 'dvb_subtitle']
+bad_subtitle_codecs = ['pgssub', 'dvdsub', 's_hdmv/pgs', 'dvd_subtitle', 'pgssub', 'dvb_teletext', 'dvb_subtitle']
 tmdb_api_key = "45e408d2851e968e6e4d0353ce621c66"
 valid_internal_subcodecs = ['mov_text']
-valid_external_subcodecs = ['srt', 'webvtt', 'ass']
+valid_external_subcodecs = ['srt', 'webvtt', 'ass', 'pgs']
 subtitle_codec_extensions = {'srt': 'srt',
                              'webvtt': 'vtt',
-                             'ass': 'ass'}
+                             'ass': 'ass',
+                             'pgs': 'sup'}
 bad_post_files = ['resources', '.DS_Store']
 bad_post_extensions = ['.txt', '.log', '.pyc']

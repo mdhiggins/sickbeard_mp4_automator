@@ -970,6 +970,14 @@ class WebVTTCodec(SubtitleCodec):
     ffmpeg_codec_name = 'webvtt'
 
 
+class PGSCodec(SubtitleCodec):
+    """
+    PGS subtitle codec.
+    """
+    codec_name = 'pgs'
+    ffmpeg_codec_name = 'copy'
+
+
 class SSA(SubtitleCodec):
     """
     SSA (SubStation Alpha) subtitle.
@@ -1015,5 +1023,5 @@ video_codec_list = [
 
 subtitle_codec_list = [
     SubtitleNullCodec, SubtitleCopyCodec, MOVTextCodec, SrtCodec, SSA, SubRip, DVDSub,
-    DVBSub, WebVTTCodec
+    DVBSub, WebVTTCodec, PGSCodec
 ]
