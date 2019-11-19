@@ -8,7 +8,8 @@ except ImportError:
 import tempfile
 import time
 import logging
-from tmdb_api import tmdb
+# from tmdb_api import tmdb
+import tmdbsimple as tmdb 
 from mutagen.mp4 import MP4, MP4Cover
 from extensions import valid_output_extensions, valid_poster_extensions, tmdb_api_key
 
@@ -41,19 +42,20 @@ class tmdb_mp4:
         self.original = original
         for i in range(3):
             try:
-                tmdb.configure(tmdb_api_key, language=language)
-
-                self.movie = tmdb.Movie(imdbid)
+                tmdb.API_KEY = tmdb_api_key
+                query = tmdb.Movies(imdbid)
+                self.movie = query.info()
+                self.credit = query.credits()
 
                 self.HD = None
 
-                self.title = self.movie.get_title()
-                self.genre = self.movie.get_genres()
+                self.title = self.movie['title']
+                self.genre = self.movie['genres']
 
-                self.shortdescription = self.movie.get_tagline()
-                self.description = self.movie.get_overview()
+                self.shortdescription = self.movie['tagline']
+                self.description = self.movie['overview']
 
-                self.date = self.movie.get_release_date()
+                self.date = self.movie['release_date']
 
                 # Generate XML tags for Actors/Writers/Directors/Producers
                 self.xml = self.xmlTags()
@@ -92,9 +94,11 @@ class tmdb_mp4:
                     # genre += ", " + g['name']
             video["\xa9gen"] = genre  # Genre(s)
         video["----:com.apple.iTunes:iTunMOVI"] = self.xml  # XML - see xmlTags method
+        '''
         rating = self.rating()
         if rating is not None:
             video["----:com.apple.iTunes:iTunEXTC"] = rating
+        '''
 
         if artwork:
             path = self.getArtwork(mp4Path)
@@ -127,7 +131,7 @@ class tmdb_mp4:
                         'R': '400',
                         'NC-17': '500'}
         output = None
-        mpaa = self.movie.get_mpaa_rating()
+        mpaa = self.rating
         if mpaa in ratings:
             numerical = ratings[mpaa]
             output = 'mpaa|' + mpaa.capitalize() + '|' + numerical + '|'
@@ -156,25 +160,25 @@ class tmdb_mp4:
 
         # Write actors
         output.write(castheader)
-        for a in self.movie.get_cast()[:5]:
+        for a in self.credit['cast'][:5]:
             if a is not None:
                 output.write("<dict><key>name</key><string>%s</string></dict>\n" % a['name'].encode('ascii', 'ignore'))
         output.write(subfooter)
         # Write screenwriters
         output.write(writerheader)
-        for w in self.movie.get_writers()[:5]:
+        for w in [x for x in self.credit['crew'] if x['department'].lower() == "writing"][:5]:
             if w is not None:
                 output.write("<dict><key>name</key><string>%s</string></dict>\n" % w['name'].encode('ascii', 'ignore'))
         output.write(subfooter)
         # Write directors
         output.write(directorheader)
-        for d in self.movie.get_directors()[:5]:
+        for d in [x for x in self.credit['crew'] if x['department'].lower() == "directing"][:5]:
             if d is not None:
                 output.write("<dict><key>name</key><string>%s</string></dict>\n" % d['name'].encode('ascii', 'ignore'))
         output.write(subfooter)
         # Write producers
         output.write(producerheader)
-        for p in self.movie.get_producers()[:5]:
+        for p in [x for x in self.credit['crew'] if x['department'].lower() == "production"][:5]:
             if p is not None:
                 output.write("<dict><key>name</key><string>%s</string></dict>\n" % p['name'].encode('ascii', 'ignore'))
         output.write(subfooter)
@@ -199,7 +203,8 @@ class tmdb_mp4:
         # Pulls down all the poster metadata for the correct season and sorts them into the Poster object
         if poster is None:
             try:
-                poster = urlretrieve(self.movie.get_poster("l"), os.path.join(tempfile.gettempdir(), "poster-%s.jpg" % self.imdbid))[0]
+                poster_path = self.movie['poster_path']
+                poster = urlretrieve("https://image.tmdb.org/t/p/original" + poster_path, os.path.join(tempfile.gettempdir(), "poster-%s.jpg" % self.imdbid))[0]
             except Exception as e:
                 self.log.error("Exception while retrieving poster %s.", str(e))
                 poster = None

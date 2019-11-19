@@ -14,8 +14,7 @@ from tvdb_mp4 import Tvdb_mp4
 from tmdb_mp4 import tmdb_mp4
 from mkvtomp4 import MkvtoMp4
 from post_processor import PostProcessor
-from tvdb_api import tvdb_api
-from tmdb_api import tmdb
+import tmdbsimple as tmdb 
 from extensions import tmdb_api_key
 from logging.config import fileConfig
 
@@ -146,40 +145,48 @@ def guessInfo(fileName, tvdbid=None):
 
 
 def tmdbInfo(guessData):
-    tmdb.configure(tmdb_api_key)
-    movies = tmdb.Movies(guessData["title"].encode('ascii', errors='ignore'), limit=4)
-    for movie in movies.iter_results():
+    tmdb.API_KEY = tmdb_api_key
+    search = tmdb.Search()
+    response = search.movie(query=guessData["title"].encode('ascii', errors='ignore'))
+    for movie in search.results:
         # Identify the first movie in the collection that matches exactly the movie title
         foundname = ''.join(e for e in movie["title"] if e.isalnum())
         origname = ''.join(e for e in guessData["title"] if e.isalnum())
         # origname = origname.replace('&', 'and')
         if foundname.lower() == origname.lower():
             print("Matched movie title as: %s %s" % (movie["title"].encode(sys.stdout.encoding, errors='ignore'), movie["release_date"].encode(sys.stdout.encoding, errors='ignore')))
-            movie = tmdb.Movie(movie["id"])
-            if isinstance(movie, dict):
-                tmdbid = movie["id"]
-            else:
-                tmdbid = movie.get_id()
+            movie = tmdb.Movies(movie["id"]).info()
+            tmdbid = movie["id"]
             return 2, tmdbid
     return None
 
 
 def tvdbInfo(guessData, tvdbid=None):
-    series = guessData["series"]
-    if 'year' in guessData:
-        fullseries = series + " (" + str(guessData["year"]) + ")"
+    tmdb.API_KEY = tmdb_api_key
     season = guessData["season"]
     episode = guessData["episodeNumber"]
-    t = tvdb_api.Tvdb(interactive=False, cache=False, banners=False, actors=False, forceConnect=True, language='en')
+    if not tvdbid:
+        search = tmdb.Search()
+        series = guessData["series"]
+        fullseries = series
+        if 'year' in guessData:
+            fullseries = series + " (" + str(guessData["year"]) + ")"
+
+        response = search.tv(query=fullseries.encode('ascii', errors='ignore'))
+        if len(search.results) == 0:
+            response = search.tv(query=series.encode('ascii', errors='ignore'))
+
+        result = search.results[0]
+        tvdbid = result['id']
+    else:
+        seriesquery = tmdb.TV(tvdbid)
+        showdata = seriesquery.info()
+        series = showdata['name']
     try:
-        tvdbid = str(tvdbid) if tvdbid else t[fullseries]['id']
-        series = t[int(tvdbid)]['seriesname']
-    except:
-        tvdbid = t[series]['id']
-    try:
-        print("Matched TV episode as %s (TVDB ID:%d) S%02dE%02d" % (series.encode(sys.stdout.encoding, errors='ignore'), int(tvdbid), int(season), int(episode)))
-    except:
+        print("Matched TV episode as %s (TMDB ID:%d) S%02dE%02d" % (series.encode(sys.stdout.encoding, errors='ignore'), int(tvdbid), int(season), int(episode)))
+    except Exception as e:
         print("Matched TV episode")
+        print(e)
     return 3, tvdbid, season, episode
 
 
@@ -207,7 +214,7 @@ def processFile(inputfile, tagdata, relativePath=None):
         tvdbid = int(tagdata[1])
         season = int(tagdata[2])
         episode = int(tagdata[3])
-        tagmp4 = Tvdb_mp4(tvdbid, season, episode, language=settings.taglanguage, logger=log)
+        tagmp4 = Tvdb_mp4(tvdbid, season, episode, language=settings.taglanguage, logger=log, tmdbid=True)
         try:
             print("Processing %s Season %02d Episode %02d - %s" % (tagmp4.show.encode(sys.stdout.encoding, errors='ignore'), int(tagmp4.season), int(tagmp4.episode), tagmp4.title.encode(sys.stdout.encoding, errors='ignore')))
         except:
@@ -272,7 +279,7 @@ def main():
     parser.add_argument('-i', '--input', help='The source that will be converted. May be a file or a directory')
     parser.add_argument('-c', '--config', help='Specify an alternate configuration file location')
     parser.add_argument('-a', '--auto', action="store_true", help="Enable auto mode, the script will not prompt you for any further input, good for batch files. It will guess the metadata using guessit")
-    parser.add_argument('-tv', '--tvdbid', help="Set the TVDB ID for a tv show")
+    parser.add_argument('-tv', '--tvid', help="Set the TVDB ID for a tv show")
     parser.add_argument('-s', '--season', help="Specifiy the season number")
     parser.add_argument('-e', '--episode', help="Specify the episode number")
     parser.add_argument('-imdb', '--imdbid', help="Specify the IMDB ID for a movie")
@@ -337,13 +344,14 @@ def main():
     else:
         path = getValue("Enter path to file")
 
-    tvdbid = int(args['tvdbid']) if args['tvdbid'] else None
+    tvdbid = int(args['tvid']) if args['tvid'] else None
+
     if os.path.isdir(path):
         walkDir(path, silent, tvdbid=tvdbid, preserveRelative=args['preserveRelative'], tag=settings.tagfile)
     elif (os.path.isfile(path) and MkvtoMp4(settings, logger=log).validSource(path)):
         if (not settings.tagfile):
             tagdata = None
-        elif (args['tvdbid'] and not (args['imdbid'] or args['tmdbid'])):
+        elif (args['tvid'] and not (args['imdbid'] or args['tmdbid'])):
             season = int(args['season']) if args['season'] else None
             episode = int(args['episode']) if args['episode'] else None
             if (tvdbid and season and episode):

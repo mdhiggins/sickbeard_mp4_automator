@@ -8,9 +8,9 @@ except ImportError:
 import tempfile
 import time
 import logging
-from tvdb_api.tvdb_api import Tvdb
+import tmdbsimple as tmdb 
 from mutagen.mp4 import MP4, MP4Cover
-from extensions import valid_output_extensions, valid_poster_extensions
+from extensions import valid_output_extensions, valid_poster_extensions, tmdb_api_key
 
 
 def urlretrieve(url, fn):
@@ -20,16 +20,31 @@ def urlretrieve(url, fn):
 
 
 class Tvdb_mp4:
-    def __init__(self, show, season, episode, original=None, language='en', logger=None):
+    def __init__(self, show, season, episode, original=None, language='en', logger=None, tmdbid=False):
+
+        tmdb.API_KEY = tmdb_api_key
 
         if logger:
             self.log = logger
         else:
             self.log = logging.getLogger(__name__)
 
+        if not tmdbid:
+            self.log.info("ID supplied is not a TMDB ID, attempting to convert")
+            find = tmdb.Find(show)
+            response = find.info(external_source='tvdb_id')
+            try:
+                new = find.tv_results[0]['id']
+                self.log.info("Replacing TVDB ID %s with TMDB ID %s" % (show, new))
+                show = find.tv_results[0]['id']
+            except:
+                self.log.exception("Unable to convert TVDB to TMDB")
+
         for i in range(3):
             try:
-                self.tvdb_show = Tvdb(interactive=False, cache=False, banners=True, actors=True, forceConnect=True, language=language)
+                seriesquery = tmdb.TV(show)
+                seasonquery = tmdb.TV_Seasons(show, season)
+                episodequery = tmdb.TV_Episodes(show, season, episode)
                 self.show = show
                 self.showid = show
                 self.season = season
@@ -39,20 +54,19 @@ class Tvdb_mp4:
                 self.original = original
 
                 # Gather information from theTVDB
-                self.showdata = self.tvdb_show[self.show]
-                self.seasondata = self.showdata[self.season]
-                self.episodedata = self.seasondata[self.episode]
+                self.showdata = seriesquery.info()
+                self.seasondata = seasonquery.info()
+                self.episodedata = episodequery.info()
+                self.credit = episodequery.credits()
 
-                self.show = self.showdata['seriesname']
-                self.genre = self.showdata['genre']
-                self.network = self.showdata['network']
-                self.contentrating = self.showdata['rating']
+                self.show = self.showdata['name']
+                self.genre = self.showdata['genres']
+                self.network = self.showdata['networks']
+                # self.contentrating = self.showdata['rating']
 
-                self.title = self.episodedata['episodename']
+                self.title = self.episodedata['name']
                 self.description = self.episodedata['overview']
-                self.airdate = self.episodedata['firstaired']
-                self.director = self.episodedata['director']
-                self.writer = self.episodedata['writer']
+                self.airdate = self.episodedata['air_date']
 
                 # Generate XML tags for Actors/Writers/Directors
                 self.xml = self.xmlTags()
@@ -79,7 +93,8 @@ class Tvdb_mp4:
         video["tven"] = self.title  # Episode title
         video["desc"] = self.shortDescription()  # Short description
         video["ldes"] = self.description  # Long description (same a short for tv)
-        video["tvnn"] = self.network  # Network
+        network = [x['name'] for x in self.network]
+        video["tvnn"] = network  # Network
         if self.airdate != "0000-00-00":
             video["\xa9day"] = self.airdate  # Airdate
         video["tvsn"] = [self.season]  # Season number
@@ -91,10 +106,15 @@ class Tvdb_mp4:
         if self.HD is not None:
             video["hdvd"] = self.HD
         if self.genre is not None:
-            video["\xa9gen"] = str(self.genre)[1:-1]
+            genre = None
+            for g in self.genre:
+                if genre is None:
+                    genre = g['name']
+                    break
+            video["\xa9gen"] = genre
             # video["\xa9gen"] = self.genre.replace('|', ',')[1:-1]  # Genre(s)
         video["----:com.apple.iTunes:iTunMOVI"] = self.xml  # XML - see xmlTags method
-        video["----:com.apple.iTunes:iTunEXTC"] = self.setRating()  # iTunes content rating
+        # video["----:com.apple.iTunes:iTunEXTC"] = self.setRating()  # iTunes content rating
 
         if artwork:
             path = self.getArtwork(mp4Path, thumbnail=thumbnail)
@@ -160,6 +180,7 @@ class Tvdb_mp4:
         castheader = "<key>cast</key><array>\n"
         writerheader = "<key>screenwriters</key><array>\n"
         directorheader = "<key>directors</key><array>\n"
+        producerheader = "<key>producers</key><array>\n"
         subfooter = "</array>\n"
         footer = "</dict></plist>\n"
 
@@ -168,26 +189,28 @@ class Tvdb_mp4:
 
         # Write actors
         output.write(castheader)
-        for a in self.showdata['_actors'][:5]:
+        for a in self.credit['cast'][:5]:
             if a is not None and a['name'] is not None:
                 output.write("<dict><key>name</key><string>%s</string></dict>\n" % a['name'].encode('ascii', errors='ignore'))
         output.write(subfooter)
-
-        # Write screenwriterr
-        if self.writer is not None:
-            output.write(writerheader)
-            for name in self.writer.split("|"):
-                if name != "":
-                    output.write("<dict><key>name</key><string>%s</string></dict>\n" % name.encode('ascii', errors='ignore'))
-            output.write(subfooter)
-
+        # Write screenwriters
+        output.write(writerheader)
+        for w in [x for x in self.credit['crew'] if x['department'].lower() == "writing"][:5]:
+            if w is not None:
+                output.write("<dict><key>name</key><string>%s</string></dict>\n" % w['name'].encode('ascii', 'ignore'))
+        output.write(subfooter)
         # Write directors
-        if self.director is not None:
-            output.write(directorheader)
-            for name in self.director.split("|"):
-                if name != "":
-                    output.write("<dict><key>name</key><string>%s</string></dict>\n" % name.encode('ascii', errors='ignore'))
-            output.write(subfooter)
+        output.write(directorheader)
+        for d in [x for x in self.credit['crew'] if x['department'].lower() == "directing"][:5]:
+            if d is not None:
+                output.write("<dict><key>name</key><string>%s</string></dict>\n" % d['name'].encode('ascii', 'ignore'))
+        output.write(subfooter)
+        # Write producers
+        output.write(producerheader)
+        for p in [x for x in self.credit['crew'] if x['department'].lower() == "production"][:5]:
+            if p is not None:
+                output.write("<dict><key>name</key><string>%s</string></dict>\n" % p['name'].encode('ascii', 'ignore'))
+        output.write(subfooter)
 
         # Close XML
         output.write(footer)
@@ -207,27 +230,14 @@ class Tvdb_mp4:
         # Pulls down all the poster metadata for the correct season and sorts them into the Poster object
         if poster is None:
             if thumbnail:
-                try:
-                    poster = urlretrieve(self.episodedata['filename'], os.path.join(tempfile.gettempdir(), "poster-%s.jpg" % self.title))[0]
-                except Exception as e:
-                    self.log.exception("Exception while retrieving poster %s.", str(e))
-                    poster = None
+                poster_path = self.episodedata['still_path']
             else:
-                posters = posterCollection()
-                try:
-                    for banner in self.showdata['_banners']['season']['raw']:
-                        if str(banner['subKey']) == str(self.season):
-                            poster = Poster()
-                            poster.ratingcount = int(banner['ratingsInfo']['count'])
-                            if poster.ratingcount > 0:
-                                poster.rating = float(banner['ratingsInfo']['average'])
-                            poster.bannerpath = banner['fileName']
-                            posters.addPoster(poster)
-
-                    poster = urlretrieve("https://artworks.thetvdb.com/banners/" + posters.topPoster().bannerpath, os.path.join(tempfile.gettempdir(), "poster-%s%s%s.jpg" % (self.showid, self.season, self.episode)))[0]
-                except Exception as e:
-                    self.log.exception("Exception while retrieving poster %s.", str(e))
-                    poster = None
+                poster_path = self.seasondata['poster_path']
+            try:
+                poster = urlretrieve("https://image.tmdb.org/t/p/original" + poster_path, os.path.join(tempfile.gettempdir(), "poster-%s.jpg" % self.showid))[0]
+            except Exception as e:
+                self.log.error("Exception while retrieving poster %s.", str(e))
+                poster = None
         return poster
 
 
@@ -237,26 +247,6 @@ class Poster:
         self.rating = rating
         self.bannerpath = bannerpath
         self.ratingcount = ratingcount
-
-
-class posterCollection:
-    def __init__(self):
-        self.posters = []
-
-    def topPoster(self):
-        # Determines which poster has the highest rating, returns the Poster object
-        top = None
-        for poster in self.posters:
-            if top is None:
-                top = poster
-            elif poster.rating > top.rating:
-                top = poster
-            elif poster.rating == top.rating and poster.ratingcount > top.ratingcount:
-                top = poster
-        return top
-
-    def addPoster(self, inputPoster):
-        self.posters.append(inputPoster)
 
 
 def main():
