@@ -223,6 +223,7 @@ def processFile(inputfile, tagdata, relativePath=None):
                     tagmp4.setHD(output['x'], output['y'])
                     tagmp4.writeTags(output['output'], settings.artwork, settings.thumbnail)
                 except Exception as e:
+                    log.exception("There was an error tagging the file")
                     print("There was an error tagging the file")
                     print(e)
             if settings.relocate_moov and output['output_extension'] in valid_tagging_extensions:

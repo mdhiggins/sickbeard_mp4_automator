@@ -46,7 +46,7 @@ class Tvdb_mp4:
                 self.show = self.showdata['seriesname']
                 self.genre = self.showdata['genre']
                 self.network = self.showdata['network']
-                self.contentrating = self.showdata['contentrating']
+                self.contentrating = self.showdata['rating']
 
                 self.title = self.episodedata['episodename']
                 self.description = self.episodedata['overview']
@@ -91,7 +91,7 @@ class Tvdb_mp4:
         if self.HD is not None:
             video["hdvd"] = self.HD
         if self.genre is not None:
-            video["\xa9gen"] = self.genre[1:-1].split('|')[0]
+            video["\xa9gen"] = str(self.genre)[1:-1]
             # video["\xa9gen"] = self.genre.replace('|', ',')[1:-1]  # Genre(s)
         video["----:com.apple.iTunes:iTunMOVI"] = self.xml  # XML - see xmlTags method
         video["----:com.apple.iTunes:iTunEXTC"] = self.setRating()  # iTunes content rating
@@ -210,23 +210,23 @@ class Tvdb_mp4:
                 try:
                     poster = urlretrieve(self.episodedata['filename'], os.path.join(tempfile.gettempdir(), "poster-%s.jpg" % self.title))[0]
                 except Exception as e:
-                    self.log.error("Exception while retrieving poster %s.", str(e))
+                    self.log.exception("Exception while retrieving poster %s.", str(e))
                     poster = None
             else:
                 posters = posterCollection()
                 try:
-                    for bannerid in self.showdata['_banners']['season']['season'].keys():
-                        if str(self.showdata['_banners']['season']['season'][bannerid]['season']) == str(self.season):
+                    for banner in self.showdata['_banners']['season']['raw']:
+                        if str(banner['subKey']) == str(self.season):
                             poster = Poster()
-                            poster.ratingcount = int(self.showdata['_banners']['season']['season'][bannerid]['ratingcount'])
+                            poster.ratingcount = int(banner['ratingsInfo']['count'])
                             if poster.ratingcount > 0:
-                                poster.rating = float(self.showdata['_banners']['season']['season'][bannerid]['rating'])
-                            poster.bannerpath = self.showdata['_banners']['season']['season'][bannerid]['_bannerpath']
+                                poster.rating = float(banner['ratingsInfo']['average'])
+                            poster.bannerpath = banner['fileName']
                             posters.addPoster(poster)
 
-                    poster = urlretrieve(posters.topPoster().bannerpath, os.path.join(tempfile.gettempdir(), "poster-%s%s%s.jpg" % (self.showid, self.season, self.episode)))[0]
+                    poster = urlretrieve("https://artworks.thetvdb.com/banners/" + posters.topPoster().bannerpath, os.path.join(tempfile.gettempdir(), "poster-%s%s%s.jpg" % (self.showid, self.season, self.episode)))[0]
                 except Exception as e:
-                    self.log.error("Exception while retrieving poster %s.", str(e))
+                    self.log.exception("Exception while retrieving poster %s.", str(e))
                     poster = None
         return poster
 
