@@ -60,6 +60,7 @@ subtitle-default-language =
 subtitle-encoding =
 fullpathguess = True
 convert-mp4 = False
+force-convert = False
 tagfile = True
 tag-language = en
 download-artwork = Poster
