@@ -553,6 +553,7 @@ class MkvtoMp4:
                     l = l + 1
             elif s.codec.lower() not in bad_subtitle_codecs and not self.embedsubs:
                 if self.swl is None or s.metadata['language'].lower() in self.swl:
+
                     for codec in self.scodec:
                         ripsub = {0: {
                             'map': s.index,
@@ -585,12 +586,16 @@ class MkvtoMp4:
                             self.log.info("Ripping %s subtitle from source stream %s into external file." % (s.metadata['language'], s.index))
                             conv = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH).convert(inputfile, outputfile, options, timeout=None)
                             for timecode in conv:
-                                    pass
+                                pass
 
                             self.log.info("%s created." % outputfile)
+                        except FFMpegConvertError:
+                            self.log.error("Unabled to create external %s subtitle file for stream %s, may be an incompatible format." % (extension, s.index))
+                            self.removeFile(outputfile)
+                            continue
                         except:
                             self.log.exception("Unabled to create external subtitle file for stream %s." % (s.index))
-                        
+
                         try:
                             os.chmod(outputfile, self.permissions)  # Set permissions of newly created file
                         except:
@@ -686,7 +691,7 @@ class MkvtoMp4:
             except:
                 subtitle_settings[0]['disposition'] = 'default'
         else:
-            self.log.warning("Subtitle language array is empty.")
+            self.log.warning("Subtitle stream array is empty.")
 
         # Collect all options
         options = {
