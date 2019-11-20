@@ -407,6 +407,8 @@ optional arguments:
                         functionality
   -cmp4, --convertmp4   Overrides convert-mp4 setting in autoProcess.ini
                         enabling the reprocessing of mp4 files
+  -fc, --forceconvert   Overrides force-convert setting in autoProcess.ini
+                        enabling the reprocessing of mp4 files, also sets convert-mp4 to True
 ```
 
 Examples
