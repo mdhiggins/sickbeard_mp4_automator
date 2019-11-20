@@ -42,6 +42,7 @@ Note: Windows users should enter commands in Powershell - using '<' doesn't work
 - `requests security package` - Run `pip install requests[security]`
 - `requests-cache` - Run `pip install requests-cache`
 - `babelfish` - Run `pip install babelfish`
+- `tmdbsimple` Run `pip install tmdbsimple`
 - `guessit` - Run `pip install "guessit<2"` to use manual.py (requires guessit version 1, version 2 is a complete rewrite, still in alpha, and not backwards compatible)
 - `subliminal`- Run `pip install "subliminal<2"` to enable automatically downloading subtitles
 - `stevedore` - Run `pip install stevedore==1.19.1` (requires stevedore version 1.19.1. This will be automatically installed with subliminal, so if subliminal is installed run `pip uninstall stevedore` then `pip install stevedore==1.19.1`)
@@ -49,6 +50,7 @@ Note: Windows users should enter commands in Powershell - using '<' doesn't work
 - `deluge-client` Run `pip install deluge-client` if you plan on using Deluge
 - `qtfaststart` Run `pip install qtfaststart` to enable moving moov atom
 - `python-qbittorrent` Run `pip install python-qbittorrent` to enable support for qBittorrent
+
 
 General MP4 Configuration
 --------------
@@ -380,7 +382,7 @@ optional arguments:
   -a, --auto            Enable auto mode, the script will not prompt you for
                         any further input, good for batch files. It will guess
                         the metadata using guessit
-  -tv TVDBID, --tvdbid TVDBID
+  -tv TMDBID, --tvid TMBDID
                         Set the TVDB ID for a tv show
   -s SEASON, --season SEASON
                         Specifiy the season number
@@ -418,7 +420,7 @@ manual.py -i mp4path -tmdb tmdbid
 Example: manual.py -i "C:\The Matrix.mkv" -tmdb 603
 
 TV
-manual.py -i mp4path -tv tvdbid -s season -e episode
+manual.py -i mp4path -tv tmbdid -s season -e episode
 Example: manual.py -i "C:\Futurama S03E10.mkv" -tv 73871‎ -s 3 -e 10
 
 Auto Single File (will gather movie ID or TV show ID / season / spisode from the file name if possible)
@@ -435,7 +437,7 @@ Example: manual.py -i C:\Movies -a
 
 Process a directory but manually specific TVDB ID (Good for shows that don't correctly match using the guess)
 manual.py -i directory -a -tv tvdbid
-Example: manual.py -i C:\TV\Futurama\ -a -tv 73871
+Example: manual.py -i C:\TV\Futurama\ -a -tv 615
 ```
 You may also simply run `manual.py -i 'C:\The Matrix.mkv` and the script will prompt you for the missing information or attempt to guess based on the file name.
 You may run the script with a `--auto` or `-a` switch, which will let the script guess the tagging information based on the file name, avoiding any need for user input. This is the most ideal option for large batch file operations.
