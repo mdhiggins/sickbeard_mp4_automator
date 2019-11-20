@@ -495,6 +495,9 @@ class ReadSettings:
                 os.makedirs(self.output_dir)
         self.processMP4 = config.getboolean(section, "convert-mp4")  # Determine whether or not to reprocess mp4 files or just tag them
         self.forceConvert = config.getboolean(section, "force-convert")  # Force conversion even if everything is the same
+        if self.forceConvert:
+            self.processMP4 = True
+            log.warning("Force-convert is true, so convert-mp4 is being overridden to true as well")
         self.fullpathguess = config.getboolean(section, "fullpathguess")  # Guess using the full path or not
         self.tagfile = config.getboolean(section, "tagfile")  # Tag files with metadata
         self.taglanguage = config.get(section, "tag-language").strip().lower()  # Language to tag files

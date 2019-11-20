@@ -291,6 +291,7 @@ def main():
     parser.add_argument('-np', '--nopost', action="store_true", help="Overrides and disables the execution of additional post processing scripts")
     parser.add_argument('-pr', '--preserveRelative', action='store_true', help="Preserves relative directories when processing multiple files using the copy-to or move-to functionality")
     parser.add_argument('-cmp4', '--convertmp4', action='store_true', help="Overrides convert-mp4 setting in autoProcess.ini enabling the reprocessing of mp4 files")
+    parser.add_argument('-fc', '--forceconvert', action='store-true', help="Overrides force-convert setting in autoProcess.ini and also enables convert-mp4 if true forcing the conversion of mp4 files")
     parser.add_argument('-m', '--moveto', help="Override move-to value setting in autoProcess.ini changing the final destination of the file")
 
     args = vars(parser.parse_args())
@@ -327,6 +328,10 @@ def main():
     if (args['convertmp4']):
         settings.processMP4 = True
         print("Reprocessing of MP4 files enabled")
+    if (args['forceconvert']):
+        settings.forceConvert = True
+        settings.processMP4 = True
+        print("Force conversion of mp4 files enabled. As a result conversion of mp4 files is also enabled")
     if (args['notag']):
         settings.tagfile = False
         print("No-tagging enabled")
