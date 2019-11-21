@@ -16,6 +16,7 @@ class MkvtoMp4:
                  FFPROBE_PATH="FFPROBE.exe",
                  delete=True,
                  output_extension='mp4',
+                 temp_extension=None,
                  output_dir=None,
                  relocate_moov=True,
                  output_format='mp4',
@@ -72,6 +73,7 @@ class MkvtoMp4:
         self.threads = threads
         self.delete = delete
         self.output_extension = output_extension
+        self.temp_extension = temp_extension
         self.output_format = output_format
         self.output_dir = output_dir
         self.relocate_moov = relocate_moov
@@ -131,6 +133,7 @@ class MkvtoMp4:
         self.threads = settings.threads
         self.delete = settings.delete
         self.output_extension = settings.output_extension
+        self.temp_extension = settings.temp_extension
         self.output_format = settings.output_format
         self.output_dir = settings.output_dir
         self.relocate_moov = settings.relocate_moov
@@ -749,15 +752,24 @@ class MkvtoMp4:
 
         input_dir, filename, input_extension = self.parseFile(inputfile)
         output_dir = input_dir if self.output_dir is None else self.output_dir
+        output_extension = self.temp_extension if self.temp_extension else self.output_extension
+
         try:
-            outputfile = os.path.join(output_dir.decode(sys.getfilesystemencoding()), filename.decode(sys.getfilesystemencoding()) + "." + self.output_extension).encode(sys.getfilesystemencoding())
+            outputfile = os.path.join(output_dir.decode(sys.getfilesystemencoding()), filename.decode(sys.getfilesystemencoding()) + "." + output_extension).encode(sys.getfilesystemencoding())
         except:
-            outputfile = os.path.join(output_dir, filename + "." + self.output_extension)
+            outputfile = os.path.join(output_dir, filename + "." + output_extension)
+
+        try:
+            finaloutputfile = os.path.join(output_dir.decode(sys.getfilesystemencoding()), filename.decode(sys.getfilesystemencoding()) + "." + self.output_extension).encode(sys.getfilesystemencoding())
+        except:
+            finaloutputfile = os.path.join(output_dir, filename + "." + self.output_extension)
+
         self.log.debug("Input directory: %s." % input_dir)
         self.log.debug("File name: %s." % filename)
         self.log.debug("Input extension: %s." % input_extension)
         self.log.debug("Output directory: %s." % output_dir)
         self.log.debug("Output file: %s." % outputfile)
+        self.log.debug("Final output file: %s." % finaloutputfile)
 
         if len(options['audio']) == 0:
             self.error.info("Conversion has no audio tracks, aborting")
@@ -768,8 +780,8 @@ class MkvtoMp4:
             self.log.info(inputfile)
             return inputfile, ""
 
-        if os.path.abspath(inputfile) == os.path.abspath(outputfile):
-            self.log.debug("Inputfile and outputfile are the same.")
+        if os.path.abspath(inputfile) == os.path.abspath(finaloutputfile):
+            self.log.debug("Inputfile and final outputfile are the same.")
             try:
                 os.rename(inputfile, inputfile + ".original")
                 inputfile = inputfile + ".original"
@@ -809,7 +821,15 @@ class MkvtoMp4:
                 self.log.error("%s deleted." % outputfile)
             outputfile = None
 
-        return outputfile, inputfile
+        if outputfile != finaloutputfile:
+            self.log.debug("Outputfile and finaloutputfile are different, temporary extension used, attempting to rename to final extension")
+            try:
+                os.rename(outputfile, finaloutputfile)
+            except:
+                self.log.exception("Unable to rename output file to its final destination file extension")
+                finaloutputfile = outputfile
+
+        return finaloutputfile, inputfile
 
     # Break apart a file path into the directory, filename, and extension
     def parseFile(self, path):

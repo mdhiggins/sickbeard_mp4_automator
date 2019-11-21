@@ -63,6 +63,7 @@ General MP4 Configuration
     - `copy_to` = you may specify additional directories for the final product to be replicated to. This will be the last step performed so the file copied will be fully processed. Directories may be separated with a `|` character
     - `move_to` = you may specify one final directory to move the completed file. (Use this option for the 'Automatically Add to iTunes' folder)
     - `output_extension` = mp4/m4v (must be one of these 2)
+    - `temp_extension` = any temporary file extension to be used during creation of the file, should be renamed to final `output_extension` after conversion completes. Useful for situations where programs monitor directories for certain file extensions and may attempt to scan incomplete files
     - `output_format` = mp4/mov (must be one of these 2, mov provides better compatibility with iTunes/Apple, mp4 works better with other mobile devices)
     - `delete_original` = True/False
     - `relocate_moov` = True/False - relocates the MOOV atom to the beginning of the file for better streaming

@@ -70,6 +70,7 @@ class ReadSettings:
                         'copy_to': '',
                         'move_to': '',
                         'output_extension': 'mp4',
+                        'temp_extension': '',
                         'output_format': 'mp4',
                         'delete_original': 'True',
                         'relocate_moov': 'True',
@@ -273,6 +274,11 @@ class ReadSettings:
                     self.moveto = None
 
         self.output_extension = config.get(section, "output_extension")  # Output extension
+        self.temp_extension = config.get(section, "temp_extension")  # Temporary extension used during processing
+        if self.temp_extension == '':
+            self.temp_extension = None
+        elif self.temp_extension.startswith('.'):
+            self.temp_extension = self.temp_extension[1:]
         self.output_format = config.get(section, "output_format")  # Output format
         if self.output_format not in valid_formats:
             self.output_format = 'mov'
