@@ -233,10 +233,17 @@ class Tvdb_mp4:
                 poster_path = self.episodedata['still_path']
             else:
                 poster_path = self.seasondata['poster_path']
+            savepath = os.path.join(tempfile.gettempdir(), "poster-%s%s%s.jpg" % (self.showid, self.season, self.episode))
+            if os.path.exists(savepath):
+                try:
+                    os.remove(savepath)
+                except:
+                    import random
+                    savepath = os.path.join(tempfile.gettempdir(), "poster-%s%s%s%s.jpg" % (self.showid, self.season, self.episode, random.randint(1, 9999)))
             try:
-                poster = urlretrieve("https://image.tmdb.org/t/p/original" + poster_path, os.path.join(tempfile.gettempdir(), "poster-%s.jpg" % self.showid))[0]
+                poster = urlretrieve("https://image.tmdb.org/t/p/original" + poster_path, savepath)[0]
             except Exception as e:
-                self.log.error("Exception while retrieving poster %s.", str(e))
+                self.log.exception("Exception while retrieving poster %s.", str(e))
                 poster = None
         return poster
 
