@@ -233,6 +233,9 @@ class Tvdb_mp4:
                 poster_path = self.episodedata['still_path']
             else:
                 poster_path = self.seasondata['poster_path']
+            if not poster_path:
+                self.log.warning("No poster found")
+                return None
             savepath = os.path.join(tempfile.gettempdir(), "poster-%s%s%s.jpg" % (self.showid, self.season, self.episode))
             if os.path.exists(savepath):
                 try:

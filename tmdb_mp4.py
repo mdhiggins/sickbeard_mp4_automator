@@ -202,6 +202,10 @@ class tmdb_mp4:
                 break
         # Pulls down all the poster metadata for the correct season and sorts them into the Poster object
         if poster is None:
+            poster_path = self.movie['poster_path']
+            if not poster_path:
+                self.log.warning("No poster found")
+                return None
             savepath = os.path.join(tempfile.gettempdir(), "poster-%s.jpg" % self.imdbid)
             if os.path.exists(savepath):
                 try:
@@ -210,7 +214,6 @@ class tmdb_mp4:
                     import random
                     savepath = os.path.join(tempfile.gettempdir(), "poster-%s%s.jpg" % (self.imdbid, random.randint(1, 9999)))
             try:
-                poster_path = self.movie['poster_path']
                 poster = urlretrieve("https://image.tmdb.org/t/p/original" + poster_path, savepath)[0]
             except Exception as e:
                 self.log.exception("Exception while retrieving poster %s.", str(e))
