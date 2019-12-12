@@ -103,6 +103,7 @@ General MP4 Configuration
     - `download-subs` = True/False - When enabled the script will attempt to download subtitles of your specified languages automatically using subliminal and merge them into the final mp4 file.
     **YOU MUST INSTALL SUBLIMINAL AND ITS DEPENDENCIES FOR THIS TO WORK.** You must run `pip install subliminal` in order for this feature to be enabled.
     - `sub-providers` = Comma separated values for potential subtitle providers. Must specify at least 1 provider to enable `download-subs`. Providers include `podnapisi` `thesubdb` `opensubtitles` `tvsubtitles` `addic7ed`
+    - `additional_bad_subtitle_codecs` = Comma separated values for potential additional unsupported subtitles codec. By default the list is the following: `pgssub`, `dvdsub`, `s_hdmv/pgs`, `dvd_subtitle`, `pgssub`, `dvb_teletext`, `dvb_subtitle`. MKV can use other codec. Add additional codec not handled by the code if you are encountering the error `Subtitle encoding currently only possible from text to text or bitmap to bitmap` when using ffmpeg. You can analyze the file's subtitles using ffprobe.
     - `preopts` = Additional unsupported options that go before the rest of the FFMPEG parameters, comma separated (Example `-preset,medium`)
     - `postopts` = Additional unsupported options that go after the rest of the FFMEPG parameters, comma separated as above
 

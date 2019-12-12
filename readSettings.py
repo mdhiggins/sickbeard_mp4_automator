@@ -111,6 +111,7 @@ class ReadSettings:
                         'embed-subs': 'True',
                         'embed-only-internal-subs': 'False',
                         'sub-providers': 'addic7ed, podnapisi, thesubdb, opensubtitles',
+                        'additional_bad_subtitle_codecs': '',
                         'permissions': '777',
                         'post-process': 'False',
                         'pix-fmt': '',
@@ -344,6 +345,12 @@ class ReadSettings:
             log.warning("You must specifiy at least one subtitle provider to downlaod subs automatically, subtitle downloading disabled.")
         else:
             self.subproviders = self.subproviders.lower().replace(' ', '').split(',')
+
+        self.additional_bad_subtitle_codecs = config.get(section, 'additional_bad_subtitle_codecs').strip().lower()
+        if self.additional_bad_subtitle_codecs == '':
+            self.additional_bad_subtitle_codecs = None
+        else:
+            self.additional_bad_subtitle_codecs = self.additional_bad_subtitle_codecs.replace(' ', '').split(',')
 
         self.embedsubs = config.getboolean(section, 'embed-subs')
 

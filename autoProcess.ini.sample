@@ -68,6 +68,7 @@ download-subs = False
 embed-subs = True
 embed-only-internal-subs = False
 sub-providers = addic7ed,podnapisi,thesubdb,opensubtitles
+additional_bad_subtitle_codecs = 
 permissions = 0777
 post-process = False
 pix-fmt =

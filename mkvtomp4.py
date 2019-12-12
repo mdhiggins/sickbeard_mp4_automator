@@ -55,6 +55,7 @@ class MkvtoMp4:
                  embedsubs=True,
                  embedonlyinternalsubs=True,
                  providers=['addic7ed', 'podnapisi', 'thesubdb', 'opensubtitles'],
+                 additional_bad_subtitle_codecs=None,
                  permissions=int("777", 8),
                  pix_fmt=None,
                  logger=None,
@@ -118,6 +119,7 @@ class MkvtoMp4:
         self.downloadsubs = downloadsubs
         self.subproviders = providers
         self.embedsubs = embedsubs
+        self.additional_bad_subtitle_codecs = additional_bad_subtitle_codecs
         self.embedonlyinternalsubs = embedonlyinternalsubs
         self.subencoding = subencoding
 
@@ -177,6 +179,7 @@ class MkvtoMp4:
         self.sdl = settings.sdl
         self.downloadsubs = settings.downloadsubs
         self.subproviders = settings.subproviders
+        self.additional_bad_subtitle_codecs = settings.additional_bad_subtitle_codecs
         self.embedsubs = settings.embedsubs
         self.embedonlyinternalsubs = settings.embedonlyinternalsubs
         self.subencoding = settings.subencoding
@@ -539,7 +542,7 @@ class MkvtoMp4:
                 self.log.debug("Undefined language detected, defaulting to [%s]." % self.sdl)
                 s.metadata['language'] = self.sdl
             # Make sure its not an image based codec
-            if s.codec.lower() not in bad_subtitle_codecs and self.embedsubs:
+            if s.codec.lower() not in bad_subtitle_codecs and (self.additional_bad_subtitle_codecs is None or s.codec.lower() not in self.additional_bad_subtitle_codecs) and self.embedsubs:
 
                 # Proceed if no whitelist is set, or if the language is in the whitelist
                 if self.swl is None or s.metadata['language'].lower() in self.swl:
@@ -554,7 +557,7 @@ class MkvtoMp4:
                     }})
                     self.log.info("Creating subtitle stream %s from source stream %s." % (l, s.index))
                     l = l + 1
-            elif s.codec.lower() not in bad_subtitle_codecs and not self.embedsubs:
+            elif s.codec.lower() not in bad_subtitle_codecs and (self.additional_bad_subtitle_codecs is None or s.codec.lower() not in self.additional_bad_subtitle_codecs) and not self.embedsubs:
                 if self.swl is None or s.metadata['language'].lower() in self.swl:
 
                     for codec in self.scodec:
