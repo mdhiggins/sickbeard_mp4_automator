@@ -6,7 +6,7 @@ import sys
 import shutil
 import logging
 from converter import Converter, FFMpegConvertError
-from extensions import valid_input_extensions, valid_output_extensions, bad_subtitle_codecs, bad_external_subtitle_codecs, valid_subtitle_extensions, subtitle_codec_extensions, valid_tagging_extensions
+from extensions import valid_input_extensions, valid_output_extensions, valid_subtitle_extensions, subtitle_codec_extensions, valid_tagging_extensions
 from babelfish import Language
 
 
@@ -47,6 +47,8 @@ class MkvtoMp4:
                  sdl=None,
                  scodec=['mov_text'],
                  subencoding='utf-8',
+                 bad_internal_subtitle_codecs=[],
+                 bad_external_subtitle_codecs=[],
                  downloadsubs=True,
                  processMP4=False,
                  forceConvert=False,
@@ -120,6 +122,8 @@ class MkvtoMp4:
         self.embedsubs = embedsubs
         self.embedonlyinternalsubs = embedonlyinternalsubs
         self.subencoding = subencoding
+        self.bad_internal_subtitle_codecs = bad_internal_subtitle_codecs
+        self.bad_external_subtitle_codecs = bad_external_subtitle_codecs
 
         # Import settings
         if settings is not None:
@@ -180,6 +184,8 @@ class MkvtoMp4:
         self.embedsubs = settings.embedsubs
         self.embedonlyinternalsubs = settings.embedonlyinternalsubs
         self.subencoding = settings.subencoding
+        self.bad_internal_subtitle_codecs = settings.bad_internal_subtitle_codecs
+        self.bad_external_subtitle_codecs = settings.bad_external_subtitle_codecs
 
         self.log.debug("Settings imported.")
 
@@ -539,7 +545,7 @@ class MkvtoMp4:
                 self.log.debug("Undefined language detected, defaulting to [%s]." % self.sdl)
                 s.metadata['language'] = self.sdl
             # Make sure its not an image based codec
-            if s.codec.lower() not in bad_subtitle_codecs and self.embedsubs:
+            if self.embedsubs and s.codec.lower() not in self.bad_internal_subtitle_codecs:
 
                 # Proceed if no whitelist is set, or if the language is in the whitelist
                 if self.swl is None or s.metadata['language'].lower() in self.swl:
@@ -554,7 +560,7 @@ class MkvtoMp4:
                     }})
                     self.log.info("Creating subtitle stream %s from source stream %s." % (l, s.index))
                     l = l + 1
-            elif s.codec.lower() not in bad_external_subtitle_codecs and not self.embedsubs:
+            elif not self.embedsubs and s.codec.lower() not in self.bad_external_subtitle_codecs:
                 if self.swl is None or s.metadata['language'].lower() in self.swl:
 
                     for codec in self.scodec:

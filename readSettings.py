@@ -101,6 +101,8 @@ class ReadSettings:
                         'subtitle-language': '',
                         'subtitle-default-language': '',
                         'subtitle-encoding': '',
+                        'bad-internal-subtitle-sources': 'pgssub, hdmv_pgs_subtitle, s_hdmv/pgs, dvdsub, dvd_subtitle, dvb_teletext, dvb_subtitle',
+                        'bad-external-subtitle-sources': 'dvdsub, dvd_subtitle, dvb_teletext, dvb_subtitle',
                         'convert-mp4': 'False',
                         'force-convert': 'False',
                         'fullpathguess': 'True',
@@ -483,6 +485,19 @@ class ReadSettings:
         self.subencoding = config.get(section, 'subtitle-encoding').strip().lower()
         if self.subencoding == '':
             self.subencoding = None
+
+        # Bad subtitle codec formats for both internal and external destinations
+        self.bad_internal_subtitle_codecs = config.get(section, 'bad-internal-subtitle-sources').strip().lower().replace(' ', '')
+        if self.bad_internal_subtitle_codecs == '':
+            self.bad_internal_subtitle_codecs = []
+        else:
+            self.bad_internal_subtitle_codecs = self.bad_internal_subtitle_codecs.split(",")
+
+        self.bad_external_subtitle_codecs = config.get(section, 'bad-external-subtitle-sources').strip().lower().replace(' ', '')
+        if self.bad_external_subtitle_codecs == '':
+            self.bad_external_subtitle_codecs = []
+        else:
+            self.bad_external_subtitle_codecs = self.bad_external_subtitle_codecs.split(",")
 
         self.adl = config.get(section, 'audio-default-language').strip().lower()  # What language to default an undefinied audio language tag to. If blank, it will remain undefined. This is useful for single language releases which tend to leave things tagged as und
         if self.adl == "" or len(self.adl) > 3:
