@@ -608,6 +608,7 @@ class Ac3Codec(AudioCodec):
                 opt['channels'] = 6
         return super(Ac3Codec, self).parse_options(opt, stream)
 
+
 class EAc3Codec(AudioCodec):
     """
     Dolby Digital Plus/EAC3 audio codec.
@@ -669,6 +670,9 @@ class Opus(AudioCodec):
     """
     codec_name = 'opus'
     ffmpeg_codec_name = 'libopus'
+
+    def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
+        return ['-strict', '2']
 
 
 # Video Codecs
