@@ -672,7 +672,7 @@ class Opus(AudioCodec):
     ffmpeg_codec_name = 'libopus'
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
-        return ['-strict', '2']
+        return ['-strict', '-2']
 
 
 # Video Codecs
