@@ -663,6 +663,14 @@ class Mp2Codec(AudioCodec):
     ffmpeg_codec_name = 'mp2'
 
 
+class Opus(AudioCodec):
+    """
+    Opus audio codec
+    """
+    codec_name = 'opus'
+    ffmpeg_codec_name = 'libopus'
+
+
 # Video Codecs
 class TheoraCodec(VideoCodec):
     """
@@ -1012,7 +1020,7 @@ class DVDSub(SubtitleCodec):
 
 audio_codec_list = [
     AudioNullCodec, AudioCopyCodec, VorbisCodec, AacCodec, Mp3Codec, Mp2Codec,
-    FdkAacCodec, FAacCodec, EAc3Codec, Ac3Codec, DtsCodec, FlacCodec
+    FdkAacCodec, FAacCodec, EAc3Codec, Ac3Codec, DtsCodec, FlacCodec, Opus
 ]
 
 video_codec_list = [
