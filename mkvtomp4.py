@@ -755,7 +755,7 @@ class MkvtoMp4:
     # Encode a new file based on selected options, built in naming conflict resolution
     def convert(self, inputfile, options, reportProgress=False):
         self.log.info("Starting conversion.")
-
+        originalinputfile = inputfile
         input_dir, filename, input_extension = self.parseFile(inputfile)
         output_dir = input_dir if self.output_dir is None else self.output_dir
         output_extension = self.temp_extension if self.temp_extension else self.output_extension
@@ -826,7 +826,9 @@ class MkvtoMp4:
                 self.removeFile(outputfile)
                 self.log.error("%s deleted." % outputfile)
             outputfile = None
-
+            os.rename(inputfile, originalinputfile)
+            raise Exception("FFMpegConvertError")
+            
         if outputfile != finaloutputfile:
             self.log.debug("Outputfile and finaloutputfile are different, temporary extension used, attempting to rename to final extension")
             try:
