@@ -407,8 +407,8 @@ class MkvtoMp4:
 
             self.log.info("Audio detected for stream #%s: %s [%s]." % (a.index, a.codec, a.metadata['language']))
 
-            if self.output_extension in valid_tagging_extensions and a.codec.lower() == 'truehd' and self.ignore_truehd:  # Need to skip it early so that it flags the next track as default.
-                self.log.info("MP4 containers do not support truehd audio, and converting it is inconsistent due to video/audio sync issues. Skipping stream %s as typically the 2nd audio track is the AC3 core of the truehd stream." % a.index )
+            if self.output_extension in valid_tagging_extensions and a.codec.lower() == 'truehd' and self.ignore_truehd and len(info.audio) > 1:  # Need to skip it early so that it flags the next track as default.
+                self.log.info("MP4 containers do not support truehd audio, and converting it is inconsistent due to video/audio sync issues. Skipping stream %s as typically the 2nd audio track is the AC3 core of the truehd stream." % a.index)
                 continue
 
             # Set undefined language to default language if specified
