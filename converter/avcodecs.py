@@ -705,8 +705,6 @@ class H264Codec(VideoCodec):
     encoder_options.update({
         'preset': str,  # common presets are ultrafast, superfast, veryfast,
         # faster, fast, medium(default), slow, slower, veryslow
-        'quality': int,  # constant rate factor, range:0(lossless)-51(worst)
-        # default:23, recommended: 18-28
         'profile': str,  # default: not-set, for valid values see above link
         'level': float,  # default: not-set, values range from 3.0 to 4.2
         'tune': str,  # default: not-set, for valid values see above link
@@ -731,8 +729,6 @@ class H264Codec(VideoCodec):
 
         if 'preset' in safe:
             optlist.extend(['-preset', safe['preset']])
-        if 'quality' in safe:
-            optlist.extend(['-crf', str(safe['quality'])])
         if 'profile' in safe:
             optlist.extend(['-profile:v', safe['profile']])
         if 'level' in safe:
@@ -809,8 +805,6 @@ class H265Codec(VideoCodec):
     encoder_options.update({
         'preset': str,  # common presets are ultrafast, superfast, veryfast,
         # faster, fast, medium(default), slow, slower, veryslow
-        'quality': int,  # constant rate factor, range:0(lossless)-51(worst)
-        # default:23, recommended: 18-28
         'profile': str,  # default: not-set, for valid values see above link
         'level': float,  # default: not-set, values range from 3.0 to 4.2
         'tune': str,  # default: not-set, for valid values see above link
@@ -832,8 +826,6 @@ class H265Codec(VideoCodec):
 
         if 'preset' in safe:
             optlist.extend(['-preset', safe['preset']])
-        if 'quality' in safe:
-            optlist.extend(['-crf', str(safe['quality'])])
         if 'profile' in safe:
             optlist.extend(['-profile:v', safe['profile']])
         if 'level' in safe:
