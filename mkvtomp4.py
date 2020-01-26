@@ -422,6 +422,16 @@ class MkvtoMp4:
                 # Create iOS friendly audio stream if the default audio stream has too many channels (iOS only likes AAC stereo)
                 if self.iOS and a.audio_channels > 2:
                     iOSbitrate = 256 if (self.audio_bitrate * 2) > 256 else (self.audio_bitrate * 2)
+
+                    # Bitrate calculations/overrides
+                    if self.audio_bitrate is 0:
+                        self.log.debug("Attempting to set ios stream bitrate based on source stream bitrate.")
+                        try:
+                            iOSbitrate = ((a.bitrate / 1000) / a.audio_channels) * 2
+                        except:
+                            self.log.warning("Unable to determine iOS audio bitrate from source stream %s, defaulting to 256 per channel." % a.index)
+                            iOSbitrate = audio_channels * 256
+
                     self.log.info("Creating audio stream %s from source audio stream %s [iOS-audio]." % (str(l), a.index))
                     self.log.debug("Audio codec: %s." % self.iOS[0])
                     self.log.debug("Channels: 2.")
@@ -460,15 +470,16 @@ class MkvtoMp4:
                     else:
                         audio_channels = a.audio_channels
                         abitrate = a.audio_channels * self.audio_bitrate
-                    # Bitrate calculations/overrides
-                    if self.audio_bitrate is 0:
-                        self.log.debug("Attempting to set bitrate based on source stream bitrate.")
-                        try:
-                            abitrate = a.bitrate / 1000
-                        except:
-                            self.log.warning("Unable to determine audio bitrate from source stream %s, defaulting to 256 per channel." % a.index)
-                            abitrate = a.audio_channels * 256
-                    afilter = self.audio_filter
+                        afilter = self.audio_filter
+
+                # Bitrate calculations/overrides
+                if self.audio_bitrate is 0:
+                    self.log.debug("Attempting to set bitrate based on source stream bitrate.")
+                    try:
+                        abitrate = ((a.bitrate / 1000) / a.audio_channels) * audio_channels
+                    except:
+                        self.log.warning("Unable to determine audio bitrate from source stream %s, defaulting to 256 per channel." % a.index)
+                        abitrate = audio_channels * 256
 
                 self.log.debug("Audio codec: %s." % acodec)
                 self.log.debug("Channels: %s." % audio_channels)
