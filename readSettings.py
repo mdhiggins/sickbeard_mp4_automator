@@ -300,11 +300,14 @@ class ReadSettings:
             self.acodec = self.acodec.lower().replace(' ', '').split(',')
 
         self.abitrate = config.get(section, "audio-channel-bitrate")
-        try:
-            self.abitrate = int(self.abitrate)
-        except:
-            self.abitrate = 256
-            log.warning("Audio bitrate was invalid, defaulting to 256 per channel.")
+        if self.abitrate == '':
+            self.abitrate = 0
+        else:
+            try:
+                self.abitrate = int(self.abitrate)
+            except:
+                self.abitrate = 256
+                log.warning("Audio bitrate was invalid, defaulting to 256 per channel.")
         if self.abitrate > 256:
             log.warning("Audio bitrate >256 may create errors with common codecs.")
 
@@ -314,7 +317,7 @@ class ReadSettings:
         if self.afilter == '':
             self.afilter = None
 
-        self.audio_first_language_track = config.getboolean(section, "audio-first-track-of-language") # Only take the first audio track in a whitelisted language, then no more
+        self.audio_first_language_track = config.getboolean(section, "audio-first-track-of-language")  # Only take the first audio track in a whitelisted language, then no more
 
         self.iOS = config.get(section, "ios-audio")  # Creates a second audio channel if the standard output methods are different from this for iOS compatability
         if self.iOS == "" or self.iOS.lower() in ['false', 'no', 'f', '0']:
