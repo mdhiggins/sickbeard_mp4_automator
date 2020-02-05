@@ -128,7 +128,6 @@ class MkvtoMp4:
         # Import settings
         if settings is not None:
             self.importSettings(settings)
-        self.options = None
         self.deletesubs = set()
         self.converter = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH)
 
@@ -198,6 +197,8 @@ class MkvtoMp4:
         delete = self.delete
         deleted = False
         options = None
+        preopts = None
+        postopts = None
         if not self.validSource(inputfile):
             return False
 
@@ -252,6 +253,7 @@ class MkvtoMp4:
                     self.log.debug("Subtitle %s deleted." % subfile)
                 else:
                     self.log.debug("Unable to delete subtitle %s." % subfile)
+            self.deletesubs = set()
 
         dim = self.getDimensions(outputfile)
         input_extension = self.parseFile(inputfile)[2].lower()
@@ -263,6 +265,8 @@ class MkvtoMp4:
                 'output': outputfile,
                 'output_extension': output_extension,
                 'options': options,
+                'preopts': preopts,
+                'postopts': postopts,
                 'x': dim['x'],
                 'y': dim['y']}
 
