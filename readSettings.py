@@ -462,6 +462,7 @@ class ReadSettings:
         else:
             self.scodec = self.scodec.replace(' ', '').split(',')
 
+        '''
         if self.embedsubs:
             if len(self.scodec) > 1:
                 log.warning("Can only embed one subtitle type, defaulting to 'mov_text'.")
@@ -478,6 +479,7 @@ class ReadSettings:
             if len(self.scodec) == 0:
                 log.warning("No valid subtitle formats found, defaulting to 'srt'.")
                 self.scodec = ['srt']
+        '''
 
         self.swl = config.get(section, 'subtitle-language').strip().lower()  # List of acceptable languages for subtitle streams to be carried over from the original file, separated by a comma. Blank for all
         if self.swl == '':
