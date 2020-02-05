@@ -248,7 +248,7 @@ def processFile(inputfile, tagdata, relativePath=None):
                 post_processor.run_scripts()
 
 
-def walkDir(dir, silent=False, preserveRelative=False, tvdbid=None, tag=True):
+def walkDir(dir, silent=False, preserveRelative=False, tvdbid=None, tag=True, optionsOnly=False):
     for r, d, f in os.walk(dir):
         for file in f:
             filepath = os.path.join(r, file)
@@ -262,6 +262,9 @@ def walkDir(dir, silent=False, preserveRelative=False, tvdbid=None, tag=True):
                             print("Processing file %s" % (filepath.encode('utf-8', errors='ignore')))
                         except:
                             print("Processing file")
+                    if optionsOnly:
+                        displayOptions(filepath)
+                        continue
                     if tag:
                         tagdata = getinfo(filepath, silent, tvdbid=tvdbid)
                     else:
@@ -270,6 +273,11 @@ def walkDir(dir, silent=False, preserveRelative=False, tvdbid=None, tag=True):
             except Exception as e:
                 print("An unexpected error occurred, processing of this file has failed")
                 print(str(e))
+
+
+def displayOptions(path):
+    converter = MkvtoMp4(settings)
+    print(converter.jsonDump(path))
 
 
 def main():
@@ -293,6 +301,7 @@ def main():
     parser.add_argument('-cmp4', '--convertmp4', action='store_true', help="Overrides convert-mp4 setting in autoProcess.ini enabling the reprocessing of mp4 files")
     parser.add_argument('-fc', '--forceconvert', action='store_true', help="Overrides force-convert setting in autoProcess.ini and also enables convert-mp4 if true forcing the conversion of mp4 files")
     parser.add_argument('-m', '--moveto', help="Override move-to value setting in autoProcess.ini changing the final destination of the file")
+    parser.add_argument('-oo', '--optionsonly', action="store_true", help="Display generated conversion options only, do not perform conversion")
 
     args = vars(parser.parse_args())
 
@@ -338,6 +347,9 @@ def main():
     if (args['nopost']):
         settings.postprocess = False
         print("No post processing enabled")
+    if (args['optionsonly']):
+        logging.getLogger("mkvtomp4").setLevel(logging.CRITICAL)
+        print("Options only mode enabled")
 
     # Establish the path we will be working with
     if (args['input']):
@@ -352,8 +364,12 @@ def main():
     tvdbid = int(args['tvid']) if args['tvid'] else None
 
     if os.path.isdir(path):
-        walkDir(path, silent, tvdbid=tvdbid, preserveRelative=args['preserveRelative'], tag=settings.tagfile)
+        walkDir(path, silent, tvdbid=tvdbid, preserveRelative=args['preserveRelative'], tag=settings.tagfile, optionsOnly=args['optionsonly'])
     elif (os.path.isfile(path) and MkvtoMp4(settings, logger=log).validSource(path)):
+        if (args['optionsonly']):
+            displayOptions(path)
+            return
+
         if (not settings.tagfile):
             tagdata = None
         elif (args['tvid'] and not (args['imdbid'] or args['tmdbid'])):

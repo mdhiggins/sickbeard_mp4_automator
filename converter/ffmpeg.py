@@ -129,6 +129,20 @@ class MediaStreamInfo(object):
         self.sub_default = None
         self.metadata = {}
 
+    def toJson(self):
+        out = {'index': self.index,
+              'codec': self.codec,
+              'type': self.type}
+        if self.type == 'audio':
+            out['channels'] = self.audio_channels
+        elif self.type == 'video':
+            out['pix_fmt'] = self.pix_fmt
+            out['profile'] = self.profile
+        elif self.type == 'subtitle':
+            out['forced'] = self.sub_forced
+            out['default'] = self.sub_default
+        return out
+
     @staticmethod
     def parse_float(val, default=0.0):
         try:
@@ -251,6 +265,13 @@ class MediaInfo(object):
         self.format = MediaFormatInfo()
         self.posters_as_video = posters_as_video
         self.streams = []
+
+    def toJson(self):
+        return {'format': self.format.format,
+                'format-fullname': self.format.fullname,
+                'video': self.video.toJson(),
+                'audio': [x.toJson() for x in self.audio],
+                'subtitle': [x.toJson() for x in self.subtitle]}
 
     def parse_ffprobe(self, raw):
         """
@@ -420,6 +441,25 @@ class FFMpeg(object):
 
         return info
 
+    def generateCommands(self, infile, outfile, opts, preopts=None, postopts=None):
+        cmds = [self.ffmpeg_path]
+        if preopts:
+            cmds.extend(preopts)
+        cmds.extend(['-i', infile])
+
+        # Move additional inputs to the front of the line
+        for ind, command in enumerate(opts):
+            if command == '-i':
+                cmds.extend(['-i', opts[ind + 1]])
+                del opts[ind]
+                del opts[ind]
+
+        cmds.extend(opts)
+        if postopts:
+            cmds.extend(postopts)
+        cmds.extend(['-y', outfile])
+        return cmds
+
     def convert(self, infile, outfile, opts, timeout=10, preopts=None, postopts=None):
         """
         Convert the source media (infile) according to specified options
@@ -449,22 +489,7 @@ class FFMpeg(object):
         if not os.path.exists(infile):
             raise FFMpegError("Input file doesn't exist: " + infile)
 
-        cmds = [self.ffmpeg_path]
-        if preopts:
-            cmds.extend(preopts)
-        cmds.extend(['-i', infile])
-
-        # Move additional inputs to the front of the line
-        for ind, command in enumerate(opts):
-            if command == '-i':
-                cmds.extend(['-i', opts[ind + 1]])
-                del opts[ind]
-                del opts[ind]
-
-        cmds.extend(opts)
-        if postopts:
-            cmds.extend(postopts)
-        cmds.extend(['-y', outfile])
+        cmds = self.generateCommands(infile, outfile, opts, preopts, postopts)
 
         if timeout:
             def on_sigalrm(*_):

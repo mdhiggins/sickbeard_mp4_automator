@@ -412,6 +412,7 @@ optional arguments:
                         enabling the reprocessing of mp4 files
   -fc, --forceconvert   Overrides force-convert setting in autoProcess.ini
                         enabling the reprocessing of mp4 files, also sets convert-mp4 to True
+  -oo, --optionsonly    Display generated conversion options only, do not perform conversion
 ```
 
 Examples

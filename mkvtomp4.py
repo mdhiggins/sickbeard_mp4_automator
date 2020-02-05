@@ -130,6 +130,7 @@ class MkvtoMp4:
             self.importSettings(settings)
         self.options = None
         self.deletesubs = set()
+        self.converter = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH)
 
     def importSettings(self, settings):
         self.FFMPEG_PATH = settings.ffmpeg
@@ -201,17 +202,19 @@ class MkvtoMp4:
             return False
 
         if self.needProcessing(inputfile):
-            options = self.generateOptions(inputfile, original=original)
+            options, preopts, postopts = self.generateOptions(inputfile, original=original)
 
             try:
-                if reportProgress:
-                    self.log.info(json.dumps(options, sort_keys=False, indent=4))
-                else:
-                    self.log.debug(json.dumps(options, sort_keys=False, indent=4))
+                self.log.info("Output Data")
+                self.log.info(json.dumps(options, sort_keys=False, indent=4))
+                self.log.info("Preopts")
+                self.log.info(json.dumps(preopts, sort_keys=False, indent=4))
+                self.log.info("Postopts")
+                self.log.info(json.dumps(postopts, sort_keys=False, indent=4))
             except:
                 self.log.exception("Unable to log options.")
 
-            outputfile, inputfile = self.convert(inputfile, options, reportProgress)
+            outputfile, inputfile = self.convert(inputfile, options, preopts, postopts, reportProgress)
 
             if not outputfile:
                 self.log.debug("Error converting, no outputfile present.")
@@ -289,7 +292,7 @@ class MkvtoMp4:
     # Get values for width and height to be passed to the tagging classes for proper HD tags
     def getDimensions(self, inputfile):
         if self.validSource(inputfile):
-            info = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH).probe(inputfile)
+            info = self.converter.probe(inputfile)
 
             self.log.debug("Height: %s" % info.video.video_height)
             self.log.debug("Width: %s" % info.video.video_width)
@@ -312,13 +315,31 @@ class MkvtoMp4:
         self.log.debug("Estimated video bitrate is %s." % (total_bitrate - audio_bitrate))
         return ((total_bitrate - audio_bitrate) / 1000) * .95
 
-    # Generate a list of options to be passed to FFMPEG based on selected settings and the source file parameters and streams
+    # Generate a JSON formatter dataset with the input and output information and ffmpeg command for a theoretical conversion
+    def jsonDump(self, inputfile, original=None):
+        dump = {}
+        dump["input"] = self.generateSourceDict(inputfile)
+        dump["output"], dump["preopts"], dump["postopts"] = self.generateOptions(inputfile, original)
+        parsed = self.converter.parse_options(dump["output"])
+        cmds = self.converter.ffmpeg.generateCommands(inputfile, self.getOutputFile(inputfile), parsed, dump["preopts"], dump["postopts"])
+        dump["ffmpeg_command"] = " ".join(str(item) for item in cmds)
+        return json.dumps(dump, sort_keys=False, indent=4)
+
+    # Generate a dict of data about a source file
+    def generateSourceDict(self, inputfile):
+        output = self.converter.probe(inputfile).toJson()
+        input_dir, filename, input_extension = self.parseFile(inputfile)
+        output['extension'] = input_extension
+        return output
+
+    # Generate a dict of options to be passed to FFMPEG based on selected settings and the source file parameters and streams
     def generateOptions(self, inputfile, original=None):
         # Get path information from the input file
         input_dir, filename, input_extension = self.parseFile(inputfile)
 
-        info = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH).probe(inputfile)
-
+        info = self.converter.probe(inputfile)
+        self.log.info("Input Data")
+        self.log.info(json.dumps(info.toJson(), sort_keys=False, indent=4))
         # Video stream
         self.log.info("Reading video stream.")
         self.log.info("Video codec detected: %s." % info.video.codec)
@@ -432,7 +453,6 @@ class MkvtoMp4:
                             self.log.warning("Unable to determine iOS audio bitrate from source stream %s, defaulting to 256 per channel." % a.index)
                             iOSbitrate = audio_channels * 256
 
-                    self.log.info("Creating audio stream %s from source audio stream %s [iOS-audio]." % (str(l), a.index))
                     self.log.debug("Audio codec: %s." % self.iOS[0])
                     self.log.debug("Channels: 2.")
                     self.log.debug("Filter: %s." % self.iOS_filter)
@@ -448,10 +468,10 @@ class MkvtoMp4:
                         'disposition': 'none',
                     }
                     if not self.iOSLast:
+                        self.log.info("Creating %s audio stream %d from source audio stream %d [iOS-audio]." % (self.iOS[0], l, a.index))
                         audio_settings.update({l: iosdata})
                         l += 1
                 # If the iOS audio option is enabled and the source audio channel is only stereo, the additional iOS channel will be skipped and a single AAC 2.0 channel will be made regardless of codec preference to avoid multiple stereo channels
-                self.log.info("Creating audio stream %s from source stream %s." % (str(l), a.index))
                 if self.iOS and a.audio_channels <= 2:
                     self.log.debug("Overriding default channel settings because iOS audio is enabled but the source is stereo [iOS-audio].")
                     acodec = 'copy' if a.codec in self.iOS else self.iOS[0]
@@ -489,9 +509,10 @@ class MkvtoMp4:
 
                 # If the iOSFirst option is enabled, disable the iOS option after the first audio stream is processed
                 if self.iOS and self.iOSFirst:
-                    self.log.debug("Not creating any additional iOS audio streams.")
+                    self.log.debug("Not creating any additional iOS audio streams [iOS-first-track-only].")
                     self.iOS = False
 
+                self.log.info("Creating %s audio stream %d from source stream %d." % (acodec, l, a.index))
                 audio_settings.update({l: {
                     'map': a.index,
                     'codec': acodec,
@@ -508,11 +529,12 @@ class MkvtoMp4:
 
                 # Add the iOS track last instead
                 if self.iOSLast and iosdata:
+                    self.log.info("Creating %s audio stream %d from source audio stream %d [iOS-audio]." % (self.iOS[0], l, a.index))
                     audio_settings.update({l: iosdata})
                     l += 1
 
                 if self.audio_copyoriginal and acodec != 'copy':
-                    self.log.info("Adding copy of original audio track in format %s" % a.codec)
+                    self.log.info("Copying to audio stream %d from source stream %d format %s [audio-copy-original]" % (l, a.index, a.codec))
                     audio_settings.update({l: {
                         'map': a.index,
                         'codec': 'copy',
@@ -570,7 +592,7 @@ class MkvtoMp4:
                         # 'forced': s.sub_forced,
                         # 'default': s.sub_default
                     }})
-                    self.log.info("Creating subtitle stream %s from source stream %s." % (l, s.index))
+                    self.log.info("Creating %s subtitle stream %d from source stream %d." % (self.scodec[0], l, s.index))
                     l = l + 1
             elif not self.embedsubs and s.codec.lower() not in self.bad_external_subtitle_codecs:
                 if self.swl is None or s.metadata['language'].lower() in self.swl:
@@ -605,7 +627,7 @@ class MkvtoMp4:
                             i += 1
                         try:
                             self.log.info("Ripping %s subtitle from source stream %s into external file." % (s.metadata['language'], s.index))
-                            conv = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH).convert(inputfile, outputfile, options, timeout=None)
+                            conv = self.converter.convert(inputfile, outputfile, options, timeout=None)
                             for timecode in conv:
                                 pass
 
@@ -726,10 +748,11 @@ class MkvtoMp4:
                 'pix_fmt': pix_fmt
             },
             'audio': audio_settings,
-            'subtitle': subtitle_settings,
-            'preopts': [],
-            'postopts': ['-threads', self.threads]
+            'subtitle': subtitle_settings
         }
+
+        preopts = []
+        postopts = ['-threads', self.threads]
 
         # If a CRF option is set, override the determine bitrate
         if self.vcrf:
@@ -737,20 +760,20 @@ class MkvtoMp4:
             options['video']['crf'] = self.vcrf
 
         if len(options['subtitle']) > 0:
-            options['preopts'].append('-fix_sub_duration')
+            preopts.append('-fix_sub_duration')
 
         if self.preopts:
-            options['preopts'].extend(self.preopts)
+            preopts.extend(self.preopts)
 
         if self.postopts:
-            options['postopts'].extend(self.postopts)
+            postopts.extend(self.postopts)
 
         if self.dxva2_decoder:  # DXVA2 will fallback to CPU decoding when it hits a file that it cannot handle, so we don't need to check if the file is supported.
-            options['preopts'].extend(['-hwaccel', 'dxva2'])
+            preopts.extend(['-hwaccel', 'dxva2'])
         elif info.video.codec.lower() == "hevc" and self.hevc_qsv_decoder:
-            options['preopts'].extend(['-vcodec', 'hevc_qsv'])
+            preopts.extend(['-vcodec', 'hevc_qsv'])
         elif vcodec == "h264qsv" and info.video.codec.lower() == "h264" and self.qsv_decoder and (info.video.video_level / 10) < 5:
-            options['preopts'].extend(['-vcodec', 'h264_qsv'])
+            preopts.extend(['-vcodec', 'h264_qsv'])
 
         # Add width option
         if vwidth:
@@ -758,34 +781,34 @@ class MkvtoMp4:
 
         # HEVC Tagging for copied streams
         if info.video.codec.lower() in ['x265', 'h265', 'hevc'] and vcodec == 'copy':
-            options['postopts'].extend(['-tag:v', 'hvc1'])
+            postopts.extend(['-tag:v', 'hvc1'])
             self.log.info("Tagging copied video stream as hvc1")
 
-        self.options = options
-        return options
+        return options, preopts, postopts
 
-    # Encode a new file based on selected options, built in naming conflict resolution
-    def convert(self, inputfile, options, reportProgress=False):
-        self.log.info("Starting conversion.")
-        originalinputfile = inputfile
+    def getOutputFile(self, inputfile):
         input_dir, filename, input_extension = self.parseFile(inputfile)
         output_dir = input_dir if self.output_dir is None else self.output_dir
         output_extension = self.temp_extension if self.temp_extension else self.output_extension
-
-        try:
-            outputfile = os.path.join(output_dir.decode(sys.getfilesystemencoding()), filename.decode(sys.getfilesystemencoding()) + "." + output_extension).encode(sys.getfilesystemencoding())
-        except:
-            outputfile = os.path.join(output_dir, filename + "." + output_extension)
-
-        try:
-            finaloutputfile = os.path.join(output_dir.decode(sys.getfilesystemencoding()), filename.decode(sys.getfilesystemencoding()) + "." + self.output_extension).encode(sys.getfilesystemencoding())
-        except:
-            finaloutputfile = os.path.join(output_dir, filename + "." + self.output_extension)
 
         self.log.debug("Input directory: %s." % input_dir)
         self.log.debug("File name: %s." % filename)
         self.log.debug("Input extension: %s." % input_extension)
         self.log.debug("Output directory: %s." % output_dir)
+
+        try:
+            outputfile = os.path.join(output_dir.decode(sys.getfilesystemencoding()), filename.decode(sys.getfilesystemencoding()) + "." + output_extension).encode(sys.getfilesystemencoding())
+        except:
+            outputfile = os.path.join(output_dir, filename + "." + output_extension)
+        return outputfile
+
+    # Encode a new file based on selected options, built in naming conflict resolution
+    def convert(self, inputfile, options, preopts, postopts, reportProgress=False):
+        self.log.info("Starting conversion.")
+        originalinputfile = inputfile
+        outputfile = self.getOutputFile(inputfile)
+        finaloutputfile = outputfile[:]
+
         self.log.debug("Output file: %s." % outputfile)
         self.log.debug("Final output file: %s." % finaloutputfile)
 
@@ -811,7 +834,7 @@ class MkvtoMp4:
                     i += i
                 self.log.debug("Unable to rename inputfile. Setting output file name to %s." % outputfile)
 
-        conv = Converter(self.FFMPEG_PATH, self.FFPROBE_PATH).convert(inputfile, outputfile, options, timeout=None, preopts=options['preopts'], postopts=options['postopts'])
+        conv = self.converter.convert(inputfile, outputfile, options, timeout=None, preopts=preopts, postopts=postopts)
 
         try:
             for timecode in conv:
@@ -840,7 +863,7 @@ class MkvtoMp4:
             outputfile = None
             os.rename(inputfile, originalinputfile)
             raise Exception("FFMpegConvertError")
-            
+
         if outputfile != finaloutputfile:
             self.log.debug("Outputfile and finaloutputfile are different, temporary extension used, attempting to rename to final extension")
             try:
