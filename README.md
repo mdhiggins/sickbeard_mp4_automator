@@ -90,8 +90,8 @@ General MP4 Configuration
     - `audio-copy-original` = Copies the original audio stream to the destination regardless of codec to preserve it. Will not redundantly copy the steam if its already a valid/supported codec
     - `audio-first-track-of-language` = Adds only the first occurance of a specific language that is included in your audio-lanuage setting. Subsequent tracks of the same language will be skipped. Useful for eliminating commentary tracks.
     - `subtitle-codec` = set your desired subtitle codec. If you're embedding subs, `mov_text` is the only option supported. If you're creating external subtitle files, `srt` or `webvtt` are accepted.
-    - `subtitle-language` = same as audio-language but for subtitles. Set to `nil` to disable copying of subtitles.
-    - `subtitle-language-default` = same as audio-language-default but for subtitles
+    - `subtitle-language` = same as audio-language but for subtitles. Set to `nil` to disable copying of subtitles. A language must be specified for subtitles to be downloaded via subliminal
+    - `subtitle-default-language` = same as audio-language-default but for subtitles
     - `convert-mp4` = forces the script to reprocess and convert mp4 files as though they were mkvs. Good if you have old mp4's that you want to match your current codec configuration. *Caution:* Set `ios-audio` to `False` when reprocessing files to avoid adding multiple iOS audio streams.
     - `force-convert` = forces FFMPEG to rewrap/convert a file even if all destination streams are to be copied. Can be useful for steam tagging issues. Used in conjunction with `convert-mp4`
     - `fullpathguess` = True/False - When manually processing a file, enable to guess metadata using the full path versus just the file name. (Files shows placed in a 'Movies' folder will be recognized as movies, not as TV shows for example.)
