@@ -560,7 +560,7 @@ class MkvtoMp4:
                     l += 1
 
                 # Remove the language if we only want the first track from a given language
-                if self.audio_first_language_track and self.awl:
+                if self.audio_first_language_track:
                     try:
                         blocked_audio_languages.append(a.metadata['language'].lower())
                         self.log.debug("Removing language from whitelist to prevent multiple tracks of the same: %s." % a.metadata['language'])
