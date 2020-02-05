@@ -321,7 +321,9 @@ class MkvtoMp4:
         dump["input"] = self.generateSourceDict(inputfile)
         dump["output"], dump["preopts"], dump["postopts"] = self.generateOptions(inputfile, original)
         parsed = self.converter.parse_options(dump["output"])
-        cmds = self.converter.ffmpeg.generateCommands(inputfile, self.getOutputFile(inputfile), parsed, dump["preopts"], dump["postopts"])
+        input_dir, filename, input_extension = self.parseFile(inputfile)
+        outputfile, output_extension = self.getOutputFile(input_dir, filename, input_extension)
+        cmds = self.converter.ffmpeg.generateCommands(inputfile, outputfile, parsed, dump["preopts"], dump["postopts"])
         dump["ffmpeg_command"] = " ".join(str(item) for item in cmds)
         return json.dumps(dump, sort_keys=False, indent=4)
 
@@ -786,8 +788,7 @@ class MkvtoMp4:
 
         return options, preopts, postopts
 
-    def getOutputFile(self, inputfile):
-        input_dir, filename, input_extension = self.parseFile(inputfile)
+    def getOutputFile(self, input_dir, filename, input_extension):
         output_dir = input_dir if self.output_dir is None else self.output_dir
         output_extension = self.temp_extension if self.temp_extension else self.output_extension
 
@@ -795,21 +796,24 @@ class MkvtoMp4:
         self.log.debug("File name: %s." % filename)
         self.log.debug("Input extension: %s." % input_extension)
         self.log.debug("Output directory: %s." % output_dir)
+        self.log.debug("Output extension: %s." % output_dir)
 
         try:
             outputfile = os.path.join(output_dir.decode(sys.getfilesystemencoding()), filename.decode(sys.getfilesystemencoding()) + "." + output_extension).encode(sys.getfilesystemencoding())
         except:
             outputfile = os.path.join(output_dir, filename + "." + output_extension)
-        return outputfile
+
+        self.log.debug("Output file: %s." % outputfile)
+        return outputfile, output_dir
 
     # Encode a new file based on selected options, built in naming conflict resolution
     def convert(self, inputfile, options, preopts, postopts, reportProgress=False):
         self.log.info("Starting conversion.")
+        input_dir, filename, input_extension = self.parseFile(inputfile)
         originalinputfile = inputfile
-        outputfile = self.getOutputFile(inputfile)
+        outputfile, output_dir = self.getOutputFile(input_dir, filename, input_extension)
         finaloutputfile = outputfile[:]
 
-        self.log.debug("Output file: %s." % outputfile)
         self.log.debug("Final output file: %s." % finaloutputfile)
 
         if len(options['audio']) == 0:
