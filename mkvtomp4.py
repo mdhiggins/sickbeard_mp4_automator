@@ -204,7 +204,7 @@ class MkvtoMp4:
         if self.needProcessing(inputfile):
             options, preopts, postopts = self.generateOptions(inputfile, original=original)
             if not options:
-                self.log.error("Error converting, inputfile had a valid extension but returned no data. Either the file does not exist, was unreadable, or was an incorrect format.")
+                self.log.error("Error converting, inputfile %s had a valid extension but returned no data. Either the file does not exist, was unreadable, or was an incorrect format." % inputfile)
                 return False
 
             try:
@@ -332,9 +332,14 @@ class MkvtoMp4:
 
     # Generate a dict of data about a source file
     def generateSourceDict(self, inputfile):
-        output = self.converter.probe(inputfile).toJson()
+        output = {}
         input_dir, filename, input_extension = self.parseFile(inputfile)
         output['extension'] = input_extension
+        probe = self.converter.probe(inputfile)
+        if probe:
+            output.update(probe.toJson())
+        else:
+            output['error'] = "Invalid input, unable to read"
         return output
 
     # Generate a dict of options to be passed to FFMPEG based on selected settings and the source file parameters and streams
@@ -344,7 +349,7 @@ class MkvtoMp4:
 
         info = self.converter.probe(inputfile)
         if not info:
-            self.log.error("FFProbe returned no value, either the file does not exist or is not a format FFPROBE can read.")
+            self.log.error("FFProbe returned no value for inputfile %s (exists: %s), either the file does not exist or is not a format FFPROBE can read." % (inputfile, os.path.exists(inputfile)))
             return None, None, None
 
         self.log.info("Input Data")
