@@ -203,6 +203,9 @@ class MkvtoMp4:
 
         if self.needProcessing(inputfile):
             options, preopts, postopts = self.generateOptions(inputfile, original=original)
+            if not options:
+                self.log.error("Error converting, inputfile had a valid extension but returned no data. Either the file does not exist, was unreadable, or was an incorrect format.")
+                return False
 
             try:
                 self.log.info("Output Data")
@@ -340,6 +343,10 @@ class MkvtoMp4:
         input_dir, filename, input_extension = self.parseFile(inputfile)
 
         info = self.converter.probe(inputfile)
+        if not info:
+            self.log.error("FFProbe returned no value, either the file does not exist or is not a format FFPROBE can read.")
+            return None, None, None
+
         self.log.info("Input Data")
         self.log.info(json.dumps(info.toJson(), sort_keys=False, indent=4))
         # Video stream
