@@ -519,6 +519,7 @@ class MkvtoMp4:
                         'language': a.metadata['language'],
                         'disposition': 'none',
                     }})
+                    l += 1
 
                 # Remove the language if we only want the first track from a given language
                 if self.audio_first_language_track and self.awl:
