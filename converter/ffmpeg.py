@@ -131,16 +131,18 @@ class MediaStreamInfo(object):
 
     def toJson(self):
         out = {'index': self.index,
-              'codec': self.codec,
-              'type': self.type}
+               'codec': self.codec,
+               'type': self.type}
         if self.type == 'audio':
             out['channels'] = self.audio_channels
+            out['language'] = self.metadata['language'].lower().strip()
         elif self.type == 'video':
             out['pix_fmt'] = self.pix_fmt
             out['profile'] = self.profile
         elif self.type == 'subtitle':
             out['forced'] = self.sub_forced
             out['default'] = self.sub_default
+            out['language'] = self.metadata['language'].lower().strip()
         return out
 
     @staticmethod
