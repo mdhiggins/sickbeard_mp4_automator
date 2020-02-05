@@ -346,6 +346,7 @@ class MkvtoMp4:
         self.log.info("Reading video stream.")
         self.log.info("Video codec detected: %s." % info.video.codec)
 
+        vdebug = "base"
         try:
             vbr = self.estimateVideoBitrate(info)
         except:
@@ -360,6 +361,7 @@ class MkvtoMp4:
         self.log.info("Pix Fmt: %s." % info.video.pix_fmt)
         if self.pix_fmt and info.video.pix_fmt.lower() not in self.pix_fmt:
             self.log.debug("Overriding video pix_fmt. Codec cannot be copied because pix_fmt is not approved.")
+            vdebug = vdebug + ".pix_fmt"
             vcodec = self.video_codec[0]
             pix_fmt = self.pix_fmt[0]
             if self.video_profile:
@@ -371,18 +373,21 @@ class MkvtoMp4:
 
         if self.video_bitrate is not None and vbr > self.video_bitrate:
             self.log.debug("Overriding video bitrate. Codec cannot be copied because video bitrate is too high.")
+            vdebug = vdebug + ".video-bitrate"
             vcodec = self.video_codec[0]
             vbitrate = self.video_bitrate
 
         if self.video_width is not None and self.video_width < info.video.video_width:
             self.log.debug("Video width is over the max width, it will be downsampled. Video stream can no longer be copied.")
+            vdebug = vdebug + ".video-max-width"
             vcodec = self.video_codec[0]
             vwidth = self.video_width
         else:
             vwidth = self.video_width
 
         if '264' in info.video.codec.lower() and self.h264_level and info.video.video_level and (info.video.video_level / 10 > self.h264_level):
-            self.log.info("Video level %0.1f." % (info.video.video_level / 10))
+            self.log.info("Video level %0.1f. Codec cannot be copied because video level is too high." % (info.video.video_level / 10))
+            vdebug = vdebug + ".h264-max-level"
             vcodec = self.video_codec[0]
 
         self.log.debug("Video codec: %s." % vcodec)
@@ -391,6 +396,7 @@ class MkvtoMp4:
         self.log.info("Profile: %s." % info.video.profile)
         if self.video_profile and info.video.profile.lower().replace(" ", "") not in self.video_profile:
             self.log.debug("Video profile is not supported. Video stream can no longer be copied.")
+            vdebug = vdebug + ".video-profile"
             vcodec = self.video_codec[0]
             vprofile = self.video_profile[0]
             if self.pix_fmt:
@@ -468,11 +474,14 @@ class MkvtoMp4:
                         'filter': self.iOS_filter,
                         'language': a.metadata['language'],
                         'disposition': 'none',
+                        'debug': 'ios-audio'
                     }
                     if not self.iOSLast:
                         self.log.info("Creating %s audio stream %d from source audio stream %d [iOS-audio]." % (self.iOS[0], l, a.index))
                         audio_settings.update({l: iosdata})
                         l += 1
+
+                adebug = "base"
                 # If the iOS audio option is enabled and the source audio channel is only stereo, the additional iOS channel will be skipped and a single AAC 2.0 channel will be made regardless of codec preference to avoid multiple stereo channels
                 if self.iOS and a.audio_channels <= 2:
                     self.log.debug("Overriding default channel settings because iOS audio is enabled but the source is stereo [iOS-audio].")
@@ -480,19 +489,21 @@ class MkvtoMp4:
                     audio_channels = a.audio_channels
                     afilter = self.iOS_filter
                     abitrate = a.audio_channels * 128 if (a.audio_channels * self.audio_bitrate) > (a.audio_channels * 128) else (a.audio_channels * self.audio_bitrate)
+                    adebug = adebug + ".ios-audio"
                 else:
                     # If desired codec is the same as the source codec, copy to avoid quality loss
                     acodec = 'copy' if a.codec.lower() in self.audio_codec else self.audio_codec[0]
+                    afilter = self.audio_filter
                     # Audio channel adjustments
                     if self.maxchannels and a.audio_channels > self.maxchannels:
+                        self.log.debug("Audio source exceeds maximum channels, can not be copied. Settings channels to %d [audio-max-channels]." % self.maxchannels)
+                        adebug = adebug + ".audio-max-channels"
                         audio_channels = self.maxchannels
-                        if acodec == 'copy':
-                            acodec = self.audio_codec[0]
+                        acodec = self.audio_codec[0]
                         abitrate = self.maxchannels * self.audio_bitrate
                     else:
                         audio_channels = a.audio_channels
                         abitrate = a.audio_channels * self.audio_bitrate
-                        afilter = self.audio_filter
 
                 # Bitrate calculations/overrides
                 if self.audio_bitrate is 0:
@@ -508,6 +519,7 @@ class MkvtoMp4:
                 self.log.debug("Bitrate: %s." % abitrate)
                 self.log.debug("Language: %s" % a.metadata['language'])
                 self.log.debug("Filter: %s" % afilter)
+                self.log.debug("Debug: %s" % adebug)
 
                 # If the iOSFirst option is enabled, disable the iOS option after the first audio stream is processed
                 if self.iOS and self.iOSFirst:
@@ -523,6 +535,7 @@ class MkvtoMp4:
                     'filter': afilter,
                     'language': a.metadata['language'],
                     'disposition': 'none',
+                    'debug': adebug
                 }})
 
                 if acodec == 'copy' and a.codec == 'aac' and self.aac_adtstoasc:
@@ -542,6 +555,7 @@ class MkvtoMp4:
                         'codec': 'copy',
                         'language': a.metadata['language'],
                         'disposition': 'none',
+                        'debug': 'audio-copy-original'
                     }})
                     l += 1
 
@@ -591,6 +605,7 @@ class MkvtoMp4:
                         'language': s.metadata['language'],
                         'encoding': self.subencoding,
                         'disposition': 'none',
+                        'debug': 'base',
                         # 'forced': s.sub_forced,
                         # 'default': s.sub_default
                     }})
@@ -603,7 +618,8 @@ class MkvtoMp4:
                         ripsub = {0: {
                             'map': s.index,
                             'codec': codec,
-                            'language': s.metadata['language']
+                            'language': s.metadata['language'],
+                            'debug': "base-rip"
                         }}
                         options = {
                             'format': codec,
@@ -747,7 +763,8 @@ class MkvtoMp4:
                 'bitrate': vbitrate,
                 'level': self.h264_level,
                 'profile': vprofile,
-                'pix_fmt': pix_fmt
+                'pix_fmt': pix_fmt,
+                'debug': vdebug
             },
             'audio': audio_settings,
             'subtitle': subtitle_settings
