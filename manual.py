@@ -17,6 +17,7 @@ from post_processor import PostProcessor
 import tmdbsimple as tmdb 
 from extensions import tmdb_api_key
 from logging.config import fileConfig
+import traceback
 
 if sys.version[0] == "3":
     raw_input = input
@@ -270,9 +271,9 @@ def walkDir(dir, silent=False, preserveRelative=False, tvdbid=None, tag=True, op
                     else:
                         tagdata = None
                     processFile(filepath, tagdata, relativePath=relative)
-            except Exception as e:
+            except:
                 print("An unexpected error occurred, processing of this file has failed")
-                print(str(e))
+                traceback.print_exc()
 
 
 def displayOptions(path):
