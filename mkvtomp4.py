@@ -358,9 +358,11 @@ class MkvtoMp4:
         if not info:
             self.log.error("FFProbe returned no value for inputfile %s (exists: %s), either the file does not exist or is not a format FFPROBE can read." % (inputfile, os.path.exists(inputfile)))
             return None, None, None
-
-        self.log.info("Input Data")
-        self.log.info(json.dumps(info.toJson(), sort_keys=False, indent=4))
+        try:
+            self.log.info("Input Data")
+            self.log.info(json.dumps(info.toJson(), sort_keys=False, indent=4))
+        except:
+            self.log.exception("Unable to print input file data")
         # Video stream
         self.log.info("Reading video stream.")
         self.log.info("Video codec detected: %s." % info.video.codec)
