@@ -130,7 +130,7 @@ class MediaStreamInfo(object):
         self.metadata = {}
 
     def toJson(self):
-        language = self.metadata.get("language", default="und").lower().strip()
+        language = self.metadata.get("language", "und").lower().strip()
         out = {'index': self.index,
                'codec': self.codec,
                'type': self.type}
