@@ -107,6 +107,7 @@ General MP4 Configuration
     - `sub-providers` = Comma separated values for potential subtitle providers. Must specify at least 1 provider to enable `download-subs`. Providers include `podnapisi` `thesubdb` `opensubtitles` `tvsubtitles` `addic7ed`
     - `preopts` = Additional unsupported options that go before the rest of the FFMPEG parameters, comma separated (Example `-preset,medium`)
     - `postopts` = Additional unsupported options that go after the rest of the FFMEPG parameters, comma separated as above
+    - `sort-tracks-by-language` = Sort output streams (audio and subtitle) based on language settings. For example if `audio-language = eng, jpn` eng tracks will be arranged before jpn tracks. Helps ensure primary language will be the first audio track
 
 Sickbeard Setup
 --------------

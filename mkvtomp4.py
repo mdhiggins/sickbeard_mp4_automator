@@ -35,6 +35,7 @@ class MkvtoMp4:
                  audio_filter=None,
                  audio_copyoriginal=False,
                  audio_first_language_track=False,
+                 sort_by_language=False,
                  iOS=False,
                  iOSFirst=False,
                  iOSLast=False,
@@ -87,6 +88,7 @@ class MkvtoMp4:
         self.permissions = permissions
         self.preopts = preopts
         self.postopts = postopts
+        self.sort_by_language = sort_by_language
         # Video settings
         self.video_codec = video_codec
         self.video_bitrate = video_bitrate
@@ -149,6 +151,7 @@ class MkvtoMp4:
         self.permissions = settings.permissions
         self.preopts = settings.preopts
         self.postopts = settings.postopts
+        self.sort_by_language = settings.sort_by_language
         # Video settings
         self.video_codec = settings.vcodec
         self.video_bitrate = settings.vbitrate
@@ -425,41 +428,44 @@ class MkvtoMp4:
         # Audio streams
         self.log.info("Reading audio streams.")
 
-        overrideLang = True
+        overrideLang = (self.awl is not None)
+        # Loop through audio tracks and clean up language metadata by standardizing undefined languages and applying the ADL setting
         for a in info.audio:
             try:
                 if a.metadata['language'].strip() == "" or a.metadata['language'] is None:
                     a.metadata['language'] = 'und'
             except KeyError:
                 a.metadata['language'] = 'und'
-            if (a.metadata['language'] == 'und' and self.adl) or (self.awl and a.metadata['language'].lower() in self.awl):
-                overrideLang = False
-                break
-
-        if overrideLang:
-            self.awl = None
-            self.log.info("No audio streams detected in any appropriate language, relaxing restrictions so there will be some audio stream present.")
-
-        audio_settings = {}
-        blocked_audio_languages = []
-        l = 0
-        for a in info.audio:
-            try:
-                if a.metadata['language'].strip() == "" or a.metadata['language'] is None:
-                    a.metadata['language'] = 'und'
-            except KeyError:
-                a.metadata['language'] = 'und'
-
-            self.log.info("Audio detected for stream #%s: %s [%s]." % (a.index, a.codec, a.metadata['language']))
-
-            if self.output_extension in valid_tagging_extensions and a.codec.lower() == 'truehd' and self.ignore_truehd and len(info.audio) > 1:  # Need to skip it early so that it flags the next track as default.
-                self.log.info("MP4 containers do not support truehd audio, and converting it is inconsistent due to video/audio sync issues. Skipping stream %s as typically the 2nd audio track is the AC3 core of the truehd stream." % a.index)
-                continue
 
             # Set undefined language to default language if specified
             if self.adl is not None and a.metadata['language'] == 'und':
                 self.log.debug("Undefined language detected, defaulting to [%s]." % self.adl)
                 a.metadata['language'] = self.adl
+
+            if (self.awl and a.metadata['language'].lower() in self.awl):
+                overrideLang = False
+
+        if overrideLang:
+            self.awl = None
+            self.log.info("No audio streams detected in any appropriate language, relaxing restrictions so there will be some audio stream present.")
+
+        # Reorder audio tracks based on the approved audio languages, mirrors the order present from the options
+        audio_streams = info.audio
+        if self.sort_by_language and self.awl:
+            self.log.debug("Reordering audio tracks to be in accordance with approved languages [sort-tracks-by-language].")
+            audio_streams.sort(key=lambda x: self.awl[::-1].index(x.metadata['language']) if x.metadata['language'] in self.awl else -1)
+            audio_streams.reverse()
+
+        audio_settings = {}
+        blocked_audio_languages = []
+        l = 0
+
+        for a in audio_streams:
+            self.log.info("Audio detected for stream #%s: %s [%s]." % (a.index, a.codec, a.metadata['language']))
+
+            if self.output_extension in valid_tagging_extensions and a.codec.lower() == 'truehd' and self.ignore_truehd and len(info.audio) > 1:  # Need to skip it early so that it flags the next track as default.
+                self.log.info("MP4 containers do not support truehd audio, and converting it is inconsistent due to video/audio sync issues. Skipping stream %s as typically the 2nd audio track is the AC3 core of the truehd stream [ignore-truehd]." % a.index)
+                continue
 
             # Proceed if no whitelist is set, or if the language is in the whitelist
             iosdata = None
@@ -593,10 +599,7 @@ class MkvtoMp4:
         else:
             self.log.error("Audio language array is empty.")
 
-        # Subtitle streams
-        subtitle_settings = {}
-        l = 0
-        self.log.info("Reading subtitle streams.")
+        # Prep subtitle streams by cleaning up languages and setting SDL6
         for s in info.subtitle:
             try:
                 if s.metadata['language'].strip() == "" or s.metadata['language'] is None:
@@ -610,9 +613,22 @@ class MkvtoMp4:
             if self.sdl is not None and s.metadata['language'] == 'und':
                 self.log.debug("Undefined language detected, defaulting to [%s]." % self.sdl)
                 s.metadata['language'] = self.sdl
+
+        # Reorder subtitle tracks based on the approved languages, mirrors the order present from the options
+        subtitle_streams = info.subtitle
+        if self.sort_by_language and self.swl:
+            self.log.debug("Reordering subtitle tracks to be in accordance with approved languages [sort-tracks-by-language].")
+            subtitle_streams.sort(key=lambda x: self.swl[::-1].index(x.metadata['language']) if x.metadata['language'] in self.swl else -1)
+            subtitle_streams.reverse()
+
+        subtitle_settings = {}
+        l = 0
+        self.log.info("Reading subtitle streams.")
+        for s in subtitle_streams:
+            self.log.info("Subtitle detected for stream #%s: %s [%s]." % (s.index, s.codec, s.metadata['language']))
+
             # Make sure its not an image based codec
             if self.embedsubs and s.codec.lower() not in self.bad_internal_subtitle_codecs:
-
                 # Proceed if no whitelist is set, or if the language is in the whitelist
                 if self.swl is None or s.metadata['language'].lower() in self.swl:
                     subtitle_settings.update({l: {

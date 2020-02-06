@@ -74,6 +74,7 @@ permissions = 0777
 post-process = False
 pix-fmt =
 aac_adtstoasc = False
+sort-tracks-by-language = False
 
 [CouchPotato]
 host = localhost
