@@ -112,9 +112,10 @@ class ReadSettings:
                         'tag-language': 'en',
                         'download-artwork': 'poster',
                         'download-subs': 'False',
+                        'download-hearing-impaired-subs': 'False',
                         'embed-subs': 'True',
                         'embed-only-internal-subs': 'False',
-                        'sub-providers': 'addic7ed, podnapisi, thesubdb, opensubtitles',
+                        'sub-providers': '',
                         'permissions': '777',
                         'post-process': 'False',
                         'pix-fmt': '',
@@ -351,10 +352,10 @@ class ReadSettings:
                 log.exception("Subliminal is not installed, automatically downloading of subs has been disabled.")
         self.subproviders = config.get(section, 'sub-providers').lower()
         if self.subproviders == '':
-            self.downloadsubs = False
-            log.warning("You must specifiy at least one subtitle provider to downlaod subs automatically, subtitle downloading disabled.")
+            self.subproviders = None
         else:
             self.subproviders = self.subproviders.lower().replace(' ', '').split(',')
+        self.hearing_impaired = config.getboolean(section, 'download-hearing-impaired-subs')
 
         self.embedsubs = config.getboolean(section, 'embed-subs')
 

@@ -44,8 +44,8 @@ Note: Windows users should enter commands in Powershell - using '<' doesn't work
 - `babelfish` - Run `pip install babelfish`
 - `tmdbsimple` Run `pip install tmdbsimple`
 - `guessit` - Run `pip install guessit` to use manual.py
-- `subliminal`- Run `pip install "subliminal<2"` to enable automatically downloading subtitles
-- `stevedore` - Run `pip install stevedore==1.19.1` (requires stevedore version 1.19.1. This will be automatically installed with subliminal, so if subliminal is installed run `pip uninstall stevedore` then `pip install stevedore==1.19.1`)
+- `subliminal`- Run `pip install subliminal` to enable automatically downloading subtitles
+- `stevedore` - Run `pip install stevedore` (this will be automatically installed with subliminal)
 - `dateutil` - Run `pip install python-dateutil` (this will be automatically installed with subliminal)
 - `deluge-client` Run `pip install deluge-client` if you plan on using Deluge
 - `qtfaststart` Run `pip install qtfaststart` to enable moving moov atom
@@ -105,6 +105,7 @@ General MP4 Configuration
     - `download-subs` = True/False - When enabled the script will attempt to download subtitles of your specified languages automatically using subliminal and merge them into the final mp4 file.
     **YOU MUST INSTALL SUBLIMINAL AND ITS DEPENDENCIES FOR THIS TO WORK.** You must run `pip install subliminal` in order for this feature to be enabled.
     - `sub-providers` = Comma separated values for potential subtitle providers. Must specify at least 1 provider to enable `download-subs`. Providers include `podnapisi` `thesubdb` `opensubtitles` `tvsubtitles` `addic7ed`
+    - `download-hearing-impaired-subs` = Instruct subliminal to download hearing impaired subs
     - `preopts` = Additional unsupported options that go before the rest of the FFMPEG parameters, comma separated (Example `-preset,medium`)
     - `postopts` = Additional unsupported options that go after the rest of the FFMEPG parameters, comma separated as above
     - `sort-tracks-by-language` = Sort output streams (audio and subtitle) based on language settings. For example if `audio-language = eng, jpn` eng tracks will be arranged before jpn tracks. Helps ensure primary language will be the first audio track

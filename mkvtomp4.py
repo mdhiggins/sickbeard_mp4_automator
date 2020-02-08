@@ -7,7 +7,14 @@ import shutil
 import logging
 from converter import Converter, FFMpegConvertError
 from extensions import valid_input_extensions, valid_output_extensions, valid_subtitle_extensions, subtitle_codec_extensions, valid_tagging_extensions
-from babelfish import Language
+try:
+    from babelfish import Language
+except:
+    pass
+try:
+    import subliminal
+except:
+    pass
 
 
 class MkvtoMp4:
@@ -52,6 +59,7 @@ class MkvtoMp4:
                  bad_internal_subtitle_codecs=[],
                  bad_external_subtitle_codecs=[],
                  downloadsubs=True,
+                 hearing_impaired=False,
                  processMP4=False,
                  forceConvert=False,
                  copyto=None,
@@ -122,6 +130,7 @@ class MkvtoMp4:
         self.swl = swl
         self.sdl = sdl
         self.downloadsubs = downloadsubs
+        self.hearing_impaired = hearing_impaired
         self.subproviders = providers
         self.embedsubs = embedsubs
         self.embedonlyinternalsubs = embedonlyinternalsubs
@@ -186,6 +195,7 @@ class MkvtoMp4:
         self.swl = settings.swl
         self.sdl = settings.sdl
         self.downloadsubs = settings.downloadsubs
+        self.hearing_impaired = settings.hearing_impaired
         self.subproviders = settings.subproviders
         self.embedsubs = settings.embedsubs
         self.embedonlyinternalsubs = settings.embedonlyinternalsubs
@@ -730,42 +740,9 @@ class MkvtoMp4:
                         ripsubopts.append(options)
 
         # Attempt to download subtitles if they are missing using subliminal
-        languages = set()
-        try:
-            if self.swl:
-                for alpha3 in self.swl:
-                    languages.add(Language(alpha3))
-            elif self.sdl:
-                languages.add(Language(self.sdl))
-            else:
-                self.downloadsubs = False
-                self.log.error("No valid subtitle language specified, cannot download subtitles.")
-        except:
-            self.log.exception("Unable to verify subtitle languages for download.")
-            self.downloadsubs = False
+        if self.downloadSubtitles:
+            self.downloadSubtitles(inputfile, info.subtitle, original)
 
-        if self.downloadsubs:
-            import subliminal
-            self.log.info("Attempting to download subtitles.")
-
-            # Attempt to set the dogpile cache
-            try:
-                subliminal.region.configure('dogpile.cache.memory')
-            except:
-                pass
-
-            try:
-                video = subliminal.scan_video(os.path.abspath(inputfile), subtitles=True, embedded_subtitles=True)
-                subtitles = subliminal.download_best_subtitles([video], languages, hearing_impaired=False, providers=self.subproviders)
-                try:
-                    subliminal.save_subtitles(video, subtitles[video])
-                except:
-                    # Support for older versions of subliminal
-                    subliminal.save_subtitles(subtitles)
-                    self.log.info("Please update to the latest version of subliminal.")
-            except Exception as e:
-                self.log.info("Unable to download subtitles.", exc_info=True)
-                self.log.debug("Unable to download subtitles.", exc_info=True)
         # External subtitle import
         if self.embedsubs and not self.embedonlyinternalsubs:  # Don't bother if we're not embeddeding subtitles and external subtitles
             src = 1  # FFMPEG input source number
@@ -790,7 +767,7 @@ class MkvtoMp4:
 
                                 self.log.info("Creating subtitle stream %s by importing %s." % (l, fname))
                                 disposition = ''
-                                if ".default" in fanme:
+                                if ".default" in fname:
                                     disposition += '+default'
                                 if ".forced" in fname:
                                     disposition += '+forced'
@@ -880,6 +857,52 @@ class MkvtoMp4:
             self.log.info("Tagging copied video stream as hvc1")
 
         return options, preopts, postopts, ripsubopts
+
+    def downloadSubtitles(self, inputfile, existing_subtitle_tracks, original=None):
+        try:
+            self.log.debug(subliminal.__version__)
+        except:
+            self.log.error("Subliminal is not installed, downloading subtitles aborted.")
+            return
+
+        languages = set()
+        try:
+            if self.swl:
+                for alpha3 in self.swl:
+                    languages.add(Language(alpha3))
+            if self.sdl:
+                languages.add(Language(self.sdl))
+        except:
+            self.log.exception("Unable to verify subtitle languages for download.")
+            return
+
+        if len(languages) < 1:
+            self.log.error("No valid subtitle download languages detected, subtitles will not be downloaded.")
+            return
+
+        self.log.info("Attempting to download subtitles.")
+
+        # Attempt to set the dogpile cache
+        try:
+            subliminal.region.configure('dogpile.cache.memory')
+        except:
+            pass
+
+        try:
+            video = subliminal.scan_video(os.path.abspath(inputfile))
+            video.subtitle_languages = set([Language(x.metadata['language']) for x in existing_subtitle_tracks])
+
+            # If data about the original release is available, include that in the search to best chance at accurate subtitles
+            if original:
+                og = subliminal.Video.fromname(original)
+                video.format = og.format
+                video.release_group = og.release_group
+                video.resolution = og.resolution
+
+            subtitles = subliminal.download_best_subtitles([video], languages, hearing_impaired=self.hearing_impaired, providers=self.subproviders)
+            subliminal.save_subtitles(video, subtitles[video])
+        except:
+            self.log.exception("Unable to download subtitles.")
 
     def getSubExtensionFromCodec(self, codec):
         try:
