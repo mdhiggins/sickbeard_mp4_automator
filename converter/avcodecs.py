@@ -101,6 +101,10 @@ class AudioCodec(BaseCodec):
             if len(x) < 1:
                 del safe['filter']
 
+        if 'disposition' in safe:
+            if len(safe['disposition'].strip()) < 1:
+                del safe['disposition']
+
         safe = self._codec_specific_parse_options(safe)
         optlist = []
         optlist.extend(['-c:a:' + stream, self.ffmpeg_codec_name])
@@ -134,8 +138,7 @@ class SubtitleCodec(BaseCodec):
     parameters are:
       * codec (string) - subtitle codec name (mov_text, subrib, ssa only supported currently)
       * language (string) - language of subtitle stream (3 char code)
-      * forced (int) - force subtitles (1 true, 0 false)
-      * default (int) - default subtitles (1 true, 0 false)
+      * disposition (string) - disposition as string (+default+forced)
 
     Supported subtitle codecs are: null (no subtitle), mov_text
     """
@@ -143,8 +146,6 @@ class SubtitleCodec(BaseCodec):
     encoder_options = {
         'codec': str,
         'language': str,
-        'forced': int,
-        'default': int,
         'map': int,
         'source': int,
         'path': str,
@@ -156,16 +157,6 @@ class SubtitleCodec(BaseCodec):
         super(SubtitleCodec, self).parse_options(opt)
         stream = str(stream)
         safe = self.safe_options(opt)
-
-        if 'forced' in safe:
-            f = safe['forced']
-            if f < 0 or f > 1:
-                del safe['forced']
-
-        if 'default' in safe:
-            d = safe['default']
-            if d < 0 or d > 1:
-                del safe['default']
 
         if 'language' in safe:
             l = safe['language']
@@ -181,6 +172,10 @@ class SubtitleCodec(BaseCodec):
             if not safe['encoding']:
                 del safe['encoding']
 
+        if 'disposition' in safe:
+            if len(safe['disposition'].strip()) < 1:
+                del safe['disposition']
+
         safe = self._codec_specific_parse_options(safe)
 
         optlist = []
@@ -194,10 +189,6 @@ class SubtitleCodec(BaseCodec):
             optlist.extend(['-disposition:s:' + stream, str(safe['disposition'])])
         if 'path' in safe:
             optlist.extend(['-i', str(safe['path'])])
-        if 'default' in safe:
-            optlist.extend(['-metadata:s:s:' + stream, "disposition:default=" + str(safe['default'])])
-        if 'forced' in safe:
-            optlist.extend(['-metadata:s:s:' + stream, "disposition:forced=" + str(safe['forced'])])
         if 'language' in safe:
             lang = str(safe['language'])
         else:
@@ -456,6 +447,11 @@ class AudioCopyCodec(BaseCodec):
 
     def parse_options(self, opt, stream=0):
         safe = self.safe_options(opt)
+
+        if 'disposition' in safe:
+            if len(safe['disposition'].strip()) < 1:
+                del safe['disposition']
+
         stream = str(stream)
         optlist = []
         optlist.extend(['-c:a:' + stream, 'copy'])

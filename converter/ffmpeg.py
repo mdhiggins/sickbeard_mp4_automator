@@ -125,8 +125,8 @@ class MediaStreamInfo(object):
         self.audio_channels = None
         self.audio_samplerate = None
         self.attached_pic = None
-        self.sub_forced = None
-        self.sub_default = None
+        self.forced = False
+        self.default = False
         self.metadata = {}
 
     def toJson(self):
@@ -137,12 +137,13 @@ class MediaStreamInfo(object):
         if self.type == 'audio':
             out['channels'] = self.audio_channels
             out['language'] = language
+            out['default'] = self.default
         elif self.type == 'video':
             out['pix_fmt'] = self.pix_fmt
             out['profile'] = self.profile
         elif self.type == 'subtitle':
-            out['forced'] = self.sub_forced
-            out['default'] = self.sub_default
+            out['forced'] = self.forced
+            out['default'] = self.default
             out['language'] = language
         return out
 
@@ -157,6 +158,13 @@ class MediaStreamInfo(object):
     def parse_int(val, default=0):
         try:
             return int(val)
+        except:
+            return default
+
+    @staticmethod
+    def parse_bool(val, default=False):
+        try:
+            return bool(val)
         except:
             return default
 
@@ -189,6 +197,10 @@ class MediaStreamInfo(object):
             self.attached_pic = self.parse_int(val)
         elif key == 'profile':
             self.profile = val
+        elif key == 'DISPOSITION:forced':
+            self.forced = self.parse_bool(self.parse_int(val))
+        elif key == 'DISPOSITION:default':
+            self.default = self.parse_bool(self.parse_int(val))
 
         if key.startswith('TAG:'):
             key = key.split('TAG:')[1].lower()
@@ -216,16 +228,11 @@ class MediaStreamInfo(object):
                         self.video_fps = float(n) / float(d)
                 elif '.' in val:
                     self.video_fps = self.parse_float(val)
-            if key == 'level':
+            elif key == 'level':
                 self.video_level = self.parse_float(val)
-            if key == 'pix_fmt':
+            elif key == 'pix_fmt':
                 self.pix_fmt = val
 
-        if self.type == 'subtitle':
-            if key == 'DISPOSITION:forced':
-                self.sub_forced = self.parse_int(val)
-            if key == 'DISPOSITION:default':
-                self.sub_default = self.parse_int(val)
 
     def __repr__(self):
         d = ''

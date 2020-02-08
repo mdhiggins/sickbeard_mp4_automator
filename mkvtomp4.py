@@ -36,6 +36,7 @@ class MkvtoMp4:
                  audio_copyoriginal=False,
                  audio_first_language_track=False,
                  sort_by_language=False,
+                 prefer_more_channels=True,
                  iOS=False,
                  iOSFirst=False,
                  iOSLast=False,
@@ -115,6 +116,7 @@ class MkvtoMp4:
         self.aac_adtstoasc = aac_adtstoasc
         self.audio_copyoriginal = audio_copyoriginal
         self.audio_first_language_track = audio_first_language_track
+        self.prefer_more_channels = prefer_more_channels
         # Subtitle settings
         self.scodec = scodec
         self.swl = swl
@@ -178,6 +180,7 @@ class MkvtoMp4:
         self.aac_adtstoasc = settings.aac_adtstoasc
         self.audio_copyoriginal = settings.audio_copyoriginal
         self.audio_first_language_track = settings.audio_first_language_track
+        self.prefer_more_channels = settings.prefer_more_channels
         # Subtitle settings
         self.scodec = settings.scodec
         self.swl = settings.swl
@@ -206,7 +209,7 @@ class MkvtoMp4:
             return False
 
         if self.needProcessing(inputfile):
-            options, preopts, postopts = self.generateOptions(inputfile, original=original)
+            options, preopts, postopts, ripsubopts = self.generateOptions(inputfile, original=original)
             if not options:
                 self.log.error("Error converting, inputfile %s had a valid extension but returned no data. Either the file does not exist, was unreadable, or was an incorrect format." % inputfile)
                 return False
@@ -218,8 +221,13 @@ class MkvtoMp4:
                 self.log.info(json.dumps(preopts, sort_keys=False, indent=4))
                 self.log.info("Postopts")
                 self.log.info(json.dumps(postopts, sort_keys=False, indent=4))
+                if not self.embedsubs:
+                    self.log.info("Subtitle Extracts")
+                    self.log.info(json.dumps(ripsubopts, sort_keys=False, indent=4))
             except:
                 self.log.exception("Unable to log options.")
+
+            self.ripSubs(inputfile, ripsubopts)
 
             outputfile, inputfile = self.convert(inputfile, options, preopts, postopts, reportProgress)
 
@@ -329,12 +337,19 @@ class MkvtoMp4:
     def jsonDump(self, inputfile, original=None):
         dump = {}
         dump["input"] = self.generateSourceDict(inputfile)
-        dump["output"], dump["preopts"], dump["postopts"] = self.generateOptions(inputfile, original)
+        dump["output"], dump["preopts"], dump["postopts"], dump["ripsubopts"] = self.generateOptions(inputfile, original)
         parsed = self.converter.parse_options(dump["output"])
         input_dir, filename, input_extension = self.parseFile(inputfile)
         outputfile, output_extension = self.getOutputFile(input_dir, filename, input_extension)
         cmds = self.converter.ffmpeg.generateCommands(inputfile, outputfile, parsed, dump["preopts"], dump["postopts"])
-        dump["ffmpeg_command"] = " ".join(str(item) for item in cmds)
+        dump["ffmpeg_commands"] = []
+        dump["ffmpeg_commands"].append(" ".join(str(item) for item in cmds))
+        for suboptions in dump["ripsubopts"]:
+            subparsed = self.converter.parse_options(suboptions)
+            suboutputfile = self.getSubOutputFileFromOptions(inputfile, suboptions)
+            subcmds = self.converter.ffmpeg.generateCommands(inputfile, suboutputfile, subparsed)
+            dump["ffmpeg_commands"].append(" ".join(str(item) for item in subcmds))
+
         return json.dumps(dump, sort_keys=False, indent=4)
 
     # Generate a dict of data about a source file
@@ -353,6 +368,8 @@ class MkvtoMp4:
     def generateOptions(self, inputfile, original=None):
         # Get path information from the input file
         input_dir, filename, input_extension = self.parseFile(inputfile)
+
+        ripsubopts = []
 
         info = self.converter.probe(inputfile)
         if not info:
@@ -431,7 +448,7 @@ class MkvtoMp4:
         self.log.info("Reading audio streams.")
 
         overrideLang = (self.awl is not None)
-        # Loop through audio tracks and clean up language metadata by standardizing undefined languages and applying the ADL setting
+        # Loop through audio streams and clean up language metadata by standardizing undefined languages and applying the ADL setting
         for a in info.audio:
             try:
                 if a.metadata['language'].strip() == "" or a.metadata['language'] is None:
@@ -451,10 +468,10 @@ class MkvtoMp4:
             self.awl = None
             self.log.info("No audio streams detected in any appropriate language, relaxing restrictions so there will be some audio stream present.")
 
-        # Reorder audio tracks based on the approved audio languages, mirrors the order present from the options
+        # Reorder audio streams based on the approved audio languages, mirrors the order present from the options
         audio_streams = info.audio
         if self.sort_by_language and self.awl:
-            self.log.debug("Reordering audio tracks to be in accordance with approved languages [sort-tracks-by-language].")
+            self.log.debug("Reordering audio streams to be in accordance with approved languages [sort-tracks-by-language].")
             audio_streams.sort(key=lambda x: self.awl[::-1].index(x.metadata['language']) if x.metadata['language'] in self.awl else -1)
             audio_streams.reverse()
 
@@ -463,10 +480,10 @@ class MkvtoMp4:
         l = 0
 
         for a in audio_streams:
-            self.log.info("Audio detected for stream #%s: %s [%s]." % (a.index, a.codec, a.metadata['language']))
+            self.log.info("Audio detected for stream #%s - %s %s %d channel." % (a.index, a.codec, a.metadata['language'], a.audio_channels))
 
-            if self.output_extension in valid_tagging_extensions and a.codec.lower() == 'truehd' and self.ignore_truehd and len(info.audio) > 1:  # Need to skip it early so that it flags the next track as default.
-                self.log.info("MP4 containers do not support truehd audio, and converting it is inconsistent due to video/audio sync issues. Skipping stream %s as typically the 2nd audio track is the AC3 core of the truehd stream [ignore-truehd]." % a.index)
+            if self.output_extension in valid_tagging_extensions and a.codec.lower() == 'truehd' and self.ignore_truehd and len(info.audio) > 1:
+                self.log.info("MP4 containers do not support truehd audio, and converting it is inconsistent due to video/audio sync issues. Skipping stream %s as typically the 2nd audio stream is the AC3 core of the truehd stream [ignore-truehd]." % a.index)
                 continue
 
             # Proceed if no whitelist is set, or if the language is in the whitelist
@@ -485,11 +502,15 @@ class MkvtoMp4:
                             self.log.warning("Unable to determine iOS audio bitrate from source stream %s, defaulting to 256 per channel." % a.index)
                             iOSbitrate = audio_channels * 256
 
+                    iosdisposition = '+default' if a.default else ''
+
                     self.log.debug("Audio codec: %s." % self.iOS[0])
                     self.log.debug("Channels: 2.")
                     self.log.debug("Filter: %s." % self.iOS_filter)
                     self.log.debug("Bitrate: %s." % iOSbitrate)
                     self.log.debug("Language: %s." % a.metadata['language'])
+                    self.log.debug("Disposition: %s." % iosdisposition)
+
                     iosdata = {
                         'map': a.index,
                         'codec': self.iOS[0],
@@ -497,7 +518,7 @@ class MkvtoMp4:
                         'bitrate': iOSbitrate,
                         'filter': self.iOS_filter,
                         'language': a.metadata['language'],
-                        'disposition': 'none',
+                        'disposition': iosdisposition,
                         'debug': 'ios-audio'
                     }
                     if not self.iOSLast:
@@ -538,11 +559,14 @@ class MkvtoMp4:
                         self.log.warning("Unable to determine audio bitrate from source stream %s, defaulting to 256 per channel." % a.index)
                         abitrate = audio_channels * 256
 
+                adisposition = '+default' if a.default else ''
+
                 self.log.debug("Audio codec: %s." % acodec)
                 self.log.debug("Channels: %s." % audio_channels)
                 self.log.debug("Bitrate: %s." % abitrate)
                 self.log.debug("Language: %s" % a.metadata['language'])
                 self.log.debug("Filter: %s" % afilter)
+                self.log.debug("Disposition: %s" % adisposition)
                 self.log.debug("Debug: %s" % adebug)
 
                 # If the iOSFirst option is enabled, disable the iOS option after the first audio stream is processed
@@ -558,7 +582,7 @@ class MkvtoMp4:
                     'bitrate': abitrate,
                     'filter': afilter,
                     'language': a.metadata['language'],
-                    'disposition': 'none',
+                    'disposition': adisposition,
                     'debug': adebug
                 }})
 
@@ -566,40 +590,78 @@ class MkvtoMp4:
                     audio_settings[l]['bsf'] = 'aac_adtstoasc'
                 l += 1
 
-                # Add the iOS track last instead
+                # Add the iOS stream last instead
                 if self.iOSLast and iosdata:
                     self.log.info("Creating %s audio stream %d from source audio stream %d [iOS-audio]." % (self.iOS[0], l, a.index))
                     audio_settings.update({l: iosdata})
                     l += 1
 
-                if self.audio_copyoriginal and acodec != 'copy':
+                if self.audio_copyoriginal and acodec != 'copy' and not (a.codec.lower() == 'truehd' and self.ignore_truehd):
                     self.log.info("Copying to audio stream %d from source stream %d format %s [audio-copy-original]" % (l, a.index, a.codec))
                     audio_settings.update({l: {
                         'map': a.index,
                         'codec': 'copy',
+                        'channels': a.audio_channels,
                         'language': a.metadata['language'],
-                        'disposition': 'none',
+                        'disposition': adisposition,
                         'debug': 'audio-copy-original'
                     }})
                     l += 1
 
-                # Remove the language if we only want the first track from a given language
+                # Remove the language if we only want the first stream from a given language
                 if self.audio_first_language_track:
                     try:
                         blocked_audio_languages.append(a.metadata['language'].lower())
-                        self.log.debug("Removing language from whitelist to prevent multiple tracks of the same: %s." % a.metadata['language'])
+                        self.log.debug("Removing language from whitelist to prevent multiple streams of the same: %s." % a.metadata['language'])
                     except:
                         self.log.error("Unable to remove language %s from whitelist." % a.metadata['language'])
 
-        # Audio Default
-        if len(audio_settings) > 0 and self.adl:
+        # Audio Default Handler
+        if len(audio_settings) > 0:
+            audio_streams = sorted(audio_settings.values(), key=lambda x: x['channels'], reverse=self.prefer_more_channels)
+            preferred_language_audio_streams = [x for x in audio_streams if x['language'] == self.adl] if self.adl else audio_streams
+            default_stream = audio_streams[0]
+            default_streams = [x for x in audio_streams if 'default' in x['disposition']]
+            default_preferred_language_streams = [x for x in default_streams if x['language'] == self.adl] if self.adl else default_streams
+            default_streams_not_in_preferred_language = [x for x in default_streams if x not in default_preferred_language_streams]
+
+            self.log.info("%d total audio streams with %d set to default disposition. %d defaults in your preferred language, %d in other languages." % (len(audio_streams), len(default_streams), len(default_preferred_language_streams), len(default_streams_not_in_preferred_language)))
+            if len(preferred_language_audio_streams) < 1:
+                self.log.info("No audio tracks in your preferred language, using other languages to determine default stream.")
+
+            if len(default_preferred_language_streams) < 1:
+                try:
+                    preferred_language_streams = [x for x in audio_streams if x['language'] == self.adl] if self.adl else default_streams
+                    preferred_language_streams = preferred_language_streams if len(preferred_language_audio_streams) > 0 else default_streams
+                    default_stream = preferred_language_audio_streams[0] if len(preferred_language_audio_streams) > 0 else audio_streams[0]
+                except:
+                    self.log.exception("Error setting default stream in preferred language.")
+            elif len(default_preferred_language_streams) > 1:
+                default_stream = default_preferred_language_streams[0]
+                try:
+                    for remove in default_preferred_language_streams[1:]:
+                        remove['disposition'] = remove['disposition'].replace("+default", "")
+                    self.log.info("%d streams in preferred language cleared of default disposition flag from preferred language." % (len(default_preferred_language_streams) - 1))
+                except:
+                    self.log.exception("Error in removing default disposition flag from extra audio streams, multiple streams may be set as default.")
+            else:
+                self.log.debug("Default audio stream already inherited from source material, will not override to audio-language-default.")
+                default_stream = default_preferred_language_streams[0]
+
+            default_streams_not_in_preferred_language = [x for x in default_streams_not_in_preferred_language if x != default_stream]
+            if len(default_streams_not_in_preferred_language) > 0:
+                self.log.info("Cleaning up default disposition settings from not preferred languages. %d streams will have default flag removed." % (len(default_streams_not_in_preferred_language)))
+                for remove in default_streams_not_in_preferred_language:
+                    remove['disposition'] = remove['disposition'].replace("+default", "")
+            
             try:
-                default_track = [x for x in audio_settings.values() if x['language'] == self.adl][0]
-                default_track['disposition'] = 'default'
+                if 'default' not in default_stream['disposition']:
+                    default_stream['disposition'] += "+default"
             except:
-                audio_settings[0]['disposition'] = 'default'
+                default_stream['disposition'] = "+default"
+
         else:
-            self.log.error("Audio language array is empty.")
+            self.log.debug("Audio output is empty.")
 
         # Prep subtitle streams by cleaning up languages and setting SDL6
         for s in info.subtitle:
@@ -609,17 +671,17 @@ class MkvtoMp4:
             except KeyError:
                 s.metadata['language'] = 'und'
 
-            self.log.info("Subtitle detected for stream #%s: %s [%s]." % (s.index, s.codec, s.metadata['language']))
+            self.log.info("Subtitle detected for stream %s - %s %s." % (s.index, s.codec, s.metadata['language']))
 
             # Set undefined language to default language if specified
             if self.sdl is not None and s.metadata['language'] == 'und':
                 self.log.debug("Undefined language detected, defaulting to [%s]." % self.sdl)
                 s.metadata['language'] = self.sdl
 
-        # Reorder subtitle tracks based on the approved languages, mirrors the order present from the options
+        # Reorder subtitle streams based on the approved languages, mirrors the order present from the options
         subtitle_streams = info.subtitle
         if self.sort_by_language and self.swl:
-            self.log.debug("Reordering subtitle tracks to be in accordance with approved languages [sort-tracks-by-language].")
+            self.log.debug("Reordering subtitle streams to be in accordance with approved languages [sort-tracks-by-language].")
             subtitle_streams.sort(key=lambda x: self.swl[::-1].index(x.metadata['language']) if x.metadata['language'] in self.swl else -1)
             subtitle_streams.reverse()
 
@@ -627,74 +689,46 @@ class MkvtoMp4:
         l = 0
         self.log.info("Reading subtitle streams.")
         for s in subtitle_streams:
-            self.log.info("Subtitle detected for stream #%s: %s [%s]." % (s.index, s.codec, s.metadata['language']))
+            self.log.info("Subtitle detected for stream %s - %s %s." % (s.index, s.codec, s.metadata['language']))
 
             # Make sure its not an image based codec
             if self.embedsubs and s.codec.lower() not in self.bad_internal_subtitle_codecs:
                 # Proceed if no whitelist is set, or if the language is in the whitelist
                 if self.swl is None or s.metadata['language'].lower() in self.swl:
+                    disposition = ''
+                    if s.default:
+                        disposition += '+default'
+                    if s.forced:
+                        disposition += '+forced'
+
                     subtitle_settings.update({l: {
                         'map': s.index,
                         'codec': self.scodec[0],
                         'language': s.metadata['language'],
                         'encoding': self.subencoding,
-                        'disposition': 'none',
-                        'debug': 'base',
-                        # 'forced': s.sub_forced,
-                        # 'default': s.sub_default
+                        'disposition': disposition,
+                        'debug': 'base.embed-subs'
                     }})
                     self.log.info("Creating %s subtitle stream %d from source stream %d." % (self.scodec[0], l, s.index))
                     l = l + 1
             elif not self.embedsubs and s.codec.lower() not in self.bad_external_subtitle_codecs:
                 if self.swl is None or s.metadata['language'].lower() in self.swl:
-
                     for codec in self.scodec:
                         ripsub = {0: {
                             'map': s.index,
                             'codec': codec,
                             'language': s.metadata['language'],
-                            'debug': "base-rip"
+                            'debug': "base"
                         }}
                         options = {
                             'format': codec,
                             'subtitle': ripsub,
+                            'forced': s.forced,
+                            'default': s.default,
+                            'language': s.metadata['language'],
+                            'index': s.index
                         }
-
-                        try:
-                            extension = subtitle_codec_extensions[codec]
-                        except:
-                            self.log.info("Wasn't able to determine subtitle file extension, defaulting to '.srt'.")
-                            extension = 'srt'
-
-                        forced = ".forced" if s.sub_forced else ""
-
-                        input_dir, filename, input_extension = self.parseFile(inputfile)
-                        output_dir = input_dir if self.output_dir is None else self.output_dir
-                        outputfile = os.path.join(output_dir, filename + "." + s.metadata['language'] + forced + "." + extension)
-
-                        i = 2
-                        while os.path.isfile(outputfile):
-                            self.log.debug("%s exists, appending %s to filename." % (outputfile, i))
-                            outputfile = os.path.join(output_dir, filename + "." + s.metadata['language'] + forced + "." + str(i) + "." + extension)
-                            i += 1
-                        try:
-                            self.log.info("Ripping %s subtitle from source stream %s into external file." % (s.metadata['language'], s.index))
-                            conv = self.converter.convert(inputfile, outputfile, options, timeout=None)
-                            for timecode in conv:
-                                pass
-
-                            self.log.info("%s created." % outputfile)
-                        except FFMpegConvertError:
-                            self.log.error("Unabled to create external %s subtitle file for stream %s, may be an incompatible format." % (extension, s.index))
-                            self.removeFile(outputfile)
-                            continue
-                        except:
-                            self.log.exception("Unabled to create external subtitle file for stream %s." % (s.index))
-
-                        try:
-                            os.chmod(outputfile, self.permissions)  # Set permissions of newly created file
-                        except:
-                            self.log.exception("Unable to set new file permissions.")
+                        ripsubopts.append(options)
 
         # Attempt to download subtitles if they are missing using subliminal
         languages = set()
@@ -756,14 +790,20 @@ class MkvtoMp4:
                             if self.swl is None or lang in self.swl:
 
                                 self.log.info("Creating subtitle stream %s by importing %s." % (l, fname))
+                                disposition = ''
+                                if ".default" in fanme:
+                                    disposition += '+default'
+                                if ".forced" in fname:
+                                    disposition += '+forced'
 
                                 subtitle_settings.update({l: {
                                     'path': os.path.join(dirName, fname),
                                     'source': src,
                                     'map': 0,
                                     'codec': 'mov_text',
-                                    'disposition': 'none',
-                                    'language': lang}})
+                                    'disposition': disposition,
+                                    'language': lang,
+                                    'debug': 'base.embed-subs'}})
 
                                 self.log.debug("Path: %s." % os.path.join(dirName, fname))
                                 self.log.debug("Source: %s." % src)
@@ -780,13 +820,16 @@ class MkvtoMp4:
 
         # Subtitle Default
         if len(subtitle_settings) > 0 and self.sdl:
-            try:
-                default_track = [x for x in subtitle_settings.values() if x['language'] == self.sdl][0]
-                default_track['disposition'] = 'default'
-            except:
-                subtitle_settings[0]['disposition'] = 'default'
+            if len([x for x in subtitle_settings.values() if 'default' in x['disposition']]) < 1:
+                try:
+                    default_stream = [x for x in subtitle_settings.values() if x['language'] == self.sdl][0]
+                    default_stream['disposition'] = '+default'
+                except:
+                    subtitle_settings[0]['disposition'] = '+default'
+            else:
+                self.log.debug("Default subtitle stream already inherited from source material, will not override to subtitle-language-default.")
         else:
-            self.log.warning("Subtitle stream array is empty.")
+            self.log.debug("Subtitle output is empty or no default subtitle language is set, will not pass over subtitle output to set a default stream.")
 
         # Collect all options
         options = {
@@ -837,7 +880,56 @@ class MkvtoMp4:
             postopts.extend(['-tag:v', 'hvc1'])
             self.log.info("Tagging copied video stream as hvc1")
 
-        return options, preopts, postopts
+        return options, preopts, postopts, ripsubopts
+
+    def getSubExtensionFromCodec(self, codec):
+        try:
+            return subtitle_codec_extensions[codec]
+        except:
+            self.log.info("Wasn't able to determine subtitle file extension, defaulting to '.srt'.")
+            return 'srt'
+
+    def getSubOutputFileFromOptions(self, inputfile, options, extension):
+        forced = ".forced" if options['forced'] else ""
+        default = ".default" if options['default'] else ""
+        language = options["language"]
+        return self.getSubOutputFile(inputfile, language, forced, default, extension)
+
+    def getSubOutputFile(self, inputfile, language, forced, default, extension):
+        input_dir, filename, input_extension = self.parseFile(inputfile)
+        output_dir = input_dir if self.output_dir is None else self.output_dir
+        outputfile = os.path.join(output_dir, filename + "." + language + default + forced + "." + extension)
+
+        i = 2
+        while os.path.isfile(outputfile):
+            self.log.debug("%s exists, appending %s to filename." % (outputfile, i))
+            outputfile = os.path.join(output_dir, filename + "." + language + default + forced + "." + str(i) + "." + extension)
+            i += 1
+        return outputfile
+
+    def ripSubs(self, inputfile, ripsubopts):
+        for options in ripsubopts:
+            extension = self.getSubExtensionFromCodec(options['format'])
+            outputfile = self.getSubOutputFileFromOptions(inputfile, options, extension)
+
+            try:
+                self.log.info("Ripping %s subtitle from source stream %s into external file." % (options["language"], options['index']))
+                conv = self.converter.convert(inputfile, outputfile, options, timeout=None)
+                for timecode in conv:
+                    pass
+
+                self.log.info("%s created." % outputfile)
+            except FFMpegConvertError:
+                self.log.error("Unable to create external %s subtitle file for stream %s, may be an incompatible format." % (extension, options['index']))
+                self.removeFile(outputfile)
+                continue
+            except:
+                self.log.exception("Unable to create external subtitle file for stream %s." % (options['index']))
+
+            try:
+                os.chmod(outputfile, self.permissions)  # Set permissions of newly created file
+            except:
+                self.log.exception("Unable to set new file permissions.")
 
     def getOutputFile(self, input_dir, filename, input_extension):
         output_dir = input_dir if self.output_dir is None else self.output_dir
@@ -868,7 +960,7 @@ class MkvtoMp4:
         self.log.debug("Final output file: %s." % finaloutputfile)
 
         if len(options['audio']) == 0:
-            self.error.info("Conversion has no audio tracks, aborting")
+            self.error.info("Conversion has no audio streams, aborting")
             return inputfile, ""
 
         if not self.forceConvert and self.output_extension == input_extension and len([x for x in [options['video']] + [x for x in options['audio'].values()] + [x for x in options['subtitle'].values()] if x['codec'] != 'copy']) == 0:

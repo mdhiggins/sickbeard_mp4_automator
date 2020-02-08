@@ -97,7 +97,7 @@ General MP4 Configuration
     - `fullpathguess` = True/False - When manually processing a file, enable to guess metadata using the full path versus just the file name. (Files shows placed in a 'Movies' folder will be recognized as movies, not as TV shows for example.)
     - `tagfile` = True/False - Enable or disable tagging file with appropriate metadata after encoding.
     - `tag-language` = en - Set your tag language for TMDB/TVDB entries metadata retrieval. Use either 2 or 3 character language codes.
-    - `download-artwork` = Poster/Thumbnail/False - Enabled downloading and embeddeding of Season or Movie posters and embeddeding of that image into the mp4 as the cover image. For TV shows you may choose between the season artwork or the episode thumbnail by selecting the corresponding option.
+    - `download-artwork` = `Poster`/`Thumbnail`/`False` - Enabled downloading and embeddeding of Season or Movie posters and embeddeding of that image into the mp4 as the cover image. For TV shows you may choose between the season artwork or the episode thumbnail by selecting the corresponding option.
     - `embed-subs` = True/False - Enabled by default. Embeds subtitles in the resulting MP4 file that are found embedded in the source file as well as external SRT/VTT files. Disabling embed-subs will cause the script to extract any subtitles that meet your language criteria into external SRT/VTT files. The script will also attempt to download SRT files if possible and this feature is enabled.
     - `bad-internal-subtitle-sources` - Sources that will be ignored for interal subtitles (image based formats need to be ignored, mp4 does not support)
     - `bad-external-subtitle-sources` - Sources that will be ignroed for external subtitlesk (some image based formats do work, more relaxed than internal sources)
@@ -108,6 +108,7 @@ General MP4 Configuration
     - `preopts` = Additional unsupported options that go before the rest of the FFMPEG parameters, comma separated (Example `-preset,medium`)
     - `postopts` = Additional unsupported options that go after the rest of the FFMEPG parameters, comma separated as above
     - `sort-tracks-by-language` = Sort output streams (audio and subtitle) based on language settings. For example if `audio-language = eng, jpn` eng tracks will be arranged before jpn tracks. Helps ensure primary language will be the first audio track
+    - `prefer-more-channels` = If the source file does not specify a default audio track and the script must guess which track is the default, setting this to `True` will favor tracks with more channels, `False` will prefer fewer channels
 
 Sickbeard Setup
 --------------

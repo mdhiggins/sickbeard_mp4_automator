@@ -88,6 +88,7 @@ class ReadSettings:
                         'audio-copy-original': 'False',
                         'audio-first-track-of-language': 'False',
                         'sort-tracks-by-language': 'False',
+                        'prefer-more-channels': 'True',
                         'video-codec': 'h264, x264',
                         'video-bitrate': '',
                         'video-crf': '',
@@ -321,6 +322,8 @@ class ReadSettings:
         self.audio_first_language_track = config.getboolean(section, "audio-first-track-of-language")  # Only take the first audio track in a whitelisted language, then no more
 
         self.sort_by_language = config.getboolean(section, "sort-tracks-by-language")  # Reorders audio track output based on the listed languages
+
+        self.prefer_more_channels = config.getboolean(section, "prefer-more-channels")  # When choosing default audio track, prefer tracks with more channels
 
         self.iOS = config.get(section, "ios-audio")  # Creates a second audio channel if the standard output methods are different from this for iOS compatability
         if self.iOS == "" or self.iOS.lower() in ['false', 'no', 'f', '0']:
