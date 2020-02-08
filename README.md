@@ -43,7 +43,7 @@ Note: Windows users should enter commands in Powershell - using '<' doesn't work
 - `requests-cache` - Run `pip install requests-cache`
 - `babelfish` - Run `pip install babelfish`
 - `tmdbsimple` Run `pip install tmdbsimple`
-- `guessit` - Run `pip install "guessit<2"` to use manual.py (requires guessit version 1, version 2 is a complete rewrite, still in alpha, and not backwards compatible)
+- `guessit` - Run `pip install guessit` to use manual.py
 - `subliminal`- Run `pip install "subliminal<2"` to enable automatically downloading subtitles
 - `stevedore` - Run `pip install stevedore==1.19.1` (requires stevedore version 1.19.1. This will be automatically installed with subliminal, so if subliminal is installed run `pip uninstall stevedore` then `pip install stevedore==1.19.1`)
 - `dateutil` - Run `pip install python-dateutil` (this will be automatically installed with subliminal)
