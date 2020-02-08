@@ -625,7 +625,7 @@ class MkvtoMp4:
             default_preferred_language_streams = [x for x in default_streams if x['language'] == self.adl] if self.adl else default_streams
             default_streams_not_in_preferred_language = [x for x in default_streams if x not in default_preferred_language_streams]
 
-            self.log.info("%d total audio streams with %d set to default disposition. %d defaults in your preferred language, %d in other languages." % (len(audio_streams), len(default_streams), len(default_preferred_language_streams), len(default_streams_not_in_preferred_language)))
+            self.log.info("%d total audio streams with %d set to default disposition. %d defaults in your preferred language (%s), %d in other languages." % (len(audio_streams), len(default_streams), len(default_preferred_language_streams), self.adl, len(default_streams_not_in_preferred_language)))
             if len(preferred_language_audio_streams) < 1:
                 self.log.info("No audio tracks in your preferred language, using other languages to determine default stream.")
 
