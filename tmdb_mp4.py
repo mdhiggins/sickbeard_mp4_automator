@@ -11,7 +11,7 @@ import logging
 # from tmdb_api import tmdb
 import tmdbsimple as tmdb 
 from mutagen.mp4 import MP4, MP4Cover
-from extensions import valid_output_extensions, valid_poster_extensions, tmdb_api_key
+from extensions import valid_tagging_extensions, valid_poster_extensions, tmdb_api_key
 
 
 def urlretrieve(url, fn):
@@ -67,9 +67,9 @@ class tmdb_mp4:
     def writeTags(self, mp4Path, artwork=True, thumbnail=False):
         self.log.info("Tagging file: %s." % mp4Path)
         ext = os.path.splitext(mp4Path)[1][1:]
-        if ext not in valid_output_extensions:
+        if ext not in valid_tagging_extensions:
             self.log.error("File is not the correct format.")
-            sys.exit()
+            return False
 
         video = MP4(mp4Path)
         try:
@@ -118,11 +118,12 @@ class tmdb_mp4:
                 self.log.info("Trying to write tags.")
                 video.save()
                 self.log.info("Tags written successfully.")
-                break
+                return True
             except IOError as e:
                 self.log.info("Exception: %s" % e)
                 self.log.exception("There was a problem writing the tags. Retrying.")
                 time.sleep(5)
+        return False
 
     def rating(self):
         ratings = {'G': '100',
