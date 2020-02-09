@@ -97,10 +97,11 @@ if settings.qBittorrent['convert']:
     if single_file:
         # single file
         inputfile = content_path
-        if MkvtoMp4(settings).validSource(inputfile):
+        info = converter.isValidSource(inputfile)
+        if info:
             log.info("Processing file %s." % inputfile)
             try:
-                output = converter.process(inputfile, reportProgress=True)
+                output = converter.process(inputfile, reportProgress=True, info=info)
             except:
                 log.exception("Error converting file %s." % inputfile)
         else:
@@ -111,10 +112,11 @@ if settings.qBittorrent['convert']:
         for r, d, f in os.walk(root_path):
             for files in f:
                 inputfile = os.path.join(r, files)
-                if MkvtoMp4(settings).validSource(inputfile) and inputfile not in ignore:
+                info = converter.isValidSource(inputfile)
+                if info and inputfile not in ignore:
                     log.info("Processing file %s." % inputfile)
                     try:
-                        output = converter.process(inputfile)
+                        output = converter.process(inputfile, info=info)
                         if output is not False:
                             ignore.append(output['output'])
                         else:

@@ -215,8 +215,8 @@ class Converter(object):
         if info is None:
             raise ConverterError("Can't get information about source file")
 
-        if not info.video and not info.audio:
-            raise ConverterError('Source file has no audio or video streams')
+        if not info.video and not info.audio and not info.subtitle:
+            raise ConverterError('Source file has no audio, video, or subtitle streams')
 
         if info.video and 'video' in options:
             options = options.copy()
@@ -224,7 +224,10 @@ class Converter(object):
             v['src_width'] = info.video.video_width
             v['src_height'] = info.video.video_height
 
-        if info.format.duration < 0.01:
+        if not info.format.duration:
+            info.format.duration = 0.01
+
+        if info.video and info.format.duration < 0.01:
             raise ConverterError('Zero-length media')
 
         if twopass:

@@ -45,10 +45,11 @@ log.debug("Input file: %s." % inputfile)
 log.debug("Original name: %s." % original)
 log.debug("IMDB ID: %s." % imdbid)
 
-if MkvtoMp4(settings).validSource(inputfile):
+info = converter.isValidSource(inputfile)
+if info:
     log.info("Processing %s." % inputfile)
 
-    output = converter.process(inputfile, original=original)
+    output = converter.process(inputfile, original=original, info=info)
 
     if output:
         # Tag with metadata

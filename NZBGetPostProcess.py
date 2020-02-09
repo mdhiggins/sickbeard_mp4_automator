@@ -198,9 +198,10 @@ if 'NZBOP_SCRIPTDIR' in os.environ and not os.environ['NZBOP_VERSION'][0:5] < '1
                 #DEBUG#print inputfile
                 #Ignores files under 50MB
                 if os.path.getsize(inputfile) > 50000000:
-                    if MkvtoMp4(settings, logger=log).validSource(inputfile):
+                    info = converter.isValidSource(inputfile)
+                    if info:
                         try:
-                            output = converter.process(inputfile)
+                            output = converter.process(inputfile, info=info)
                             log.info("Successfully processed %s." % inputfile)
                         except:
                             log.exception("File processing failed.")

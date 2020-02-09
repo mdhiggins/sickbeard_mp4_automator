@@ -66,10 +66,11 @@ if settings.SAB['convert']:
     for r, d, f in os.walk(path):
         for files in f:
             inputfile = os.path.join(r, files)
-            if MkvtoMp4(settings).validSource(inputfile):
+            info = converter.isValidSource(inputfile)
+            if info:
                 log.info("Processing file %s." % inputfile)
                 try:
-                    output = converter.process(inputfile)
+                    output = converter.process(inputfile, info=info)
                 except:
                     log.exception("Error converting file %s." % inputfile)
             else:

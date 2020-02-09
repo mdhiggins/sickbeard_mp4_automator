@@ -100,12 +100,11 @@ class ReadSettings:
                         'use-hevc-qsv-decoder': 'False',
                         'enable_dxva2_gpu_decode': 'False',
                         'subtitle-codec': 'mov_text',
+                        'subtitle-codec-image-based': '',
                         'subtitle-language': '',
                         'subtitle-default-language': '',
                         'subtitle-encoding': '',
-                        'bad-internal-subtitle-sources': 'pgssub, hdmv_pgs_subtitle, s_hdmv/pgs, dvdsub, dvd_subtitle, dvb_teletext, dvb_subtitle',
-                        'bad-external-subtitle-sources': 'dvdsub, dvd_subtitle, dvb_teletext, dvb_subtitle',
-                        'convert-mp4': 'False',
+                        'process-same-extensions': 'False',
                         'force-convert': 'False',
                         'fullpathguess': 'True',
                         'tagfile': 'True',
@@ -468,25 +467,11 @@ class ReadSettings:
             log.warning("Invalid subtitle codec, defaulting to '%s'." % self.scodec)
         else:
             self.scodec = self.scodec.replace(' ', '').split(',')
-
-        '''
-        if self.embedsubs:
-            if len(self.scodec) > 1:
-                log.warning("Can only embed one subtitle type, defaulting to 'mov_text'.")
-                self.scodec = ['mov_text']
-            if self.scodec[0] not in valid_internal_subcodecs:
-                log.warning("Invalid interal subtitle codec %s, defaulting to 'mov_text'." % self.scodec[0])
-                self.scodec = ['mov_text']
+        self.scodec_image = config.get(section, 'subtitle-codec-image-based').strip().lower()
+        if not self.scodec_image or self.scodec_image == "":
+            self.scodec_image = []
         else:
-            for codec in self.scodec:
-                if codec not in valid_external_subcodecs:
-                    log.warning("Invalid external subtitle codec %s, ignoring." % codec)
-                    self.scodec.remove(codec)
-
-            if len(self.scodec) == 0:
-                log.warning("No valid subtitle formats found, defaulting to 'srt'.")
-                self.scodec = ['srt']
-        '''
+            self.scodec_image = self.scodec_image.replace(' ', '').split(',')
 
         self.swl = config.get(section, 'subtitle-language').strip().lower()  # List of acceptable languages for subtitle streams to be carried over from the original file, separated by a comma. Blank for all
         if self.swl == '':
@@ -497,19 +482,6 @@ class ReadSettings:
         self.subencoding = config.get(section, 'subtitle-encoding').strip().lower()
         if self.subencoding == '':
             self.subencoding = None
-
-        # Bad subtitle codec formats for both internal and external destinations
-        self.bad_internal_subtitle_codecs = config.get(section, 'bad-internal-subtitle-sources').strip().lower().replace(' ', '')
-        if self.bad_internal_subtitle_codecs == '':
-            self.bad_internal_subtitle_codecs = []
-        else:
-            self.bad_internal_subtitle_codecs = self.bad_internal_subtitle_codecs.split(",")
-
-        self.bad_external_subtitle_codecs = config.get(section, 'bad-external-subtitle-sources').strip().lower().replace(' ', '')
-        if self.bad_external_subtitle_codecs == '':
-            self.bad_external_subtitle_codecs = []
-        else:
-            self.bad_external_subtitle_codecs = self.bad_external_subtitle_codecs.split(",")
 
         self.adl = config.get(section, 'audio-default-language').strip().lower()  # What language to default an undefinied audio language tag to. If blank, it will remain undefined. This is useful for single language releases which tend to leave things tagged as und
         if self.adl == "" or len(self.adl) > 3:
@@ -526,10 +498,10 @@ class ReadSettings:
         if self.output_dir is not None:
             if not os.path.isdir(self.output_dir):
                 os.makedirs(self.output_dir)
-        self.processMP4 = config.getboolean(section, "convert-mp4")  # Determine whether or not to reprocess mp4 files or just tag them
+        self.process_same_extensions = config.getboolean(section, "process-same-extensions")  # Determine whether or not to reprocess mp4 files or just tag them
         self.forceConvert = config.getboolean(section, "force-convert")  # Force conversion even if everything is the same
         if self.forceConvert:
-            self.processMP4 = True
+            self.process_same_extensions = True
             log.warning("Force-convert is true, so convert-mp4 is being overridden to true as well")
         self.fullpathguess = config.getboolean(section, "fullpathguess")  # Guess using the full path or not
         self.tagfile = config.getboolean(section, "tagfile")  # Tag files with metadata

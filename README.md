@@ -1,7 +1,7 @@
 MP4 Conversion/Tagging Automation Script.
 ==============
 
-**Automatically converts media files downloaded by various programs to mp4 files, and tags them with the appropriate metadata from theTVDB or TMDB.**
+**Automatically converts media files downloaded by various programs to a standardized format, and tags them with the appropriate metadata from TMDB if the container supports tagging.**
 
 Works on Windows, OSX, and Linux
 
@@ -21,8 +21,7 @@ Downloaders Supported:
 
 Requirements
 --------------
-- Python 2.7
-- Python 3 beta support has arrived. Feel free to begin testing and report bugs
+- Python 2.7/3
 - FFMPEG and FFPROBE binaries
 - Python setup_tools
 - See PIP packages for additional requirements
@@ -51,7 +50,6 @@ Note: Windows users should enter commands in Powershell - using '<' doesn't work
 - `qtfaststart` Run `pip install qtfaststart` to enable moving moov atom
 - `python-qbittorrent` Run `pip install python-qbittorrent` to enable support for qBittorrent
 
-
 General MP4 Configuration
 --------------
 1. Rename autoProcess.ini.sample to autoProcess.ini
@@ -62,49 +60,49 @@ General MP4 Configuration
     - `output_directory` = you may specify an alternate output directory. Leave blank to use the same directory that the source file is in. All processing will be done in this location. (Do not use for 'Automatically Add to iTunes' folder, iTunes will add prematurely, use `move_to`)
     - `copy_to` = you may specify additional directories for the final product to be replicated to. This will be the last step performed so the file copied will be fully processed. Directories may be separated with a `|` character
     - `move_to` = you may specify one final directory to move the completed file. (Use this option for the 'Automatically Add to iTunes' folder)
-    - `output_extension` = mp4/m4v (must be one of these 2)
+    - `output_extension` = your output file extension, default mp4
     - `temp_extension` = any temporary file extension to be used during creation of the file, should be renamed to final `output_extension` after conversion completes. Useful for situations where programs monitor directories for certain file extensions and may attempt to scan incomplete files
     - `output_format` = mp4/mov (must be one of these 2, mov provides better compatibility with iTunes/Apple, mp4 works better with other mobile devices)
     - `delete_original` = True/False
     - `relocate_moov` = True/False - relocates the MOOV atom to the beginning of the file for better streaming
-    - `ios-audio` = creates a 2nd copy of an audio stream that will be iOS compatible (AAC Stereo) if the normal output will not be. If a stereo source stream is detected with this option enabled, an AAC stereo stream will be the only one produced (essentially overriding the codec option) to avoid multiple stereo audio stream copies in different codecs. Instead of 'true' you may also set this option to a specific codec to override the default.
-    - `ios-first-track-only` = Applies the `ios-audio` option only to the first audio track encountered in the source video file. This prevents making dual audio streams for additional alternative language codecs or commentary tracks that may be present in the source file.
-    - `ios-audio-filter` = Applies FFMPEG audio filter option to ONLY the iOS audio channels created by the script. iOS audio counterpart to the `audio-filter` option below.
+    - `ios-audio` = creates a 2nd copy of an audio stream that will be stereo and a different more compatible format if the normal output will not be. If a stereo source stream is detected with this option enabled, only one output stream will be produced in this codec to avoid multiple stereo audio stream copies in different codecs. True defaults to AAC, you may also set this option to a specific codec to override the default. Not specifically for iOS but legacy naming
+    - `ios-first-track-only` = Applies the `ios-audio` option only to the first audio track encountered in the source video file. This prevents making dual audio streams for additional alternative language codecs or commentary tracks that may be present in the source file
+    - `ios-audio-filter` = Applies FFMPEG audio filter option to ONLY the iOS audio channels created by the script. iOS audio counterpart to the `audio-filter` option below
     - `ios-move-last` = Rearranges the iOS audio track to be after the converted track instead of first and changes the default disposition accordingly
-    - `max-audio-channels` = Sets a maximum number of audio channels. This may provide an alternative to the iOS audio option, where instead users can simply select the desired output codec and the max number of audio channels without the creation of an additional audio track.
+    - `max-audio-channels` = Sets a maximum number of audio channels. This may provide an alternative to the iOS audio option, where instead users can simply select the desired output codec and the max number of audio channels without the creation of an additional audio track
     - `use-hevc-qsv-decoder` = Enable HEVC decoding using QSV on supported Intel chips. 6th Generation skylake and newer.
-    - `enable_dxva2_gpu_decode` = Enable GPU decoding by using DXVA2 - Windows only. Will automatically fallback to cpu decoding when it encounters a video that it cannot decode due to unsupported pixel/color/codec. Enabling this option will disable qsv decoding of hevc and h264.
-    - `video-codec` = set your desired video codecs. May specify multiple comma separated values (ex: h264, x264). The first value specified will be the default conversion choice when an undesired codec is encountered; any codecs specified here will be remuxed/copied rather than converted.
-    - `video-bitrate` = allows you to set a maximum video bitrate in Kbps. If the source file exceeds the video-bitrate it will be transcoded to the specified video-bitrate, even if they source file is already in the correct video codec. If the source file is in the correct video codec and does not exceed the video-bitrate setting, then it will be copied without transcoding. Leave blank to disable this setting.
-    - `video-crf` = allows you to set the CRF which will override the video bitrate setting for those that prefer CRF. Video-bitrate setting will still be used to determine a maximum bitrate that will trigger transcoding.
-    - `video-max-width` = set a max video width to downsize higher resolution video files. Aspect ratio will be preserved.
-    - `video-profile` = set the video profile. Can use multiple comma separated values to whitelist multiple profiles, first profile will be default conversion choice. Leave blank to disable.
-    - `h264-max-level` = set your max h264 level. Use the decimal format. Levels lower than the specified value, if otherwise appropriate, will be copied without transcoding. Example - `4.0`.
-    - `pix_fmt` = set the video pix_fmt. If you don't know what this is just leave it blank. Can use multiple comma separated values to whitelist multiple formats, first format will be default conversion choice.
-    - `audio-codec` = set your desired audio codecs. May specify multiple comma separated values (ex: ac3, aac). The first value specified will be the default conversion choice when an undesired codec is encountered; any codecs specified here will be remuxed/copied rather than converted.
-    - `audio-channel-bitrate` = set the bitrate for each audio channel. Default is 256. Setting this value to 0 will attempt to mirror the bitrate of the audio source, but this can be unreliable as bitrates vary between different codecs.
+    - `enable_dxva2_gpu_decode` = Enable GPU decoding by using DXVA2 - Windows only. Will automatically fallback to cpu decoding when it encounters a video that it cannot decode due to unsupported pixel/color/codec. Enabling this option will disable qsv decoding of hevc and h264
+    - `video-codec` = set your desired video codecs. May specify multiple comma separated values (ex: h264, x264). The first value specified will be the default conversion choice when an undesired codec is encountered; any codecs specified here will be remuxed/copied rather than converted
+    - `video-bitrate` = allows you to set a maximum video bitrate in Kbps. If the source file exceeds the video-bitrate it will be transcoded to the specified video-bitrate, even if they source file is already in the correct video codec. If the source file is in the correct video codec and does not exceed the video-bitrate setting, then it will be copied without transcoding. Leave blank to disable this setting
+    - `video-crf` = allows you to set the CRF which will override the video bitrate setting for those that prefer CRF. Video-bitrate setting will still be used to determine a maximum bitrate that will trigger transcoding
+    - `video-max-width` = set a max video width to downsize higher resolution video files. Aspect ratio will be preserved
+    - `video-profile` = set the video profile. Can use multiple comma separated values to whitelist multiple profiles, first profile will be default conversion choice. Leave blank to disable
+    - `h264-max-level` = set your max h264 level. Use the decimal format. Levels lower than the specified value, if otherwise appropriate, will be copied without transcoding. Example - `4.0`
+    - `pix_fmt` = set the video pix_fmt. If you don't know what this is just leave it blank. Can use multiple comma separated values to whitelist multiple formats, first format will be default conversion choice
+    - `audio-codec` = set your desired audio codecs. May specify multiple comma separated values (ex: ac3, aac). The first value specified will be the default conversion choice when an undesired codec is encountered; any codecs specified here will be remuxed/copied rather than converted
+    - `audio-channel-bitrate` = set the bitrate for each audio channel. Default is 256. Setting this value to 0 will attempt to mirror the bitrate of the audio source, but this can be unreliable as bitrates vary between different codecs
     - `audio-language` = 3 letter language code for audio streams you wish to copy. Leave blank to copy all. Separate multiple audio streams with commas (ex: eng,spa)
     - `audio-default-language` = If an audio stream with an unidentified/untagged language is detected, you can default that language tag to whatever this value is (ex: eng). This is useful for many single-audio releases which don't bother to tag the audio stream as anything
     - `audio-filter` = Applies FFMPEG audio filter. Make sure you specify all parameters as you would using the `-af` option with FFMPEG command line
     - `aac_adtstoasc` = Applies the aac_adtstoasc filter to AAC channels being copied. Useful if your source of mkv's uses raw ADTS AAC containers but can cause some playback issues with certain audio encoders
     - `audio-copy-original` = Copies the original audio stream to the destination regardless of codec to preserve it. Will not redundantly copy the steam if its already a valid/supported codec
-    - `audio-first-track-of-language` = Adds only the first occurance of a specific language that is included in your audio-lanuage setting. Subsequent tracks of the same language will be skipped. Useful for eliminating commentary tracks.
-    - `subtitle-codec` = set your desired subtitle codec. If you're embedding subs, `mov_text` is the only option supported. If you're creating external subtitle files, `srt` or `webvtt` are accepted.
+    - `audio-first-track-of-language` = Adds only the first occurance of a specific language that is included in your audio-lanuage setting. Subsequent tracks of the same language will be skipped. Useful for eliminating commentary tracks
+    - `subtitle-codec` = set your desired text based subtitle codecs. May specify multiple values. The first value will be the default conversion choice
+    - `subtitle-codec-image-based` = similar to subtitle codec but for image based subtitles. MP4 does not support embedded image based codecs so use with other formats or external subs
     - `subtitle-language` = same as audio-language but for subtitles. Set to `nil` to disable copying of subtitles. A language must be specified for subtitles to be downloaded via subliminal
     - `subtitle-default-language` = same as audio-language-default but for subtitles
-    - `convert-mp4` = forces the script to reprocess and convert mp4 files as though they were mkvs. Good if you have old mp4's that you want to match your current codec configuration. *Caution:* Set `ios-audio` to `False` when reprocessing files to avoid adding multiple iOS audio streams.
+    - `process-same-extensions` = instructs the script to reprocess and convert files even if they are already in the same format Good if you have old files that you want to match your current codec configuration. In situations where it looks like all streams are already correct (all streams being copied, no encoding) conversion will still be skipped. *Caution:* Set `ios-audio` to `False` when reprocessing files to avoid adding multiple iOS audio streams
     - `force-convert` = forces FFMPEG to rewrap/convert a file even if all destination streams are to be copied. Can be useful for steam tagging issues. Used in conjunction with `convert-mp4`
-    - `fullpathguess` = True/False - When manually processing a file, enable to guess metadata using the full path versus just the file name. (Files shows placed in a 'Movies' folder will be recognized as movies, not as TV shows for example.)
-    - `tagfile` = True/False - Enable or disable tagging file with appropriate metadata after encoding.
-    - `tag-language` = en - Set your tag language for TMDB/TVDB entries metadata retrieval. Use either 2 or 3 character language codes.
-    - `download-artwork` = `Poster`/`Thumbnail`/`False` - Enabled downloading and embeddeding of Season or Movie posters and embeddeding of that image into the mp4 as the cover image. For TV shows you may choose between the season artwork or the episode thumbnail by selecting the corresponding option.
-    - `embed-subs` = True/False - Enabled by default. Embeds subtitles in the resulting MP4 file that are found embedded in the source file as well as external SRT/VTT files. Disabling embed-subs will cause the script to extract any subtitles that meet your language criteria into external SRT/VTT files. The script will also attempt to download SRT files if possible and this feature is enabled.
+    - `fullpathguess` = True/False - When manually processing a file, enable to guess metadata using the full path versus just the file name (Files shows placed in a 'Movies' folder will be recognized as movies, not as TV shows for example)
+    - `tagfile` = True/False - Enable or disable tagging file with appropriate metadata after encoding
+    - `tag-language` = en - Set your tag language for TMDB/TVDB entries metadata retrieval. Use either 2 or 3 character language codes
+    - `download-artwork` = `Poster`/`Thumbnail`/`False` - Enabled downloading and embeddeding of Season or Movie posters and embeddeding of that image into the mp4 as the cover image. For TV shows you may choose between the season artwork or the episode thumbnail by selecting the corresponding option
+    - `embed-subs` = True/False - Enabled by default. Embeds subtitles in the resulting MP4 file that are found embedded in the source file as well as external SRT/VTT files. Disabling embed-subs will cause the script to extract any subtitles that meet your language criteria into external SRT/VTT files. The script will also attempt to download SRT files if possible and this feature is enabled
     - `bad-internal-subtitle-sources` - Sources that will be ignored for interal subtitles (image based formats need to be ignored, mp4 does not support)
     - `bad-external-subtitle-sources` - Sources that will be ignroed for external subtitlesk (some image based formats do work, more relaxed than internal sources)
-    - `embed-only-internal-subs` = True/False - Disabled by default. Embeds only internal subtitle tracks, will skip all external subtitles. *Caution:* `embed-subs` must be enabled for this option to work.
-    - `download-subs` = True/False - When enabled the script will attempt to download subtitles of your specified languages automatically using subliminal and merge them into the final mp4 file.
-    **YOU MUST INSTALL SUBLIMINAL AND ITS DEPENDENCIES FOR THIS TO WORK.** You must run `pip install subliminal` in order for this feature to be enabled.
-    - `sub-providers` = Comma separated values for potential subtitle providers. Must specify at least 1 provider to enable `download-subs`. Providers include `podnapisi` `thesubdb` `opensubtitles` `tvsubtitles` `addic7ed`
+    - `embed-only-internal-subs` = True/False - Disabled by default. Embeds only internal subtitle tracks, will skip all external subtitles. *Caution:* `embed-subs` must be enabled for this option to work
+    - `download-subs` = True/False - When enabled the script will attempt to download subtitles of your specified languages automatically using subliminal and merge them into the final mp4 file. You must run `pip install subliminal` in order for this feature to be enabled
+    - `sub-providers` = Comma separated values for potential subtitle providers. Must specify at least 1 provider to enable `download-subs`. See subliminal documentation for which providers are supported or leave blank for defaults
     - `download-hearing-impaired-subs` = Instruct subliminal to download hearing impaired subs
     - `preopts` = Additional unsupported options that go before the rest of the FFMPEG parameters, comma separated (Example `-preset,medium`)
     - `postopts` = Additional unsupported options that go after the rest of the FFMEPG parameters, comma separated as above

@@ -39,9 +39,11 @@ log.debug("Original file name: %s" % original)
 
 try:
     log.info('Processing file: %s', inputfile)
-    if MkvtoMp4(settings).validSource(inputfile):
+
+    info = converter.isValidSource(inputfile)
+    if info:
         log.info('File is valid')
-        output = converter.process(inputfile, original=original)
+        output = converter.process(inputfile, original=original, info=info)
 
         if output:
             # Tag with metadata

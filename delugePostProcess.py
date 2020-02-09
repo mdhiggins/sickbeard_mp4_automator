@@ -95,10 +95,11 @@ if settings.deluge['convert']:
 
     for filename in files:
         inputfile = os.path.join(path, filename)
-        if MkvtoMp4(settings).validSource(inputfile):
+        info = converter.isValidSource(inputfile)
+        if info:
             log.info("Converting file %s at location %s." % (inputfile, settings.output_dir))
             try:
-                output = converter.process(inputfile)
+                output = converter.process(inputfile, info=info)
             except:
                 log.exception("Error converting file %s." % inputfile)
 

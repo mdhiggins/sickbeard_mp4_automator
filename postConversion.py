@@ -44,10 +44,11 @@ if len(sys.argv) > 4:
     log.debug("TVDB ID: %s." % tvdb_id)
     log.debug("Season: %s episode: %s." % (season, episode))
 
-    if MkvtoMp4(settings).validSource(inputfile):
+    info = converter.isValidSource(inputfile)
+    if info:
         log.info("Processing %s." % inputfile)
 
-        output = converter.process(inputfile, original=original)
+        output = converter.process(inputfile, original=original, info=info)
 
         if output:
             # Tag with metadata
