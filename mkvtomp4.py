@@ -866,15 +866,17 @@ class MkvtoMp4:
             return
 
         languages = set()
-        try:
-            if self.swl:
-                for alpha3 in self.swl:
+        if self.swl:
+            for alpha3 in self.swl:
+                try:
                     languages.add(Language(alpha3))
-            if self.sdl:
+                except:
+                    self.log.exception("Unable to add language for download with subliminal.")
+        if self.sdl:
+            try:
                 languages.add(Language(self.sdl))
-        except:
-            self.log.exception("Unable to verify subtitle languages for download.")
-            return
+            except:
+                self.log.exception("Unable to add language for download with subliminal.")
 
         if len(languages) < 1:
             self.log.error("No valid subtitle download languages detected, subtitles will not be downloaded.")
@@ -900,9 +902,19 @@ class MkvtoMp4:
                 video.resolution = og.resolution
 
             subtitles = subliminal.download_best_subtitles([video], languages, hearing_impaired=self.hearing_impaired, providers=self.subproviders)
-            subliminal.save_subtitles(video, subtitles[video])
+            saves = subliminal.save_subtitles(video, subtitles[video])
+            paths = [subliminal.subtitle.get_subtitle_path(video.name, x.language) for x in saves]
+            for path in paths:
+                self.log.info("Downloaded new subtitle %s." % path)
+                try:
+                    os.chmod(path, self.permissions)  # Set permissions of newly created file
+                except:
+                    self.log.exception("Unable to set new file permissions.")
+
+            return paths
         except:
             self.log.exception("Unable to download subtitles.")
+            return None
 
     def getSubExtensionFromCodec(self, codec):
         try:
