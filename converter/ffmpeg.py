@@ -126,6 +126,7 @@ class MediaStreamInfo(object):
         self.audio_samplerate = None
         self.attached_pic = None
         self.forced = False
+        self.field_order = None
         self.default = False
         self.metadata = {}
 
@@ -232,7 +233,8 @@ class MediaStreamInfo(object):
                 self.video_level = self.parse_float(val)
             elif key == 'pix_fmt':
                 self.pix_fmt = val
-
+            elif key == "field_order":
+                self.field_order = val
 
     def __repr__(self):
         d = ''

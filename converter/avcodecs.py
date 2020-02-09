@@ -240,6 +240,7 @@ class VideoCodec(BaseCodec):
         'src_height': int,
         'filter': str,
         'pix_fmt': str,
+        'field_order': str,
         'map': int
     }
 
@@ -367,6 +368,8 @@ class VideoCodec(BaseCodec):
             optlist.extend(['-r', str(safe['fps'])])
         if 'pix_fmt' in safe:
             optlist.extend(['-pix_fmt', str(safe['pix_fmt'])])
+        if 'field_order' in safe:
+            optlist.extend(['-field_order', str(safe['field_order'])])
         if 'bitrate' in safe:
             optlist.extend(['-vb', str(safe['bitrate']) + 'k'])  # FIXED
         if 'crf' in safe:

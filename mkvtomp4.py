@@ -817,7 +817,8 @@ class MkvtoMp4:
                 'level': self.h264_level,
                 'profile': vprofile,
                 'pix_fmt': pix_fmt,
-                'debug': vdebug
+                'field_order': info.video.field_order,
+                'debug': vdebug,
             },
             'audio': audio_settings,
             'subtitle': subtitle_settings
