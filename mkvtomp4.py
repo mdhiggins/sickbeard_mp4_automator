@@ -67,7 +67,7 @@ class MkvtoMp4:
                  embedsubs=True,
                  embedonlyinternalsubs=True,
                  providers=['addic7ed', 'podnapisi', 'thesubdb', 'opensubtitles'],
-                 permissions=int("777", 8),
+                 permissions={'chmod': int('0755', 8), 'uid': -1, 'gid': -1},
                  pix_fmt=None,
                  logger=None,
                  threads='auto',
@@ -498,9 +498,12 @@ class MkvtoMp4:
         for a in audio_streams:
             self.log.info("Audio detected for stream %s - %s %s %d channel." % (a.index, a.codec, a.metadata['language'], a.audio_channels))
 
-            if self.output_extension in valid_tagging_extensions and a.codec.lower() == 'truehd' and self.ignore_truehd and len(info.audio) > 1:
-                self.log.info("MP4 containers do not support truehd audio, and converting it is inconsistent due to video/audio sync issues. Skipping stream %s as typically the 2nd audio stream is the AC3 core of the truehd stream [ignore-truehd]." % a.index)
-                continue
+            if self.output_extension in valid_tagging_extensions and a.codec.lower() == 'truehd' and self.ignore_truehd:
+                if len(info.audio) > 1:
+                    self.log.info("Skipping trueHD stream %s as typically the 2nd audio stream is the AC3 core of the truehd stream [ignore-truehd]." % a.index)
+                    continue
+                else:
+                    self.log.info("TrueHD stream detected but no other audio streams in source, cannot skip stream %s [ignore-truehd]." % a.index)
 
             # Proceed if no whitelist is set, or if the language is in the whitelist
             iosdata = None
@@ -916,15 +919,20 @@ class MkvtoMp4:
             paths = [subliminal.subtitle.get_subtitle_path(video.name, x.language) for x in saves]
             for path in paths:
                 self.log.info("Downloaded new subtitle %s." % path)
-                try:
-                    os.chmod(path, self.permissions)  # Set permissions of newly created file
-                except:
-                    self.log.exception("Unable to set new file permissions.")
+                self.setPermissions(path)
 
             return paths
         except:
             self.log.exception("Unable to download subtitles.")
             return None
+
+    def setPermissions(self, path):
+        try:
+            os.chmod(path, self.permissions.get('chmod', int('0755', 8)))
+            if os.name != 'nt':
+                os.chown(path, self.permissions.get('uid', -1), self.permissions.get('gid', -1))
+        except:
+            self.log.exception("Unable to set new file permissions.")
 
     def getSubExtensionFromCodec(self, codec):
         try:
@@ -969,11 +977,7 @@ class MkvtoMp4:
                 continue
             except:
                 self.log.exception("Unable to create external subtitle file for stream %s." % (options['index']))
-
-            try:
-                os.chmod(outputfile, self.permissions)  # Set permissions of newly created file
-            except:
-                self.log.exception("Unable to set new file permissions.")
+            self.setPermissions(outputfile)
 
     def getOutputFile(self, input_dir, filename, input_extension, temp_extension=None, number=0):
         output_dir = input_dir if self.output_dir is None else self.output_dir
@@ -1088,11 +1092,7 @@ class MkvtoMp4:
                     sys.stdout.flush()
 
             self.log.info("%s created." % outputfile)
-
-            try:
-                os.chmod(outputfile, self.permissions)  # Set permissions of newly created file
-            except:
-                self.log.exception("Unable to set new file permissions.")
+            self.setPermissions(outputfile)
 
         except FFMpegConvertError as e:
             self.log.exception("Error converting file, FFMPEG error.")
@@ -1145,10 +1145,8 @@ class MkvtoMp4:
 
             try:
                 processor.process(inputfile, outputfile)
-                try:
-                    os.chmod(outputfile, self.permissions)
-                except:
-                    self.log.exception("Unable to set file permissions.")
+                self.setPermissions(outputfile)
+
                 # Cleanup
                 if self.removeFile(inputfile, replacement=outputfile):
                     return outputfile

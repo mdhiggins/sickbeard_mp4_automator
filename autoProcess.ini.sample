@@ -70,7 +70,6 @@ download-subs = False
 embed-subs = True
 embed-only-internal-subs = False
 sub-providers = 
-permissions = 0777
 post-process = False
 pix-fmt =
 aac_adtstoasc = False
@@ -156,3 +155,8 @@ host = localhost
 port = 32400
 refresh = True
 token =
+
+[Permissions]
+chmod = 0755
+uid = -1
+gid = -1

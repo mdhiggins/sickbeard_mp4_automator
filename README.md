@@ -110,6 +110,13 @@ General MP4 Configuration
     - `sort-tracks-by-language` = Sort output streams (audio and subtitle) based on language settings. For example if `audio-language = eng, jpn` eng tracks will be arranged before jpn tracks. Helps ensure primary language will be the first audio track
     - `prefer-more-channels` = If the source file does not specify a default audio track and the script must guess which track is the default, setting this to `True` will favor tracks with more channels, `False` will prefer fewer channels
 
+Permissions
+--------------
+Set your permission parameters for any created files below. UID and GID are not utilized in Windows. UID and GID must be the numeric ID and not the names
+- `chmod` = 0755 default
+- `uid` = UID for owning user. -1 to not change
+- `gid` = GID for owning group. -1 to not change
+
 Sickbeard Setup
 --------------
 1. Open Sickbeard's config.ini in Sick Beard installation folder

@@ -213,7 +213,12 @@ class ReadSettings:
                          'refresh': 'true',
                          'token': ''}
 
-        defaults = {'SickBeard': sb_defaults, 'CouchPotato': cp_defaults, 'Sonarr': sonarr_defaults, 'Radarr': radarr_defaults, 'MP4': mp4_defaults, 'uTorrent': utorrent_defaults, 'qBittorrent': qbt_defaults, 'SABNZBD': sab_defaults, 'Sickrage': sr_defaults, 'Deluge': deluge_defaults, 'Plex': plex_defaults}
+        # Permissions
+        permissions_defaults = {'chmod': '0755',
+                                'uid': '-1',
+                                'gid': '-1'}
+
+        defaults = {'SickBeard': sb_defaults, 'CouchPotato': cp_defaults, 'Sonarr': sonarr_defaults, 'Radarr': radarr_defaults, 'MP4': mp4_defaults, 'uTorrent': utorrent_defaults, 'qBittorrent': qbt_defaults, 'SABNZBD': sab_defaults, 'Sickrage': sr_defaults, 'Deluge': deluge_defaults, 'Plex': plex_defaults, 'Permissions': permissions_defaults}
         write = False  # Will be changed to true if a value is missing from the config file and needs to be written
 
         config = configparser.SafeConfigParser()
@@ -362,13 +367,6 @@ class ReadSettings:
         self.embedsubs = config.getboolean(section, 'embed-subs')
 
         self.embedonlyinternalsubs = config.getboolean(section, 'embed-only-internal-subs')
-
-        self.permissions = config.get(section, 'permissions')
-        try:
-            self.permissions = int(self.permissions, 8)
-        except:
-            log.exception("Invalid permissions, defaulting to 777.")
-            self.permissions = int("0777", 8)
 
         try:
             self.postprocess = config.getboolean(section, 'post-process')
@@ -732,6 +730,28 @@ class ReadSettings:
         # Pass the values on
         self.config = config
         self.configFile = configFile
+
+        # Read Permissions section information
+        section = "Permissions"
+        self.permissions = {}
+        self.permissions['chmod'] = config.get(section, 'chmod')
+        try:
+            self.permissions['chmod'] = int(self.permissions['chmod'], 8)
+        except:
+            log.exception("Invalid permissions, defaulting to 777.")
+            self.permissions['chmod'] = int("0755", 8)
+        self.permissions['uid'] = config.get(section, 'uid')
+        self.permissions['gid'] = config.get(section, 'gid')
+        try:
+            self.permissions['uid'] = int(self.permissions['uid'])
+        except:
+            self.permissions['uid'] = -1
+            log.exception("Invalid UID, defaulting to -1.")
+        try:
+            self.permissions['gid'] = int(self.permissions['gid'])
+        except:
+            self.permissions['gid'] = -1
+            log.exception("Invalid GID, defaulting to -1.")
 
     def getRefreshURL(self, tvdb_id):
         config = self.config
