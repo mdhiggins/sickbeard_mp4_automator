@@ -43,7 +43,7 @@ class MkvtoMp4:
                  audio_copyoriginal=False,
                  audio_first_language_track=False,
                  allow_language_relax=True,
-                 sort_by_language=False,
+                 sort_streams=False,
                  prefer_more_channels=True,
                  iOS=False,
                  iOSFirst=False,
@@ -97,7 +97,7 @@ class MkvtoMp4:
         self.permissions = permissions
         self.preopts = preopts
         self.postopts = postopts
-        self.sort_by_language = sort_by_language
+        self.sort_streams = sort_streams
         # Video settings
         self.video_codec = video_codec
         self.video_bitrate = video_bitrate
@@ -162,7 +162,7 @@ class MkvtoMp4:
         self.permissions = settings.permissions
         self.preopts = settings.preopts
         self.postopts = settings.postopts
-        self.sort_by_language = settings.sort_by_language
+        self.sort_streams = settings.sort_streams
         # Video settings
         self.video_codec = settings.vcodec
         self.video_bitrate = settings.vbitrate
@@ -343,8 +343,10 @@ class MkvtoMp4:
         dump["ffmpeg_commands"] = []
         dump["ffmpeg_commands"].append(" ".join(str(item) for item in cmds))
         for suboptions in dump["ripsubopts"]:
+            print(suboptions)
             subparsed = self.converter.parse_options(suboptions)
-            suboutputfile = self.getSubOutputFileFromOptions(inputfile, suboptions)
+            extension = self.getSubExtensionFromCodec(suboptions['format'])
+            suboutputfile = self.getSubOutputFileFromOptions(inputfile, suboptions, extension)
             subcmds = self.converter.ffmpeg.generateCommands(inputfile, suboutputfile, subparsed)
             dump["ffmpeg_commands"].append(" ".join(str(item) for item in subcmds))
 
@@ -484,12 +486,13 @@ class MkvtoMp4:
         # Audio streams
         self.log.info("Reading audio streams.")
 
-        # Reorder audio streams based on the approved audio languages, mirrors the order present from the options
+        # Reorder audio streams based on the approved audio languages and channels
         audio_streams = info.audio
-        if self.sort_by_language and self.awl:
-            self.log.debug("Reordering audio streams to be in accordance with approved languages [sort-tracks-by-language].")
-            audio_streams.sort(key=lambda x: self.awl[::-1].index(x.metadata['language']) if x.metadata['language'] in self.awl else -1)
-            audio_streams.reverse()
+        if self.sort_streams:
+            self.log.debug("Reordering audio streams to be in accordance with approved languages and channels [sort-streams, prefer-more-channels].")
+            audio_streams.sort(key=lambda x: x.audio_channels, reverse=self.prefer_more_channels)
+            if self.awl:
+                audio_streams.sort(key=lambda x: self.awl.index(x.metadata['language']) if x.metadata['language'] in self.awl else 999)
 
         # Iterate through audio streams
         audio_settings = {}
@@ -683,10 +686,9 @@ class MkvtoMp4:
 
         # Reorder subtitle streams based on the approved languages, mirrors the order present from the options
         subtitle_streams = info.subtitle
-        if self.sort_by_language and self.swl:
-            self.log.debug("Reordering subtitle streams to be in accordance with approved languages [sort-tracks-by-language].")
-            subtitle_streams.sort(key=lambda x: self.swl[::-1].index(x.metadata['language']) if x.metadata['language'] in self.swl else -1)
-            subtitle_streams.reverse()
+        if self.sort_streams and self.swl:
+            self.log.debug("Reordering subtitle streams to be in accordance with approved languages [sort-streams].")
+            subtitle_streams.sort(key=lambda x: self.swl.index(x.metadata['language']) if x.metadata['language'] in self.swl else 999)
 
         # Iterate through subtitle streams
         subtitle_settings = {}

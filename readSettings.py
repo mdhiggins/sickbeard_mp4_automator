@@ -87,7 +87,7 @@ class ReadSettings:
                         'audio-copy-original': 'False',
                         'audio-first-track-of-language': 'False',
                         'allow-audio-language-relax': 'True',
-                        'sort-tracks-by-language': 'False',
+                        'sort-streams': 'False',
                         'prefer-more-channels': 'True',
                         'video-codec': 'h264, x264',
                         'video-bitrate': '',
@@ -328,7 +328,7 @@ class ReadSettings:
 
         self.allow_language_relax = config.getboolean(section, "allow-audio-language-relax")  # If not audio streams in the designed languages are found, allow the audio settings to relax to have some audio
 
-        self.sort_by_language = config.getboolean(section, "sort-tracks-by-language")  # Reorders audio track output based on the listed languages
+        self.sort_streams = config.getboolean(section, "sort-streams")  # Reorders audio track output based on the listed languages and channels
 
         self.prefer_more_channels = config.getboolean(section, "prefer-more-channels")  # When choosing default audio track, prefer tracks with more channels
 
