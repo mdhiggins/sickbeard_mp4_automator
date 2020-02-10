@@ -73,7 +73,7 @@ sub-providers =
 post-process = False
 pix-fmt =
 aac_adtstoasc = False
-sort-tracks-by-language = False
+sort-streams = False
 prefer-more-channels = False
 
 [CouchPotato]
