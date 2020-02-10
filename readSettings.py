@@ -8,7 +8,6 @@ except ImportError:
     import ConfigParser as configparser
 import logging
 from extensions import *
-from babelfish import Language
 
 
 class ReadSettings:
@@ -445,8 +444,8 @@ class ReadSettings:
             self.vprofile = self.vprofile.lower().strip().replace(' ', '').split(',')
 
         self.qsv_decoder = config.getboolean(section, "use-qsv-decoder-with-encoder")  # Use Intel QuickSync Decoder when using QuickSync Encoder
-        self.hevc_qsv_decoder = config.getboolean( section, "use-hevc-qsv-decoder") #only supported on 6th gen intel and up.
-        self.dxva2_decoder = config.getboolean( section, "enable_dxva2_gpu_decode" )
+        self.hevc_qsv_decoder = config.getboolean(section, "use-hevc-qsv-decoder")  # only supported on 6th gen intel and up.
+        self.dxva2_decoder = config.getboolean(section, "enable_dxva2_gpu_decode")
         self.pix_fmt = config.get(section, "pix-fmt").strip().lower()
         if self.pix_fmt == '':
             self.pix_fmt = None
@@ -507,16 +506,6 @@ class ReadSettings:
         self.fullpathguess = config.getboolean(section, "fullpathguess")  # Guess using the full path or not
         self.tagfile = config.getboolean(section, "tagfile")  # Tag files with metadata
         self.taglanguage = config.get(section, "tag-language").strip().lower()  # Language to tag files
-        if len(self.taglanguage) > 2:
-            try:
-                babel = Language(self.taglanguage)
-                self.taglanguage = babel.alpha2
-            except:
-                log.exception("Unable to set tag language, defaulting to English.")
-                self.taglanguage = 'en'
-        elif len(self.taglanguage) < 2:
-            log.exception("Unable to set tag language, defaulting to English.")
-            self.taglanguage = 'en'
         self.artwork = config.get(section, "download-artwork").lower()  # Download and embed artwork
         if self.artwork == "poster":
             self.artwork = True
@@ -772,12 +761,12 @@ class ReadSettings:
         return sickbeard_url
 
     def writeConfig(self, config, cfgfile):
-            fp = open(cfgfile, "w")
-            try:
-                config.write(fp)
-            except IOError:
-                pass
-            fp.close()
+        fp = open(cfgfile, "w")
+        try:
+            config.write(fp)
+        except IOError:
+            pass
+        fp.close()
 
     def raw(self, text):
         escape_dict = {'\a': r'\a',

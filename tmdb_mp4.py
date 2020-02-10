@@ -40,11 +40,13 @@ class tmdb_mp4:
         self.imdbid = imdbid
 
         self.original = original
+        language = self.checkLanguage(language)
+
         for i in range(3):
             try:
                 tmdb.API_KEY = tmdb_api_key
                 query = tmdb.Movies(imdbid)
-                self.movie = query.info()
+                self.movie = query.info(language=language)
                 self.credit = query.credits()
 
                 self.HD = None
@@ -63,6 +65,26 @@ class tmdb_mp4:
             except Exception as e:
                 self.log.exception("Failed to connect to tMDB, trying again in 20 seconds.")
                 time.sleep(20)
+
+    def checkLanguage(self, language):
+        if not language:
+            return None
+
+        if len(language) < 2:
+            self.log.error("Unable to set tag language [tag-language].")
+            return None
+
+        try:
+            from babelfish import Language
+        except:
+            self.log.exception("Unable to important Language from babelfish [tag-language].")
+            return None
+
+        try:
+            return Language(language).alpha3
+        except:
+            self.log.exception("Unable to set tag language [tag-language].")
+            return None
 
     def writeTags(self, mp4Path, artwork=True, thumbnail=False):
         self.log.info("Tagging file: %s." % mp4Path)
@@ -93,7 +115,8 @@ class tmdb_mp4:
                 # else:
                     # genre += ", " + g['name']
             video["\xa9gen"] = genre  # Genre(s)
-        video["----:com.apple.iTunes:iTunMOVI"] = self.xml  # XML - see xmlTags method
+        video["----:com.apple.iTunes:iTunMOVI"] = self.xml.encode("UTF-8", errors="ignore")  # XML - see xmlTags method
+
         '''
         rating = self.rating()
         if rating is not None:
@@ -163,32 +186,30 @@ class tmdb_mp4:
         output.write(castheader)
         for a in self.credit['cast'][:5]:
             if a is not None:
-                output.write("<dict><key>name</key><string>%s</string></dict>\n" % a['name'].encode('ascii', 'ignore'))
+                output.write("<dict><key>name</key><string>%s</string></dict>\n" % a['name'])
         output.write(subfooter)
         # Write screenwriters
         output.write(writerheader)
         for w in [x for x in self.credit['crew'] if x['department'].lower() == "writing"][:5]:
             if w is not None:
-                output.write("<dict><key>name</key><string>%s</string></dict>\n" % w['name'].encode('ascii', 'ignore'))
+                output.write("<dict><key>name</key><string>%s</string></dict>\n" % w['name'])
         output.write(subfooter)
         # Write directors
         output.write(directorheader)
         for d in [x for x in self.credit['crew'] if x['department'].lower() == "directing"][:5]:
             if d is not None:
-                output.write("<dict><key>name</key><string>%s</string></dict>\n" % d['name'].encode('ascii', 'ignore'))
+                output.write("<dict><key>name</key><string>%s</string></dict>\n" % d['name'])
         output.write(subfooter)
         # Write producers
         output.write(producerheader)
         for p in [x for x in self.credit['crew'] if x['department'].lower() == "production"][:5]:
             if p is not None:
-                output.write("<dict><key>name</key><string>%s</string></dict>\n" % p['name'].encode('ascii', 'ignore'))
+                output.write("<dict><key>name</key><string>%s</string></dict>\n" % p['name'])
         output.write(subfooter)
 
         # Write final footer
         output.write(footer)
         return output.getvalue()
-        output.close()
-    # end xmlTags
 
     def getArtwork(self, mp4Path, filename='cover'):
         # Check for local artwork in the same directory as the mp4

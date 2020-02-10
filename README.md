@@ -41,7 +41,8 @@ Note: Windows users should enter commands in Powershell - using '<' doesn't work
 - `requests security package` - Run `pip install requests[security]`
 - `requests-cache` - Run `pip install requests-cache`
 - `babelfish` - Run `pip install babelfish`
-- `tmdbsimple` Run `pip install tmdbsimple`
+- `tmdbsimple` - Run `pip install tmdbsimple`
+- `mutagen` - Run `pip install mutagen` for MP4 tagging
 - `guessit` - Run `pip install guessit` to use manual.py
 - `subliminal`- Run `pip install subliminal` to enable automatically downloading subtitles
 - `stevedore` - Run `pip install stevedore` (this will be automatically installed with subliminal)
@@ -96,7 +97,7 @@ General MP4 Configuration
     - `force-convert` = forces FFMPEG to rewrap/convert a file even if all destination streams are to be copied. Can be useful for steam tagging issues. Used in conjunction with `convert-mp4`
     - `fullpathguess` = True/False - When manually processing a file, enable to guess metadata using the full path versus just the file name (Files shows placed in a 'Movies' folder will be recognized as movies, not as TV shows for example)
     - `tagfile` = True/False - Enable or disable tagging file with appropriate metadata after encoding
-    - `tag-language` = en - Set your tag language for TMDB/TVDB entries metadata retrieval. Use either 2 or 3 character language codes
+    - `tag-language` = Set your tag language for TMDB/TVDB entries metadata retrieval. Use either 2 or 3 character language codes. Blank for English
     - `download-artwork` = `Poster`/`Thumbnail`/`False` - Enabled downloading and embeddeding of Season or Movie posters and embeddeding of that image into the mp4 as the cover image. For TV shows you may choose between the season artwork or the episode thumbnail by selecting the corresponding option
     - `embed-subs` = True/False - Enabled by default. Embeds subtitles in the resulting MP4 file that are found embedded in the source file as well as external SRT/VTT files. Disabling embed-subs will cause the script to extract any subtitles that meet your language criteria into external SRT/VTT files. The script will also attempt to download SRT files if possible and this feature is enabled
     - `bad-internal-subtitle-sources` - Sources that will be ignored for interal subtitles (image based formats need to be ignored, mp4 does not support)
