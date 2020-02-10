@@ -87,6 +87,7 @@ General MP4 Configuration
     - `aac_adtstoasc` = Applies the aac_adtstoasc filter to AAC channels being copied. Useful if your source of mkv's uses raw ADTS AAC containers but can cause some playback issues with certain audio encoders
     - `audio-copy-original` = Copies the original audio stream to the destination regardless of codec to preserve it. Will not redundantly copy the steam if its already a valid/supported codec
     - `audio-first-track-of-language` = Adds only the first occurance of a specific language that is included in your audio-lanuage setting. Subsequent tracks of the same language will be skipped. Useful for eliminating commentary tracks
+    - `allow-audio-language-relax` = If source file has no audio tracks in our desired languages, relaxes audio track requirement to get some audio
     - `subtitle-codec` = set your desired text based subtitle codecs. May specify multiple values. The first value will be the default conversion choice
     - `subtitle-codec-image-based` = similar to subtitle codec but for image based subtitles. MP4 does not support embedded image based codecs so use with other formats or external subs
     - `subtitle-language` = same as audio-language but for subtitles. Set to `nil` to disable copying of subtitles. A language must be specified for subtitles to be downloaded via subliminal
