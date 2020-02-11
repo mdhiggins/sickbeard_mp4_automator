@@ -317,6 +317,10 @@ class VideoCodec(BaseCodec):
             if crf < 0 or crf > 51:
                 del safe['crf']
 
+        if 'field_order' in safe:
+            if safe['field_order'] not in ['progressive', 'tt', 'bb', 'tb', 'bt']:
+                del safe['field_order']
+
         w = None
         h = None
 
