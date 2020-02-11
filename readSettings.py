@@ -220,7 +220,7 @@ class ReadSettings:
         defaults = {'SickBeard': sb_defaults, 'CouchPotato': cp_defaults, 'Sonarr': sonarr_defaults, 'Radarr': radarr_defaults, 'MP4': mp4_defaults, 'uTorrent': utorrent_defaults, 'qBittorrent': qbt_defaults, 'SABNZBD': sab_defaults, 'Sickrage': sr_defaults, 'Deluge': deluge_defaults, 'Plex': plex_defaults, 'Permissions': permissions_defaults}
         write = False  # Will be changed to true if a value is missing from the config file and needs to be written
 
-        config = configparser.SafeConfigParser(os.environ)
+        config = configparser.SafeConfigParser()
         configFile = os.path.join(directory, filename)
         if os.path.isfile(configFile):
             config.read(configFile)
@@ -729,8 +729,8 @@ class ReadSettings:
         except:
             log.exception("Invalid permissions, defaulting to 777.")
             self.permissions['chmod'] = int("0755", 8)
-        self.permissions['uid'] = config.get(section, 'uid')
-        self.permissions['gid'] = config.get(section, 'gid')
+        self.permissions['uid'] = config.get(section, 'uid', vars=os.environ)
+        self.permissions['gid'] = config.get(section, 'gid', vars=os.environ)
         try:
             self.permissions['uid'] = int(self.permissions['uid'])
         except:
