@@ -79,7 +79,12 @@ class tmdb_mp4:
         except:
             self.log.exception("Unable to important Language from babelfish [tag-language].")
             return None
-
+        if len(language) == 2:
+            try:
+                return Language.fromalpha2(language).alpha3
+                self.log.exception("Unable to set tag language [tag-language].")
+            except:
+                return None
         try:
             return Language(language).alpha3
         except:
