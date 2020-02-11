@@ -234,8 +234,11 @@ class MediaStreamInfo(object):
             elif key == 'pix_fmt':
                 self.pix_fmt = val
             elif key == "field_order":
-                self.field_order = val
-
+                if val == "unknown":
+                  self.field_order = "progressive"
+                else:
+                  self.field_order = val
+                
     def __repr__(self):
         d = ''
         metadata_str = ['%s=%s' % (key, value) for key, value
