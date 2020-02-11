@@ -130,6 +130,7 @@ class MediaStreamInfo(object):
         self.default = False
         self.metadata = {}
 
+    @property
     def toJson(self):
         language = self.metadata.get("language", "und").lower().strip()
         out = {'index': self.index,
@@ -147,6 +148,15 @@ class MediaStreamInfo(object):
             out['default'] = self.default
             out['language'] = language
         return out
+
+    @property
+    def disposition(self):
+        disposition = ''
+        if self.default:
+            disposition += '+default'
+        if self.forced:
+            disposition += '+forced'
+        return disposition
 
     @staticmethod
     def parse_float(val, default=0.0):
@@ -267,6 +277,7 @@ class MediaInfo(object):
     The attributes are:
       * format - a MediaFormatInfo object
       * streams - a list of MediaStreamInfo objects
+      * path - path to file
     """
 
     def __init__(self, posters_as_video=True):
@@ -277,13 +288,15 @@ class MediaInfo(object):
         self.format = MediaFormatInfo()
         self.posters_as_video = posters_as_video
         self.streams = []
+        self.path = None
 
+    @property
     def toJson(self):
         return {'format': self.format.format,
                 'format-fullname': self.format.fullname,
-                'video': self.video.toJson(),
-                'audio': [x.toJson() for x in self.audio],
-                'subtitle': [x.toJson() for x in self.subtitle]}
+                'video': self.video.toJson,
+                'audio': [x.toJson for x in self.audio],
+                'subtitle': [x.toJson for x in self.subtitle]}
 
     def parse_ffprobe(self, raw):
         """
@@ -441,6 +454,7 @@ class FFMpeg(object):
             return None
 
         info = MediaInfo(posters_as_video)
+        info.path = fname
 
         p = self._spawn([self.ffprobe_path,
                          '-show_format', '-show_streams', fname])
