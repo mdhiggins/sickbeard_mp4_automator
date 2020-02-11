@@ -521,8 +521,8 @@ class MkvtoMp4:
                         try:
                             iOSbitrate = ((a.bitrate / 1000) / a.audio_channels) * 2
                         except:
-                            self.log.warning("Unable to determine iOS audio bitrate from source stream %s, defaulting to 256 per channel." % a.index)
-                            iOSbitrate = audio_channels * 256
+                            self.log.warning("Unable to determine iOS audio bitrate from source stream %s, defaulting to 128 per channel." % a.index)
+                            iOSbitrate = 2 * 128
 
                     iosdisposition = '+default' if a.default else ''
 
