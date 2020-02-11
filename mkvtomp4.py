@@ -792,46 +792,11 @@ class MkvtoMp4:
             self.log.debug("Subtitle output is empty or no default subtitle language is set, will not pass over subtitle output to set a default stream.")
 
         # Burn subtitles
-        vfilter = None
-        if self.burn_subtitles:
-            if "forced" in self.burn_subtitles and "default" in self.burn_subtitles:
-                sub_candidates = [x for x in subtitle_streams if x.forced and x.default]
-            elif "forced" in self.burn_subtitles:
-                sub_candidates = [x for x in subtitle_streams if x.forced]
-            elif "default" in self.burn_subtitles:
-                sub_candidates = [x for x in subtitle_streams if x.default]
-            elif "any" in self.burn_subtitles:
-                sub_candidates = subtitle_streams
-            else:
-                sub_candidates = []
-
-            sub_candidates = [x for x in sub_candidates if not self.isImageBasedSubtitle(inputfile, x.index)]
-            if len(sub_candidates) > 0:
-                burn_sub = sub_candidates[0]
-                vcodec = self.video_codec[0]
-                relative_index = burn_sub.index - info.subtitle[0].index
-                vfilter = "subtitles='%s':si=%d" % (os.path.basename(inputfile), relative_index)
-                self.log.info("Burning subtitle %d %s into video steram [burn-subtitles]." % (burn_sub.index, burn_sub.metadata['language']))
-                self.log.debug("Video codec cannot be copied because valid burn subtitle was found [burn-subtitle: %s]." % (self.burn_subtitles))
-            elif len(sub_candidates) < 1 and self.embedsubs:
-                self.log.debug("No valid embedded subtitles for burning, search for external subtitles [embed-subs, burn-subtitle].")
-                valid_external_subs = valid_external_subs if valid_external_subs else self.scanForExternalSubs(inputfile)
-                if "forced" in self.burn_subtitles and "default" in self.burn_subtitles:
-                    sub_candidates = [x for x in valid_external_subs if x.subtitle[0].forced and x.subtitle[0].default]
-                if "forced" in self.burn_subtitles:
-                    sub_candidates = [x for x in valid_external_subs if x.subtitle[0].forced]
-                elif "default" in self.burn_subtitles:
-                    sub_candidates = [x for x in valid_external_subs if x.subtitle[0].default]
-                elif "any" in self.burn_subtitles:
-                    sub_candidates = valid_external_subs
-                else:
-                    sub_candidates = []
-                sub_candidates = [x for x in sub_candidates if not self.isImageBasedSubtitle(x.path, 0)]
-                if len(sub_candidates) > 0:
-                    burn_sub = sub_candidates[0]
-                    vcodec = self.video_codec[0]
-                    vfilter = "subtitles='%s'" % (os.path.basename(burn_sub.path))
-                    self.log.info("Burning external subtitle %s %s into video steram [burn-subtitles, embed-subs]." % (os.path.basename(burn_sub.path), burn_sub.subtitle[0].metadata['language']))
+        try:
+            vfilter = self.burnSubtitleFilter(inputfile, subtitle_streams, valid_external_subs)
+        except:
+            vfilter = None
+            self.log.exception("Encountered an error while trying to determine which subtitle stream for subtitle burn [burn-subtitle].")
 
         # Collect all options
         options = {
@@ -883,6 +848,56 @@ class MkvtoMp4:
 
         return options, preopts, postopts, ripsubopts
 
+    def burnSubtitleFilter(self, inputfile, subtitle_streams, valid_external_subs=None):
+        if self.burn_subtitles:
+            sub_candidates = []
+            if len(subtitle_streams) > 0:
+                first_index = sorted([x.index for x in subtitle_streams])[0]
+
+                # Filter subtitles to be burned based on setting
+                if "forced" in self.burn_subtitles and "default" in self.burn_subtitles:
+                    sub_candidates = [x for x in subtitle_streams if x.forced and x.default]
+                elif "forced" in self.burn_subtitles:
+                    sub_candidates = [x for x in subtitle_streams if x.forced]
+                elif "default" in self.burn_subtitles:
+                    sub_candidates = [x for x in subtitle_streams if x.default]
+                elif "any" in self.burn_subtitles:
+                    sub_candidates = subtitle_streams
+
+                # Filter out image based subtitles (until we can find a method to get this to work)
+                sub_candidates = [x for x in sub_candidates if not self.isImageBasedSubtitle(inputfile, x.index)]
+
+                if len(sub_candidates) > 0:
+                    self.log.debug("Found %d potential sources from the included subs for burning [burn-subtitle]." % len(sub_candidates))
+                    burn_sub = sub_candidates[0]
+                    vcodec = self.video_codec[0]
+                    relative_index = burn_sub.index - first_index
+                    self.log.info("Burning subtitle %d %s into video steram [burn-subtitles]." % (burn_sub.index, burn_sub.metadata['language']))
+                    self.log.debug("Video codec cannot be copied because valid burn subtitle was found, setting to %s [burn-subtitle: %s]." % (self.video_codec[0], self.burn_subtitles))
+                    return "subtitles='%s':si=%d" % (os.path.basename(inputfile), relative_index)
+
+            if self.embedsubs:
+                self.log.debug("No valid embedded subtitles for burning, search for external subtitles [embed-subs, burn-subtitle].")
+                valid_external_subs = valid_external_subs if valid_external_subs else self.scanForExternalSubs(inputfile)
+                if "forced" in self.burn_subtitles and "default" in self.burn_subtitles:
+                    sub_candidates = [x for x in valid_external_subs if x.subtitle[0].forced and x.subtitle[0].default]
+                elif "forced" in self.burn_subtitles:
+                    sub_candidates = [x for x in valid_external_subs if x.subtitle[0].forced]
+                elif "default" in self.burn_subtitles:
+                    sub_candidates = [x for x in valid_external_subs if x.subtitle[0].default]
+                elif "any" in self.burn_subtitles:
+                    sub_candidates = valid_external_subs
+
+                # Filter out image based subtitles (until we can find a method to get this to work)
+                sub_candidates = [x for x in sub_candidates if not self.isImageBasedSubtitle(x.path, 0)]
+                if len(sub_candidates) > 0:
+                    burn_sub = sub_candidates[0]
+                    vcodec = self.video_codec[0]
+                    self.log.info("Burning external subtitle %s %s into video steram [burn-subtitles, embed-subs]." % (os.path.basename(burn_sub.path), burn_sub.subtitle[0].metadata['language']))
+                    return "subtitles='%s'" % (os.path.basename(burn_sub.path))
+            self.log.info("No valid subtitle stream candidates found to be burned into video stream [burn-subtitles].")
+        return None
+
     def scanForExternalSubs(self, inputfile):
         input_dir, filename, input_extension = self.parseFile(inputfile)
         valid_external_subs = []
@@ -917,6 +932,9 @@ class MkvtoMp4:
                         else:
                             self.log.debug("Ignoring %s external subtitle stream due to language %s." % (fname, lang))
         self.log.info("Scanned for external subtitles and found %d results in your approved languages." % (len(valid_external_subs)))
+        if self.sort_streams:
+            valid_external_subs.sort(key=lambda x: self.swl.index(x.subtitle[0].metadata['language']) if x.subtitle[0].metadata['language'] in self.swl else 999)
+
         return valid_external_subs
 
     def downloadSubtitles(self, inputfile, existing_subtitle_tracks, original=None):
