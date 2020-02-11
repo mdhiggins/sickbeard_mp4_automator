@@ -104,6 +104,7 @@ class ReadSettings:
                         'subtitle-language': '',
                         'subtitle-default-language': '',
                         'subtitle-encoding': '',
+                        'burn-subtitles': 'False',
                         'process-same-extensions': 'False',
                         'force-convert': 'False',
                         'fullpathguess': 'True',
@@ -332,14 +333,14 @@ class ReadSettings:
 
         self.prefer_more_channels = config.getboolean(section, "prefer-more-channels")  # When choosing default audio track, prefer tracks with more channels
 
-        self.iOS = config.get(section, "ios-audio")  # Creates a second audio channel if the standard output methods are different from this for iOS compatability
-        if self.iOS == "" or self.iOS.lower() in ['false', 'no', 'f', '0']:
+        self.iOS = config.get(section, "ios-audio").lower().strip()  # Creates a second audio channel if the standard output methods are different from this for iOS compatability
+        if self.iOS == "" or self.iOS in ['false', 'no', 'f', '0']:
             self.iOS = False
         else:
-            if self.iOS.lower() in ['true', 'yes', 't', '1']:
+            if self.iOS in ['true', 'yes', 't', '1']:
                 self.iOS = ['aac']
             else:
-                self.iOS = self.iOS.lower().replace(' ', '').split(',')
+                self.iOS = self.iOS.replace(' ', '').split(',')
 
         self.iOSFirst = config.getboolean(section, "ios-first-track-only")  # Enables the iOS audio option only for the first track
 
@@ -348,6 +349,13 @@ class ReadSettings:
         self.iOSfilter = config.get(section, "ios-audio-filter").lower().strip()  # iOS audio filter
         if self.iOSfilter == '':
             self.iOSfilter = None
+
+        try:
+            self.burn_subtitles = config.getboolean(section, "burn-subtitles")
+            if self.burn_subtitles:
+                self.burn_subtitles = "any"
+        except:
+            self.burn_subtitles = config.get(section, "burn-subtitles").lower().strip()  # Option to burn subtitles
 
         self.downloadsubs = config.getboolean(section, "download-subs")  # Enables downloading of subtitles from the internet sources using subliminal
         if self.downloadsubs:
