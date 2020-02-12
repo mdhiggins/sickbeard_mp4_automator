@@ -2,6 +2,7 @@
 
 import os
 import sys
+from log import getLogger
 from autoprocess import autoProcessTV, autoProcessMovie, autoProcessTVSR, sonarr, radarr
 from readSettings import ReadSettings
 from mkvtomp4 import MkvtoMp4
@@ -9,18 +10,7 @@ from deluge_client import DelugeRPCClient
 import logging
 from logging.config import fileConfig
 
-logpath = '/var/log/sickbeard_mp4_automator'
-if os.name == 'nt':
-    logpath = os.path.dirname(sys.argv[0])
-elif not os.path.isdir(logpath):
-    try:
-        os.mkdir(logpath)
-    except:
-        logpath = os.path.dirname(sys.argv[0])
-configPath = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'logging.ini')).replace("\\", "\\\\")
-logPath = os.path.abspath(os.path.join(logpath, 'index.log')).replace("\\", "\\\\")
-fileConfig(configPath, defaults={'logfilename': logPath})
-log = logging.getLogger("delugePostProcess")
+log = getLogger("DelugePostProcess")
 
 log.info("Deluge post processing started.")
 

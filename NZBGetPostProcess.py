@@ -72,6 +72,7 @@ try:
     from mkvtomp4 import MkvtoMp4
     from autoprocess import autoProcessMovie, autoProcessTV, autoProcessTVSR, sonarr, radarr
     import logging
+    from log import getLogger
     from logging.config import fileConfig
 except ImportError:
     print("[ERROR] Wrong path to sickbeard_mp4_automator: " + os.environ['NZBPO_MP4_FOLDER'])
@@ -79,18 +80,7 @@ except ImportError:
     sys.exit(0)
 
 # Setup Logging
-logpath = '/var/log/sickbeard_mp4_automator'
-if os.name == 'nt':
-    logpath = MP4folder
-elif not os.path.isdir(logpath):
-    try:
-        os.mkdir(logpath)
-    except:
-        logpath = MP4folder
-configPath = os.path.abspath(os.path.join(MP4folder, 'logging.ini')).replace("\\", "\\\\")
-logPath = os.path.abspath(os.path.join(logpath, 'index.log')).replace("\\", "\\\\")
-fileConfig(configPath, defaults={'logfilename': logPath})
-log = logging.getLogger("NZBGetPostProcess")
+log = getLogger("NZBGetPostProcess")
 
 # Determine if conversion will take place
 shouldConvert = (os.environ['NZBPO_SHOULDCONVERT'].lower() in ("yes", "true", "t", "1"))

@@ -8,6 +8,7 @@ import glob
 import argparse
 import struct
 import logging
+from log import getLogger
 from extensions import valid_tagging_extensions
 from readSettings import ReadSettings
 from tvdb_mp4 import Tvdb_mp4
@@ -22,19 +23,8 @@ import traceback
 if sys.version[0] == "3":
     raw_input = input
 
-logpath = '/var/log/sickbeard_mp4_automator'
-if os.name == 'nt':
-    logpath = os.path.dirname(sys.argv[0])
-elif not os.path.isdir(logpath):
-    try:
-        os.mkdir(logpath)
-    except:
-        logpath = os.path.dirname(sys.argv[0])
-configPath = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'logging.ini')).replace("\\", "\\\\")
-logPath = os.path.abspath(os.path.join(logpath, 'index.log')).replace("\\", "\\\\")
-fileConfig(configPath, defaults={'logfilename': logPath})
+log = getLogger("MANUAL")
 
-log = logging.getLogger("MANUAL")
 logging.getLogger("subliminal").setLevel(logging.CRITICAL)
 logging.getLogger("requests").setLevel(logging.WARNING)
 logging.getLogger("enzyme").setLevel(logging.WARNING)

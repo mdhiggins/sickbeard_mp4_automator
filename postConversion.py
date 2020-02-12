@@ -5,6 +5,7 @@ import json
 import urllib
 import struct
 import logging
+from log import getLogger
 from extensions import valid_tagging_extensions
 from readSettings import ReadSettings
 from autoprocess import plex
@@ -13,18 +14,7 @@ from mkvtomp4 import MkvtoMp4
 from post_processor import PostProcessor
 from logging.config import fileConfig
 
-logpath = '/var/log/sickbeard_mp4_automator'
-if os.name == 'nt':
-    logpath = os.path.dirname(sys.argv[0])
-elif not os.path.isdir(logpath):
-    try:
-        os.mkdir(logpath)
-    except:
-        logpath = os.path.dirname(sys.argv[0])
-configPath = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'logging.ini')).replace("\\", "\\\\")
-logPath = os.path.abspath(os.path.join(logpath, 'index.log')).replace("\\", "\\\\")
-fileConfig(configPath, defaults={'logfilename': logPath})
-log = logging.getLogger("SickbeardPostConversion")
+log = getLogger("SickbeardPostProcess")
 
 log.info("Sickbeard extra script post processing started.")
 
