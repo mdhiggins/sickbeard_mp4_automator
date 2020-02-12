@@ -116,7 +116,6 @@ class ReadSettings:
                         'embed-subs': 'True',
                         'embed-only-internal-subs': 'False',
                         'sub-providers': '',
-                        'permissions': '777',
                         'post-process': 'False',
                         'pix-fmt': '',
                         'preopts': '',
