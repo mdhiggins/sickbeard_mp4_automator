@@ -960,11 +960,19 @@ class MkvtoMp4:
                 og = inputfile + ".original"
                 i = 2
                 while os.path.isfile(og):
-                    og = og + "2"
+                    og = "%s.%d.original" % (inputfile, i)
                     i += 1
                 os.rename(inputfile, og)
+                if self.settings.burn_subtitles:
+                    try:
+                        if os.path.basename(inputfile) in options['video'].get('filter', ""):
+                            self.log.debug("Renaming inputfile in burnsubtitles filter if its present [burn-subtitles].")
+                            options['video']['filter'] = options['video']['filter'].replace(os.path.basename(inputfile), os.path.basename(og))
+                    except:
+                        self.log.exception("Error trying to rename filter [burn-subtitles].")
                 inputfile = og
                 self.log.debug("Renamed original file to %s." % inputfile)
+
             except:
                 i = 2
                 while os.path.isfile(finaloutputfile):
