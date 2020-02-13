@@ -77,16 +77,10 @@ class Converter(object):
             y = opt['audio']
 
             # Creates the new nested dictionary to preserve backwards compatability
-            try:
-                first = list(y.values())[0]
-                if not isinstance(first, dict):
-                    y = {0: y}
-            except IndexError:
-                pass
+            if isinstance(y, dict):
+                y = [y]
 
-            for n in y:
-                x = y[n]
-
+            for x in y:
                 if not isinstance(x, dict) or 'codec' not in x:
                     raise ConverterError('Invalid audio codec specification')
 
@@ -100,7 +94,7 @@ class Converter(object):
                 if c not in self.audio_codecs:
                     raise ConverterError('Requested unknown audio codec ' + str(c))
 
-                audio_options.extend(self.audio_codecs[c]().parse_options(x, n))
+                audio_options.extend(self.audio_codecs[c]().parse_options(x, y.index(x)))
                 if audio_options is None:
                     raise ConverterError('Unknown audio codec error')
 
@@ -109,15 +103,10 @@ class Converter(object):
             y = opt['subtitle']
 
             # Creates the new nested dictionary to preserve backwards compatability
-            try:
-                first = list(y.values())[0]
-                if not isinstance(first, dict):
-                    y = {0: y}
-            except IndexError:
-                pass
+            if isinstance(y, dict):
+                y = [y]
 
-            for n in y:
-                x = y[n]
+            for x in y:
                 if not isinstance(x, dict) or 'codec' not in x:
                     raise ConverterError('Invalid subtitle codec specification')
 
@@ -131,7 +120,7 @@ class Converter(object):
                 if c not in self.subtitle_codecs:
                     raise ConverterError('Requested unknown subtitle codec ' + str(c))
 
-                subtitle_options.extend(self.subtitle_codecs[c]().parse_options(x, n))
+                subtitle_options.extend(self.subtitle_codecs[c]().parse_options(x, y.index(x)))
                 if subtitle_options is None:
                     raise ConverterError('Unknown subtitle codec error')
 

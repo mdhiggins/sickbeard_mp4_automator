@@ -329,20 +329,11 @@ class MkvtoMp4:
         # Audio streams
         self.log.info("Reading audio streams.")
 
-        # Reorder audio streams based on the approved audio languages and channels
-        audio_streams = info.audio
-        if self.settings.sort_streams:
-            self.log.debug("Reordering audio streams to be in accordance with approved languages and channels [sort-streams, prefer-more-channels].")
-            audio_streams.sort(key=lambda x: x.audio_channels, reverse=self.settings.prefer_more_channels)
-            if awl:
-                audio_streams.sort(key=lambda x: awl.index(x.metadata['language']) if x.metadata['language'] in awl else 999)
-
         # Iterate through audio streams
-        audio_settings = {}
+        audio_settings = []
         blocked_audio_languages = []
         iOS = (self.settings.iOS is not False)
-        l = 0
-        for a in audio_streams:
+        for a in info.audio:
             self.log.info("Audio detected for stream %s - %s %s %d channel." % (a.index, a.codec, a.metadata['language'], a.audio_channels))
 
             if self.settings.output_extension in valid_tagging_extensions and a.codec.lower() == 'truehd' and self.settings.ignore_truehd:
@@ -386,9 +377,8 @@ class MkvtoMp4:
                         'debug': 'ios-audio'
                     }
                     if not self.settings.iOSLast:
-                        self.log.info("Creating %s audio stream %d from source audio stream %d [iOS-audio]." % (self.settings.iOS[0], l, a.index))
-                        audio_settings.update({l: iosdata})
-                        l += 1
+                        self.log.info("Creating %s audio stream source audio stream %d [iOS-audio]." % (self.settings.iOS[0], a.index))
+                        audio_settings.append(iosdata)
 
                 adebug = "base"
                 # If the iOS audio option is enabled and the source audio channel is only stereo, the additional iOS channel will be skipped and a single AAC 2.0 channel will be made regardless of codec preference to avoid multiple stereo channels
@@ -438,8 +428,10 @@ class MkvtoMp4:
                     self.log.debug("Not creating any additional iOS audio streams [iOS-first-track-only].")
                     iOS = False
 
-                self.log.info("Creating %s audio stream %d from source stream %d." % (acodec, l, a.index))
-                audio_settings.update({l: {
+                absf = 'aac_adtstoasc' if acodec == 'copy' and a.codec == 'aac' and self.settings.aac_adtstoasc else None
+
+                self.log.info("Creating %s audio stream from source stream %d." % (acodec, a.index))
+                audio_settings.append({
                     'map': a.index,
                     'codec': acodec,
                     'channels': audio_channels,
@@ -447,30 +439,25 @@ class MkvtoMp4:
                     'filter': afilter,
                     'language': a.metadata['language'],
                     'disposition': adisposition,
+                    'bsf': absf,
                     'debug': adebug
-                }})
-
-                if acodec == 'copy' and a.codec == 'aac' and self.settings.aac_adtstoasc:
-                    audio_settings[l]['bsf'] = 'aac_adtstoasc'
-                l += 1
+                })
 
                 # Add the iOS stream last instead
                 if self.settings.iOSLast and iosdata:
-                    self.log.info("Creating %s audio stream %d from source audio stream %d [iOS-audio]." % (self.settings.iOS[0], l, a.index))
-                    audio_settings.update({l: iosdata})
-                    l += 1
+                    self.log.info("Creating %s audio stream from source audio stream %d [iOS-audio]." % (self.settings.iOS[0], a.index))
+                    audio_settings.append(iosdata)
 
                 if self.settings.audio_copyoriginal and acodec != 'copy' and not (a.codec.lower() == 'truehd' and self.settings.ignore_truehd):
-                    self.log.info("Copying to audio stream %d from source stream %d format %s [audio-copy-original]." % (l, a.index, a.codec))
-                    audio_settings.update({l: {
+                    self.log.info("Copying audio stream from source stream %d format %s [audio-copy-original]." % (a.index, a.codec))
+                    audio_settings.append({
                         'map': a.index,
                         'codec': 'copy',
                         'channels': a.audio_channels,
                         'language': a.metadata['language'],
                         'disposition': adisposition,
                         'debug': 'audio-copy-original'
-                    }})
-                    l += 1
+                    })
 
                 # Remove the language if we only want the first stream from a given language
                 if self.settings.audio_first_language_track:
@@ -480,9 +467,163 @@ class MkvtoMp4:
                     except:
                         self.log.error("Unable to remove language %s from whitelist [audio-first-track-of-language]." % a.metadata['language'])
 
-        # Audio Default Handler
+        # Set Default Audio Stream
+        try:
+            self.setDefaultAudioStream(audio_settings)
+        except:
+            self.log.exception("Unable to set the default audio track.")
+
+        # Iterate through subtitle streams
+        subtitle_settings = []
+        self.log.info("Reading subtitle streams.")
+        for s in info.subtitle:
+            image_based = self.isImageBasedSubtitle(inputfile, s.index)
+            self.log.info("%s-based subtitle detected for stream %s - %s %s." % ("Image" if image_based else "Text", s.index, s.codec, s.metadata['language']))
+
+            scodec = None
+            if image_based and self.settings.scodec_image and len(self.settings.scodec_image) > 0:
+                scodec = self.settings.scodec_image[0]
+            elif not image_based and self.settings.scodec and len(self.settings.scodec) > 0:
+                scodec = self.settings.scodec[0]
+
+            if self.settings.embedsubs and scodec:
+                # Proceed if no whitelist is set, or if the language is in the whitelist
+                if swl is None or s.metadata['language'].lower() in swl:
+                    subtitle_settings.append({
+                        'map': s.index,
+                        'codec': scodec,
+                        'language': s.metadata['language'],
+                        'encoding': self.settings.subencoding,
+                        'disposition': s.disposition,
+                        'debug': 'base.embed-subs'
+                    })
+                    self.log.info("Creating %s subtitle stream from source stream %d." % (self.settings.scodec[0], s.index))
+            elif not self.settings.embedsubs:
+                if swl is None or s.metadata['language'].lower() in swl:
+                    for codec in (self.settings.scodec_image if image_based else self.settings.scodec):
+                        ripsub = [{
+                            'map': s.index,
+                            'codec': codec,
+                            'language': s.metadata['language'],
+                            'debug': "base"
+                        }]
+                        options = {
+                            'format': codec,
+                            'subtitle': ripsub,
+                            'forced': s.forced,
+                            'default': s.default,
+                            'language': s.metadata['language'],
+                            'index': s.index
+                        }
+                        ripsubopts.append(options)
+
+        # Attempt to download subtitles if they are missing using subliminal
+        try:
+            self.downloadSubtitles(inputfile, info.subtitle, original)
+        except:
+            self.log.exception("Unable to download subitltes [download-subs].")
+
+        # External subtitle import
+        valid_external_subs = None
+        if self.settings.embedsubs and not self.settings.embedonlyinternalsubs:  # Don't bother if we're not embeddeding subtitles and external subtitles
+            src = 1  # FFMPEG input source number
+            valid_external_subs = self.scanForExternalSubs(inputfile, swl)
+            for external_sub in valid_external_subs:
+                image_based = self.isImageBasedSubtitle(external_sub.path, 0)
+                scodec = None
+                if image_based and self.settings.scodec_image and len(self.settings.scodec_image) > 0:
+                    scodec = self.settings.scodec_image[0]
+                elif not image_based and self.settings.scodec and len(self.settings.scodec) > 0:
+                    scodec = self.settings.scodec[0]
+
+                if not scodec:
+                    self.log.info("Skipping external subtitle file %s, no appropriate codecs found." % os.path.basename(external_sub.path))
+                    continue
+
+                subtitle_settings.append({
+                    'path': external_sub.path,
+                    'source': src,
+                    'map': 0,
+                    'codec': scodec,
+                    'disposition': external_sub.subtitle[0].disposition,
+                    'language': external_sub.subtitle[0].metadata['language'],
+                    'debug': 'base.embed-subs'})
+
+                self.log.info("Creating %s subtitle stream by importing %s-based %s [embed-subs]." % (scodec, "Image" if image_based else "Text", os.path.basename(external_sub.path)))
+                self.log.debug("Path: %s." % external_sub.path)
+                self.log.debug("Source: %s." % src)
+                self.log.debug("Codec: %s." % self.settings.scodec[0])
+                self.log.debug("Langauge: %s." % external_sub.subtitle[0].metadata['language'])
+                self.log.debug("Disposition: %s." % external_sub.subtitle[0].disposition)
+
+                self.deletesubs.add(external_sub.path)
+                src += 1
+
+        # Set Default Subtitle Stream
+        try:
+            self.setDefaultSubtitleStream(subtitle_settings)
+        except:
+            self.log.exception("Unable to set the default subtitle track.")
+
+        # Burn subtitles
+        try:
+            vfilter = self.burnSubtitleFilter(inputfile, info.subtitle, swl, valid_external_subs)
+        except:
+            vfilter = None
+            self.log.exception("Encountered an error while trying to determine which subtitle stream for subtitle burn [burn-subtitle].")
+        if vfilter:
+            self.log.debug("Found valid subtitle stream to burn into video, video cannot be copied [burn-subtitles].")
+            video_settings['codec'] = self.settings.vcodec[0]
+            video_settings['filter'] = vfilter
+
+        # Sort Options
+        self.sortStreams(audio_settings, awl)
+        self.sortStreams(subtitle_settings, swl)
+
+        # Collect all options
+        options = {
+            'format': self.settings.output_format,
+            'video': video_settings,
+            'audio': audio_settings,
+            'subtitle': subtitle_settings
+        }
+
+        preopts = []
+        postopts = ['-threads', self.settings.threads]
+
+        # If a CRF option is set, override the determine bitrate
+        if self.settings.vcrf:
+            self.log.debug("Video CRF value is set, deleting bitrate setting and adding CRF setting to determine video quality [video-crf].")
+            del options['video']['bitrate']
+            options['video']['crf'] = self.settings.vcrf
+
+        if len(options['subtitle']) > 0:
+            self.log.debug("Subtitle streams detected, adding fix_sub_duration option to preopts.")
+            preopts.append('-fix_sub_duration')
+
+        if self.settings.preopts:
+            preopts.extend(self.settings.preopts)
+
+        if self.settings.postopts:
+            postopts.extend(self.settings.postopts)
+
+        if self.settings.dxva2_decoder:  # DXVA2 will fallback to CPU decoding when it hits a file that it cannot handle, so we don't need to check if the file is supported.
+            preopts.extend(['-hwaccel', 'dxva2'])
+        elif info.video.codec.lower() == "hevc" and self.settings.hevc_qsv_decoder:
+            preopts.extend(['-vcodec', 'hevc_qsv'])
+        elif vcodec == "h264qsv" and info.video.codec.lower() == "h264" and self.settings.qsv_decoder and (info.video.video_level / 10) < 5:
+            preopts.extend(['-vcodec', 'h264_qsv'])
+
+        # HEVC Tagging for copied streams
+        if info.video.codec.lower() in ['x265', 'h265', 'hevc'] and vcodec == 'copy':
+            postopts.extend(['-tag:v', 'hvc1'])
+            self.log.info("Tagging copied video stream as hvc1")
+
+        return options, preopts, postopts, ripsubopts
+
+    def setDefaultAudioStream(self, audio_settings):
         if len(audio_settings) > 0:
-            audio_streams = sorted(audio_settings.values(), key=lambda x: x['channels'], reverse=self.settings.prefer_more_channels)
+            audio_streams = sorted(audio_settings, key=lambda x: x['channels'], reverse=self.settings.prefer_more_channels)
             preferred_language_audio_streams = [x for x in audio_streams if x['language'] == self.settings.adl] if self.settings.adl else audio_streams
             default_stream = audio_streams[0]
             default_streams = [x for x in audio_streams if 'default' in x['disposition']]
@@ -526,105 +667,11 @@ class MkvtoMp4:
         else:
             self.log.debug("Audio output is empty, unable to set default audio streams.")
 
-        # Reorder subtitle streams based on the approved languages, mirrors the order present from the options
-        subtitle_streams = info.subtitle
-        if self.settings.sort_streams and swl:
-            self.log.debug("Reordering subtitle streams to be in accordance with approved languages [sort-streams].")
-            subtitle_streams.sort(key=lambda x: swl.index(x.metadata['language']) if x.metadata['language'] in swl else 999)
-
-        # Iterate through subtitle streams
-        subtitle_settings = {}
-        l = 0
-        self.log.info("Reading subtitle streams.")
-        for s in subtitle_streams:
-            image_based = self.isImageBasedSubtitle(inputfile, s.index)
-            self.log.info("%s-based subtitle detected for stream %s - %s %s." % ("Image" if image_based else "Text", s.index, s.codec, s.metadata['language']))
-
-            scodec = None
-            if image_based and self.settings.scodec_image and len(self.settings.scodec_image) > 0:
-                scodec = self.settings.scodec_image[0]
-            elif not image_based and self.settings.scodec and len(self.settings.scodec) > 0:
-                scodec = self.settings.scodec[0]
-
-            if self.settings.embedsubs and scodec:
-                # Proceed if no whitelist is set, or if the language is in the whitelist
-                if swl is None or s.metadata['language'].lower() in swl:
-                    subtitle_settings.update({l: {
-                        'map': s.index,
-                        'codec': scodec,
-                        'language': s.metadata['language'],
-                        'encoding': self.settings.subencoding,
-                        'disposition': s.disposition,
-                        'debug': 'base.embed-subs'
-                    }})
-                    self.log.info("Creating %s subtitle stream %d from source stream %d." % (self.settings.scodec[0], l, s.index))
-                    l = l + 1
-            elif not self.settings.embedsubs:
-                if swl is None or s.metadata['language'].lower() in swl:
-                    for codec in (self.settings.scodec_image if image_based else self.settings.scodec):
-                        ripsub = {0: {
-                            'map': s.index,
-                            'codec': codec,
-                            'language': s.metadata['language'],
-                            'debug': "base"
-                        }}
-                        options = {
-                            'format': codec,
-                            'subtitle': ripsub,
-                            'forced': s.forced,
-                            'default': s.default,
-                            'language': s.metadata['language'],
-                            'index': s.index
-                        }
-                        ripsubopts.append(options)
-
-        # Attempt to download subtitles if they are missing using subliminal
-        if self.settings.downloadsubs:
-            self.downloadSubtitles(inputfile, info.subtitle, original)
-
-        # External subtitle import
-        valid_external_subs = None
-        if self.settings.embedsubs and not self.settings.embedonlyinternalsubs:  # Don't bother if we're not embeddeding subtitles and external subtitles
-            src = 1  # FFMPEG input source number
-            valid_external_subs = self.scanForExternalSubs(inputfile, swl)
-            for external_sub in valid_external_subs:
-                image_based = self.isImageBasedSubtitle(external_sub.path, 0)
-                scodec = None
-                if image_based and self.settings.scodec_image and len(self.settings.scodec_image) > 0:
-                    scodec = self.settings.scodec_image[0]
-                elif not image_based and self.settings.scodec and len(self.settings.scodec) > 0:
-                    scodec = self.settings.scodec[0]
-
-                if not scodec:
-                    self.log.info("Skipping external subtitle file %s, no appropriate codecs found." % os.path.basename(external_sub.path))
-                    continue
-
-                subtitle_settings.update({l: {
-                    'path': external_sub.path,
-                    'source': src,
-                    'map': 0,
-                    'codec': scodec,
-                    'disposition': external_sub.subtitle[0].disposition,
-                    'language': external_sub.subtitle[0].metadata['language'],
-                    'debug': 'base.embed-subs'}})
-
-                self.log.info("Creating subtitle stream %s by importing %s-based %s [embed-subs]." % (l, "Image" if image_based else "Text", os.path.basename(external_sub.path)))
-                self.log.debug("Path: %s." % external_sub.path)
-                self.log.debug("Source: %s." % src)
-                self.log.debug("Codec: %s." % self.settings.scodec[0])
-                self.log.debug("Langauge: %s." % external_sub.subtitle[0].metadata['language'])
-                self.log.debug("Disposition: %s." % external_sub.subtitle[0].disposition)
-
-                l = l + 1
-                src = src + 1
-
-                self.deletesubs.add(external_sub.path)
-
-        # Subtitle Default
+    def setDefaultSubtitleStream(self, subtitle_settings):
         if len(subtitle_settings) > 0 and self.settings.sdl:
-            if len([x for x in subtitle_settings.values() if 'default' in x['disposition']]) < 1:
+            if len([x for x in subtitle_settings if 'default' in x['disposition']]) < 1:
                 try:
-                    default_stream = [x for x in subtitle_settings.values() if x['language'] == self.settings.sdl][0]
+                    default_stream = [x for x in subtitle_settings if x['language'] == self.settings.sdl][0]
                     default_stream['disposition'] = '+default'
                 except:
                     subtitle_settings[0]['disposition'] = '+default'
@@ -633,57 +680,12 @@ class MkvtoMp4:
         else:
             self.log.debug("Subtitle output is empty or no default subtitle language is set, will not pass over subtitle output to set a default stream.")
 
-        # Burn subtitles
-        try:
-            vfilter = self.burnSubtitleFilter(inputfile, subtitle_streams, swl, valid_external_subs)
-        except:
-            vfilter = None
-            self.log.exception("Encountered an error while trying to determine which subtitle stream for subtitle burn [burn-subtitle].")
-        if vfilter:
-            self.log.debug("Found valid subtitle stream to burn into video, video cannot be copied [burn-subtitles].")
-            video_settings['codec'] = self.settings.vcodec[0]
-            video_settings['filter'] = vfilter
-
-        # Collect all options
-        options = {
-            'format': self.settings.output_format,
-            'video': video_settings,
-            'audio': audio_settings,
-            'subtitle': subtitle_settings
-        }
-
-        preopts = []
-        postopts = ['-threads', self.settings.threads]
-
-        # If a CRF option is set, override the determine bitrate
-        if self.settings.vcrf:
-            self.log.debug("Video CRF value is set, deleting bitrate setting and adding CRF setting to determine video quality [video-crf].")
-            del options['video']['bitrate']
-            options['video']['crf'] = self.settings.vcrf
-
-        if len(options['subtitle']) > 0:
-            self.log.debug("Subtitle streams detected, adding fix_sub_duration option to preopts.")
-            preopts.append('-fix_sub_duration')
-
-        if self.settings.preopts:
-            preopts.extend(self.settings.preopts)
-
-        if self.settings.postopts:
-            postopts.extend(self.settings.postopts)
-
-        if self.settings.dxva2_decoder:  # DXVA2 will fallback to CPU decoding when it hits a file that it cannot handle, so we don't need to check if the file is supported.
-            preopts.extend(['-hwaccel', 'dxva2'])
-        elif info.video.codec.lower() == "hevc" and self.settings.hevc_qsv_decoder:
-            preopts.extend(['-vcodec', 'hevc_qsv'])
-        elif vcodec == "h264qsv" and info.video.codec.lower() == "h264" and self.settings.qsv_decoder and (info.video.video_level / 10) < 5:
-            preopts.extend(['-vcodec', 'h264_qsv'])
-
-        # HEVC Tagging for copied streams
-        if info.video.codec.lower() in ['x265', 'h265', 'hevc'] and vcodec == 'copy':
-            postopts.extend(['-tag:v', 'hvc1'])
-            self.log.info("Tagging copied video stream as hvc1")
-
-        return options, preopts, postopts, ripsubopts
+    def sortStreams(self, streams, languages):
+        if self.settings.sort_streams:
+            self.log.debug("Reordering streams to be in accordance with approved languages and channels [sort-streams, prefer-more-channels].")
+            streams.sort(key=lambda x: x.get('channels', 999), reverse=self.settings.prefer_more_channels)
+            if languages:
+                streams.sort(key=lambda x: languages.index(x['language']) if x['language'] in languages else 999)
 
     def burnSubtitleFilter(self, inputfile, subtitle_streams, swl, valid_external_subs=None):
         if self.settings.burn_subtitles:
@@ -743,7 +745,7 @@ class MkvtoMp4:
                 valid_external_sub = self.isValidSubtitleSource(os.path.join(dirName, fname))
                 if valid_external_sub:
                     x, lang = os.path.splitext(subname)
-                    while '.forced' in lang or '.default' in lang:
+                    while '.forced' in lang or '.default' in lang or lang.replace('.', "").isdigit():
                         x, lang = os.path.splitext(x)
                     lang = lang[1:]
                     # Using bablefish to convert a 2 language code to a 3 language code
@@ -773,59 +775,60 @@ class MkvtoMp4:
         return valid_external_subs
 
     def downloadSubtitles(self, inputfile, existing_subtitle_tracks, swl, original=None):
-        try:
-            self.log.debug(subliminal.__version__)
-        except:
-            self.log.error("Subliminal is not installed, downloading subtitles aborted.")
-            return
+        if self.settings.downloadsubs:
+            try:
+                self.log.debug(subliminal.__version__)
+            except:
+                self.log.error("Subliminal is not installed, downloading subtitles aborted.")
+                return None
 
-        languages = set()
-        if swl:
-            for alpha3 in swl:
+            languages = set()
+            if swl:
+                for alpha3 in swl:
+                    try:
+                        languages.add(Language(alpha3))
+                    except:
+                        self.log.exception("Unable to add language for download with subliminal.")
+            if self.settings.sdl:
                 try:
-                    languages.add(Language(alpha3))
+                    languages.add(Language(self.settings.sdl))
                 except:
                     self.log.exception("Unable to add language for download with subliminal.")
-        if self.settings.sdl:
+
+            if len(languages) < 1:
+                self.log.error("No valid subtitle download languages detected, subtitles will not be downloaded.")
+                return None
+
+            self.log.info("Attempting to download subtitles.")
+
+            # Attempt to set the dogpile cache
             try:
-                languages.add(Language(self.settings.sdl))
+                subliminal.region.configure('dogpile.cache.memory')
             except:
-                self.log.exception("Unable to add language for download with subliminal.")
+                pass
 
-        if len(languages) < 1:
-            self.log.error("No valid subtitle download languages detected, subtitles will not be downloaded.")
-            return
+            try:
+                video = subliminal.scan_video(os.path.abspath(inputfile))
+                video.subtitle_languages = set([Language(x.metadata['language']) for x in existing_subtitle_tracks])
 
-        self.log.info("Attempting to download subtitles.")
+                # If data about the original release is available, include that in the search to best chance at accurate subtitles
+                if original:
+                    og = subliminal.Video.fromname(original)
+                    video.format = og.format
+                    video.release_group = og.release_group
+                    video.resolution = og.resolution
 
-        # Attempt to set the dogpile cache
-        try:
-            subliminal.region.configure('dogpile.cache.memory')
-        except:
-            pass
+                subtitles = subliminal.download_best_subtitles([video], languages, hearing_impaired=self.settings.hearing_impaired, providers=self.settings.subproviders)
+                saves = subliminal.save_subtitles(video, subtitles[video])
+                paths = [subliminal.subtitle.get_subtitle_path(video.name, x.language) for x in saves]
+                for path in paths:
+                    self.log.info("Downloaded new subtitle %s." % path)
+                    self.setPermissions(path)
 
-        try:
-            video = subliminal.scan_video(os.path.abspath(inputfile))
-            video.subtitle_languages = set([Language(x.metadata['language']) for x in existing_subtitle_tracks])
-
-            # If data about the original release is available, include that in the search to best chance at accurate subtitles
-            if original:
-                og = subliminal.Video.fromname(original)
-                video.format = og.format
-                video.release_group = og.release_group
-                video.resolution = og.resolution
-
-            subtitles = subliminal.download_best_subtitles([video], languages, hearing_impaired=self.settings.hearing_impaired, providers=self.settings.subproviders)
-            saves = subliminal.save_subtitles(video, subtitles[video])
-            paths = [subliminal.subtitle.get_subtitle_path(video.name, x.language) for x in saves]
-            for path in paths:
-                self.log.info("Downloaded new subtitle %s." % path)
-                self.setPermissions(path)
-
-            return paths
-        except:
-            self.log.exception("Unable to download subtitles.")
-            return None
+                return paths
+            except:
+                self.log.exception("Unable to download subtitles.")
+        return None
 
     def setPermissions(self, path):
         try:
@@ -902,7 +905,7 @@ class MkvtoMp4:
 
     def isImageBasedSubtitle(self, inputfile, map):
         outputfile = self.getSubOutputFile(inputfile, "null", False, False, "subtest")
-        ripsub = {0: {'map': map, 'codec': 'srt'}}
+        ripsub = [{'map': map, 'codec': 'srt'}]
         options = {'format': 'srt', 'subtitle': ripsub}
         try:
             conv = self.converter.convert(inputfile, outputfile, options, timeout=30)
@@ -925,7 +928,7 @@ class MkvtoMp4:
                 self.log.info("Input and output extensions are the same so passing back the original file [process-same-extensions: %s]." % self.settings.process_same_extensions)
                 return True
             # Force convert
-            elif not self.settings.forceConvert and len([x for x in [options['video']] + [x for x in options['audio'].values()] + [x for x in options['subtitle'].values()] if x['codec'] != 'copy']) == 0:
+            elif not self.settings.forceConvert and len([x for x in [options['video']] + [x for x in options['audio']] + [x for x in options['subtitle']] if x['codec'] != 'copy']) == 0:
                 self.log.info("Input and output extensions match and every codec is copy, this file probably doesn't need conversion, returning [force-convert: %s]." % self.settings.forceConvert)
                 return True
             elif self.settings.forceConvert:
