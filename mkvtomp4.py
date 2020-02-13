@@ -61,7 +61,7 @@ class MkvtoMp4:
 
             self.ripSubs(inputfile, ripsubopts)
 
-            outputfile, inputfile = self.convert(inputfile, options, preopts, postopts, reportProgress)
+            outputfile, inputfile = self.convert(options, preopts, postopts, reportProgress)
 
             if not outputfile:
                 self.log.debug("Error converting, no outputfile generated for inputfile %s." % inputfile)
@@ -162,14 +162,14 @@ class MkvtoMp4:
         parsed = self.converter.parse_options(dump["output"])
         input_dir, filename, input_extension = self.parseFile(inputfile)
         outputfile, output_extension = self.getOutputFile(input_dir, filename, input_extension)
-        cmds = self.converter.ffmpeg.generateCommands(inputfile, outputfile, parsed, dump["preopts"], dump["postopts"])
+        cmds = self.converter.ffmpeg.generateCommands(outputfile, parsed, dump["preopts"], dump["postopts"])
         dump["ffmpeg_commands"] = []
         dump["ffmpeg_commands"].append(" ".join(str(item) for item in cmds))
         for suboptions in dump["ripsubopts"]:
             subparsed = self.converter.parse_options(suboptions)
             extension = self.getSubExtensionFromCodec(suboptions['format'])
             suboutputfile = self.getSubOutputFileFromOptions(inputfile, suboptions, extension)
-            subcmds = self.converter.ffmpeg.generateCommands(inputfile, suboutputfile, subparsed)
+            subcmds = self.converter.ffmpeg.generateCommands(suboutputfile, subparsed)
             dump["ffmpeg_commands"].append(" ".join(str(item) for item in subcmds))
 
         return json.dumps(dump, sort_keys=False, indent=4)
@@ -230,7 +230,7 @@ class MkvtoMp4:
     def generateOptions(self, inputfile, info=None, original=None):
         # Get path information from the input file
         input_dir, filename, input_extension = self.parseFile(inputfile)
-
+        sources = [inputfile]
         ripsubopts = []
 
         info = self.converter.probe(inputfile) if not info else info
@@ -509,6 +509,7 @@ class MkvtoMp4:
                             'debug': "base"
                         }]
                         options = {
+                            'source': [inputfile],
                             'format': codec,
                             'subtitle': ripsub,
                             'forced': s.forced,
@@ -527,7 +528,6 @@ class MkvtoMp4:
         # External subtitle import
         valid_external_subs = None
         if self.settings.embedsubs and not self.settings.embedonlyinternalsubs:  # Don't bother if we're not embeddeding subtitles and external subtitles
-            src = 1  # FFMPEG input source number
             valid_external_subs = self.scanForExternalSubs(inputfile, swl)
             for external_sub in valid_external_subs:
                 image_based = self.isImageBasedSubtitle(external_sub.path, 0)
@@ -540,10 +540,10 @@ class MkvtoMp4:
                 if not scodec:
                     self.log.info("Skipping external subtitle file %s, no appropriate codecs found." % os.path.basename(external_sub.path))
                     continue
-
+                if external_sub.path not in sources:
+                    sources.append(external_sub.path)
                 subtitle_settings.append({
-                    'path': external_sub.path,
-                    'source': src,
+                    'source': sources.index(external_sub.path),
                     'map': 0,
                     'codec': scodec,
                     'disposition': external_sub.subtitle[0].disposition,
@@ -552,13 +552,11 @@ class MkvtoMp4:
 
                 self.log.info("Creating %s subtitle stream by importing %s-based %s [embed-subs]." % (scodec, "Image" if image_based else "Text", os.path.basename(external_sub.path)))
                 self.log.debug("Path: %s." % external_sub.path)
-                self.log.debug("Source: %s." % src)
                 self.log.debug("Codec: %s." % self.settings.scodec[0])
                 self.log.debug("Langauge: %s." % external_sub.subtitle[0].metadata['language'])
                 self.log.debug("Disposition: %s." % external_sub.subtitle[0].disposition)
 
                 self.deletesubs.add(external_sub.path)
-                src += 1
 
         # Set Default Subtitle Stream
         try:
@@ -583,6 +581,7 @@ class MkvtoMp4:
 
         # Collect all options
         options = {
+            'source': sources,
             'format': self.settings.output_format,
             'video': video_settings,
             'audio': audio_settings,
@@ -872,7 +871,7 @@ class MkvtoMp4:
 
             try:
                 self.log.info("Ripping %s subtitle from source stream %s into external file." % (options["language"], options['index']))
-                conv = self.converter.convert(inputfile, outputfile, options, timeout=None)
+                conv = self.converter.convert(outputfile, options, timeout=None)
                 for timecode in conv:
                     pass
 
@@ -908,9 +907,9 @@ class MkvtoMp4:
     def isImageBasedSubtitle(self, inputfile, map):
         outputfile = self.getSubOutputFile(inputfile, "null", False, False, "subtest")
         ripsub = [{'map': map, 'codec': 'srt'}]
-        options = {'format': 'srt', 'subtitle': ripsub}
+        options = {'source': [inputfile], 'format': 'srt', 'subtitle': ripsub}
         try:
-            conv = self.converter.convert(inputfile, outputfile, options, timeout=30)
+            conv = self.converter.convert(outputfile, options, timeout=30)
             for timecode in conv:
                 pass
         except FFMpegConvertError:
@@ -938,8 +937,9 @@ class MkvtoMp4:
         return False
 
     # Encode a new file based on selected options, built in naming conflict resolution
-    def convert(self, inputfile, options, preopts, postopts, reportProgress=False):
+    def convert(self, options, preopts, postopts, reportProgress=False):
         self.log.info("Starting conversion.")
+        inputfile = options['source'][0]
         input_dir, filename, input_extension = self.parseFile(inputfile)
         originalinputfile = inputfile
         outputfile, output_dir = self.getOutputFile(input_dir, filename, input_extension, self.settings.temp_extension)
@@ -993,7 +993,7 @@ class MkvtoMp4:
             finaloutputfile, _ = self.getOutputFile(input_dir, filename, input_extension, number=i)
             i += 1
 
-        conv = self.converter.convert(inputfile, outputfile, options, timeout=None, preopts=preopts, postopts=postopts)
+        conv = self.converter.convert(outputfile, options, timeout=None, preopts=preopts, postopts=postopts)
 
         try:
             for timecode in conv:

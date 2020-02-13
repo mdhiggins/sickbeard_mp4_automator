@@ -467,18 +467,10 @@ class FFMpeg(object):
 
         return info
 
-    def generateCommands(self, infile, outfile, opts, preopts=None, postopts=None):
+    def generateCommands(self, outfile, opts, preopts=None, postopts=None):
         cmds = [self.ffmpeg_path]
         if preopts:
             cmds.extend(preopts)
-        cmds.extend(['-i', infile])
-
-        # Move additional inputs to the front of the line
-        for ind, command in enumerate(opts):
-            if command == '-i':
-                cmds.extend(['-i', opts[ind + 1]])
-                del opts[ind]
-                del opts[ind]
 
         cmds.extend(opts)
         if postopts:
@@ -486,7 +478,7 @@ class FFMpeg(object):
         cmds.extend(['-y', outfile])
         return cmds
 
-    def convert(self, infile, outfile, opts, timeout=10, preopts=None, postopts=None):
+    def convert(self, outfile, opts, timeout=10, preopts=None, postopts=None):
         """
         Convert the source media (infile) according to specified options
         (a list of ffmpeg switches as strings) and save it to outfile.
@@ -512,10 +504,12 @@ class FFMpeg(object):
             if len(outfile) > 260:
                 outfile = '\\\\?\\' + outfile
 
+        infile = opts[opts.index("-i") + 1]
+
         if not os.path.exists(infile):
             raise FFMpegError("Input file doesn't exist: " + infile)
 
-        cmds = self.generateCommands(infile, outfile, opts, preopts, postopts)
+        cmds = self.generateCommands(outfile, opts, preopts, postopts)
 
         if timeout:
             def on_sigalrm(*_):

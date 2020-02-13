@@ -54,6 +54,7 @@ class Converter(object):
         audio_options = []
         video_options = []
         subtitle_options = []
+        source_options = []
 
         if not isinstance(opt, dict):
             raise ConverterError('Invalid output specification')
@@ -69,8 +70,23 @@ class Converter(object):
         if format_options is None:
             raise ConverterError('Unknown container format error')
 
+        if 'source' not in opt or len(opt['source']) < 1:
+            raise ConverterError('No source file provided')
+
         if 'audio' not in opt and 'video' not in opt and 'subtitle' not in opt:
             raise ConverterError('Neither audio nor video nor subtitle streams requested')
+
+        # Sources
+        if 'source' in opt:
+            y = opt['source']
+
+            if isinstance(y, str):
+                y = [y]
+
+            for x in y:
+                if not os.path.exists(x):
+                    raise ConverterError('Souce file does not exist')
+                source_options.extend(['-i', x])
 
         # Audio
         if 'audio' in opt:
@@ -83,12 +99,6 @@ class Converter(object):
             for x in y:
                 if not isinstance(x, dict) or 'codec' not in x:
                     raise ConverterError('Invalid audio codec specification')
-
-                if 'path' in x and 'source' not in x:
-                    raise ConverterError('Cannot specify audio path without FFMPEG source number')
-
-                if 'source' in x and 'path' not in x:
-                    raise ConverterError('Cannot specify alternate input source without a path')
 
                 c = x['codec']
                 if c not in self.audio_codecs:
@@ -109,12 +119,6 @@ class Converter(object):
             for x in y:
                 if not isinstance(x, dict) or 'codec' not in x:
                     raise ConverterError('Invalid subtitle codec specification')
-
-                if 'path' in x and 'source' not in x:
-                    raise ConverterError('Cannot specify subtitle path without FFMPEG source number')
-
-                if 'source' in x and 'path' not in x:
-                    raise ConverterError('Cannot specify alternate input source without a path')
 
                 c = x['codec']
                 if c not in self.subtitle_codecs:
@@ -138,7 +142,7 @@ class Converter(object):
                 raise ConverterError('Unknown video codec error')
 
         # aggregate all options
-        optlist = video_options + audio_options + subtitle_options + format_options
+        optlist = source_options + video_options + audio_options + subtitle_options + format_options
 
         if twopass == 1:
             optlist.extend(['-pass', '1'])
@@ -147,7 +151,7 @@ class Converter(object):
 
         return optlist
 
-    def convert(self, infile, outfile, options, twopass=False, timeout=10, preopts=None, postopts=None):
+    def convert(self, outfile, options, twopass=False, timeout=10, preopts=None, postopts=None):
         """
         Convert media file (infile) according to specified options, and
         save it to outfile. For two-pass encoding, specify the pass (1 or 2)
@@ -193,8 +197,10 @@ class Converter(object):
         if not isinstance(options, dict):
             raise ConverterError('Invalid options')
 
-        if not os.path.exists(infile):
-            raise ConverterError("Source file doesn't exist: " + infile)
+        if 'source' not in options:
+            raise ConverterError('No source specified')
+
+        infile = options['source'][0]
 
         info = self.ffmpeg.probe(infile)
         if info is None:
@@ -217,17 +223,17 @@ class Converter(object):
 
         if twopass:
             optlist1 = self.parse_options(options, 1)
-            for timecode in self.ffmpeg.convert(infile, outfile, optlist1,
+            for timecode in self.ffmpeg.convert(outfile, optlist1,
                                                 timeout=timeout, preopts=preopts, postopts=postopts):
                 yield int((50.0 * timecode) / info.format.duration)
 
             optlist2 = self.parse_options(options, 2)
-            for timecode in self.ffmpeg.convert(infile, outfile, optlist2,
+            for timecode in self.ffmpeg.convert(outfile, optlist2,
                                                 timeout=timeout, preopts=preopts, postopts=postopts):
                 yield int(50.0 + (50.0 * timecode) / info.format.duration)
         else:
             optlist = self.parse_options(options, twopass)
-            for timecode in self.ffmpeg.convert(infile, outfile, optlist,
+            for timecode in self.ffmpeg.convert(outfile, optlist,
                                                 timeout=timeout, preopts=preopts, postopts=postopts):
                 yield int((100.0 * timecode) / info.format.duration)
 
