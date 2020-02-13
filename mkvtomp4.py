@@ -195,7 +195,7 @@ class MkvtoMp4:
         # Loop through audio streams and clean up language metadata by standardizing undefined languages and applying the ADL setting
         for a in info.audio:
             try:
-                if a.metadata['language'].strip() == "" or a.metadata['language'] is None:
+                if 'language' not in a.metadata or a.metadata['language'].strip() == "" or a.metadata['language'] is None:
                     a.metadata['language'] = 'und'
             except KeyError:
                 a.metadata['language'] = 'und'
@@ -215,7 +215,7 @@ class MkvtoMp4:
         # Prep subtitle streams by cleaning up languages and setting SDL
         for s in info.subtitle:
             try:
-                if s.metadata['language'] == "" or s.metadata['language'] is None:
+                if 'language' not in s.metadata or s.metadata['language'] == "" or s.metadata['language'] is None:
                     s.metadata['language'] = 'und'
             except KeyError:
                 s.metadata['language'] = 'und'
