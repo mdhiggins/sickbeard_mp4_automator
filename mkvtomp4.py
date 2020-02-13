@@ -689,6 +689,8 @@ class MkvtoMp4:
 
     def burnSubtitleFilter(self, inputfile, subtitle_streams, swl, valid_external_subs=None):
         if self.settings.burn_subtitles:
+            if swl:
+                subtitle_streams = sorted(subtitle_streams, key=lambda x: swl.index(x.metadata['language']) if x.metadata['language'] in swl else 999)
             sub_candidates = []
             if len(subtitle_streams) > 0:
                 first_index = sorted([x.index for x in subtitle_streams])[0]
@@ -769,8 +771,7 @@ class MkvtoMp4:
                         else:
                             self.log.debug("Ignoring %s external subtitle stream due to language %s." % (fname, lang))
         self.log.info("Scanned for external subtitles and found %d results in your approved languages." % (len(valid_external_subs)))
-        if self.settings.sort_streams:
-            valid_external_subs.sort(key=lambda x: swl.index(x.subtitle[0].metadata['language']) if x.subtitle[0].metadata['language'] in swl else 999)
+        valid_external_subs.sort(key=lambda x: swl.index(x.subtitle[0].metadata['language']) if x.subtitle[0].metadata['language'] in swl else 999)
 
         return valid_external_subs
 
