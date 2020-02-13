@@ -6,19 +6,21 @@ try:
     import configparser
 except ImportError:
     import ConfigParser as configparser
+try:
+    from importlib import reload
+except ImportError:
+    pass
 import logging
 from extensions import *
 
 
 class ReadSettings:
-
+    log = logging.getLogger(__name__)
     def __init__(self, directory, filename, logger=None):
 
         # Setup logging
         if logger:
-            log = logger
-        else:
-            log = logging.getLogger(__name__)
+            self.log = logger
 
         # Setup encoding to avoid UTF-8 errors
         if sys.version[0] == '2':
@@ -41,10 +43,10 @@ class ReadSettings:
                 # On non-unicode builds this will raise an AttributeError, if encoding type is not valid it throws a LookupError
                 sys.setdefaultencoding(SYS_ENCODING)
             except:
-                log.exception("Sorry, your environment is not setup correctly for utf-8 support. Please fix your setup and try again")
+                self.log.exception("Sorry, your environment is not setup correctly for utf-8 support. Please fix your setup and try again")
                 sys.exit("Sorry, your environment is not setup correctly for utf-8 support. Please fix your setup and try again")
 
-        log.info(sys.executable)
+        self.log.info(sys.executable)
 
         # Default settings for SickBeard
         sb_defaults = {'host': 'localhost',
@@ -225,7 +227,7 @@ class ReadSettings:
         if os.path.isfile(configFile):
             config.read(configFile)
         else:
-            log.error("Config file not found, creating %s." % configFile)
+            self.log.error("Config file not found, creating %s." % configFile)
             # config.filename = filename
             write = True
 
@@ -269,7 +271,7 @@ class ReadSettings:
                     try:
                         os.makedirs(self.copyto[i])
                     except:
-                        log.exception("Error making directory %s." % (self.copyto[i]))
+                        self.log.exception("Error making directory %s." % (self.copyto[i]))
         self.moveto = config.get(section, "move_to")  # Directory to move final product to
         if self.moveto == '':
             self.moveto = None
@@ -279,7 +281,7 @@ class ReadSettings:
                 try:
                     os.makedirs(self.moveto)
                 except:
-                    log.exception("Error making directory %s." % (self.moveto))
+                    self.log.exception("Error making directory %s." % (self.moveto))
                     self.moveto = None
 
         self.output_extension = config.get(section, "output_extension")  # Output extension
@@ -289,8 +291,6 @@ class ReadSettings:
         elif self.temp_extension.startswith('.'):
             self.temp_extension = self.temp_extension[1:]
         self.output_format = config.get(section, "output_format")  # Output format
-        if self.output_format not in valid_formats:
-            self.output_format = 'mov'
         self.delete = config.getboolean(section, "delete_original")  # Delete original file
         self.relocate_moov = config.getboolean(section, "relocate_moov")  # Relocate MOOV atom to start of file
         self.ignore_truehd = config.getboolean(section, "ignore-truehd")  # Ignore truehd
@@ -298,7 +298,7 @@ class ReadSettings:
             try:
                 import qtfaststart
             except:
-                log.error("Please install QTFastStart via PIP, relocate_moov will be disabled without this module.")
+                self.log.error("Please install QTFastStart via PIP, relocate_moov will be disabled without this module.")
                 self.relocate_moov = False
         self.acodec = config.get(section, "audio-codec").lower()  # Gets the desired audio codec, if no valid codec selected, default to AC3
         if self.acodec == '':
@@ -314,9 +314,9 @@ class ReadSettings:
                 self.abitrate = int(self.abitrate)
             except:
                 self.abitrate = 256
-                log.warning("Audio bitrate was invalid, defaulting to 256 per channel.")
+                self.log.warning("Audio bitrate was invalid, defaulting to 256 per channel.")
         if self.abitrate > 256:
-            log.warning("Audio bitrate >256 may create errors with common codecs.")
+            self.log.warning("Audio bitrate >256 may create errors with common codecs.")
 
         self.audio_copyoriginal = config.getboolean(section, "audio-copy-original")  # Copies the original audio track regardless of format if a converted track is being generated
 
@@ -362,7 +362,7 @@ class ReadSettings:
                 import subliminal
             except Exception as e:
                 self.downloadsubs = False
-                log.exception("Subliminal is not installed, automatically downloading of subs has been disabled.")
+                self.log.exception("Subliminal is not installed, automatically downloading of subs has been disabled.")
         self.subproviders = config.get(section, 'sub-providers').lower()
         if self.subproviders == '':
             self.subproviders = None
@@ -389,10 +389,10 @@ class ReadSettings:
             try:
                 self.maxchannels = int(self.maxchannels)
             except:
-                log.exception("Invalid number of audio channels specified.")
+                self.log.exception("Invalid number of audio channels specified.")
                 self.maxchannels = None
         if self.maxchannels is not None and self.maxchannels < 1:
-            log.warning("Must have at least 1 audio channel.")
+            self.log.warning("Must have at least 1 audio channel.")
             self.maxchannels = None
 
         self.vcodec = config.get(section, "video-codec")
@@ -409,9 +409,9 @@ class ReadSettings:
                 self.vbitrate = int(self.vbitrate)
                 if not (self.vbitrate > 0):
                     self.vbitrate = None
-                    log.warning("Video bitrate must be greater than 0, defaulting to no video bitrate cap.")
+                    self.log.warning("Video bitrate must be greater than 0, defaulting to no video bitrate cap.")
             except:
-                log.exception("Invalid video bitrate, defaulting to no video bitrate cap.")
+                self.log.exception("Invalid video bitrate, defaulting to no video bitrate cap.")
                 self.vbitrate = None
 
         self.vcrf = config.get(section, "video-crf")
@@ -421,7 +421,7 @@ class ReadSettings:
             try:
                 self.vcrf = int(self.vcrf)
             except:
-                log.exception("Invalid CRF setting, defaulting to none.")
+                self.log.exception("Invalid CRF setting, defaulting to none.")
                 self.vcrf = None
 
         self.vwidth = config.get(section, "video-max-width")
@@ -431,7 +431,7 @@ class ReadSettings:
             try:
                 self.vwidth = int(self.vwidth)
             except:
-                log.exception("Invalid video width, defaulting to none.")
+                self.log.exception("Invalid video width, defaulting to none.")
                 self.vwidth = None
 
         self.h264_level = config.get(section, "h264-max-level")
@@ -441,7 +441,7 @@ class ReadSettings:
             try:
                 self.h264_level = float(self.h264_level)
             except:
-                log.exception("Invalid h264 level, defaulting to none.")
+                self.log.exception("Invalid h264 level, defaulting to none.")
                 self.h264_level = None
 
         self.vprofile = config.get(section, "video-profile")
@@ -471,7 +471,7 @@ class ReadSettings:
                 self.scodec = ['mov_text']
             else:
                 self.scodec = ['srt']
-            log.warning("Invalid subtitle codec, defaulting to '%s'." % self.scodec)
+            self.log.warning("Invalid subtitle codec, defaulting to '%s'." % self.scodec)
         else:
             self.scodec = self.scodec.replace(' ', '').split(',')
         self.scodec_image = config.get(section, 'subtitle-codec-image-based').strip().lower()
@@ -499,7 +499,7 @@ class ReadSettings:
             self.sdl = None
         # Prevent incompatible combination of settings
         if self.output_dir == "" and self.delete is False:
-            log.error("You must specify an alternate output directory if you aren't going to delete the original file.")
+            self.log.error("You must specify an alternate output directory if you aren't going to delete the original file.")
             sys.exit()
         # Create output directory if it does not exist
         if self.output_dir is not None:
@@ -509,7 +509,7 @@ class ReadSettings:
         self.forceConvert = config.getboolean(section, "force-convert")  # Force conversion even if everything is the same
         if self.forceConvert:
             self.process_same_extensions = True
-            log.warning("Force-convert is true, so convert-mp4 is being overridden to true as well")
+            self.log.warning("Force-convert is true, so convert-mp4 is being overridden to true as well")
         self.fullpathguess = config.getboolean(section, "fullpathguess")  # Guess using the full path or not
         self.tagfile = config.getboolean(section, "tagfile")  # Tag files with metadata
         self.taglanguage = config.get(section, "tag-language").strip().lower()  # Language to tag files
@@ -526,7 +526,7 @@ class ReadSettings:
                 self.artwork = config.getboolean(section, "download-artwork")
             except:
                 self.artwork = True
-                log.error("Invalid download-artwork value, defaulting to 'poster'.")
+                self.log.error("Invalid download-artwork value, defaulting to 'poster'.")
 
         self.preopts = config.get(section, "preopts")
         if self.preopts == '':
@@ -612,7 +612,7 @@ class ReadSettings:
         if self.qBittorrent['output_dir'] == '':
             self.qBittorrent['output_dir'] = None
         else:
-            self.qBittorrent['output_dir'] = os.path.normpath(self.raw(self.qBittorrent['output_dir']))  # Output directory        
+            self.qBittorrent['output_dir'] = os.path.normpath(self.raw(self.qBittorrent['output_dir']))  # Output directory
         self.qBittorrent['actionBefore'] = config.get(section, "action_before").lower()
         self.qBittorrent['actionAfter'] = config.get(section, "action_after").lower()
         self.qBittorrent['host'] = config.get(section, "host").lower()
@@ -734,20 +734,20 @@ class ReadSettings:
         try:
             self.permissions['chmod'] = int(self.permissions['chmod'], 8)
         except:
-            log.exception("Invalid permissions, defaulting to 777.")
-            self.permissions['chmod'] = int("0755", 8)
+            self.log.exception("Invalid permissions, defaulting to 644.")
+            self.permissions['chmod'] = int("0644", 8)
         self.permissions['uid'] = config.get(section, 'uid', vars=os.environ)
         self.permissions['gid'] = config.get(section, 'gid', vars=os.environ)
         try:
             self.permissions['uid'] = int(self.permissions['uid'])
         except:
             self.permissions['uid'] = -1
-            log.exception("Invalid UID, defaulting to -1.")
+            self.log.exception("Invalid UID, defaulting to -1.")
         try:
             self.permissions['gid'] = int(self.permissions['gid'])
         except:
             self.permissions['gid'] = -1
-            log.exception("Invalid GID, defaulting to -1.")
+            self.log.exception("Invalid GID, defaulting to -1.")
 
     def getRefreshURL(self, tvdb_id):
         config = self.config
@@ -768,12 +768,14 @@ class ReadSettings:
         return sickbeard_url
 
     def writeConfig(self, config, cfgfile):
-        fp = open(cfgfile, "w")
         try:
+            fp = open(cfgfile, "w")
             config.write(fp)
+            fp.close()
         except IOError:
-            pass
-        fp.close()
+            self.log.exception("Error writing to autoProcess.ini.")
+        except PermissionError:
+            self.log.exception("Error writing to autoProcess.ini due to permissions.")
 
     def raw(self, text):
         escape_dict = {'\a': r'\a',
