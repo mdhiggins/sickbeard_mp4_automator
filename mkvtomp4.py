@@ -257,7 +257,8 @@ class MkvtoMp4:
         try:
             vbr = self.estimateVideoBitrate(info)
         except:
-            vbr = info.format.bitrate / 1000
+            if info.format.bitrate:
+                vbr = info.format.bitrate / 1000
 
         if info.video.codec.lower() in self.settings.vcodec:
             vcodec = 'copy'
