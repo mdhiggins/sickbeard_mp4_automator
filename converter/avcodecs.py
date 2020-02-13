@@ -327,11 +327,13 @@ class VideoCodec(BaseCodec):
         if 'width' in safe:
             w = safe['width']
             if w < 16 or w > 4000:
+                del safe['width']
                 w = None
 
         if 'height' in safe:
             h = safe['height']
             if h < 16 or h > 3000:
+                del safe['height']
                 h = None
 
         sw = None
@@ -715,14 +717,14 @@ class H264Codec(VideoCodec):
         'hscale': int  # special handlers for the even number requirements of h264
     })
 
-    def parse_options(self, opt, stream=0):
-        if 'width' in opt:
-            opt['wscale'] = opt['width']
-            del(opt['width'])
-        if 'height' in opt:
-            opt['hscale'] = opt['height']
-            del(opt['height'])
-        return super(H264Codec, self).parse_options(opt, stream)
+    def _codec_specific_parse_options(self, safe, stream=0):
+        if 'width' in safe and safe['width']:
+            safe['wscale'] = safe['width']
+            del(safe['width'])
+        if 'height' in safe and safe['height']:
+            safe['hscale'] = safe['height']
+            del(safe['height'])
+        return safe
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         optlist = []
@@ -815,14 +817,14 @@ class H265Codec(VideoCodec):
         'hscale': int  # special handlers for the even number requirements of h265
     })
 
-    def parse_options(self, opt, stream=0):
-        if 'width' in opt:
-            opt['wscale'] = opt['width']
-            del(opt['width'])
-        if 'height' in opt:
-            opt['hscale'] = opt['height']
-            del(opt['height'])
-        return super(H265Codec, self).parse_options(opt, stream)
+    def _codec_specific_parse_options(self, safe, stream=0):
+        if 'width' in safe and safe['width']:
+            safe['wscale'] = safe['width']
+            del(safe['width'])
+        if 'height' in safe and safe['height']:
+            safe['hscale'] = safe['height']
+            del(safe['height'])
+        return safe
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         optlist = []
