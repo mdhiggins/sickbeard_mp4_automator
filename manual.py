@@ -302,7 +302,8 @@ def main():
     silent = args['auto']
     tag = True
 
-    safePrint("%sbit Python." % (struct.calcsize("P") * 8))
+    safePrint("Python %s-bit %s." % (struct.calcsize("P") * 8, sys.version))
+    safePrint("Guessit version: %s." % guessit.__version__)
 
     # Settings overrides
     if(args['config']):
