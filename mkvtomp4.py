@@ -414,14 +414,12 @@ class MkvtoMp4:
                         self.log.warning("Unable to determine audio bitrate from source stream %s, defaulting to 256 per channel." % a.index)
                         abitrate = audio_channels * 256
 
-                adisposition = '+default' if a.default else ''
-
                 self.log.debug("Audio codec: %s." % acodec)
                 self.log.debug("Channels: %s." % audio_channels)
                 self.log.debug("Bitrate: %s." % abitrate)
                 self.log.debug("Language: %s" % a.metadata['language'])
                 self.log.debug("Filter: %s" % afilter)
-                self.log.debug("Disposition: %s" % adisposition)
+                self.log.debug("Disposition: %s" % a.disposition)
                 self.log.debug("Debug: %s" % adebug)
 
                 # If the iOSFirst option is enabled, disable the iOS option after the first audio stream is processed
@@ -439,7 +437,7 @@ class MkvtoMp4:
                     'bitrate': abitrate,
                     'filter': afilter,
                     'language': a.metadata['language'],
-                    'disposition': adisposition,
+                    'disposition': a.disposition,
                     'bsf': absf,
                     'debug': adebug
                 })
@@ -456,7 +454,7 @@ class MkvtoMp4:
                         'codec': 'copy',
                         'channels': a.audio_channels,
                         'language': a.metadata['language'],
-                        'disposition': adisposition,
+                        'disposition': a.disposition,
                         'debug': 'audio-copy-original'
                     })
 

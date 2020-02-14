@@ -156,6 +156,8 @@ class MediaStreamInfo(object):
             disposition += '+default'
         if self.forced:
             disposition += '+forced'
+        if disposition == '':
+            return None
         return disposition
 
     @staticmethod
