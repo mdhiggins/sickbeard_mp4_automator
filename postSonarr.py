@@ -93,7 +93,7 @@ if info:
                 except:
                     pass
                 log.info("Sonarr response: ID %d %s." % (rstate['id'], rstate['state']))
-                log.info(str(rstate)) # debug
+                log.debug(str(rstate))
 
                 # Then wait for it to finish
                 url = protocol + host + ":" + port + webroot + "/api/command/" + str(rstate['id'])
@@ -123,15 +123,15 @@ if info:
                 sonarrepinfo['monitored'] = True
 
                 # Then set that episode to monitored
-                log.info("Sending PUT request with following payload:") # debug
-                log.info(str(sonarrepinfo)) # debug
+                log.debug("Sending PUT request with following payload:")
+                log.debug(str(sonarrepinfo))
 
                 url = protocol + host + ":" + port + webroot + "/api/episode/" + str(sonarrepinfo['id'])
                 r = requests.put(url, json=sonarrepinfo, headers=headers)
                 success = r.json()
 
-                log.info("PUT request returned:") # debug
-                log.info(str(success)) # debug
+                log.debug("PUT request returned:")
+                log.debug(str(success))
                 log.info("Sonarr monitoring information updated for episode %s." % success['title'])
             else:
                 log.error("Your Sonarr API Key can not be blank. Update autoProcess.ini.")
