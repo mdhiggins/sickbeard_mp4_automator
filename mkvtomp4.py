@@ -116,14 +116,21 @@ class MkvtoMp4:
 
     # Determine if a file can be read by FFPROBE
     def isValidSource(self, inputfile):
-        info = self.converter.probe(inputfile)
-        if info and not info.video:
+        try:
+            info = self.converter.probe(inputfile)
+            if not info:
+                self.log.debug("Invalid source, no data returned.")
+                return None
+            if not info.video:
+                self.log.debug("Invalid source, no video stream detected")
+                return None
+            if not info.audio or len(info.audio) < 1:
+                self.log.debug("Invalid source, no audio stream detected")
+                return None
+            return info
+        except:
+            self.log.exception("isValidSource unexpectedly threw an exception, returning None")
             return None
-        if info and not info.audio:
-            return None
-        if len(info.audio) < 1:
-            return None
-        return info
 
     def isValidSubtitleSource(self, inputfile):
         info = self.converter.probe(inputfile)
