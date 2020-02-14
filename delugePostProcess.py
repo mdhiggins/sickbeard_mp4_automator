@@ -59,7 +59,7 @@ for contents in torrent_files:
         files.append(contents['path'])
         log.debug(contents['path'])
 
-if category.lower() not in categories:
+if category not in categories:
     log.error("No valid category detected.")
     sys.exit()
 
@@ -67,45 +67,51 @@ if len(categories) != len(set(categories)):
     log.error("Duplicate category detected. Category names must be unique.")
     sys.exit()
 
-if settings.deluge['convert']:
-    # Check for custom Deluge output_dir
-    if settings.deluge['output_dir']:
-        settings.output_dir = settings.deluge['output_dir']
-        log.debug("Overriding output_dir to %s." % settings.deluge['output_dir'])
+try:
+    if settings.deluge['convert']:
+        # Check for custom Deluge output_dir
+        if settings.deluge['output_dir']:
+            settings.output_dir = settings.deluge['output_dir']
+            log.debug("Overriding output_dir to %s." % settings.deluge['output_dir'])
 
-    # Perform conversion.
-    settings.delete = False
-    if not settings.output_dir:
-        suffix = "convert"
-        settings.output_dir = os.path.join(path, ("%s-%s" % (torrent_name, suffix)))
-        if not os.path.exists(settings.output_dir):
-            os.mkdir(settings.output_dir)
-        delete_dir = settings.output_dir
+        # Perform conversion.
+        settings.delete = False
+        if not settings.output_dir:
+            suffix = "convert"
+            settings.output_dir = os.path.join(path, ("%s-%s" % (torrent_name, suffix)))
+            if not os.path.exists(settings.output_dir):
+                os.mkdir(settings.output_dir)
+            delete_dir = settings.output_dir
 
-    converter = MkvtoMp4(settings)
+        converter = MkvtoMp4(settings)
 
-    for filename in files:
-        inputfile = os.path.join(path, filename)
-        info = converter.isValidSource(inputfile)
-        if info:
-            log.info("Converting file %s at location %s." % (inputfile, settings.output_dir))
-            try:
-                output = converter.process(inputfile, info=info)
-            except:
-                log.exception("Error converting file %s." % inputfile)
+        if len(files) < 1:
+            log.error("No files provided by torrent")
 
-    path = settings.output_dir
-else:
-    suffix = "copy"
-    newpath = os.path.join(path, ("%s-%s" % (torrent_name, suffix)))
-    if not os.path.exists(newpath):
-        os.mkdir(newpath)
-    for filename in files:
-        inputfile = os.path.join(path, filename)
-        log.info("Copying file %s to %s." % (inputfile, newpath))
-        shutil.copy(inputfile, newpath)
-    path = newpath
-    delete_dir = newpath
+        for filename in files:
+            inputfile = os.path.join(path, filename)
+            info = converter.isValidSource(inputfile)
+            if info:
+                log.info("Converting file %s at location %s." % (inputfile, settings.output_dir))
+                try:
+                    output = converter.process(inputfile, info=info)
+                except:
+                    log.exception("Error converting file %s." % inputfile)
+
+        path = settings.output_dir
+    else:
+        suffix = "copy"
+        newpath = os.path.join(path, ("%s-%s" % (torrent_name, suffix)))
+        if not os.path.exists(newpath):
+            os.mkdir(newpath)
+        for filename in files:
+            inputfile = os.path.join(path, filename)
+            log.info("Copying file %s to %s." % (inputfile, newpath))
+            shutil.copy(inputfile, newpath)
+        path = newpath
+        delete_dir = newpath
+except:
+    log.exception("Error occurred handling file")
 
 # Send to Sickbeard
 if (category == categories[0]):
