@@ -133,11 +133,15 @@ class MkvtoMp4:
             return None
 
     def isValidSubtitleSource(self, inputfile):
-        info = self.converter.probe(inputfile)
-        if info:
-            if len(info.subtitle) < 1 or info.video or len(info.audio) > 0:
-                return None
-        return info
+        try:
+            info = self.converter.probe(inputfile)
+            if info:
+                if len(info.subtitle) < 1 or info.video or len(info.audio) > 0:
+                    return None
+            return info
+        except:
+            self.log.exception("isValidSubtitleSource unexpectedly threw an exception, returning None")
+            return None
 
     # Get values for width and height to be passed to the tagging classes for proper HD tags
     def getDimensions(self, inputfile):
