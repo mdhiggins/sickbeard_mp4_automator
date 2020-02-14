@@ -119,6 +119,10 @@ class MkvtoMp4:
         info = self.converter.probe(inputfile)
         if info and not info.video:
             return None
+        if info and not info.audio:
+            return None
+        if len(info.audio) < 1:
+            return None
         return info
 
     def isValidSubtitleSource(self, inputfile):
@@ -712,7 +716,7 @@ class MkvtoMp4:
                     relative_index = burn_sub.index - first_index
                     self.log.info("Burning subtitle %d %s into video steram [burn-subtitles]." % (burn_sub.index, burn_sub.metadata['language']))
                     self.log.debug("Video codec cannot be copied because valid burn subtitle was found, setting to %s [burn-subtitle: %s]." % (self.settings.vcodec[0], self.settings.burn_subtitles))
-                    return "subtitles='%s':si=%d" % (os.path.basename(inputfile), relative_index)
+                    return "subtitles='%s':si=%d" % (self.raw(os.path.abspath(inputfile)), relative_index)
 
             if self.settings.embedsubs:
                 self.log.debug("No valid embedded subtitles for burning, search for external subtitles [embed-subs, burn-subtitle].")
@@ -731,7 +735,7 @@ class MkvtoMp4:
                 if len(sub_candidates) > 0:
                     burn_sub = sub_candidates[0]
                     self.log.info("Burning external subtitle %s %s into video steram [burn-subtitles, embed-subs]." % (os.path.basename(burn_sub.path), burn_sub.subtitle[0].metadata['language']))
-                    return "subtitles='%s'" % (os.path.basename(burn_sub.path))
+                    return "subtitles='%s'" % (self.raw(os.path.abspath(burn_sub.path)))
             self.log.info("No valid subtitle stream candidates found to be burned into video stream [burn-subtitles].")
         return None
 
@@ -892,7 +896,7 @@ class MkvtoMp4:
         self.log.debug("Output directory: %s." % output_dir)
         self.log.debug("Output extension: %s." % output_dir)
 
-        counter = ("(%d)" % number) if number > 0 else ""
+        counter = (".%d" % number) if number > 0 else ""
 
         try:
             outputfile = os.path.join(output_dir.decode(sys.getfilesystemencoding()), filename.decode(sys.getfilesystemencoding()) + counter + "." + output_extension).encode(sys.getfilesystemencoding())
@@ -946,7 +950,7 @@ class MkvtoMp4:
         self.log.debug("Final output file: %s." % finaloutputfile)
 
         if len(options['audio']) == 0:
-            self.logs.error("Conversion has no audio streams, aborting")
+            self.log.error("Conversion has no audio streams, aborting")
             return None, inputfile
 
         if self.canBypassConvert(input_extension, options):
@@ -1143,3 +1147,14 @@ class MkvtoMp4:
                     self.log.debug("Delaying for %s seconds before retrying." % delay)
                     time.sleep(delay)
         return False if os.path.isfile(filename) else True
+
+    def raw(self, text):
+        escape_dict = {'\\': r'\\',
+                       ':': "\\:"}
+        output = ''
+        for char in text:
+            try:
+                output += escape_dict[char]
+            except KeyError:
+                output += char
+        return output
