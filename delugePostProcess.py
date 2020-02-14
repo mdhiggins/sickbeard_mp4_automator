@@ -8,6 +8,7 @@ from readSettings import ReadSettings
 from mkvtomp4 import MkvtoMp4
 from deluge_client import DelugeRPCClient
 import logging
+import shutil
 from logging.config import fileConfig
 
 log = getLogger("DelugePostProcess")
