@@ -195,8 +195,8 @@ if 'NZBOP_SCRIPTDIR' in os.environ and not os.environ['NZBOP_VERSION'][0:5] < '1
                             log.info("Successfully processed %s." % inputfile)
                         except:
                             log.exception("File processing failed.")
-        if converter.output_dir:
-            path = converter.output_dir
+        if settings.output_dir:
+            path = settings.output_dir
     if (category.lower() == categories[0]):
         #DEBUG#print "Sickbeard Processing Activated"
         autoProcessTV.processEpisode(path, settings, nzb)

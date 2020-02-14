@@ -65,8 +65,8 @@ if settings.SAB['convert']:
                     log.exception("Error converting file %s." % inputfile)
             else:
                 log.debug("Ignoring file %s." % inputfile)
-    if converter.output_dir:
-        path = converter.output_dir
+    if settings.output_dir:
+        path = settings.output_dir
 else:
     log.info("Passing without conversion.")
 

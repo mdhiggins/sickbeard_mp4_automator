@@ -94,7 +94,7 @@ if settings.deluge['convert']:
             except:
                 log.exception("Error converting file %s." % inputfile)
 
-    path = converter.output_dir
+    path = settings.output_dir
 else:
     suffix = "copy"
     newpath = os.path.join(path, ("%s-%s" % (torrent_name, suffix)))

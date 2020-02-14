@@ -125,10 +125,11 @@ if settings.uTorrent['convert']:
 
     if str(sys.argv[4]) == 'single':
         inputfile = os.path.join(path, str(sys.argv[5]))
-        if MkvtoMp4(settings).validSource(inputfile):
+        info = converter.isValidSource(inputfile)
+        if info:
             log.info("Processing file %s." % inputfile)
             try:
-                output = converter.process(inputfile, reportProgress=True)
+                output = converter.process(inputfile, reportProgress=True, info=info)
             except:
                 log.exception("Error converting file %s." % inputfile)
         else:
@@ -139,10 +140,11 @@ if settings.uTorrent['convert']:
         for r, d, f in os.walk(path):
             for files in f:
                 inputfile = os.path.join(r, files)
-                if MkvtoMp4(settings).validSource(inputfile) and inputfile not in ignore:
+                info = converter.isValidSource(inputfile)
+                if info and inputfile not in ignore:
                     log.info("Processing file %s." % inputfile)
                     try:
-                        output = converter.process(inputfile)
+                        output = converter.process(inputfile, info=info)
                         if output is not False:
                             ignore.append(output['output'])
                         else:
@@ -152,7 +154,7 @@ if settings.uTorrent['convert']:
                 else:
                     log.debug("Ignoring file %s." % inputfile)
 
-    path = converter.output_dir
+    path = settings.output_dir
 else:
     suffix = "copy"
     # name = name[:260-len(suffix)]
