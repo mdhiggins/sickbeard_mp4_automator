@@ -16,7 +16,7 @@ log = getLogger("CouchPotatoPostProcess")
 
 log.info('MP4 Automator - Post processing script initialized')
 
-settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
+settings = ReadSettings()
 converter = MkvtoMp4(settings)
 
 imdbid = sys.argv[1]

@@ -15,7 +15,7 @@ log = getLogger("SonarrPostProcess")
 
 log.info("Sonarr extra script post processing started.")
 
-settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
+settings = ReadSettings()
 
 inputfile = os.environ.get('sonarr_episodefile_path')
 original = os.environ.get('sonarr_episodefile_scenename')

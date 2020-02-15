@@ -18,7 +18,7 @@ log = getLogger("SickbeardPostProcess")
 
 log.info("Sickbeard extra script post processing started.")
 
-settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
+settings = ReadSettings()
 
 if len(sys.argv) > 4:
     inputfile = sys.argv[1]

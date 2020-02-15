@@ -15,7 +15,7 @@ log = getLogger("DelugePostProcess")
 
 log.info("Deluge post processing started.")
 
-settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
+settings = ReadSettings()
 categories = [settings.deluge['sb'], settings.deluge['cp'], settings.deluge['sonarr'], settings.deluge['radarr'], settings.deluge['sr'], settings.deluge['bypass']]
 remove = settings.deluge['remove']
 

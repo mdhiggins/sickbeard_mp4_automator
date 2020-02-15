@@ -18,7 +18,7 @@ log = getLogger("RadarrPostProcess")
 
 log.info("Radarr extra script post processing started.")
 
-settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
+settings = ReadSettings()
 
 log.info(os.environ)
 

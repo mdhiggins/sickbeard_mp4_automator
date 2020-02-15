@@ -176,7 +176,7 @@ if 'NZBOP_SCRIPTDIR' in os.environ and not os.environ['NZBOP_VERSION'][0:5] < '1
         sys.exit(POSTPROCESS_NONE)
 
     # All checks done, now launching the script.
-    settings = ReadSettings(MP4folder, "autoProcess.ini")
+    settings = ReadSettings(MP4folder)
 
     if shouldConvert:
         if output_dir:

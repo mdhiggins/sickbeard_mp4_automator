@@ -16,7 +16,12 @@ from extensions import *
 
 class ReadSettings:
     log = logging.getLogger(__name__)
-    def __init__(self, directory, filename, logger=None):
+    def __init__(self, directory=None, filename="autoProcess.ini", logger=None):
+
+        if not directory:
+            directory = os.path.dirname(sys.argv[0])
+
+        directory = os.path.realpath(directory)
 
         # Setup logging
         if logger:

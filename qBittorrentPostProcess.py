@@ -22,7 +22,7 @@ if len(sys.argv) != 7:
     log.error(str(sys.argv[1:]))
     sys.exit()
 
-settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
+settings = ReadSettings()
 label = sys.argv[1].lower()
 root_path = str(sys.argv[3])
 content_path = str(sys.argv[4])

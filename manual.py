@@ -32,7 +32,7 @@ logging.getLogger("qtfaststart").setLevel(logging.CRITICAL)
 
 log.info("Manual processor started.")
 
-settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini", logger=log)
+settings = ReadSettings(logger=log)
 
 
 def mediatype():

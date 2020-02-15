@@ -50,7 +50,7 @@ if len(sys.argv) < 6:
     log.error(str(sys.argv[1:]))
     sys.exit()
 
-settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
+settings = ReadSettings()
 path = str(sys.argv[3])
 label = sys.argv[1].lower()
 categories = [settings.uTorrent['cp'], settings.uTorrent['sb'], settings.uTorrent['sonarr'], settings.uTorrent['radarr'], settings.uTorrent['sr'], settings.uTorrent['bypass']]

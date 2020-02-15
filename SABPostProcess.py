@@ -26,7 +26,7 @@ if len(sys.argv) < 8:
 # 6 Group that the NZB was posted in e.g. alt.binaries.x
 # 7 Status of post processing. 0 = OK, 1=failed verification, 2=failed unpack, 3=1+2
 
-settings = ReadSettings(os.path.dirname(sys.argv[0]), "autoProcess.ini")
+settings = ReadSettings()
 categories = [settings.SAB['sb'], settings.SAB['cp'], settings.SAB['sonarr'], settings.SAB['radarr'], settings.SAB['sr'], settings.SAB['bypass']]
 category = str(sys.argv[5]).lower()
 path = str(sys.argv[1])
