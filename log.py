@@ -4,10 +4,10 @@ import sys
 from logging.config import fileConfig
 
 
-def getLogger(name=None):
+def getLogger(name=None, custompath=None):
     logpath = '/var/log/sickbeard_mp4_automator'
     if os.name == 'nt':
-        logpath = os.path.dirname(sys.argv[0])
+        logpath = custompath if custompath else os.path.dirname(sys.argv[0])
     elif not os.path.isdir(logpath):
         try:
             os.mkdir(logpath)

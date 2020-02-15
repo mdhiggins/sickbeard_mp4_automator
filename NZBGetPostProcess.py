@@ -80,7 +80,7 @@ except ImportError:
     sys.exit(0)
 
 # Setup Logging
-log = getLogger("NZBGetPostProcess")
+log = getLogger("NZBGetPostProcess", MP4folder)
 
 # Determine if conversion will take place
 shouldConvert = (os.environ['NZBPO_SHOULDCONVERT'].lower() in ("yes", "true", "t", "1"))
