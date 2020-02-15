@@ -19,9 +19,8 @@ class ReadSettings:
     def __init__(self, directory=None, filename="autoProcess.ini", logger=None):
 
         if not directory:
-            directory = os.path.dirname(sys.argv[0])
-
-        directory = os.path.realpath(directory)
+            directory = os.path.realpath(sys.argv[0])
+            directory = os.path.dirname(directory)
 
         # Setup logging
         if logger:
