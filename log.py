@@ -14,7 +14,7 @@ def getLogger(name=None, custompath=None):
         except:
             logpath = os.path.dirname(sys.argv[0])
 
-    configPath = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'logging.ini')).replace("\\", "\\\\")
+    configPath = os.path.abspath(os.path.join(os.path.dirname(custompath if custompath else sys.argv[0]), 'logging.ini')).replace("\\", "\\\\")
     logPath = os.path.abspath(os.path.join(logpath, 'index.log')).replace("\\", "\\\\")
     fileConfig(configPath, defaults={'logfilename': logPath})
     return logging.getLogger(name)
