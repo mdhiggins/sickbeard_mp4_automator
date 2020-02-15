@@ -6,18 +6,17 @@ from logging.config import fileConfig
 
 def getLogger(name=None, custompath=None):
     if custompath:
+        custompath = os.path.realpath(custompath)
         if not os.path.isdir(custompath):
             custompath = os.path.dirname(custompath)
-        custompath = os.path.realpath(custompath)
 
     logpath = '/var/log/sickbeard_mp4_automator'
 
-    rootpath = os.path.dirname(sys.argv[0])
-    rootpath = os.path.realpath(rootpath)
+    rootpath = os.path.realpath(sys.argv[0])
+    rootpath = os.path.dirname(rootpath)
 
     if os.name == 'nt':
         logpath = custompath if custompath else rootpath
-        logpath = os.path.realpath(logpath)
     elif not os.path.isdir(logpath):
         try:
             os.mkdir(logpath)
