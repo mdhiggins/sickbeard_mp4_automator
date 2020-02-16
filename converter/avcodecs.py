@@ -44,8 +44,9 @@ class AudioCodec(BaseCodec):
       * channels (integer) - number of audio channels
       * bitrate (integer) - stream bitrate
       * samplerate (integer) - sample rate (frequency)
-      * language (str) - language of audio stream (3 char code)
+      * language (string) - language of audio stream (3 char code)
       * map (int) - stream index
+      * disposition (string) - disposition string (+default+forced)
 
     Supported audio codecs are: null (no audio), copy (copy from
     original), vorbis, aac, mp3, mp2
@@ -512,20 +513,27 @@ class SubtitleCopyCodec(BaseCodec):
     """
     codec_name = 'copy'
     encoder_options = {'map': int,
-                       'source': str}
+                       'source': str,
+                       'disposition': str}
 
     optlist = []
 
     def parse_options(self, opt, stream=0):
         safe = self.safe_options(opt)
+
+        if 'disposition' in safe:
+            if len(safe['disposition'].strip()) < 1:
+                del safe['disposition']
+
         stream = str(stream)
+        optlist = []
+        optlist.extend(['-c:s:' + stream, 'copy'])
         if 'source' in safe:
             s = str(safe['source'])
         else:
             s = str(0)
         if 'map' in safe:
             optlist.extend(['-map', s + ':' + str(safe['map'])])
-        optlist.extend(['-c:s:' + stream, copy])
         return optlist
 
 
