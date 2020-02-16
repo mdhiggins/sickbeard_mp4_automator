@@ -363,9 +363,9 @@ class VideoCodec(BaseCodec):
 
         safe = self._codec_specific_parse_options(safe)
 
-        w = safe['width']
-        h = safe['height']
-        filters = safe['aspect_filters']
+        w = safe.get('width', None)
+        h = safe.get('height', None)
+        filters = safe.get('aspect_filters', None)
 
         optlist = ['-vcodec', self.ffmpeg_codec_name]
         if 'map' in safe:
