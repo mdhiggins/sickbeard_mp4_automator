@@ -251,8 +251,8 @@ class ReadSettings:
 
         # Read relevant MP4 section information
         section = "MP4"
-        self.ffmpeg = os.path.normpath(self.raw(config.get(section, "ffmpeg")))  # Location of FFMPEG.exe
-        self.ffprobe = os.path.normpath(self.raw(config.get(section, "ffprobe")))  # Location of FFPROBE.exe
+        self.ffmpeg = os.path.normpath(self.raw(config.get(section, "ffmpeg", vars=os.environ)))  # Location of FFMPEG.exe
+        self.ffprobe = os.path.normpath(self.raw(config.get(section, "ffprobe", vars=os.environ)))  # Location of FFPROBE.exe
         self.threads = config.get(section, "threads")  # Number of FFMPEG threads
         try:
             int(self.threads)
