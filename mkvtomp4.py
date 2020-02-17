@@ -496,9 +496,9 @@ class MkvtoMp4:
 
             scodec = None
             if image_based and self.settings.scodec_image and len(self.settings.scodec_image) > 0:
-                scodec = self.settings.scodec_image[0]
+                scodec = 'copy' if s.codec in self.settings.scodec_image else self.settings.scodec_image[0]
             elif not image_based and self.settings.scodec and len(self.settings.scodec) > 0:
-                scodec = self.settings.scodec[0]
+                scodec = 'copy' if s.codec in self.settings.scodec else self.settings.scodec[0]
 
             if self.settings.embedsubs and scodec:
                 # Proceed if no whitelist is set, or if the language is in the whitelist
@@ -592,13 +592,24 @@ class MkvtoMp4:
         self.sortStreams(audio_settings, awl)
         self.sortStreams(subtitle_settings, swl)
 
+        # Attachments
+        attachments = []
+        for f in info.attachment:
+            if f.codec in self.settings.attachmentcodec:
+                attachment = {
+                    'map': f.index,
+                    'codec': 'copy'
+                }
+                attachments.append(attachment)
+
         # Collect all options
         options = {
             'source': sources,
             'format': self.settings.output_format,
             'video': video_settings,
             'audio': audio_settings,
-            'subtitle': subtitle_settings
+            'subtitle': subtitle_settings,
+            'attachment': attachments
         }
 
         preopts = []

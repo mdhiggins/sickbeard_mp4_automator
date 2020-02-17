@@ -111,6 +111,7 @@ class ReadSettings:
                         'subtitle-default-language': '',
                         'subtitle-encoding': '',
                         'burn-subtitles': 'False',
+                        'attachment-codec': '',
                         'process-same-extensions': 'False',
                         'force-convert': 'False',
                         'fullpathguess': 'True',
@@ -501,6 +502,13 @@ class ReadSettings:
         self.sdl = config.get(section, 'subtitle-default-language').strip().lower()  # What language to default an undefinied subtitle language tag to. If blank, it will remain undefined. This is useful for single language releases which tend to leave things tagged as und
         if self.sdl == ""or len(self.sdl) > 3:
             self.sdl = None
+
+        self.attachmentcodec = config.get(section, 'attachment-codec').strip().lower()
+        if not self.attachmentcodec or self.attachmentcodec == "":
+            self.attachmentcodec = []
+        else:
+            self.attachmentcodec = self.attachmentcodec.replace(' ', '').split(',')
+
         # Prevent incompatible combination of settings
         if self.output_dir == "" and self.delete is False:
             self.log.error("You must specify an alternate output directory if you aren't going to delete the original file.")

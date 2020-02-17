@@ -537,6 +537,36 @@ class SubtitleCopyCodec(BaseCodec):
         return optlist
 
 
+class AttachmentCopyCodec(BaseCodec):
+    """
+    Copy attachment stream directly from the source.
+    """
+    codec_name = 'copy'
+    encoder_options = {'map': int,
+                       'source': str,
+                       'disposition': str}
+
+    optlist = []
+
+    def parse_options(self, opt, stream=0):
+        safe = self.safe_options(opt)
+
+        if 'disposition' in safe:
+            if len(safe['disposition'].strip()) < 1:
+                del safe['disposition']
+
+        stream = str(stream)
+        optlist = []
+        optlist.extend(['-c:t:' + stream, 'copy'])
+        if 'source' in safe:
+            s = str(safe['source'])
+        else:
+            s = str(0)
+        if 'map' in safe:
+            optlist.extend(['-map', s + ':' + str(safe['map'])])
+        return optlist
+
+
 # Audio Codecs
 class VorbisCodec(AudioCodec):
     """
@@ -1045,4 +1075,8 @@ video_codec_list = [
 subtitle_codec_list = [
     SubtitleNullCodec, SubtitleCopyCodec, MOVTextCodec, SrtCodec, SSA, SubRip, DVDSub,
     DVBSub, WebVTTCodec, PGSCodec
+]
+
+attachment_codec_list = [
+    AttachmentCopyCodec
 ]

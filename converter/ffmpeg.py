@@ -296,7 +296,8 @@ class MediaInfo(object):
                 'format-fullname': self.format.fullname,
                 'video': self.video.toJson,
                 'audio': [x.toJson for x in self.audio],
-                'subtitle': [x.toJson for x in self.subtitle]}
+                'subtitle': [x.toJson for x in self.subtitle],
+                'attachment': [x.toJson for x in self.attachment]}
 
     def parse_ffprobe(self, raw):
         """
@@ -365,6 +366,17 @@ class MediaInfo(object):
         result = []
         for s in self.streams:
             if s.type == 'subtitle':
+                result.append(s)
+        return result
+
+    @property
+    def attachment(self):
+        """
+        All attachment streams
+        """
+        result = []
+        for s in self.streams:
+            if s.type == 'attachment':
                 result.append(s)
         return result
 

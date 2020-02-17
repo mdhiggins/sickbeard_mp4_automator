@@ -2,7 +2,7 @@
 
 import os
 
-from converter.avcodecs import video_codec_list, audio_codec_list, subtitle_codec_list
+from converter.avcodecs import video_codec_list, audio_codec_list, subtitle_codec_list, attachment_codec_list
 from converter.formats import format_list
 from converter.ffmpeg import FFMpeg, FFMpegError, FFMpegConvertError
 
@@ -28,6 +28,7 @@ class Converter(object):
         self.video_codecs = {}
         self.audio_codecs = {}
         self.subtitle_codecs = {}
+        self.attachment_codecs = {}
         self.formats = {}
 
         for cls in audio_codec_list:
@@ -42,6 +43,10 @@ class Converter(object):
             name = cls.codec_name
             self.subtitle_codecs[name] = cls
 
+        for cls in attachment_codec_list:
+            name = cls.codec_name
+            self.attachment_codecs[name] = cls
+
         for cls in format_list:
             name = cls.format_name
             self.formats[name] = cls
@@ -54,6 +59,7 @@ class Converter(object):
         audio_options = []
         video_options = []
         subtitle_options = []
+        attachment_options = []
         source_options = []
 
         if not isinstance(opt, dict):
@@ -128,6 +134,26 @@ class Converter(object):
                 if subtitle_options is None:
                     raise ConverterError('Unknown subtitle codec error')
 
+        # Attachments
+        if 'attachment' in opt:
+            y = opt['attachment']
+
+            # Creates the new nested dictionary to preserve backwards compatability
+            if isinstance(y, dict):
+                y = [y]
+
+            for x in y:
+                if not isinstance(x, dict) or 'codec' not in x:
+                    raise ConverterError('Invalid attachment codec specification')
+
+                c = x['codec']
+                if c not in self.attachment_codecs:
+                    raise ConverterError('Requested unknown attachment codec ' + str(c))
+
+                attachment_options.extend(self.attachment_codecs[c]().parse_options(x, y.index(x)))
+                if attachment_options is None:
+                    raise ConverterError('Unknown attachment codec error')
+
         if 'video' in opt:
             x = opt['video']
             if not isinstance(x, dict) or 'codec' not in x:
@@ -142,7 +168,7 @@ class Converter(object):
                 raise ConverterError('Unknown video codec error')
 
         # aggregate all options
-        optlist = source_options + video_options + audio_options + subtitle_options + format_options
+        optlist = source_options + video_options + audio_options + subtitle_options + attachment_options + format_options
 
         if twopass == 1:
             optlist.extend(['-pass', '1'])
