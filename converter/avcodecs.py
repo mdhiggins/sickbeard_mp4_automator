@@ -727,10 +727,12 @@ class H264Codec(VideoCodec):
 
     def _codec_specific_parse_options(self, safe, stream=0):
         if 'width' in safe and safe['width']:
+            safe['width'] = 2 * round(safe['width'] / 2)
             safe['wscale'] = safe['width']
             del(safe['width'])
         if 'height' in safe and safe['height']:
-            safe['hscale'] = safe['height']
+            if safe['height'] % 2 == 0:
+                safe['hscale'] = safe['height']
             del(safe['height'])
         return safe
 
@@ -827,10 +829,12 @@ class H265Codec(VideoCodec):
 
     def _codec_specific_parse_options(self, safe, stream=0):
         if 'width' in safe and safe['width']:
+            safe['width'] = 2 * round(safe['width'] / 2)
             safe['wscale'] = safe['width']
             del(safe['width'])
         if 'height' in safe and safe['height']:
-            safe['hscale'] = safe['height']
+            if safe['height'] % 2 == 0:
+                safe['hscale'] = safe['height']
             del(safe['height'])
         return safe
 
