@@ -375,7 +375,7 @@ def main():
                     tagdata = [3, tvdbid, season, episode]
                 else:
                     tagdata = getinfo(path, silent=silent, tvdbid=tvdbid)
-            elif ((args['imdbid'] or args['tmdbid']) and not args['tvdbid']):
+            elif ((args['imdbid'] or args['tmdbid']) and not args['tvid']):
                 if (args['imdbid']):
                     imdbid = args['imdbid']
                     tagdata = [1, imdbid]
