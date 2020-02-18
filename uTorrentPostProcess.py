@@ -43,6 +43,7 @@ def _sendRequest(session, host='http://localhost:8080/', username=None, password
     log.error("Problem sending command " + fnct + ", return code = " + str(response.status_code) + ".")
     return False
 
+
 if len(sys.argv) < 6:
     log.error("Not enough command line parameters present, are you launching this from uTorrent?")
     log.error("#Args: %L %T %D %K %F %I %N Label, Tracker, Directory, single|multi, NameofFile(if single), InfoHash, Name")
@@ -52,7 +53,9 @@ if len(sys.argv) < 6:
 
 settings = ReadSettings()
 path = str(sys.argv[3])
-label = sys.argv[1].lower()
+label = sys.argv[1].lower().strip()
+kind = sys.argv[4].lower().strip()
+filename = sys.argv[6].strip()
 categories = [settings.uTorrent['cp'], settings.uTorrent['sb'], settings.uTorrent['sonarr'], settings.uTorrent['radarr'], settings.uTorrent['sr'], settings.uTorrent['bypass']]
 torrent_hash = sys.argv[6]
 try:
@@ -65,6 +68,8 @@ log.debug("Label: %s." % label)
 log.debug("Categories: %s." % categories)
 log.debug("Torrent hash: %s." % torrent_hash)
 log.debug("Torrent name: %s." % name)
+log.debug("Kind: %s" % kind)
+log.debug("Filename: %s" % filename)
 
 if label not in categories:
     log.error("No valid label detected.")
@@ -111,7 +116,7 @@ if settings.uTorrent['convert']:
     settings.delete = False
     if not settings.output_dir:
         suffix = "convert"
-        if str(sys.argv[4]) == 'single':
+        if kind == 'single':
             log.info("Single File Torrent")
             settings.output_dir = os.path.join(path, ("%s-%s" % (name, suffix)))
         else:
@@ -123,8 +128,8 @@ if settings.uTorrent['convert']:
 
     converter = MkvtoMp4(settings)
 
-    if str(sys.argv[4]) == 'single':
-        inputfile = os.path.join(path, str(sys.argv[5]))
+    if kind == 'single':
+        inputfile = os.path.join(path, filename)
         info = converter.isValidSource(inputfile)
         if info:
             log.info("Processing file %s." % inputfile)
@@ -158,7 +163,7 @@ if settings.uTorrent['convert']:
 else:
     suffix = "copy"
     # name = name[:260-len(suffix)]
-    if str(sys.argv[4]) == 'single':
+    if kind == 'single':
         log.info("Single File Torrent")
         newpath = os.path.join(path, ("%s-%s" % (name, suffix)))
     else:
@@ -167,8 +172,8 @@ else:
     if not os.path.exists(newpath):
         os.mkdir(newpath)
         log.debug("Creating temporary directory %s" % newpath)
-    if str(sys.argv[4]) == 'single':
-        inputfile = os.path.join(path, str(sys.argv[5]))
+    if kind == 'single':
+        inputfile = os.path.join(path, filename)
         shutil.copy(inputfile, newpath)
         log.debug("Copying %s to %s" % (inputfile, newpath))
     else:
