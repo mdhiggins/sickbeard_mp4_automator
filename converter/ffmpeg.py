@@ -398,7 +398,7 @@ class FFMpeg(object):
 
         def which(name):
             path = os.environ.get('PATH', os.defpath)
-            for d in path.split(':'):
+            for d in path.split(os.pathsep):
                 fpath = os.path.join(d, name)
                 if os.path.exists(fpath) and os.access(fpath, os.X_OK):
                     return fpath
@@ -437,6 +437,15 @@ class FFMpeg(object):
         return Popen(cmds, shell=False, stdin=PIPE, stdout=PIPE, stderr=PIPE,
                      close_fds=(os.name != 'nt'), startupinfo=None)
 
+    def _get_stdout(self, cmds):
+        """
+        Return the decoded stdout output for the command.
+        """
+        p = self._spawn(cmds)
+        stdout_data, stderr = p.communicate()
+        logger.debug('stderr:\n', stderr)
+        return stdout_data.decode(console_encoding, errors='ignore')
+
     def probe(self, fname, posters_as_video=True):
         """
         Examine the media file and determine its format and media streams.
@@ -468,10 +477,8 @@ class FFMpeg(object):
         info = MediaInfo(posters_as_video)
         info.path = fname
 
-        p = self._spawn([self.ffprobe_path,
-                         '-show_format', '-show_streams', fname])
-        stdout_data, _ = p.communicate()
-        stdout_data = stdout_data.decode(console_encoding, errors='ignore')
+        stdout_data = self._get_stdout([
+            self.ffprobe_path, '-show_format', '-show_streams', fname])
         info.parse_ffprobe(stdout_data)
 
         if not info.format.format and len(info.streams) == 0:
