@@ -795,7 +795,8 @@ class MkvtoMp4:
                         else:
                             self.log.debug("Ignoring %s external subtitle stream due to language %s." % (fname, lang))
         self.log.info("Scanned for external subtitles and found %d results in your approved languages." % (len(valid_external_subs)))
-        valid_external_subs.sort(key=lambda x: swl.index(x.subtitle[0].metadata['language']) if x.subtitle[0].metadata['language'] in swl else 999)
+        if swl:
+            valid_external_subs.sort(key=lambda x: swl.index(x.subtitle[0].metadata['language']) if x.subtitle[0].metadata['language'] in swl else 999)
 
         return valid_external_subs
 
