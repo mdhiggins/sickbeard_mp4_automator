@@ -349,7 +349,15 @@ class MkvtoMp4:
         audio_settings = []
         blocked_audio_languages = []
         iOS = (self.settings.iOS is not False)
-        for a in info.audio:
+
+        # Sort incoming streams so that things like first language preferences respect these options
+        audio_streams = info.audio
+        try:
+            self.sortStreams(audio_streams, awl)
+        except:
+            self.log.exception("Error sorting source audio streams [sort-streams].")
+
+        for a in audio_streams:
             self.log.info("Audio detected for stream %s - %s %s %d channel." % (a.index, a.codec, a.metadata['language'], a.audio_channels))
 
             if self.settings.output_extension in valid_tagging_extensions and a.codec.lower() == 'truehd' and self.settings.ignore_truehd:
@@ -589,8 +597,11 @@ class MkvtoMp4:
             video_settings['filter'] = vfilter
 
         # Sort Options
-        self.sortStreams(audio_settings, awl)
-        self.sortStreams(subtitle_settings, swl)
+        try:
+            self.sortStreams(audio_settings, awl)
+            self.sortStreams(subtitle_settings, swl)
+        except:
+            self.log.exception("Error sorting output stream options [sort-streams].")
 
         # Attachments
         attachments = []
@@ -728,9 +739,15 @@ class MkvtoMp4:
     def sortStreams(self, streams, languages):
         if self.settings.sort_streams:
             self.log.debug("Reordering streams to be in accordance with approved languages and channels [sort-streams, prefer-more-channels].")
-            streams.sort(key=lambda x: x.get('channels', 999), reverse=self.settings.prefer_more_channels)
-            if languages:
-                streams.sort(key=lambda x: languages.index(x['language']) if x['language'] in languages else 999)
+            if len(streams) > 0:
+                if isinstance(streams[0], dict):
+                    streams.sort(key=lambda x: x.get('channels', 999), reverse=self.settings.prefer_more_channels)
+                    if languages:
+                        streams.sort(key=lambda x: languages.index(x['language']) if x['language'] in languages else 999)
+                else:
+                    streams.sort(key=lambda x: x.audio_channels, reverse=self.settings.prefer_more_channels)
+                    if languages:
+                        streams.sort(key=lambda x: languages.index(x.metadata['language']) if x.metadata['language'] in languages else 999)
 
     def burnSubtitleFilter(self, inputfile, subtitle_streams, swl, valid_external_subs=None):
         if self.settings.burn_subtitles:
