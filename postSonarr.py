@@ -15,6 +15,9 @@ log = getLogger("SonarrPostProcess")
 
 log.info("Sonarr extra script post processing started.")
 
+if os.environ.get('sonarr_eventtype') == "Test":
+    sys.exit(0)
+
 settings = ReadSettings()
 
 inputfile = os.environ.get('sonarr_episodefile_path')
