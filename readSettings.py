@@ -102,9 +102,8 @@ class ReadSettings:
                         'video-profile': '',
                         'h264-max-level': '',
                         'aac_adtstoasc': 'False',
-                        'use-qsv-decoder-with-encoder': 'True',
-                        'use-hevc-qsv-decoder': 'False',
-                        'enable_dxva2_gpu_decode': 'False',
+                        'hwaccels': 'dxva2, cuvid, qsv, d3d11va',
+                        'hwaccel-decoders': 'h264_cuvid, mjpeg_cuvid, mpeg1_cuvid, mpeg2_cuvid, mpeg4_cuvid, vc1_cuvid, hevc_qsv, h264_qsv',
                         'subtitle-codec': 'mov_text',
                         'subtitle-codec-image-based': '',
                         'subtitle-language': '',
@@ -455,9 +454,18 @@ class ReadSettings:
         else:
             self.vprofile = self.vprofile.lower().strip().replace(' ', '').split(',')
 
-        self.qsv_decoder = config.getboolean(section, "use-qsv-decoder-with-encoder")  # Use Intel QuickSync Decoder when using QuickSync Encoder
-        self.hevc_qsv_decoder = config.getboolean(section, "use-hevc-qsv-decoder")  # only supported on 6th gen intel and up.
-        self.dxva2_decoder = config.getboolean(section, "enable_dxva2_gpu_decode")
+        self.hwaccels = config.get(section, "hwaccels")
+        if self.hwaccels == '':
+            self.hwaccels == []
+        else:
+            self.hwaccels = self.hwaccels.lower().replace(' ', '').split(',')
+
+        self.hwaccel_decoders = config.get(section, "hwaccel-decoders")
+        if self.hwaccel_decoders == '':
+            self.hwaccel_decoders == []
+        else:
+            self.hwaccel_decoders = self.hwaccel_decoders.lower().replace(' ', '').split(',')
+
         self.pix_fmt = config.get(section, "pix-fmt").strip().lower()
         if self.pix_fmt == '':
             self.pix_fmt = None

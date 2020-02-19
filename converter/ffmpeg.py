@@ -389,6 +389,15 @@ class FFMpeg(object):
     >>> f = FFMpeg()
     """
     DEFAULT_JPEG_QUALITY = 4
+    CODECS_LINE_RE = re.compile(
+        r'^ [A-Z.]{6} ([^ ]+) +(.+)$', re.M)
+    CODECS_DECODERS_RE = re.compile(
+        r' \(decoders: ([^)]+) \)')
+    CODECS_ENCODERS_RE = re.compile(
+        r' \(encoders: ([^)]+) \)')
+    DECODER_SYNONYMS = {
+        'mpeg1video': 'mpeg1',
+        'mpeg2video': 'mpeg2'}
 
     def __init__(self, ffmpeg_path=None, ffprobe_path=None):
         """
@@ -423,6 +432,27 @@ class FFMpeg(object):
 
         if not os.path.exists(self.ffprobe_path):
             raise FFMpegError("ffprobe binary not found: " + self.ffprobe_path)
+
+    @property
+    def codecs(self):
+        codecs = self._get_stdout([self.ffprobe_path, '-codecs'])
+        codecs = {
+            line_match.group(1): line_match.group(2)
+            for line_match in self.CODECS_LINE_RE.finditer(codecs)}
+
+        for codec, coders in codecs.items():
+            decoders_match = self.CODECS_DECODERS_RE.search(coders)
+            encoders_match = self.CODECS_ENCODERS_RE.search(coders)
+            codecs[codec] = dict(decoders=decoders_match and decoders_match.group(1).split() or [], encoders=encoders_match and encoders_match.group(1).split() or [])
+        return codecs
+
+    @property
+    def hwaccels(self):
+        return [hwaccel.strip() for hwaccel in self._get_stdout([self.ffmpeg_path, '-hwaccels']).split('\n')[1:] if hwaccel.strip()]
+
+    def decoder(self, video_codec, hwaccel):
+        source_codec = self.DECODER_SYNONYMS.get(video_codec, video_codec)
+        return '{0}_{1}'.format(source_codec, hwaccel)
 
     @staticmethod
     def _spawn(cmds):
@@ -494,7 +524,10 @@ class FFMpeg(object):
         cmds.extend(opts)
         if postopts:
             cmds.extend(postopts)
-        cmds.extend(['-y', outfile])
+        if outfile:
+            cmds.extend(['-y', outfile])
+        else:
+            cmds.extend(['-f', 'null', '-'])
         return cmds
 
     def convert(self, outfile, opts, timeout=10, preopts=None, postopts=None):
@@ -520,7 +553,7 @@ class FFMpeg(object):
         """
         if os.name == 'nt':
             timeout = 0
-            if len(outfile) > 260:
+            if outfile and len(outfile) > 260:
                 outfile = '\\\\?\\' + outfile
 
         infile = opts[opts.index("-i") + 1]

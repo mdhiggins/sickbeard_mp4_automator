@@ -63,7 +63,7 @@ General MP4 Configuration
     - `move_to` = you may specify one final directory to move the completed file. (Use this option for the 'Automatically Add to iTunes' folder)
     - `output_extension` = your output file extension, default mp4
     - `temp_extension` = any temporary file extension to be used during creation of the file, should be renamed to final `output_extension` after conversion completes. Useful for situations where programs monitor directories for certain file extensions and may attempt to scan incomplete files
-    - `output_format` = mp4/mov (must be one of these 2, mov provides better compatibility with iTunes/Apple, mp4 works better with other mobile devices)
+    - `output_format` = FFMPEG format, usually MP4, MOV, or MKV
     - `delete_original` = True/False
     - `relocate_moov` = True/False - relocates the MOOV atom to the beginning of the file for better streaming
     - `ios-audio` = creates a 2nd copy of an audio stream that will be stereo and a different more compatible format if the normal output will not be. If a stereo source stream is detected with this option enabled, only one output stream will be produced in this codec to avoid multiple stereo audio stream copies in different codecs. True defaults to AAC, you may also set this option to a specific codec to override the default. Not specifically for iOS but legacy naming
@@ -71,8 +71,6 @@ General MP4 Configuration
     - `ios-audio-filter` = Applies FFMPEG audio filter option to ONLY the iOS audio channels created by the script. iOS audio counterpart to the `audio-filter` option below
     - `ios-move-last` = Rearranges the iOS audio track to be after the converted track instead of first and changes the default disposition accordingly
     - `max-audio-channels` = Sets a maximum number of audio channels. This may provide an alternative to the iOS audio option, where instead users can simply select the desired output codec and the max number of audio channels without the creation of an additional audio track
-    - `use-hevc-qsv-decoder` = Enable HEVC decoding using QSV on supported Intel chips. 6th Generation skylake and newer.
-    - `enable_dxva2_gpu_decode` = Enable GPU decoding by using DXVA2 - Windows only. Will automatically fallback to cpu decoding when it encounters a video that it cannot decode due to unsupported pixel/color/codec. Enabling this option will disable qsv decoding of hevc and h264
     - `video-codec` = set your desired video codecs. May specify multiple comma separated values (ex: h264, x264). The first value specified will be the default conversion choice when an undesired codec is encountered; any codecs specified here will be remuxed/copied rather than converted
     - `video-bitrate` = allows you to set a maximum video bitrate in Kbps. If the source file exceeds the video-bitrate it will be transcoded to the specified video-bitrate, even if they source file is already in the correct video codec. If the source file is in the correct video codec and does not exceed the video-bitrate setting, then it will be copied without transcoding. Leave blank to disable this setting
     - `video-crf` = allows you to set the CRF which will override the video bitrate setting for those that prefer CRF. Video-bitrate setting will still be used to determine a maximum bitrate that will trigger transcoding
@@ -80,6 +78,8 @@ General MP4 Configuration
     - `video-profile` = set the video profile. Can use multiple comma separated values to whitelist multiple profiles, first profile will be default conversion choice. Leave blank to disable
     - `h264-max-level` = set your max h264 level. Use the decimal format. Levels lower than the specified value, if otherwise appropriate, will be copied without transcoding. Example - `4.0`
     - `pix_fmt` = set the video pix_fmt. If you don't know what this is just leave it blank. Can use multiple comma separated values to whitelist multiple formats, first format will be default conversion choice
+    - `hwaccels` = supported hwaccel parameters to be used when appropriate. Will be checked against FFMPEG support and ignored if not supported 
+    - `hwaccels-decoders` = supported hardware decoders. Will also be check against format and FFMPEG support and ignored if not supported
     - `audio-codec` = set your desired audio codecs. May specify multiple comma separated values (ex: ac3, aac). The first value specified will be the default conversion choice when an undesired codec is encountered; any codecs specified here will be remuxed/copied rather than converted
     - `audio-channel-bitrate` = set the bitrate for each audio channel. Default is 256. Setting this value to 0 will attempt to mirror the bitrate of the audio source, but this can be unreliable as bitrates vary between different codecs
     - `audio-language` = 3 letter language code for audio streams you wish to copy. Leave blank to copy all. Separate multiple audio streams with commas (ex: eng,spa)

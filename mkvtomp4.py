@@ -625,18 +625,17 @@ class MkvtoMp4:
             self.log.debug("Subtitle streams detected, adding fix_sub_duration option to preopts.")
             preopts.append('-fix_sub_duration')
 
+        if vcodec != 'copy':
+            try:
+                preopts.extend(self.setAcceleration(info.video.codec))
+            except:
+                self.log.exception("Error when trying to determine hardware acceleration support.")
+
         if self.settings.preopts:
             preopts.extend(self.settings.preopts)
 
         if self.settings.postopts:
             postopts.extend(self.settings.postopts)
-
-        if self.settings.dxva2_decoder:  # DXVA2 will fallback to CPU decoding when it hits a file that it cannot handle, so we don't need to check if the file is supported.
-            preopts.extend(['-hwaccel', 'dxva2'])
-        elif info.video.codec.lower() == "hevc" and self.settings.hevc_qsv_decoder:
-            preopts.extend(['-vcodec', 'hevc_qsv'])
-        elif vcodec == "h264qsv" and info.video.codec.lower() == "h264" and self.settings.qsv_decoder and (info.video.video_level / 10) < 5:
-            preopts.extend(['-vcodec', 'h264_qsv'])
 
         # HEVC Tagging for copied streams
         if info.video.codec.lower() in ['x265', 'h265', 'hevc'] and vcodec == 'copy':
@@ -644,6 +643,28 @@ class MkvtoMp4:
             self.log.info("Tagging copied video stream as hvc1")
 
         return options, preopts, postopts, ripsubopts
+
+    def setAcceleration(self, video_codec):
+        opts = []
+        # Look up which codecs and which decoders/encoders are available in this build of ffmpeg
+        codecs = self.converter.ffmpeg.codecs
+
+        # Lookup which hardware acceleration platforms are available in this build of ffmpeg
+        hwaccels = self.converter.ffmpeg.hwaccels
+
+        # Find the first of the specified hardware acceleration platform that is available in this build of ffmpeg.  The order of specified hardware acceleration platforms determines priority.
+        for hwaccel in self.settings.hwaccels:
+            if hwaccel in hwaccels:
+                self.log.info("%s hwaccel is supported by this ffmpeg build and will be used." % hwaccel)
+                opts.extend(['-hwaccel', hwaccel])
+
+                # If there's a decoder for this acceleration platform, also use it
+                decoder = self.converter.ffmpeg.decoder(video_codec, hwaccel)
+                if (decoder in codecs[video_codec]['decoders'] and decoder in self.settings.hwaccel_decoders):
+                    self.log.info("%s decoder is also supported by this ffmpeg build and will also be used." % decoder)
+                    opts.extend(['-vcodec', decoder])
+                break
+        return opts
 
     def setDefaultAudioStream(self, audio_settings):
         if len(audio_settings) > 0:
@@ -930,21 +951,17 @@ class MkvtoMp4:
         return outputfile, output_dir
 
     def isImageBasedSubtitle(self, inputfile, map):
-        outputfile = self.getSubOutputFile(inputfile, "null", False, False, "subtest")
         ripsub = [{'map': map, 'codec': 'srt'}]
         options = {'source': [inputfile], 'format': 'srt', 'subtitle': ripsub}
         try:
-            conv = self.converter.convert(outputfile, options, timeout=30)
+            conv = self.converter.convert(None, options, timeout=30)
             for timecode in conv:
                 pass
         except FFMpegConvertError:
-            self.removeFile(outputfile)
             return True
         except:
             self.log.exception("Unknown error when trying to determine if subtitle is image based.")
-            self.removeFile(outputfile)
             return True
-        self.removeFile(outputfile)
         return False
 
     def canBypassConvert(self, input_extension, options):
