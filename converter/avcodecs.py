@@ -851,7 +851,7 @@ class H264VAAPI(H264Codec):
         elif 'vaapi_hscale' in safe:
             optlist.extend(['-vf', 'hwupload,%s=trunc((oh*a)/2)*2:%s:format=nv12' % (self.scale_filter, safe['vaapi_hscale'])])
         else:
-            optlist.extend(['-vf', "hwupload,format=nv12"])
+            optlist.extend(['-vf', "format=nv12,hwupload"])
 
         return optlist
 
@@ -956,7 +956,7 @@ class H265VAAPI(H265Codec):
         elif 'vaapi_hscale' in safe:
             optlist.extend(['-vf', 'hwupload,%s=trunc((oh*a)/2)*2:%s:format=nv12' % (self.scale_filter, safe['vaapi_hscale'])])
         else:
-            optlist.extend(['-vf', "hwupload,format=nv12"])
+            optlist.extend(['-vf', "format=nv12,hwupload"])
 
         return optlist
 
