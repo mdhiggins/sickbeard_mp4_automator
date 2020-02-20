@@ -404,7 +404,7 @@ class VideoCodec(BaseCodec):
 
             vfstring = ""
             for line in vf:
-                vfstring = "%s,%s" % (vfstring, line)
+                vfstring = "%s:%s" % (vfstring, line)
 
             optlist.extend(['-vf', vfstring[1:]])
 
@@ -833,7 +833,7 @@ class H264VAAPI(H264Codec):
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         optlist = super(H264VAAPI, self)._codec_specific_produce_ffmpeg_list(safe, stream)
         optlist.extend(['-vaapi_device', '/dev/dri/renderD128'])
-        optlist.extend(['-vf', "format=nv12,hwupload"])
+        optlist.extend(['-vf', "hwupload,format=nv12"])
         return optlist
 
 
@@ -919,7 +919,7 @@ class H265VAAPI(H265Codec):
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         optlist = super(H265VAAPI, self)._codec_specific_produce_ffmpeg_list(safe, stream)
         optlist.extend(['-vaapi_device', '/dev/dri/renderD128'])
-        optlist.extend(['-vf', 'format=nv12,hwupload'])
+        optlist.extend(['-vf', 'hwupload,format=nv12'])
         return optlist
 
 
