@@ -947,7 +947,7 @@ class H265VAAPI(H265Codec):
         return safe
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
-        optlist = super(H264VAAPI, self)._codec_specific_produce_ffmpeg_list(safe, stream)
+        optlist = super(H265VAAPI, self)._codec_specific_produce_ffmpeg_list(safe, stream)
         optlist.extend(['-vaapi_device', '/dev/dri/renderD128'])
         if 'vaapi_wscale' in safe and 'vaapi_hscale' in safe:
             optlist.extend(['-vf', 'hwupload,%s=%s:%s:format=nv12' % (self.scale_filter, safe['vaapi_wscale'], safe['vaapi_hscale'])])
