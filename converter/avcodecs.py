@@ -377,26 +377,25 @@ class VideoCodec(BaseCodec):
             optlist.extend(['-pix_fmt', str(safe['pix_fmt'])])
         if 'field_order' in safe:
             optlist.extend(['-field_order', str(safe['field_order'])])
-        if 'bitrate' in safe:
-            optlist.extend(['-vb', str(safe['bitrate']) + 'k'])  # FIXED
+        # CRF gets priority over bitrate, but if bitrate is present, use that as maxrate
         if 'crf' in safe:
             optlist.extend(['-crf', str(safe['crf'])])
+            if 'bitrate' in safe:
+                optlist.extend(['-maxrate:v', str(safe['bitrate']) + 'k'])
+        elif 'bitrate' in safe:
+            optlist.extend(['-vb', str(safe['bitrate']) + 'k'])
         if 'filter' in safe:
-            if filters:
-                filters = '%s;%s' % (filters, str(safe['filter']))
-            else:
-                filters = str(safe['filter'])
+            optlist.extend(['-vf', str(safe['filter'])])
+        if filters:
+            optlist.extend(['-vf', filters])
         if w and h:
             optlist.extend(['-s', '%dx%d' % (w, h)])
-
             if ow and oh:
                 optlist.extend(['-aspect', '%d:%d' % (ow, oh)])
 
-        if filters:
-            optlist.extend(['-vf', filters])
-
         optlist.extend(self._codec_specific_produce_ffmpeg_list(safe))
 
+        # consolidate filters into filter_complex
         if optlist.count('-vf') > 1:
             vf = []
             while optlist.count('-vf') > 0:
@@ -405,9 +404,9 @@ class VideoCodec(BaseCodec):
 
             vfstring = ""
             for line in vf:
-                vfstring = "%s;%s" % (vfstring, line)
+                vfstring = "%s;[0:v]%s" % (vfstring, line)
 
-            optlist.extend(['-vf', vfstring[1:]])
+            optlist.extend(['-filter_complex', vfstring[1:]])
 
         return optlist
 
@@ -754,6 +753,7 @@ class H264Codec(VideoCodec):
         'wscale': int,  # special handlers for the even number requirements of h264
         'hscale': int  # special handlers for the even number requirements of h264
     })
+    scale_filter = 'scale'
 
     def _codec_specific_parse_options(self, safe, stream=0):
         if 'width' in safe and safe['width']:
@@ -781,11 +781,11 @@ class H264Codec(VideoCodec):
         if 'tune' in safe:
             optlist.extend(['-tune', safe['tune']])
         if 'wscale' in safe and 'hscale' in safe:
-            optlist.extend(['-vf', 'scale=%s:%s' % (safe['wscale'], safe['hscale'])])
+            optlist.extend(['-vf', '%s=%s:%s' % (self.scale_filter, safe['wscale'], safe['hscale'])])
         elif 'wscale' in safe:
-            optlist.extend(['-vf', 'scale=%s:trunc(ow/a/2)*2' % (safe['wscale'])])
+            optlist.extend(['-vf', '%s=%s:trunc(ow/a/2)*2' % (self.scale_filter, safe['wscale'])])
         elif 'hscale' in safe:
-            optlist.extend(['-vf', 'scale=trunc((oh*a)/2)*2:%s' % (safe['hscale'])])
+            optlist.extend(['-vf', '%s=trunc((oh*a)/2)*2:%s' % (self.scale_filter, safe['hscale'])])
         return optlist
 
 
@@ -819,6 +819,7 @@ class H264VAAPI(H264Codec):
     """
     codec_name = 'h264vaapi'
     ffmpeg_codec_name = 'h264_vaapi'
+    scale_filter = 'scale_vaapi'
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         optlist = super(H264VAAPI, self)._codec_specific_produce_ffmpeg_list(safe, stream)
@@ -856,6 +857,7 @@ class H265Codec(VideoCodec):
         'wscale': int,  # special handlers for the even number requirements of h265
         'hscale': int  # special handlers for the even number requirements of h265
     })
+    scale_filter = 'scale'
 
     def _codec_specific_parse_options(self, safe, stream=0):
         if 'width' in safe and safe['width']:
@@ -880,11 +882,11 @@ class H265Codec(VideoCodec):
         if 'tune' in safe:
             optlist.extend(['-tune', safe['tune']])
         if 'wscale' in safe and 'hscale' in safe:
-            optlist.extend(['-vf', 'scale=%s:%s' % (safe['wscale'], safe['hscale'])])
+            optlist.extend(['-vf', '%s=%s:%s' % (self.scale_filter, safe['wscale'], safe['hscale'])])
         elif 'wscale' in safe:
-            optlist.extend(['-vf', 'scale=%s:trunc(ow/a/2)*2' % (safe['wscale'])])
+            optlist.extend(['-vf', '%s=%s:trunc(ow/a/2)*2' % (self.scale_filter, safe['wscale'])])
         elif 'hscale' in safe:
-            optlist.extend(['-vf', 'scale=trunc((oh*a)/2)*2:%s' % (safe['hscale'])])
+            optlist.extend(['-vf', '%s=trunc((oh*a)/2)*2:%s' % (self.scale_filter, safe['hscale'])])
         optlist.extend(['-tag:v', 'hvc1'])
         return optlist
 
@@ -903,15 +905,12 @@ class H265VAAPI(H265Codec):
     """
     codec_name = 'h265vaapi'
     ffmpeg_codec_name = 'hevc_vaapi'
+    scale_filter = 'scale_vaapi'
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         optlist = super(H265VAAPI, self)._codec_specific_produce_ffmpeg_list(safe, stream)
         optlist.extend(['-vaapi_device', '/dev/dri/renderD128'])
-        # optlist.extend(['-vf', 'scale_vaapi=format=p010'])
-        # optlist.extend(['-hwaccel_output_format', 'vaapi'])
         optlist.extend(['-vf', 'format=nv12,hwupload'])
-        if 'bitrate' in safe:
-            optlist.extend(['-maxrate:v', str(safe['bitrate']) + 'k'])
         return optlist
 
 

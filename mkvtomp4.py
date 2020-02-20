@@ -626,12 +626,6 @@ class MkvtoMp4:
         preopts = []
         postopts = ['-threads', self.settings.threads]
 
-        # If a CRF option is set, override the determine bitrate
-        if self.settings.vcrf:
-            self.log.debug("Video CRF value is set, deleting bitrate setting and adding CRF setting to determine video quality [video-crf].")
-            del options['video']['bitrate']
-            options['video']['crf'] = self.settings.vcrf
-
         if len(options['subtitle']) > 0:
             self.log.debug("Subtitle streams detected, adding fix_sub_duration option to preopts.")
             preopts.append('-fix_sub_duration')
