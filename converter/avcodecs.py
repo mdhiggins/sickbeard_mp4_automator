@@ -935,10 +935,29 @@ class H265VAAPI(H265Codec):
     ffmpeg_codec_name = 'hevc_vaapi'
     scale_filter = 'scale_vaapi'
 
+    def _codec_specific_parse_options(self, safe, stream=0):
+        if 'width' in safe and safe['width']:
+            safe['width'] = 2 * round(safe['width'] / 2)
+            safe['vaapi_wscale'] = safe['width']
+            del(safe['width'])
+        if 'height' in safe and safe['height']:
+            if safe['height'] % 2 == 0:
+                safe['vaapi_hscale'] = safe['height']
+            del(safe['height'])
+        return safe
+
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
-        optlist = super(H265VAAPI, self)._codec_specific_produce_ffmpeg_list(safe, stream)
+        optlist = super(H264VAAPI, self)._codec_specific_produce_ffmpeg_list(safe, stream)
         optlist.extend(['-vaapi_device', '/dev/dri/renderD128'])
-        optlist.extend(['-vf', 'hwupload,format=nv12'])
+        if 'vaapi_wscale' in safe and 'vaapi_hscale' in safe:
+            optlist.extend(['-vf', 'hwupload,%s=%s:%s:format=nv12' % (self.scale_filter, safe['vaapi_wscale'], safe['vaapi_hscale'])])
+        elif 'vaapi_wscale' in safe:
+            optlist.extend(['-vf', 'hwupload,%s=%s:trunc(ow/a/2)*2:format=nv12' % (self.scale_filter, safe['vaapi_wscale'])])
+        elif 'vaapi_hscale' in safe:
+            optlist.extend(['-vf', 'hwupload,%s=trunc((oh*a)/2)*2:%s:format=nv12' % (self.scale_filter, safe['vaapi_hscale'])])
+        else:
+            optlist.extend(['-vf', "hwupload,format=nv12"])
+
         return optlist
 
 
