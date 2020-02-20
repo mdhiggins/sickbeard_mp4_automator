@@ -2,6 +2,7 @@
 ## sickbeard-mp4-automator
 #############################
 autoProcess.ini
+postSonarr.sh
 
 #################
 ## Eclipse
@@ -197,6 +198,7 @@ $RECYCLE.BIN/
 # Packages
 *.egg
 *.egg-info
+env/
 dist/
 build/
 eggs/
