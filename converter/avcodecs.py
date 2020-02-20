@@ -404,9 +404,9 @@ class VideoCodec(BaseCodec):
 
             vfstring = ""
             for line in vf:
-                vfstring = "%s,%s" % (line, vfstring)
+                vfstring = "%s,%s" % (vfstring, line)
 
-            optlist.extend(['-vf', "\'%s\'" % vfstring[:-1]])
+            optlist.extend(['-vf', vfstring[1:]])
 
         return optlist
 
