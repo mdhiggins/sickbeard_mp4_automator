@@ -406,7 +406,7 @@ class VideoCodec(BaseCodec):
             for line in vf:
                 vfstring = "%s:%s" % (line, vfstring)
 
-            optlist.extend(['-vf', vfstring[:-1]])
+            optlist.extend(['-vf', "\'%s\'" % vfstring[:-1]])
 
         return optlist
 
