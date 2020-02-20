@@ -104,7 +104,7 @@ if info:
                 r = requests.get(url, headers=headers)
                 command = r.json()
                 attempts = 0
-                while command['state'].lower() not in ['complete', 'completed']  and attempts < 6:
+                while command['state'].lower() not in ['complete', 'completed'] and attempts < 6:
                     log.info(str(command['state']))
                     time.sleep(10)
                     r = requests.get(url, headers=headers)

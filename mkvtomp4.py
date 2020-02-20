@@ -38,7 +38,7 @@ class MkvtoMp4:
         preopts = None
         postopts = None
 
-        info = self.isValidSource(inputfile) if not info else info
+        info = info or self.isValidSource(inputfile)
 
         if info:
             options, preopts, postopts, ripsubopts = self.generateOptions(inputfile, info=info, original=original)
@@ -217,7 +217,7 @@ class MkvtoMp4:
 
             # Set undefined language to default language if specified
             if self.settings.adl is not None and a.metadata['language'] == 'und':
-                self.log.debug("Undefined language detected, defaulting to %s." % self.settings.adl)
+                self.log.debug("Undefined language detected, defaulting to %s [audio-default-language]." % self.settings.adl)
                 a.metadata['language'] = self.settings.adl
 
             if (awl and a.metadata['language'].lower() in awl):
@@ -237,7 +237,7 @@ class MkvtoMp4:
 
             # Set undefined language to default language if specified
             if self.settings.sdl is not None and s.metadata['language'] == 'und':
-                self.log.debug("Undefined language detected, defaulting to [%s]." % self.settings.sdl)
+                self.log.debug("Undefined language detected, defaulting to %s [subtitle-default-language]." % self.settings.sdl)
                 s.metadata['language'] = self.settings.sdl
         return awl, swl
 
@@ -248,10 +248,10 @@ class MkvtoMp4:
         sources = [inputfile]
         ripsubopts = []
 
-        info = self.converter.probe(inputfile) if not info else info
+        info = info or self.converter.probe(inputfile)
 
         if not info:
-            self.log.error("FFProbe returned no value for inputfile %s (exists: %s), either the file does not exist or is not a format FFPROBE can read." % (inputfile, os.path.exists(inputfile)))
+            self.log.error("FFPROBE returned no value for inputfile %s (exists: %s), either the file does not exist or is not a format FFPROBE can read." % (inputfile, os.path.exists(inputfile)))
             return None, None, None, None
 
         awl, swl = self.safeLanguage(info)
@@ -287,7 +287,7 @@ class MkvtoMp4:
             vpix_fmt = None
 
         if self.settings.pix_fmt and info.video.pix_fmt.lower() not in self.settings.pix_fmt:
-            self.log.debug("Overriding video pix_fmt. Codec cannot be copied because pix_fmt is not approved.")
+            self.log.debug("Overriding video pix_fmt. Codec cannot be copied because pix_fmt is not approved [pix-fmt].")
             vdebug = vdebug + ".pix_fmt"
             vcodec = self.settings.vcodec[0]
 
@@ -663,13 +663,13 @@ class MkvtoMp4:
         # Find the first of the specified hardware acceleration platform that is available in this build of ffmpeg.  The order of specified hardware acceleration platforms determines priority.
         for hwaccel in self.settings.hwaccels:
             if hwaccel in hwaccels:
-                self.log.info("%s hwaccel is supported by this ffmpeg build and will be used." % hwaccel)
+                self.log.info("%s hwaccel is supported by this ffmpeg build and will be used [hwaccels]." % hwaccel)
                 opts.extend(['-hwaccel', hwaccel])
 
                 # If there's a decoder for this acceleration platform, also use it
                 decoder = self.converter.ffmpeg.hwaccel_decoder(video_codec, hwaccel)
                 if (decoder in codecs[video_codec]['decoders'] and decoder in self.settings.hwaccel_decoders):
-                    self.log.info("%s decoder is also supported by this ffmpeg build and will also be used." % decoder)
+                    self.log.info("%s decoder is also supported by this ffmpeg build and will also be used [hwaccel-decoders]." % decoder)
                     opts.extend(['-vcodec', decoder])
                 break
         return opts
@@ -914,7 +914,7 @@ class MkvtoMp4:
         forced = ".forced" if forced else ""
         default = ".default" if default else ""
         input_dir, filename, input_extension = self.parseFile(inputfile)
-        output_dir = input_dir if self.settings.output_dir is None else self.settings.output_dir
+        output_dir = self.settings.output_dir or input_dir
         outputfile = os.path.join(output_dir, filename + "." + language + default + forced + "." + extension)
 
         i = 2
@@ -945,8 +945,8 @@ class MkvtoMp4:
             self.setPermissions(outputfile)
 
     def getOutputFile(self, input_dir, filename, input_extension, temp_extension=None, number=0):
-        output_dir = input_dir if self.settings.output_dir is None else self.settings.output_dir
-        output_extension = temp_extension if temp_extension else self.settings.output_extension
+        output_dir = self.settings.output_dir or input_dir
+        output_extension = temp_extension or self.settings.output_extension
 
         self.log.debug("Input directory: %s." % input_dir)
         self.log.debug("File name: %s." % filename)
