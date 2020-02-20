@@ -319,10 +319,12 @@ class MkvtoMp4:
             vdebug = vdebug + ".video-profile"
             vcodec = self.settings.vcodec[0]
 
+        vcrf = self.settings.vcrf
         vfieldorder = info.video.field_order
 
         self.log.debug("Video codec: %s." % vcodec)
         self.log.debug("Video bitrate: %s." % vbitrate)
+        self.log.debug("Video CRF: %s." % vcrf)
         self.log.debug("Video level: %s." % vlevel)
         self.log.debug("Video profile: %s." % vprofile)
         self.log.debug("Video pix format: %s." % vpix_fmt)
@@ -334,6 +336,7 @@ class MkvtoMp4:
             'codec': vcodec,
             'map': info.video.index,
             'bitrate': vbitrate,
+            'crf': vcrf,
             'level': vlevel,
             'profile': vprofile,
             'pix_fmt': vpix_fmt,
