@@ -390,7 +390,7 @@ class FFMpeg(object):
     """
     DEFAULT_JPEG_QUALITY = 4
     CODECS_LINE_RE = re.compile(
-        r'^ [A-Z.]{6} ([^ ]+) +(.+)$', re.M)
+        r'^ [A-Z.]{6} ([^ \=]+) +(.+)$', re.M)
     CODECS_DECODERS_RE = re.compile(
         r' \(decoders: ([^)]+) \)')
     CODECS_ENCODERS_RE = re.compile(
@@ -435,7 +435,7 @@ class FFMpeg(object):
 
     @property
     def codecs(self):
-        codecs = self._get_stdout([self.ffprobe_path, '-codecs'])
+        codecs = self._get_stdout([self.ffprobe_path, '-hide_banner', '-codecs'])
         codecs = {
             line_match.group(1): line_match.group(2)
             for line_match in self.CODECS_LINE_RE.finditer(codecs)}
@@ -448,9 +448,19 @@ class FFMpeg(object):
 
     @property
     def hwaccels(self):
-        return [hwaccel.strip() for hwaccel in self._get_stdout([self.ffmpeg_path, '-hwaccels']).split('\n')[1:] if hwaccel.strip()]
+        return [hwaccel.strip() for hwaccel in self._get_stdout([self.ffmpeg_path, '-hide_banner', '-hwaccels']).split('\n')[1:] if hwaccel.strip()]
 
-    def decoder(self, video_codec, hwaccel):
+    @property
+    def encoders(self):
+        encoders = self._get_stdout([self.ffmpeg_path, '-hide_banner', '-encoders'])
+        return [line_match.group(1) for line_match in self.CODECS_LINE_RE.finditer(encoders)]
+
+    @property
+    def decoders(self):
+        decoders = self._get_stdout([self.ffmpeg_path, '-hide_banner', '-decoders'])
+        return [line_match.group(1) for line_match in self.CODECS_LINE_RE.finditer(decoders)]
+
+    def hwaccel_decoder(self, video_codec, hwaccel):
         source_codec = self.DECODER_SYNONYMS.get(video_codec, video_codec)
         return '{0}_{1}'.format(source_codec, hwaccel)
 

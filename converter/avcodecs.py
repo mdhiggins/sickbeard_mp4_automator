@@ -395,7 +395,7 @@ class VideoCodec(BaseCodec):
 
         optlist.extend(self._codec_specific_produce_ffmpeg_list(safe))
 
-        # consolidate filters into filter_complex
+        # consolidate filters
         if optlist.count('-vf') > 1:
             vf = []
             while optlist.count('-vf') > 0:
@@ -404,9 +404,9 @@ class VideoCodec(BaseCodec):
 
             vfstring = ""
             for line in vf:
-                vfstring = "%s;[0:v]%s" % (vfstring, line)
+                vfstring = "%s;%s" % (vfstring, line)
 
-            optlist.extend(['-filter_complex', vfstring[1:]])
+            optlist.extend(['-vf', vfstring[1:]])
 
         return optlist
 
@@ -795,6 +795,15 @@ class NVEncH264(H264Codec):
     """
     codec_name = 'h264_nvenc'
     ffmpeg_codec_name = 'h264_nvenc'
+    scale_filter = 'npp_scale'
+
+    def _codec_specific_parse_options(self, safe, stream=0):
+        # NVENC doesn't support scaling
+        if 'width' in safe:
+            del(safe['width'])
+        if 'height' in safe:
+            del(safe['height'])
+        return safe
 
 
 class VideotoolboxEncH264(H264Codec):
@@ -920,6 +929,15 @@ class NVEncH265(H265Codec):
     """
     codec_name = 'h265_nvenc'
     ffmpeg_codec_name = 'hevc_nvenc'
+    scale_filter = 'npp_scale'
+
+    def _codec_specific_parse_options(self, safe, stream=0):
+        # NVENC doesn't support scaling
+        if 'width' in safe:
+            del(safe['width'])
+        if 'height' in safe:
+            del(safe['height'])
+        return safe
 
 
 class DivxCodec(VideoCodec):

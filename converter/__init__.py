@@ -51,6 +51,17 @@ class Converter(object):
             name = cls.format_name
             self.formats[name] = cls
 
+    def ffmpeg_codec_name_to_codec_name(self, type, ffmpeg_codec_name):
+        if type == 'video':
+            return next((x.codec_name for x in video_codec_list if x.ffmpeg_codec_name == ffmpeg_codec_name), None)
+        elif type == 'audio':
+            return next((x.codec_name for x in audio_codec_list if x.ffmpeg_codec_name == ffmpeg_codec_name), None)
+        elif type == 'subtitle':
+            return next((x.codec_name for x in subtitle_codec_list if x.ffmpeg_codec_name == ffmpeg_codec_name), None)
+        elif type == 'attachment':
+            return next((x.codec_name for x in attachment_codec_list if x.ffmpeg_codec_name == ffmpeg_codec_name), None)
+        return None
+
     def parse_options(self, opt, twopass=None):
         """
         Parse format/codec options and prepare raw ffmpeg option list.
