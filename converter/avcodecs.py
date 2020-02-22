@@ -795,15 +795,7 @@ class NVEncH264(H264Codec):
     """
     codec_name = 'h264_nvenc'
     ffmpeg_codec_name = 'h264_nvenc'
-    scale_filter = 'npp_scale'
-
-    def _codec_specific_parse_options(self, safe, stream=0):
-        # NVENC doesn't support scaling
-        if 'width' in safe:
-            del(safe['width'])
-        if 'height' in safe:
-            del(safe['height'])
-        return safe
+    scale_filter = 'scale_npp'
 
 
 class VideotoolboxEncH264(H264Codec):
@@ -862,6 +854,7 @@ class H264QSV(H264Codec):
     """
     codec_name = 'h264qsv'
     ffmpeg_codec_name = 'h264_qsv'
+    scale_filter = 'scale_qsv'
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         optlist = super(H264QSV, self)._codec_specific_produce_ffmpeg_list(safe, stream)
@@ -925,6 +918,7 @@ class HEVCQSV(H265Codec):
     """
     codec_name = 'hevcqsv'
     ffmpeg_codec_name = 'hevc_qsv'
+    scale_filter = 'scale_qsv'
 
 
 class H265VAAPI(H265Codec):
@@ -967,15 +961,7 @@ class NVEncH265(H265Codec):
     """
     codec_name = 'h265_nvenc'
     ffmpeg_codec_name = 'hevc_nvenc'
-    scale_filter = 'npp_scale'
-
-    def _codec_specific_parse_options(self, safe, stream=0):
-        # NVENC doesn't support scaling
-        if 'width' in safe:
-            del(safe['width'])
-        if 'height' in safe:
-            del(safe['height'])
-        return safe
+    scale_filter = 'scale_npp'
 
 
 class DivxCodec(VideoCodec):
