@@ -123,8 +123,18 @@ if settings.uTorrent['convert']:
             log.info("Multi File Torrent")
             settings.output_dir = os.path.abspath(os.path.join(path, '..', ("%s-%s" % (name, suffix))))
         if not os.path.exists(settings.output_dir):
-            os.mkdir(settings.output_dir)
-        delete_dir = settings.output_dir
+            try:
+                os.mkdir(settings.output_dir)
+            except:
+                log.exception("Error creating output directory.")
+    else:
+        settings.output_dir = os.path.abspath(os.path.join(settings.output_dir, name))
+        if not os.path.exists(settings.output_dir):
+            try:
+                os.makedirs(settings.output_dir)
+            except:
+                log.exception("Error creating output sub directory.")
+    
 
     converter = MkvtoMp4(settings)
 
@@ -160,6 +170,7 @@ if settings.uTorrent['convert']:
                     log.debug("Ignoring file %s." % inputfile)
 
     path = settings.output_dir
+    delete_dir = settings.output_dir
 else:
     suffix = "copy"
     # name = name[:260-len(suffix)]
@@ -170,8 +181,11 @@ else:
         log.info("Multi File Torrent")
         newpath = os.path.abspath(os.path.join(path, '..', ("%s-%s" % (name, suffix))))
     if not os.path.exists(newpath):
-        os.mkdir(newpath)
-        log.debug("Creating temporary directory %s" % newpath)
+        try:
+            os.mkdir(newpath)
+            log.debug("Creating temporary directory %s" % newpath)
+        except:
+            log.exception("Error creating temporary directory.")
     if kind == 'single':
         inputfile = os.path.join(path, filename)
         shutil.copy(inputfile, newpath)
