@@ -79,9 +79,14 @@ try:
         if not settings.output_dir:
             suffix = "convert"
             settings.output_dir = os.path.join(path, ("%s-%s" % (torrent_name, suffix)))
-            if not os.path.exists(settings.output_dir):
-                os.mkdir(settings.output_dir)
-            delete_dir = settings.output_dir
+        else:
+            settings.output_dir = os.path.join(settings.output_dir, torrent_name)
+        if not os.path.exists(settings.output_dir):
+            try:
+                os.makedirs(settings.output_dir)
+                delete_dir = settings.output_dir
+            except:
+                log.exception("Unable to make output directory %s." % settings.output_dir)
 
         converter = MkvtoMp4(settings)
 
@@ -103,7 +108,10 @@ try:
         suffix = "copy"
         newpath = os.path.join(path, ("%s-%s" % (torrent_name, suffix)))
         if not os.path.exists(newpath):
-            os.mkdir(newpath)
+            try:
+                os.mkdir(newpath)
+            except:
+                log.exception("Unable to make copy directory %s." % newpath)
         for filename in files:
             inputfile = os.path.join(path, filename)
             log.info("Copying file %s to %s." % (inputfile, newpath))
