@@ -4,7 +4,7 @@ import os
 import re
 import sys
 import shutil
-from log import logger
+from log import getLogger
 from autoprocess import autoProcessTV, autoProcessMovie, autoProcessTVSR, sonarr, radarr
 from readSettings import ReadSettings
 from mkvtomp4 import MkvtoMp4
