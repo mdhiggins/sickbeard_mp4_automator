@@ -32,7 +32,7 @@ logging.getLogger("qtfaststart").setLevel(logging.CRITICAL)
 
 log.info("Manual processor started.")
 
-settings = ReadSettings(logger=log)
+settings = None
 
 
 def mediatype():
@@ -311,6 +311,8 @@ def main():
             settings = ReadSettings(args['config'], logger=log)
         elif os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), args['config'])):
             settings = ReadSettings(os.path.join(os.path.dirname(sys.argv[0]), args['config']), logger=log)
+    else:
+        settings = ReadSettings(logger=log)
     if (args['nomove']):
         settings.output_dir = None
         settings.moveto = None
