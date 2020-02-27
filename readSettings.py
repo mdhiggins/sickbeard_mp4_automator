@@ -16,15 +16,27 @@ from extensions import *
 
 class ReadSettings:
     log = logging.getLogger(__name__)
-    def __init__(self, directory=None, filename="autoProcess.ini", logger=None):
 
-        if not directory:
-            directory = os.path.realpath(sys.argv[0])
-            directory = os.path.dirname(directory)
-
+    def __init__(self, configFile=None, logger=None):
         # Setup logging
         if logger:
             self.log = logger
+
+        defaultConfigFile = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), "autoProcess.ini")
+        envConfigFile = os.environ.get("SMACONFIG")
+
+        if envConfigFile and os.path.isfile(os.path.realpath(envConfigFile)):
+            configFile = os.path.realpath(envConfigFile)
+            self.log.debug("SMACONFIG environment variable override found.")
+        elif not configFile:
+            configFile = defaultConfigFile
+            self.log.debug("Loading default config file.")
+        elif os.path.isdir(configFile):
+            configFile = os.path.realpath(os.path.join(configFile, "autoProcess.ini"))
+            self.log.debug("ConfigFile specified is a directory, joining with autoProcess.ini.")
+            if not os.path.isfile(configFile):
+                configFile = defaultConfigFile
+        self.log.info("Loading config file %s." % configFile)
 
         # Setup encoding to avoid UTF-8 errors
         if sys.version[0] == '2':
@@ -227,7 +239,6 @@ class ReadSettings:
         write = False  # Will be changed to true if a value is missing from the config file and needs to be written
 
         config = configparser.SafeConfigParser()
-        configFile = os.path.join(directory, filename)
         if os.path.isfile(configFile):
             config.read(configFile)
         else:

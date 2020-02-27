@@ -308,13 +308,9 @@ def main():
     # Settings overrides
     if(args['config']):
         if os.path.exists(args['config']):
-            safePrint('Using configuration file "%s"' % (args['config']))
-            settings = ReadSettings(os.path.split(args['config'])[0], os.path.split(args['config'])[1], logger=log)
+            settings = ReadSettings(args['config'], logger=log)
         elif os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), args['config'])):
-            safePrint('Using configuration file "%s"' % (args['config']))
-            settings = ReadSettings(os.path.dirname(sys.argv[0]), args['config'], logger=log)
-        else:
-            safePrint('Configuration file "%s" not present, using default autoProcess.ini' % (args['config']))
+            settings = ReadSettings(os.path.join(os.path.dirname(sys.argv[0]), args['config']), logger=log)
     if (args['nomove']):
         settings.output_dir = None
         settings.moveto = None
