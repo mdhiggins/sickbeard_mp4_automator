@@ -54,7 +54,7 @@ try:
     from qbittorrent import Client
 except ImportError:
     log.exception("Python module PYTHON-QBITTORRENT is required. Install with 'pip install python-qbittorrent' then try again.")
-    sys.exit()    
+    sys.exit()
 
 delete_dir = False
 
@@ -79,8 +79,14 @@ if settings.qBittorrent['convert']:
         # If the user hasn't set an output directory, go up one from the root path and create a directory there as [name]-convert
         suffix = "convert"
         settings.output_dir = os.path.abspath(os.path.join(root_path, '..', ("%s-%s" % (name, suffix))))
-        if not os.path.exists(settings.output_dir):
-            os.mkdir(settings.output_dir)
+    else:
+        settings.output_dir = os.path.join(settings.output_dir, name)
+    if not os.path.exists(settings.output_dir):
+        try:
+            os.makedirs(settings.output_dir)
+            delete_dir = settings.output_dir
+        except:
+            log.exception("Unable to make output directory %s." % settings.output_dir)
 
     converter = MkvtoMp4(settings)
 
@@ -116,7 +122,7 @@ if settings.qBittorrent['convert']:
                 else:
                     log.debug("Ignoring file %s." % inputfile)
 
-    path = converter.output_dir
+    path = settings.output_dir
 else:
     suffix = "copy"
     # name = name[:260-len(suffix)]
