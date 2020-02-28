@@ -41,7 +41,7 @@ class MkvtoMp4:
         info = info or self.isValidSource(inputfile)
 
         if info:
-            options, preopts, postopts, ripsubopts = self.generateOptions(inputfile, info=info, original=original)
+            options, preopts, postopts, ripsubopts, downloaded_subs = self.generateOptions(inputfile, info=info, original=original)
             if not options:
                 self.log.error("Error converting, inputfile %s had a valid extension but returned no data. Either the file does not exist, was unreadable, or was an incorrect format." % inputfile)
                 return False
@@ -59,7 +59,7 @@ class MkvtoMp4:
             except:
                 self.log.exception("Unable to log options.")
 
-            self.ripSubs(inputfile, ripsubopts)
+            ripped_subs = self.ripSubs(inputfile, ripsubopts)
 
             outputfile, inputfile = self.convert(options, preopts, postopts, reportProgress)
 
@@ -110,6 +110,7 @@ class MkvtoMp4:
                     'options': options,
                     'preopts': preopts,
                     'postopts': postopts,
+                    'external_subs': downloaded_subs + ripped_subs,
                     'x': dim['x'],
                     'y': dim['y']}
         return None
@@ -173,7 +174,7 @@ class MkvtoMp4:
     def jsonDump(self, inputfile, original=None):
         dump = {}
         dump["input"] = self.generateSourceDict(inputfile)
-        dump["output"], dump["preopts"], dump["postopts"], dump["ripsubopts"] = self.generateOptions(inputfile, original)
+        dump["output"], dump["preopts"], dump["postopts"], dump["ripsubopts"], dump["downloadedsubs"] = self.generateOptions(inputfile, original)
         parsed = self.converter.parse_options(dump["output"])
         input_dir, filename, input_extension = self.parseFile(inputfile)
         outputfile, output_extension = self.getOutputFile(input_dir, filename, input_extension)
@@ -544,8 +545,9 @@ class MkvtoMp4:
                         ripsubopts.append(options)
 
         # Attempt to download subtitles if they are missing using subliminal
+        downloaded_subs = []
         try:
-            self.downloadSubtitles(inputfile, info.subtitle, original)
+            downloaded_subs = self.downloadSubtitles(inputfile, info.subtitle, original)
         except:
             self.log.exception("Unable to download subitltes [download-subs].")
 
@@ -650,7 +652,7 @@ class MkvtoMp4:
             postopts.extend(['-tag:v', 'hvc1'])
             self.log.info("Tagging copied video stream as hvc1")
 
-        return options, preopts, postopts, ripsubopts
+        return options, preopts, postopts, ripsubopts, downloaded_subs
 
     def setAcceleration(self, video_codec):
         opts = []
@@ -841,7 +843,7 @@ class MkvtoMp4:
                 self.log.debug(subliminal.__version__)
             except:
                 self.log.error("Subliminal is not installed, downloading subtitles aborted.")
-                return None
+                return []
 
             languages = set()
             if swl:
@@ -858,7 +860,7 @@ class MkvtoMp4:
 
             if len(languages) < 1:
                 self.log.error("No valid subtitle download languages detected, subtitles will not be downloaded.")
-                return None
+                return []
 
             self.log.info("Attempting to download subtitles.")
 
@@ -889,7 +891,7 @@ class MkvtoMp4:
                 return paths
             except:
                 self.log.exception("Unable to download subtitles.")
-        return None
+        return []
 
     def setPermissions(self, path):
         try:
@@ -925,6 +927,7 @@ class MkvtoMp4:
         return outputfile
 
     def ripSubs(self, inputfile, ripsubopts):
+        rips = []
         for options in ripsubopts:
             extension = self.getSubExtensionFromCodec(options['format'])
             outputfile = self.getSubOutputFileFromOptions(inputfile, options, extension)
@@ -936,6 +939,7 @@ class MkvtoMp4:
                     pass
 
                 self.log.info("%s created." % outputfile)
+                rips.append(outputfile)
             except (FFMpegConvertError, ConverterError):
                 self.log.error("Unable to create external %s subtitle file for stream %s, may be an incompatible format." % (extension, options['index']))
                 self.removeFile(outputfile)
@@ -943,6 +947,7 @@ class MkvtoMp4:
             except:
                 self.log.exception("Unable to create external subtitle file for stream %s." % (options['index']))
             self.setPermissions(outputfile)
+        return rips
 
     def getOutputFile(self, input_dir, filename, input_extension, temp_extension=None, number=0):
         output_dir = self.settings.output_dir or input_dir
