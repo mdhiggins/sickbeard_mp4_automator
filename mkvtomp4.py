@@ -378,7 +378,7 @@ class MkvtoMp4:
                     iOSbitrate = 256 if (self.settings.abitrate * 2) > 256 else (self.settings.abitrate * 2)
 
                     # Bitrate calculations/overrides
-                    if self.settings.abitrate is 0:
+                    if self.settings.abitrate == 0:
                         self.log.debug("Attempting to set ios stream bitrate based on source stream bitrate.")
                         try:
                             iOSbitrate = ((a.bitrate / 1000) / a.audio_channels) * 2
@@ -432,7 +432,7 @@ class MkvtoMp4:
                         abitrate = a.audio_channels * self.settings.abitrate
 
                 # Bitrate calculations/overrides
-                if self.settings.abitrate is 0:
+                if self.settings.abitrate == 0:
                     self.log.debug("Attempting to set bitrate based on source stream bitrate.")
                     try:
                         abitrate = ((a.bitrate / 1000) / a.audio_channels) * audio_channels
