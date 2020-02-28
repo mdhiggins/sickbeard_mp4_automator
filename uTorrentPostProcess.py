@@ -55,7 +55,7 @@ settings = ReadSettings()
 path = str(sys.argv[3])
 label = sys.argv[1].lower().strip()
 kind = sys.argv[4].lower().strip()
-filename = sys.argv[6].strip()
+filename = sys.argv[5].strip()
 categories = [settings.uTorrent['cp'], settings.uTorrent['sb'], settings.uTorrent['sonarr'], settings.uTorrent['radarr'], settings.uTorrent['sr'], settings.uTorrent['bypass']]
 torrent_hash = sys.argv[6]
 try:
@@ -68,8 +68,8 @@ log.debug("Label: %s." % label)
 log.debug("Categories: %s." % categories)
 log.debug("Torrent hash: %s." % torrent_hash)
 log.debug("Torrent name: %s." % name)
-log.debug("Kind: %s" % kind)
-log.debug("Filename: %s" % filename)
+log.debug("Kind: %s." % kind)
+log.debug("Filename: %s." % filename)
 
 if label not in categories:
     log.error("No valid label detected.")
@@ -134,7 +134,6 @@ if settings.uTorrent['convert']:
                 os.makedirs(settings.output_dir)
             except:
                 log.exception("Error creating output sub directory.")
-    
 
     converter = MkvtoMp4(settings)
 
@@ -168,7 +167,6 @@ if settings.uTorrent['convert']:
                         log.exception("Error converting file %s." % inputfile)
                 else:
                     log.debug("Ignoring file %s." % inputfile)
-
     path = settings.output_dir
     delete_dir = settings.output_dir
 else:
