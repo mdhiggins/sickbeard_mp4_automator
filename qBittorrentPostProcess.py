@@ -36,10 +36,7 @@ log.debug("Categories: %s." % categories)
 log.debug("Torrent hash: %s." % torrent_hash)
 log.debug("Torrent name: %s." % name)
 
-if root_path == content_path:
-    single_file = False
-else:
-    single_file = True
+single_file = os.path.isfile(content_path)
 
 if label not in categories:
     log.error("No valid label detected.")
