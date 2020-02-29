@@ -6,7 +6,7 @@ import sys
 import shutil
 import logging
 from converter import Converter, FFMpegConvertError, ConverterError
-from extensions import subtitle_codec_extensions, valid_tagging_extensions
+from extensions import subtitle_codec_extensions
 try:
     from babelfish import Language
 except:
@@ -364,7 +364,7 @@ class MkvtoMp4:
         for a in audio_streams:
             self.log.info("Audio detected for stream %s - %s %s %d channel." % (a.index, a.codec, a.metadata['language'], a.audio_channels))
 
-            if self.settings.output_extension in valid_tagging_extensions and a.codec.lower() == 'truehd' and self.settings.ignore_truehd:
+            if self.settings.output_extension in ['mp4', 'm4v'] and a.codec.lower() == 'truehd' and self.settings.ignore_truehd:
                 if len(info.audio) > 1:
                     self.log.info("Skipping trueHD stream %s as typically the 2nd audio stream is the AC3 core of the truehd stream [ignore-truehd]." % a.index)
                     continue
@@ -1143,7 +1143,7 @@ class MkvtoMp4:
                     self.log.error("Error cleaning up QTFS temp files.")
                     return False
             except exceptions.FastStartException:
-                self.log.warning("QT FastStart did not run - perhaps moov atom was at the start already.")
+                self.log.warning("QT FastStart did not run - perhaps moov atom was at the start already or file is in the wrong format.")
                 return inputfile
 
     # Makes additional copies of the input file in each directory specified in the copy_to option

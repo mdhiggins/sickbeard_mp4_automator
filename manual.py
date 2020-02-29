@@ -9,11 +9,9 @@ import argparse
 import struct
 import logging
 from log import getLogger
-from extensions import valid_tagging_extensions
 from readSettings import ReadSettings
-from tvdb_mp4 import Tvdb_mp4
-from tmdb_mp4 import tmdb_mp4
 from mkvtomp4 import MkvtoMp4
+from metadata import Metadata, MediaType
 from post_processor import PostProcessor
 import tmdbsimple as tmdb
 from extensions import tmdb_api_key
@@ -37,20 +35,22 @@ settings = None
 
 def mediatype():
     print("Select media type:")
-    print("1. Movie (via IMDB ID)")
-    print("2. Movie (via TMDB ID)")
-    print("3. TV")
-    print("4. Convert without tagging")
-    print("5. Skip file")
+    print("1. Movie (via TMDB ID)")
+    print("2. Movie (via IMDB ID)")
+    print("3. TV (via TMDB ID)")
+    print("4. TV (via TVDB ID)")
+    print("5. TV (via IMDB ID)")
+    print("6. Convert without tagging")
+    print("7. Skip file")
     result = raw_input("#: ")
     try:
-        if 0 < int(result) < 6:
+        if 0 < int(result) < 8:
             return int(result)
         else:
-            safePrint("Invalid selection")
+            print("Invalid selection")
             return mediatype()
     except:
-        safePrint("Invalid selection")
+        print("Invalid selection")
         return mediatype()
 
 
@@ -84,13 +84,17 @@ def getYesNo():
         return getYesNo()
 
 
-def getinfo(fileName=None, silent=False, tag=True, tvdbid=None):
+class SkipFileException(Exception):
+    pass
+
+
+def getInfo(fileName=None, silent=False, tag=True, tvdbid=None, tmdbid=None, imdbid=None, season=None, episode=None):
     tagdata = None
     # Try to guess the file is guessing is enabled
     if fileName is not None:
-        tagdata = guessInfo(fileName, tvdbid)
+        tagdata = guessInfo(fileName, tvdbid=tvdbid, tmdbid=tmdbid, imdbid=imdbid, season=season, episode=episode)
 
-    if silent is False:
+    if not silent:
         if tagdata:
             print("Proceed using guessed identification from filename?")
             if getYesNo():
@@ -99,20 +103,30 @@ def getinfo(fileName=None, silent=False, tag=True, tvdbid=None):
             print("Unable to determine identity based on filename, must enter manually")
         m_type = mediatype()
         if m_type is 3:
-            tvdbid = getValue("Enter TVDB Series ID", True)
+            tmdbid = getValue("Enter TMDB ID", True)
             season = getValue("Enter Season Number", True)
             episode = getValue("Enter Episode Number", True)
-            return m_type, tvdbid, season, episode
-        elif m_type is 1:
-            imdbid = getValue("Enter IMDB ID")
-            return m_type, imdbid
+            return Metadata(MediaType.TV, tmdbid=tmdbid, season=season, episode=episode, language=settings.taglanguage, logger=log)
+        if m_type is 4:
+            tvdbid = getValue("Enter TVDB ID", True)
+            season = getValue("Enter Season Number", True)
+            episode = getValue("Enter Episode Number", True)
+            return Metadata(MediaType.TV, tvdbid=tvdbid, season=season, episode=episode, language=settings.taglanguage, logger=log)
+        if m_type is 5:
+            imdbid = getValue("Enter IMDB ID", True)
+            season = getValue("Enter Season Number", True)
+            episode = getValue("Enter Episode Number", True)
+            return Metadata(MediaType.TV, imdbid=imdbid, season=season, episode=episode, language=settings.taglanguage, logger=log)
         elif m_type is 2:
+            imdbid = getValue("Enter IMDB ID")
+            return Metadata(MediaType.Movie, imdbid=imdbid, language=settings.taglanguage, logger=log)
+        elif m_type is 1:
             tmdbid = getValue("Enter TMDB ID", True)
-            return m_type, tmdbid
-        elif m_type is 4:
+            return Metadata(MediaType.Movie, tmdbid=tmdbid, language=settings.taglanguage, logger=log)
+        elif m_type is 6:
             return None
-        elif m_type is 5:
-            return False
+        elif m_type is 7:
+            raise SkipFileException
     else:
         if tagdata and tag:
             return tagdata
@@ -120,50 +134,51 @@ def getinfo(fileName=None, silent=False, tag=True, tvdbid=None):
             return None
 
 
-def guessInfo(fileName, tvdbid=None):
-    if tvdbid:
-        guess = guessit.guessit(fileName)
-        return tvInfo(guess, tvdbid)
+def guessInfo(fileName, tmdbid=None, tvdbid=None, imdbid=None, season=None, episode=None):
     if not settings.fullpathguess:
         fileName = os.path.basename(fileName)
     guess = guessit.guessit(fileName)
     try:
         if guess['type'] == 'movie':
-            return movieInfo(guess)
+            return movieInfo(guess, tmdbid=tmdbid, imdbid=imdbid)
         elif guess['type'] == 'episode':
-            return tvInfo(guess, tvdbid)
+            return tvInfo(guess, tmdbid=tmdbid, tvdbid=tvdbid, imdbid=imdbid, season=season, episode=episode)
         else:
             return None
-    except Exception as e:
-        print(e)
+    except:
+        log.exception("Unable to guess movie information")
         return None
 
 
-def movieInfo(guessData):
-    tmdb.API_KEY = tmdb_api_key
-    search = tmdb.Search()
-    title = guessData['title']
-    if 'year' in guessData:
-        response = search.movie(query=title, year=guessData["year"])
-        if len(search.results) < 1:
+def movieInfo(guessData, tmdbid=None, imdbid=None):
+    if not tmdbid and not imdbid:
+        tmdb.API_KEY = tmdb_api_key
+        search = tmdb.Search()
+        title = guessData['title']
+        if 'year' in guessData:
             response = search.movie(query=title, year=guessData["year"])
-    else:
-        response = search.movie(query=title)
-    if len(search.results) < 1:
-        return None
-    result = search.results[0]
-    release = result['release_date']
-    tmdbid = result['id']
-    safePrint("Matched movie title as: %s %s (TMDB ID: %d)" % (title, release, int(tmdbid)))
-    return 2, tmdbid
-    return None
+            if len(search.results) < 1:
+                response = search.movie(query=title, year=guessData["year"])
+        else:
+            response = search.movie(query=title)
+        if len(search.results) < 1:
+            return None
+        result = search.results[0]
+        release = result['release_date']
+        tmdbid = result['id']
+        log.debug("Guessed filename resulted in TMDB ID %s" % tmdbid)
+
+    metadata = Metadata(MediaType.Movie, tmdbid=tmdbid, imdbid=imdbid, language=settings.taglanguage, logger=log)
+    log.info("Matched movie title as: %s %s (TMDB ID: %s)" % (metadata.title, metadata.date, tmdbid))
+    return metadata
 
 
-def tvInfo(guessData, tvdbid=None):
-    tmdb.API_KEY = tmdb_api_key
-    season = guessData["season"]
-    episode = guessData["episode"]
-    if not tvdbid:
+def tvInfo(guessData, tmdbid=None, tvdbid=None, imdbid=None, season=None, episode=None):
+    season = season or guessData["season"]
+    episode = episode or guessData["episode"]
+
+    if not tmdbid and not tvdbid and not imdbid:
+        tmdb.API_KEY = tmdb_api_key
         search = tmdb.Search()
         series = guessData["title"]
         if 'year' in guessData:
@@ -175,69 +190,49 @@ def tvInfo(guessData, tvdbid=None):
         if len(search.results) < 1:
             return None
         result = search.results[0]
-        tvdbid = result['id']
-    else:
-        seriesquery = tmdb.TV(tvdbid)
-        showdata = seriesquery.info()
-        series = showdata['name']
-    safePrint("Matched TV episode as %s (TMDB ID:%d) S%02dE%02d" % (series, int(tvdbid), int(season), int(episode)))
-    return 3, tvdbid, season, episode
+        tmdbid = result['id']
+
+    metadata = Metadata(MediaType.TV, tmdbid=tmdbid, imdbid=imdbid, tvdbid=tvdbid, season=season, episode=episode, language=settings.taglanguage, logger=log)
+    log.info("Matched TV episode as %s (TMDB ID: %d) S%02dE%02d" % (metadata.showname, int(metadata.tmdbid), int(season), int(episode)))
+    return metadata
 
 
 def processFile(inputfile, tagdata, converter, info=None, relativePath=None):
     # Process
-    info = info if info else converter.isValidSource(inputfile)
+    info = info or converter.isValidSource(inputfile)
     if not info:
+        log.debug("Invalid file %s." % inputfile)
         return
 
-    # Gather tagdata
-    if tagdata is False:
-        return  # This means the user has elected to skip the file
-    elif tagdata is None:
-        tagmp4 = None  # No tag data specified but convert the file anyway
-    elif tagdata[0] is 1:
-        imdbid = tagdata[1]
-        tagmp4 = tmdb_mp4(imdbid, language=settings.taglanguage, logger=log)
-        safePrint("Processing %s" % (tagmp4.title))
-    elif tagdata[0] is 2:
-        tmdbid = tagdata[1]
-        tagmp4 = tmdb_mp4(tmdbid, True, language=settings.taglanguage, logger=log)
-        safePrint("Processing %s" % (tagmp4.title))
-    elif tagdata[0] is 3:
-        tvdbid = int(tagdata[1])
-        season = int(tagdata[2])
-        episode = int(tagdata[3])
-        tagmp4 = Tvdb_mp4(tvdbid, season, episode, language=settings.taglanguage, logger=log, tmdbid=True)
-        safePrint("Processing %s Season %02d Episode %02d - %s" % (tagmp4.show, int(tagmp4.season), int(tagmp4.episode), tagmp4.title))
+    if tagdata.mediatype == MediaType.Movie:
+        log.info("Processing %s" % (tagdata.title))
+    elif tagdata.mediatype == MediaType.TV:
+        log.info("Processing %s Season %02d Episode %02d - %s" % (tagdata.showname, int(tagdata.season), int(tagdata.episode), tagdata.title))
 
     output = converter.process(inputfile, True)
     if output:
-        if tagmp4 is not None and output['output_extension'] in valid_tagging_extensions:
+        if tagdata:
             try:
-                tagmp4.setHD(output['x'], output['y'])
-                tagmp4.writeTags(output['output'], settings.artwork, settings.thumbnail)
-            except Exception as e:
+                tagdata.setHD(output['x'], output['y'])
+                tagdata.writeTags(output['output'], settings.artwork, settings.thumbnail)
+            except:
                 log.exception("There was an error tagging the file")
-                print("There was an error tagging the file")
-                print(e)
-        if settings.relocate_moov and output['output_extension'] in valid_tagging_extensions:
+        if settings.relocate_moov:
             converter.QTFS(output['output'])
         output_files = converter.replicate(output['output'], relativePath=relativePath)
         if settings.postprocess:
             post_processor = PostProcessor(output_files)
             if tagdata:
-                if tagdata[0] is 1:
-                    post_processor.setMovie(tagdata[1])
-                elif tagdata[0] is 2:
-                    post_processor.setMovie(tagdata[1])
-                elif tagdata[0] is 3:
-                    post_processor.setTV(tagdata[1], tagdata[2], tagdata[3])
+                if tagdata.mediatype == MediaType.Movie:
+                    post_processor.setMovie(tagdata.tmdbid)
+                elif tagdata.mediatype == MediaType.TV:
+                    post_processor.setTV(tagdata.tmdbid, tagdata.season, tagdata.episode)
             post_processor.run_scripts()
     else:
-        log.error("File is not in the correct format")
+        log.error("There was an error processing file %s, no output data received" % inputfile)
 
 
-def walkDir(dir, silent=False, preserveRelative=False, tvdbid=None, tag=True, optionsOnly=False):
+def walkDir(dir, silent=False, preserveRelative=False, tmdbid=None, imdbid=None, tvdbid=None, tag=True, optionsOnly=False):
     files = []
     converter = MkvtoMp4(settings, logger=log)
     for r, d, f in os.walk(dir):
@@ -246,31 +241,24 @@ def walkDir(dir, silent=False, preserveRelative=False, tvdbid=None, tag=True, op
     for filepath in files:
         info = converter.isValidSource(filepath)
         if info:
-            safePrint("Processing file %s" % (filepath))
+            log.info("Processing file %s" % (filepath))
             relative = os.path.split(os.path.relpath(filepath, dir))[0] if preserveRelative else None
             if optionsOnly:
                 displayOptions(filepath)
                 continue
             if tag:
-                tagdata = getinfo(filepath, silent, tvdbid=tvdbid)
+                try:
+                    tagdata = getInfo(filepath, silent, tmdbid=tmdbid, tvdbid=tvdbid, imdbid=imdbid)
+                    processFile(filepath, tagdata, converter, info=info, relativePath=relative)
+                except SkipFileException:
+                    log.debug("Skipping file %s." % filepath)
             else:
-                tagdata = None
-            processFile(filepath, tagdata, converter, info=info, relativePath=relative)
+                processFile(filepath, None, converter, info=info, relativePath=relative)
 
 
 def displayOptions(path):
     converter = MkvtoMp4(settings)
-    safePrint(converter.jsonDump(path))
-
-
-def safePrint(text):
-    try:
-        print(text)
-    except:
-        try:
-            print(text.encode('utf-8', errors='ignore'))
-        except:
-            pass
+    log.info(converter.jsonDump(path))
 
 
 def main():
@@ -280,9 +268,9 @@ def main():
     parser.add_argument('-i', '--input', help='The source that will be converted. May be a file or a directory')
     parser.add_argument('-c', '--config', help='Specify an alternate configuration file location')
     parser.add_argument('-a', '--auto', action="store_true", help="Enable auto mode, the script will not prompt you for any further input, good for batch files. It will guess the metadata using guessit")
-    parser.add_argument('-tv', '--tvid', help="Set the TMDB ID for a tv show")
     parser.add_argument('-s', '--season', help="Specifiy the season number")
     parser.add_argument('-e', '--episode', help="Specify the episode number")
+    parser.add_argument('-tvdb', '--tvdbid', help="Set the TMDB ID for a tv show")
     parser.add_argument('-imdb', '--imdbid', help="Specify the IMDB ID for a movie")
     parser.add_argument('-tmdb', '--tmdbid', help="Specify TMDB ID for a movie")
     parser.add_argument('-nm', '--nomove', action='store_true', help="Overrides and disables the custom moving of file options that come from output_dir and move-to")
@@ -302,8 +290,8 @@ def main():
     silent = args['auto']
     tag = True
 
-    safePrint("Python %s-bit %s." % (struct.calcsize("P") * 8, sys.version))
-    safePrint("Guessit version: %s." % guessit.__version__)
+    print("Python %s-bit %s." % (struct.calcsize("P") * 8, sys.version))
+    print("Guessit version: %s." % guessit.__version__)
 
     # Settings overrides
     if(args['config']):
@@ -319,7 +307,7 @@ def main():
         print("No-move enabled")
     elif (args['moveto']):
         settings.moveto = args['moveto']
-        safePrint("Overriden move-to to " + args['moveto'])
+        print("Overriden move-to to " + args['moveto'])
     if (args['nocopy']):
         settings.copyto = None
         print("No-copy enabled")
@@ -353,10 +341,8 @@ def main():
     else:
         path = getValue("Enter path to file")
 
-    tvdbid = int(args['tvid']) if args['tvid'] else None
-
     if os.path.isdir(path):
-        walkDir(path, silent, tvdbid=tvdbid, preserveRelative=args['preserveRelative'], tag=settings.tagfile, optionsOnly=args['optionsonly'])
+        walkDir(path, silent=silent, tmdbid=args.get('tmdbid'), tvdbid=args.get('tvdbid'), imdbid=args.get('imdbid'), preserveRelative=args['preserveRelative'], tag=settings.tagfile, optionsOnly=args['optionsonly'])
     elif (os.path.isfile(path)):
         converter = MkvtoMp4(settings, logger=log)
         info = converter.isValidSource(path)
@@ -364,29 +350,19 @@ def main():
             if (args['optionsonly']):
                 displayOptions(path)
                 return
-            if (not settings.tagfile):
-                tagdata = None
-            elif (args['tvid'] and not (args['imdbid'] or args['tmdbid'])):
-                season = int(args['season']) if args['season'] else None
-                episode = int(args['episode']) if args['episode'] else None
-                if (tvdbid and season and episode):
-                    tagdata = [3, tvdbid, season, episode]
-                else:
-                    tagdata = getinfo(path, silent=silent, tvdbid=tvdbid)
-            elif ((args['imdbid'] or args['tmdbid']) and not args['tvid']):
-                if (args['imdbid']):
-                    imdbid = args['imdbid']
-                    tagdata = [1, imdbid]
-                elif (args['tmdbid']):
-                    tmdbid = int(args['tmdbid'])
-                    tagdata = [2, tmdbid]
+            if not settings.tagfile:
+                processFile(path, None, converter, info=info)
             else:
-                tagdata = getinfo(path, silent=silent, tvdbid=tvdbid)
-            processFile(path, tagdata, converter, info=info)
+                try:
+                    tagdata = getInfo(path, silent=silent, tmdbid=args.get('tmdbid'), tvdbid=args.get('tvdbid'), imdbid=args.get('imdbid'), season=args.get('season'), episode=args.get('episode'))
+                    processFile(path, tagdata, converter, info=info)
+                except SkipFileException:
+                    log.debug("Skipping file %s" % path)
+
         else:
-            safePrint("File %s is not in a valid format" % (path))
+            print("File %s is not in a valid format" % (path))
     else:
-        safePrint("File %s does not exist" % (path))
+        print("File %s does not exist" % (path))
 
 
 if __name__ == '__main__':

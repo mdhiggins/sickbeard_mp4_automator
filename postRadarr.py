@@ -3,10 +3,9 @@ import os
 import sys
 import logging
 from log import getLogger
-from extensions import valid_tagging_extensions
 from readSettings import ReadSettings
 from autoprocess import plex
-from tmdb_mp4 import tmdb_mp4
+from metadata import Metadata, MediaType
 from mkvtomp4 import MkvtoMp4
 from post_processor import PostProcessor
 from logging.config import fileConfig
@@ -40,17 +39,17 @@ if info:
 
     if output:
         # Tag with metadata
-        if settings.tagfile and output['output_extension'] in valid_tagging_extensions:
-            log.info('Tagging file with IMDB ID %s', imdbid)
-            try:
-                tagmp4 = tmdb_mp4(imdbid, original=original, language=settings.taglanguage)
-                tagmp4.setHD(output['x'], output['y'])
-                tagmp4.writeTags(output['output'], settings.artwork, settings.thumbnail)
-            except:
-                log.error("Unable to tag file")
+        try:
+            tag = Metadata(MediaType.Movie, imdbid=imdbid, original=original, language=settings.taglanguage)
+            if settings.tagfile:
+                log.info('Tagging file with TMDB ID %s.', tag.tmdbid)
+                tag.setHD(output['x'], output['y'])
+                tag.writeTags(output['output'], settings.artwork, settings.thumbnail)
+        except:
+            log.exception("Unable to tag file")
 
         # QTFS
-        if settings.relocate_moov and output['output_extension'] in valid_tagging_extensions:
+        if settings.relocate_moov:
             converter.QTFS(output['output'])
 
         # Copy to additional locations
@@ -117,7 +116,7 @@ if info:
 
                 # Then set that movie to monitored
                 log.debug("Sending PUT request with following payload:")
-                log.info(str(payload)) # debug
+                log.info(str(payload))  # debug
 
                 url = protocol + host + ":" + port + webroot + "/api/movie/" + str(movieID)
                 r = requests.put(url, json=payload, headers=headers)
@@ -134,7 +133,7 @@ if info:
         # run any post process scripts
         if settings.postprocess:
             post_processor = PostProcessor(output_files, log)
-            post_processor.setMovie(imdbid)
+            post_processor.setMovie(tag.tmdbid)
             post_processor.run_scripts()
 
         plex.refreshPlex(settings, 'movie', log)

@@ -4,10 +4,9 @@ import sys
 import requests
 import time
 from log import getLogger
-from extensions import valid_tagging_extensions
 from readSettings import ReadSettings
 from autoprocess import plex
-from tvdb_mp4 import Tvdb_mp4
+from metadata import Metadata, MediaType
 from mkvtomp4 import MkvtoMp4
 from post_processor import PostProcessor
 
@@ -45,17 +44,17 @@ if info:
 
     if output:
         # Tag with metadata
-        if settings.tagfile and output['output_extension'] in valid_tagging_extensions:
-            log.info("Tagging %s with ID %s season %s episode %s." % (inputfile, tvdb_id, season, episode))
-            try:
-                tagmp4 = Tvdb_mp4(tvdb_id, season, episode, original, language=settings.taglanguage)
-                tagmp4.setHD(output['x'], output['y'])
-                tagmp4.writeTags(output['output'], settings.artwork, settings.thumbnail)
-            except:
-                log.error("Unable to tag file")
+        try:
+            tag = Metadata(MediaType.TV, tvdbid=tvdb_id, season=season, episode=episode, original=original, language=settings.taglanguage)
+            if settings.tagfile:
+                log.info("Tagging %s with TMDB ID %s season %s episode %s." % (inputfile, tag.tmdbid, tag.season, tag.episode))
+                tag.setHD(output['x'], output['y'])
+                tag.writeTags(output['output'], settings.artwork, settings.thumbnail)
+        except:
+            log.exception("Unable to tag file")
 
         # QTFS
-        if settings.relocate_moov and output['output_extension'] in valid_tagging_extensions:
+        if settings.relocate_moov:
             converter.QTFS(output['output'])
 
         # Copy to additional locations
@@ -110,7 +109,7 @@ if info:
                     r = requests.get(url, headers=headers)
                     command = r.json()
                     attempts += 1
-                log.info("Command completed")
+                log.info("Command completed.")
                 log.info(str(command))
 
                 # Then get episode information
@@ -144,7 +143,7 @@ if info:
         # Run any post process scripts
         if settings.postprocess:
             post_processor = PostProcessor(output_files, log)
-            post_processor.setTV(tvdb_id, season, episode)
+            post_processor.setTV(tag.tmdbid, tag.season, tag.episode)
             post_processor.run_scripts()
 
         plex.refreshPlex(settings, 'show', log)
