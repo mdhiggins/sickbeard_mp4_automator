@@ -8,7 +8,7 @@ def main():
     print("plex_autoscan Post-processing Script")
     url = "http://localhost:3689/apikey"
 
-    files = json.loads(os.environ.get('MH_FILES'))
+    files = json.loads(os.environ.get('SMA_FILES'))
     if not (files):
         print("Error - Did not find environment variables.")
         return

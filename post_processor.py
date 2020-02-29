@@ -21,7 +21,7 @@ class PostProcessor:
     def set_script_environment(self, files):
         self.log.debug("Setting script environment.")
         self.post_process_environment = os.environ.copy()
-        self.post_process_environment['MH_FILES'] = json.dumps(files)
+        self.post_process_environment['SMA_FILES'] = json.dumps(files)
 
     def gather_scripts(self):
         self.log.debug("Gathering scripts.")
@@ -37,15 +37,15 @@ class PostProcessor:
                 scripts.append(os.path.join(post_process_directory, script))
         return scripts
 
-    def setTV(self, tvdbid, season, episode):
+    def setTV(self, tmdbid, season, episode):
         self.log.debug("Setting TV metadata.")
-        self.post_process_environment['MH_TVDBID'] = str(tvdbid)
-        self.post_process_environment['MH_SEASON'] = str(season)
-        self.post_process_environment['MH_EPISODE'] = str(episode)
+        self.post_process_environment['SMA_TMDBID'] = str(tmdbid)
+        self.post_process_environment['SMA_SEASON'] = str(season)
+        self.post_process_environment['SMA_EPISODE'] = str(episode)
 
-    def setMovie(self, imdbid):
+    def setMovie(self, tmdbid):
         self.log.debug("Setting movie metadata.")
-        self.post_process_environment['MH_IMDBID'] = str(imdbid)
+        self.post_process_environment['SMA_TMDBID'] = str(tmdbid)
 
     def run_scripts(self):
         self.log.debug("Running scripts.")

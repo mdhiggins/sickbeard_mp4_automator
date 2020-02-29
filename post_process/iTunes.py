@@ -11,7 +11,7 @@ def main():
         print("iTunes.py post processing script requires OS X.")
         return
 
-    MH_FILES = os.environ.get('MH_FILES')
+    MH_FILES = os.environ.get('SMA_FILES')
     if not (MH_FILES):
         print("Did not find environment variables.")
         return
