@@ -1064,12 +1064,9 @@ class MkvtoMp4:
         try:
             for timecode in conv:
                 if reportProgress:
-                    try:
-                        sys.stdout.write('\r')
-                        sys.stdout.write('[{0}] {1}%'.format('#' * (timecode / 10) + ' ' * (10 - (timecode / 10)), timecode))
-                    except:
-                        sys.stdout.write(str(timecode))
-                    sys.stdout.flush()
+                    self.displayProgressBar(timecode)
+            if reportProgress:
+                self.displayProgressBar(100, newline=True)
 
             self.log.info("%s created." % outputfile)
             self.setPermissions(outputfile)
@@ -1095,6 +1092,18 @@ class MkvtoMp4:
                 finaloutputfile = outputfile
 
         return finaloutputfile, inputfile
+
+    def displayProgressBar(self, complete, width=20, newline=False):
+        try:
+            divider = 100 / width
+
+            sys.stdout.write('\r')
+            sys.stdout.write('[{0}] {1}%'.format('#' * round(complete / divider) + ' ' * round(width - (complete / divider)), complete))
+            if newline:
+                sys.stdout.write('\n')
+            sys.stdout.flush()
+        except:
+            print(complete)
 
     # Break apart a file path into the directory, filename, and extension
     def parseFile(self, path):
