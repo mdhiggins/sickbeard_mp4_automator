@@ -362,16 +362,20 @@ If you have secure connections enabled with Plex you will need to add your local
 Found under Plex Server Settings > Network > Advanced
 ![image](https://user-images.githubusercontent.com/3608298/52716936-e61b4b80-2f6d-11e9-8537-83ab9321948b.png)
 
+Override Configuration Path
+--------------
+If for some reason you need to override the path to autoProcess.ini (for virtual environments, containers, etc) you can use the environment variable `SMA_CONFIG` to the absolute path
+
 Post Process Scripts
 --------------
 The script suite supports the ability to write your own post processing scripts that will be executed when all the final processing has been completed. All scripts in the `./post_process` directory will be executed if the `post-process` option is set to `True` in `autoProcess.ini`. Scripts within the `./post_process/resources` directory are protected from execution if additional script resources are required.
 
 The following environmental variables are available for usage:
-- `MH_FILES` - JSON Array of all files created by the post processing script. The first file in the array is the primary file, and any additional files are copies created by the copy-to option
-- `MH_TVDBID` - TVDB ID if file processed was a TV show and this information is available
-- `MH_SEASON` - Season number if file processed was a TV show
-- `MH_EPISODE` - Episode number if files processed was a TV show
-- `MH_IMDBID` - IMDB ID if file processed was a movie
+- `SMA_FILES` - JSON Array of all files created by the post processing script. The first file in the array is the primary file, and any additional files are copies created by the copy-to option
+- `SMA_TVDBID` - TVDB ID if file processed was a TV show and this information is available
+- `SMA_SEASON` - Season number if file processed was a TV show
+- `SMA_EPISODE` - Episode number if files processed was a TV show
+- `SMA_IMDBID` - IMDB ID if file processed was a movie
 A sample script as well as an OS X 'Add to iTunes' script (`iTunes.py`) have been provided.
 *Special thanks to jzucker2 for providing much of the initial code for this feature*
 
@@ -397,16 +401,16 @@ optional arguments:
   -a, --auto            Enable auto mode, the script will not prompt you for
                         any further input, good for batch files. It will guess
                         the metadata using guessit
-  -tv TMDBID, --tvid TMBDID
-                        Set the TVDB ID for a tv show
+  -tmdb TMDBID, --tmdbid TMDBID
+                        Specify the TMDB ID for media
+  -tvdb TVDBID, --tvdbid TMBDID
+                        Specify the TVDB ID for media
+  -imdb IMDBID, --imdbid IMDBID
+                        Specify the IMDB ID for media
   -s SEASON, --season SEASON
                         Specifiy the season number
   -e EPISODE, --episode EPISODE
                         Specify the episode number
-  -imdb IMDBID, --imdbid IMDBID
-                        Specify the IMDB ID for a movie
-  -tmdb TMDBID, --tmdbid TMDBID
-                        Specify theMovieDB ID for a movie
   -nm, --nomove         Overrides and disables the custom moving of file
                         options that come from output_dir and move-to
   -m, --moveto          Override move-to value setting in autoProcess.ini
@@ -438,8 +442,8 @@ manual.py -i mp4path -tmdb tmdbid
 Example: manual.py -i "C:\The Matrix.mkv" -tmdb 603
 
 TV
-manual.py -i mp4path -tv tmbdid -s season -e episode
-Example: manual.py -i "C:\Futurama S03E10.mkv" -tv 73871‎ -s 3 -e 10
+manual.py -i mp4path -tvdb tmbdid -s season -e episode
+Example: manual.py -i "C:\Futurama S03E10.mkv" -tvdb 73871‎ -s 3 -e 10
 
 Auto Single File (will gather movie ID or TV show ID / season / spisode from the file name if possible)
 manual.py -i mp4path -silent
@@ -454,8 +458,8 @@ manual.py -i directory_path -a
 Example: manual.py -i C:\Movies -a
 
 Process a directory but manually specific TVDB ID (Good for shows that don't correctly match using the guess)
-manual.py -i directory -a -tv tvdbid
-Example: manual.py -i C:\TV\Futurama\ -a -tv 615
+manual.py -i directory -a -tvdb tvdbid
+Example: manual.py -i C:\TV\Futurama\ -a -tvdb 615
 ```
 You may also simply run `manual.py -i 'C:\The Matrix.mkv` and the script will prompt you for the missing information or attempt to guess based on the file name.
 You may run the script with a `--auto` or `-a` switch, which will let the script guess the tagging information based on the file name, avoiding any need for user input. This is the most ideal option for large batch file operations.

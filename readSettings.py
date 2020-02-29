@@ -25,7 +25,7 @@ class ReadSettings:
         self.log.info(sys.executable)
 
         defaultConfigFile = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), "autoProcess.ini")
-        envConfigFile = os.environ.get("SMACONFIG")
+        envConfigFile = os.environ.get("SMA_CONFIG")
 
         if envConfigFile and os.path.exists(os.path.realpath(envConfigFile)):
             configFile = os.path.realpath(envConfigFile)
