@@ -24,14 +24,6 @@ class MediaType(enum.Enum):
 
 
 class Metadata:
-    title = None
-    language = None
-    rating = None
-    HD = None
-    genre = None
-    original = None
-    network = None
-
     __CONTENTRATINGS = {
         "TV-Y": 'us-tv|TV-Y|100',
         "TV-Y7": 'us-tv|TV-Y7|200',
