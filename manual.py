@@ -288,7 +288,6 @@ def main():
 
     # Setup the silent mode
     silent = args['auto']
-    tag = True
 
     print("Python %s-bit %s." % (struct.calcsize("P") * 8, sys.version))
     print("Guessit version: %s." % guessit.__version__)
