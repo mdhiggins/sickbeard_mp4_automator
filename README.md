@@ -3,6 +3,8 @@ SMA Conversion/Tagging Automation Script.
 
 **Automatically converts media files downloaded by various programs to a standardized format, and tags them with the appropriate metadata from TMDB if the container supports tagging.**
 
+![Header](https://user-images.githubusercontent.com/3608298/75617396-8ff35900-5b2c-11ea-82f1-232831a59851.png)
+
 Works on Windows, OSX, and Linux. Despite the name works with much more than just Sickbeard and handles more than MP4
 
 Media Managers Supported:
