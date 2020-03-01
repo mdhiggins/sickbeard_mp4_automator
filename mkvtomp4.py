@@ -410,17 +410,23 @@ class MkvtoMp4:
 
                 adebug = "base"
                 # If the iOS audio option is enabled and the source audio channel is only stereo, the additional iOS channel will be skipped and a single AAC 2.0 channel will be made regardless of codec preference to avoid multiple stereo channels
+                afilter = None
                 if iOS and a.audio_channels <= 2:
                     self.log.debug("Overriding default channel settings because iOS audio is enabled but the source is stereo [iOS-audio].")
                     acodec = 'copy' if a.codec in self.settings.iOS else self.settings.iOS[0]
                     audio_channels = a.audio_channels
-                    afilter = self.settings.iOSfilter
                     abitrate = a.audio_channels * 128 if (a.audio_channels * self.settings.abitrate) > (a.audio_channels * 128) else (a.audio_channels * self.settings.abitrate)
                     adebug = adebug + ".ios-audio"
+
+                    # iOS Filters
+                    if self.settings.iOSfilter:
+                        self.log.debug("Unable to copy codec because an iOS audio filter is set [ios-audio-filter].")
+                        afilter = self.settings.iOSfilter
+                        acodec = self.settings.iOS[0]
+                        adebug = adebug + ".ios-audio-filter"
                 else:
                     # If desired codec is the same as the source codec, copy to avoid quality loss
                     acodec = 'copy' if a.codec.lower() in self.settings.acodec else self.settings.acodec[0]
-                    afilter = self.settings.afilter
                     # Audio channel adjustments
                     if self.settings.maxchannels and a.audio_channels > self.settings.maxchannels:
                         self.log.debug("Audio source exceeds maximum channels, can not be copied. Settings channels to %d [audio-max-channels]." % self.settings.maxchannels)
@@ -431,6 +437,13 @@ class MkvtoMp4:
                     else:
                         audio_channels = a.audio_channels
                         abitrate = a.audio_channels * self.settings.abitrate
+
+                    # Filters
+                    if self.settings.afilter:
+                        self.log.debug("Unable to copy codec because an iOS audio filter is set [audio-filter].")
+                        afilter = self.settings.afilter
+                        acodec = self.settings.acodec[0]
+                        adebug = adebug + ".audio-filter"
 
                 # Bitrate calculations/overrides
                 if self.settings.abitrate == 0:
