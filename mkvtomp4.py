@@ -440,7 +440,7 @@ class MkvtoMp4:
 
                     # Filters
                     if self.settings.afilter:
-                        self.log.debug("Unable to copy codec because an iOS audio filter is set [audio-filter].")
+                        self.log.debug("Unable to copy codec because an audio filter is set [audio-filter].")
                         afilter = self.settings.afilter
                         acodec = self.settings.acodec[0]
                         adebug = adebug + ".audio-filter"
