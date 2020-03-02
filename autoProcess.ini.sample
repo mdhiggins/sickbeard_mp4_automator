@@ -68,6 +68,7 @@ download-artwork = Poster
 download-subs = False
 embed-subs = True
 embed-only-internal-subs = False
+download-hearing-impaired-subs = False
 sub-providers = 
 post-process = False
 pix-fmt =
