@@ -35,6 +35,7 @@ relocate_moov = True
 video-codec = h264,x264
 video-bitrate =
 video-crf =
+video-crf-profiles =
 video-max-width =
 video-profile =
 h264-max-level =

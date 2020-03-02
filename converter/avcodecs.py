@@ -233,6 +233,8 @@ class VideoCodec(BaseCodec):
         'codec': str,
         'bitrate': int,
         'crf': int,
+        'maxrate': str,
+        'bufsize': str,
         'fps': int,
         'width': int,
         'height': int,
@@ -377,11 +379,15 @@ class VideoCodec(BaseCodec):
             optlist.extend(['-pix_fmt', str(safe['pix_fmt'])])
         if 'field_order' in safe:
             optlist.extend(['-field_order', str(safe['field_order'])])
-        # CRF gets priority over bitrate, but if bitrate is present, use that as maxrate
+        # CRF gets priority over bitrate, but if bitrate is present without maxrate, use bitrate as maxrate
         if 'crf' in safe:
             optlist.extend(['-crf', str(safe['crf'])])
-            if 'bitrate' in safe:
+            if 'maxrate' in safe:
+                optlist.extend(['-maxrate:v', str(safe['maxrate'])])
+            elif 'bitrate' in safe:
                 optlist.extend(['-maxrate:v', str(safe['bitrate']) + 'k'])
+            if 'bufsize' in safe:
+                optlist.extend(['-bufsize', str(safe['bufsize'])])
         elif 'bitrate' in safe:
             optlist.extend(['-vb', str(safe['bitrate']) + 'k'])
         if 'filter' in safe:

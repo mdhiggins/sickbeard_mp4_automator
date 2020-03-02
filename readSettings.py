@@ -110,6 +110,7 @@ class ReadSettings:
                         'video-codec': 'h264, x264',
                         'video-bitrate': '',
                         'video-crf': '',
+                        'video-crf-profiles': '',
                         'video-max-width': '',
                         'video-profile': '',
                         'h264-max-level': '',
@@ -439,6 +440,29 @@ class ReadSettings:
             except:
                 self.log.exception("Invalid CRF setting, defaulting to none.")
                 self.vcrf = None
+
+        self.vcrf_profiles = config.get(section, "video-crf-profiles").strip().replace(' ', '')
+        if self.vcrf_profiles == "":
+            self.vcrf_profiles = []
+        else:
+            vcrf_profiles = self.vcrf_profiles.split(',')
+            self.vcrf_profiles = []
+            for vcrfp_raw in vcrf_profiles:
+                vcrfp = vcrfp_raw.split(":")
+                if len(vcrfp) == 4:
+                    try:
+                        p = {
+                            'source_bitrate': int(vcrfp[0]),
+                            'crf': int(vcrfp[1]),
+                            'maxrate': vcrfp[2],
+                            'bufsize': vcrfp[3]
+                        }
+                        self.vcrf_profiles.append(p)
+                    except:
+                        self.log.exception("Error parsing video-crf-profile '%s'." % vcrfp_raw)
+                else:
+                    self.log.error("Invalid video-crf-profile length '%s'." % vcrfp_raw)
+            self.vcrf_profiles.sort(key=lambda x: x['source_bitrate'], reverse=True)
 
         self.vwidth = config.get(section, "video-max-width")
         if self.vwidth == '':

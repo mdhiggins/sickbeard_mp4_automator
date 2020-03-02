@@ -323,12 +323,29 @@ class MkvtoMp4:
             vdebug = vdebug + ".video-profile"
             vcodec = self.settings.vcodec[0]
 
-        vcrf = self.settings.vcrf
         vfieldorder = info.video.field_order
+
+        vcrf = self.settings.vcrf
+        vmaxrate = None
+        vbufsize = None
+        if len(self.settings.vcrf_profiles) > 0:
+            self.log.debug("VCRF profiles detected [video-crf-profiles].")
+            for profile in self.settings.vcrf_profiles:
+                try:
+                    if profile['source_bitrate'] < vbr:
+                        vcrf = profile['crf']
+                        vmaxrate = profile['maxrate']
+                        vbufsize = profile['bufsize']
+                        self.log.info("Acceptable profile match found for VBR %s using CRF %d, maxrate %s, bufsize %s." % (vbr, vcrf, vmaxrate, vbufsize))
+                        break
+                except:
+                    self.log.exception("Error setting VCRF profile information.")
 
         self.log.debug("Video codec: %s." % vcodec)
         self.log.debug("Video bitrate: %s." % vbitrate)
         self.log.debug("Video CRF: %s." % vcrf)
+        self.log.debug("Video maxrate: %s." % vmaxrate)
+        self.log.debug("Video bufsize: %s." % vbufsize)
         self.log.debug("Video level: %s." % vlevel)
         self.log.debug("Video profile: %s." % vprofile)
         self.log.debug("Video pix format: %s." % vpix_fmt)
@@ -341,6 +358,8 @@ class MkvtoMp4:
             'map': info.video.index,
             'bitrate': vbitrate,
             'crf': vcrf,
+            'maxrate': vmaxrate,
+            'bufsize': vbufsize,
             'level': vlevel,
             'profile': vprofile,
             'pix_fmt': vpix_fmt,
