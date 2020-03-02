@@ -118,6 +118,9 @@ class MkvtoMp4:
     # Determine if a file can be read by FFPROBE
     def isValidSource(self, inputfile):
         try:
+            extension = self.parseFile(inputfile)[2].lower()
+            if extension in self.settings.ignored_extensions:
+                return None
             info = self.converter.probe(inputfile)
             if not info:
                 self.log.debug("Invalid source, no data returned.")

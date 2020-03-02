@@ -135,6 +135,7 @@ class ReadSettings:
                         'embed-only-internal-subs': 'False',
                         'sub-providers': '',
                         'post-process': 'False',
+                        'ignored-extensions': 'nfo, ds_store',
                         'pix-fmt': '',
                         'preopts': '',
                         'postopts': ''}
@@ -527,6 +528,12 @@ class ReadSettings:
             self.attachmentcodec = []
         else:
             self.attachmentcodec = self.attachmentcodec.replace(' ', '').split(',')
+
+        self.ignored_extensions = config.get(section, 'ignored-extensions').strip().lower()
+        if not self.ignored_extensions or self.ignored_extensions == "":
+            self.ignored_extensions = []
+        else:
+            self.ignored_extensions = self.ignored_extensions.replace(' ', '').replace('.', '').split(',')
 
         # Prevent incompatible combination of settings
         if self.output_dir == "" and self.delete is False:

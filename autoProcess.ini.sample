@@ -74,6 +74,7 @@ pix-fmt =
 aac_adtstoasc = False
 sort-streams = False
 prefer-more-channels = False
+ignored-extensions = nfo, ds_store
 
 [CouchPotato]
 host = localhost

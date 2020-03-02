@@ -112,6 +112,7 @@ General MP4 Configuration
     - `postopts` = Additional unsupported options that go after the rest of the FFMEPG parameters, comma separated as above
     - `sort-streams` = Sort output streams (audio and subtitle) based on language settings and number of channels. For example if `audio-language = eng, jpn` eng tracks will be arranged before jpn tracks. Helps ensure primary language will be the first audio track
     - `prefer-more-channels` = If the source file does not specify a default audio track and the script must guess which track is the default, setting this to `True` will favor tracks with more channels, `False` will prefer fewer channels. This also changes the sort direction if `sort-streams` is enabled
+    - `ignored-extensions` = File extensions that will always be ignored for processing. Files are scanned by FFProbe to determine if they are valid video files, so you only need to list extensions here that can have a false positive or you want to intentionally ignore
 
 Permissions
 --------------
