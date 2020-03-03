@@ -1133,7 +1133,7 @@ class MkvtoMp4:
             divider = 100 / width
 
             sys.stdout.write('\r')
-            sys.stdout.write('[{0}] {1}%'.format('#' * round(complete / divider) + ' ' * round(width - (complete / divider)), complete))
+            sys.stdout.write('[{0}] {1}%'.format('#' * int(round(complete / divider)) + ' ' * int(round(width - (complete / divider))), complete))
             if newline:
                 sys.stdout.write('\n')
             sys.stdout.flush()
