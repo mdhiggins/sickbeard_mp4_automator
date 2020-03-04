@@ -235,7 +235,7 @@ class VideoCodec(BaseCodec):
         'crf': int,
         'maxrate': str,
         'bufsize': str,
-        'fps': int,
+        'fps': float,
         'width': int,
         'height': int,
         'mode': str,
@@ -312,7 +312,7 @@ class VideoCodec(BaseCodec):
 
         if 'fps' in safe:
             f = safe['fps']
-            if f < 1 or f > 120:
+            if f < 1:
                 del safe['fps']
 
         if 'crf' in safe:
@@ -374,7 +374,7 @@ class VideoCodec(BaseCodec):
         if 'map' in safe:
             optlist.extend(['-map', '0:' + str(safe['map'])])
         if 'fps' in safe:
-            optlist.extend(['-r', str(safe['fps'])])
+            optlist.extend(['-r:v', str(safe['fps'])])
         if 'pix_fmt' in safe:
             optlist.extend(['-pix_fmt', str(safe['pix_fmt'])])
         if 'field_order' in safe:
@@ -497,18 +497,27 @@ class VideoCopyCodec(BaseCodec):
     """
     codec_name = 'copy'
     encoder_options = {'map': int,
-                       'source': str}
+                       'source': str,
+                       'fps': float}
 
     def parse_options(self, opt, stream=0):
         safe = self.safe_options(opt)
         optlist = []
         optlist.extend(['-vcodec', 'copy'])
+
+        if 'fps' in safe:
+            f = safe['fps']
+            if f < 1:
+                del safe['fps']
+
         if 'source' in safe:
             s = str(safe['source'])
         else:
             s = str(0)
         if 'map' in safe:
             optlist.extend(['-map', s + ':' + str(safe['map'])])
+        if 'fps' in safe:
+            optlist.extend(['-r:v', str(safe['fps'])])
         return optlist
 
 

@@ -100,10 +100,10 @@ class MediaStreamInfo(object):
       * metadata - optional metadata associated with a video or audio stream
       * bitrate - stream bitrate in bytes/second
       * attached_pic - (0, 1 or None) is stream a poster image? (e.g. in mp3)
+      * fps - average frames per second
     Video-specific attributes are:
       * video_width - width of video in pixels
       * video_height - height of video in pixels
-      * video_fps - average frames per second
     Audio-specific attributes are:
       * audio_channels - the number of channels in the stream
       * audio_samplerate - sample rate (Hz)
@@ -118,7 +118,7 @@ class MediaStreamInfo(object):
         self.bitrate = None
         self.video_width = None
         self.video_height = None
-        self.video_fps = None
+        self.fps = None
         self.video_level = None
         self.pix_fmt = None
         self.profile = None
@@ -143,6 +143,8 @@ class MediaStreamInfo(object):
         elif self.type == 'video':
             out['pix_fmt'] = self.pix_fmt
             out['profile'] = self.profile
+            out['fps'] = self.fps
+            out['field_order'] = self.field_order
         elif self.type == 'subtitle':
             out['forced'] = self.forced
             out['default'] = self.default
@@ -225,9 +227,9 @@ class MediaStreamInfo(object):
                     n = self.parse_float(n)
                     d = self.parse_float(d)
                     if n > 0.0 and d > 0.0:
-                        self.video_fps = float(n) / float(d)
+                        self.fps = float(n) / float(d)
                 elif '.' in val:
-                    self.video_fps = self.parse_float(val)
+                    self.fps = self.parse_float(val)
 
         if self.type == 'video':
             if key == 'r_frame_rate':
@@ -236,9 +238,9 @@ class MediaStreamInfo(object):
                     n = self.parse_float(n)
                     d = self.parse_float(d)
                     if n > 0.0 and d > 0.0:
-                        self.video_fps = float(n) / float(d)
+                        self.fps = float(n) / float(d)
                 elif '.' in val:
-                    self.video_fps = self.parse_float(val)
+                    self.fps = self.parse_float(val)
             elif key == 'level':
                 self.video_level = self.parse_float(val)
             elif key == 'pix_fmt':
@@ -257,7 +259,7 @@ class MediaStreamInfo(object):
         elif self.type == 'video':
             d = 'type=%s, codec=%s, width=%d, height=%d, fps=%.1f' % (
                 self.type, self.codec, self.video_width, self.video_height,
-                self.video_fps)
+                self.fps)
         elif self.type == 'subtitle':
             d = 'type=%s, codec=%s' % (self.type, self.codec)
         if self.bitrate is not None:
