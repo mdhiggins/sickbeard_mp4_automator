@@ -203,8 +203,9 @@ def processFile(inputfile, tagdata, converter, info=None, relativePath=None):
     if not info:
         log.debug("Invalid file %s." % inputfile)
         return
-
-    if tagdata.mediatype == MediaType.Movie:
+    if not tagdata:
+        log.info("Processing file %s" % inputfile)
+    elif tagdata.mediatype == MediaType.Movie:
         log.info("Processing %s" % (tagdata.title))
     elif tagdata.mediatype == MediaType.TV:
         log.info("Processing %s Season %02d Episode %02d - %s" % (tagdata.showname, int(tagdata.season), int(tagdata.episode), tagdata.title))
