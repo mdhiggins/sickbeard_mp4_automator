@@ -133,6 +133,7 @@ class ReadSettings:
                         'download-subs': 'False',
                         'download-hearing-impaired-subs': 'False',
                         'embed-subs': 'True',
+                        'embed-image-subs': 'False',
                         'embed-only-internal-subs': 'False',
                         'sub-providers': '',
                         'post-process': 'False',
@@ -388,6 +389,7 @@ class ReadSettings:
         self.hearing_impaired = config.getboolean(section, 'download-hearing-impaired-subs')
 
         self.embedsubs = config.getboolean(section, 'embed-subs')
+        self.embedimgsubs = config.getboolean(section, 'embed-image-subs')
 
         self.embedonlyinternalsubs = config.getboolean(section, 'embed-only-internal-subs')
 

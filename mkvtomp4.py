@@ -542,12 +542,12 @@ class MkvtoMp4:
             self.log.info("%s-based subtitle detected for stream %s - %s %s." % ("Image" if image_based else "Text", s.index, s.codec, s.metadata['language']))
 
             scodec = None
-            if image_based and self.settings.scodec_image and len(self.settings.scodec_image) > 0:
+            if image_based and self.settings.embedimgsubs and self.settings.scodec_image and len(self.settings.scodec_image) > 0:
                 scodec = 'copy' if s.codec in self.settings.scodec_image else self.settings.scodec_image[0]
-            elif not image_based and self.settings.scodec and len(self.settings.scodec) > 0:
+            elif not image_based and self.settings.embedsubs and self.settings.scodec and len(self.settings.scodec) > 0:
                 scodec = 'copy' if s.codec in self.settings.scodec else self.settings.scodec[0]
 
-            if self.settings.embedsubs and scodec:
+            if scodec:
                 # Proceed if no whitelist is set, or if the language is in the whitelist
                 if swl is None or s.metadata['language'].lower() in swl:
                     subtitle_settings.append({
@@ -559,7 +559,7 @@ class MkvtoMp4:
                         'debug': 'base.embed-subs'
                     })
                     self.log.info("Creating %s subtitle stream from source stream %d." % (self.settings.scodec[0], s.index))
-            elif not self.settings.embedsubs:
+            else:
                 if swl is None or s.metadata['language'].lower() in swl:
                     for codec in (self.settings.scodec_image if image_based else self.settings.scodec):
                         ripsub = [{
@@ -588,18 +588,18 @@ class MkvtoMp4:
 
         # External subtitle import
         valid_external_subs = None
-        if self.settings.embedsubs and not self.settings.embedonlyinternalsubs:  # Don't bother if we're not embeddeding subtitles and external subtitles
+        if not self.settings.embedonlyinternalsubs:
             valid_external_subs = self.scanForExternalSubs(inputfile, swl)
             for external_sub in valid_external_subs:
                 image_based = self.isImageBasedSubtitle(external_sub.path, 0)
                 scodec = None
-                if image_based and self.settings.scodec_image and len(self.settings.scodec_image) > 0:
+                if image_based and self.settings.embedimgsubs and self.settings.scodec_image and len(self.settings.scodec_image) > 0:
                     scodec = self.settings.scodec_image[0]
-                elif not image_based and self.settings.scodec and len(self.settings.scodec) > 0:
+                elif not image_based and self.settings.embedsubs and self.settings.scodec and len(self.settings.scodec) > 0:
                     scodec = self.settings.scodec[0]
 
                 if not scodec:
-                    self.log.info("Skipping external subtitle file %s, no appropriate codecs found." % os.path.basename(external_sub.path))
+                    self.log.info("Skipping external subtitle file %s, no appropriate codecs found or embed disabled." % os.path.basename(external_sub.path))
                     continue
                 if external_sub.path not in sources:
                     sources.append(external_sub.path)
@@ -1131,6 +1131,9 @@ class MkvtoMp4:
     def displayProgressBar(self, complete, width=20, newline=False):
         try:
             divider = 100 / width
+
+            if complete > 100:
+                complete = 100
 
             sys.stdout.write('\r')
             sys.stdout.write('[{0}] {1}%'.format('#' * int(round(complete / divider)) + ' ' * int(round(width - (complete / divider))), complete))
