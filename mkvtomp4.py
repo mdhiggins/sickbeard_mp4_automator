@@ -845,7 +845,7 @@ class MkvtoMp4:
                     x, lang = os.path.splitext(subname)
                     while '.forced' in lang or '.default' in lang or lang.replace('.', "").isdigit():
                         x, lang = os.path.splitext(x)
-                    lang = lang[1:]
+                    lang = lang[1:].lower()
                     # Using bablefish to convert a 2 language code to a 3 language code
                     if len(lang) == 2:
                         try:
