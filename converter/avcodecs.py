@@ -732,6 +732,14 @@ class Opus(AudioCodec):
         return ['-strict', '-2']
 
 
+class PCMS24LE(AudioCodec):
+    """
+    PCM_S24LE Audio Codec
+    """
+    codec_name = 'pcm_s24le'
+    ffmpeg_codec_name = 'pcm_s24le'
+
+
 # Video Codecs
 class TheoraCodec(VideoCodec):
     """
@@ -1119,7 +1127,7 @@ class DVDSub(SubtitleCodec):
 
 audio_codec_list = [
     AudioNullCodec, AudioCopyCodec, VorbisCodec, AacCodec, Mp3Codec, Mp2Codec,
-    FdkAacCodec, FAacCodec, EAc3Codec, Ac3Codec, DtsCodec, FlacCodec, Opus
+    FdkAacCodec, FAacCodec, EAc3Codec, Ac3Codec, DtsCodec, FlacCodec, Opus, PCMS24LE
 ]
 
 video_codec_list = [
