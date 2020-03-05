@@ -740,6 +740,15 @@ class PCMS24LE(AudioCodec):
     ffmpeg_codec_name = 'pcm_s24le'
 
 
+
+class PCMS16LE(AudioCodec):
+    """
+    PCM_S16LE Audio Codec
+    """
+    codec_name = 'pcm_s16le'
+    ffmpeg_codec_name = 'pcm_s16le'
+
+
 # Video Codecs
 class TheoraCodec(VideoCodec):
     """
@@ -1127,7 +1136,7 @@ class DVDSub(SubtitleCodec):
 
 audio_codec_list = [
     AudioNullCodec, AudioCopyCodec, VorbisCodec, AacCodec, Mp3Codec, Mp2Codec,
-    FdkAacCodec, FAacCodec, EAc3Codec, Ac3Codec, DtsCodec, FlacCodec, Opus, PCMS24LE
+    FdkAacCodec, FAacCodec, EAc3Codec, Ac3Codec, DtsCodec, FlacCodec, Opus, PCMS24LE, PCMS16LE
 ]
 
 video_codec_list = [
