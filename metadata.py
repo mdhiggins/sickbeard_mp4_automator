@@ -169,6 +169,14 @@ class Metadata:
                     self.log.exception("Unable to set tag language [tag-language].")
         return None
 
+    def writeTags(self, path, artwork=True, thumbnail=False, width=None, height=None):
+        try:
+            if width and height:
+                self.setHD(width, height)
+        except:
+            self.log.exception("Unable to set HD tag.")
+        self.writeTags(path, artwork, thumbnail)
+
     def writeTags(self, path, artwork=True, thumbnail=False):
         self.log.info("Tagging file: %s." % path)
         try:

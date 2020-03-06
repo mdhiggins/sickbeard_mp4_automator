@@ -214,8 +214,7 @@ def processFile(inputfile, tagdata, converter, info=None, relativePath=None):
     if output:
         if tagdata:
             try:
-                tagdata.setHD(output['x'], output['y'])
-                tagdata.writeTags(output['output'], settings.artwork, settings.thumbnail)
+                tagdata.writeTags(output['output'], settings.artwork, settings.thumbnail, width=output['x'], height=output['y'])
             except:
                 log.exception("There was an error tagging the file")
         if settings.relocate_moov:
