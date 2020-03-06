@@ -41,10 +41,15 @@ class MkvtoMp4:
         info = info or self.isValidSource(inputfile)
 
         if info:
-            options, preopts, postopts, ripsubopts, downloaded_subs = self.generateOptions(inputfile, info=info, original=original)
+            try:
+                options, preopts, postopts, ripsubopts, downloaded_subs = self.generateOptions(inputfile, info=info, original=original)
+            except:
+                self.log.exception("Unable to generate options, unexpected exception occurred.")
+                return None
+
             if not options:
                 self.log.error("Error converting, inputfile %s had a valid extension but returned no data. Either the file does not exist, was unreadable, or was an incorrect format." % inputfile)
-                return False
+                return None
 
             try:
                 self.log.info("Output Data")
@@ -61,11 +66,15 @@ class MkvtoMp4:
 
             ripped_subs = self.ripSubs(inputfile, ripsubopts)
 
-            outputfile, inputfile = self.convert(options, preopts, postopts, reportProgress)
+            try:
+                outputfile, inputfile = self.convert(options, preopts, postopts, reportProgress)
+            except:
+                self.log.exception("Unexpected exception encountered during conversion")
+                return None
 
             if not outputfile:
                 self.log.debug("Error converting, no outputfile generated for inputfile %s." % inputfile)
-                return False
+                return None
 
             self.log.debug("%s created from %s successfully." % (outputfile, inputfile))
 
