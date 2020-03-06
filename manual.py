@@ -7,6 +7,7 @@ import locale
 import glob
 import argparse
 import struct
+import enum
 import logging
 from log import getLogger
 from readSettings import ReadSettings
@@ -33,22 +34,38 @@ log.info("Manual processor started.")
 settings = None
 
 
+class MediaTypes(enum.Enum):
+    @classmethod
+    def descriptors(cls):
+        return {
+            cls.MOVIE_TMDB: "Movie (via TMDB)",
+            cls.MOVIE_IMDB: "Movie (via IMDB)",
+            cls.TV_TMDB: "TV (via TMDB)",
+            cls.TV_TVDB: "TV (via TVDB)",
+            cls.TV_IMDB: "TV (via IMDB)",
+            cls.CONVERT: "Convert without tagging",
+            cls.SKIP: "Skip file"
+        }
+
+    def __str__(self):
+        return "{0}. {1}".format(self.value, MediaTypes.descriptors().get(self, ""))
+
+    MOVIE_TMDB = 1
+    MOVIE_IMDB = 2
+    TV_TMDB = 3
+    TV_TVDB = 4
+    TV_IMDB = 5
+    CONVERT = 6
+    SKIP = 7
+
+
 def mediatype():
     print("Select media type:")
-    print("1. Movie (via TMDB ID)")
-    print("2. Movie (via IMDB ID)")
-    print("3. TV (via TMDB ID)")
-    print("4. TV (via TVDB ID)")
-    print("5. TV (via IMDB ID)")
-    print("6. Convert without tagging")
-    print("7. Skip file")
+    for mt in MediaTypes:
+        print(str(mt))
     result = raw_input("#: ")
     try:
-        if 0 < int(result) < 8:
-            return int(result)
-        else:
-            print("Invalid selection")
-            return mediatype()
+        return MediaTypes(int(result))
     except:
         print("Invalid selection")
         return mediatype()
@@ -102,30 +119,30 @@ def getInfo(fileName=None, silent=False, tag=True, tvdbid=None, tmdbid=None, imd
         else:
             print("Unable to determine identity based on filename, must enter manually")
         m_type = mediatype()
-        if m_type == 3:
+        if m_type is MediaTypes.TV_TMDB:
             tmdbid = getValue("Enter TMDB ID", True)
             season = getValue("Enter Season Number", True)
             episode = getValue("Enter Episode Number", True)
             return Metadata(MediaType.TV, tmdbid=tmdbid, season=season, episode=episode, language=settings.taglanguage, logger=log)
-        if m_type == 4:
+        if m_type is MediaTypes.TV_TVDB:
             tvdbid = getValue("Enter TVDB ID", True)
             season = getValue("Enter Season Number", True)
             episode = getValue("Enter Episode Number", True)
             return Metadata(MediaType.TV, tvdbid=tvdbid, season=season, episode=episode, language=settings.taglanguage, logger=log)
-        if m_type == 5:
+        if m_type is MediaTypes.TV_IMDB:
             imdbid = getValue("Enter IMDB ID", True)
             season = getValue("Enter Season Number", True)
             episode = getValue("Enter Episode Number", True)
             return Metadata(MediaType.TV, imdbid=imdbid, season=season, episode=episode, language=settings.taglanguage, logger=log)
-        elif m_type == 2:
+        elif m_type is MediaTypes.MOVIE_IMDB:
             imdbid = getValue("Enter IMDB ID")
             return Metadata(MediaType.Movie, imdbid=imdbid, language=settings.taglanguage, logger=log)
-        elif m_type == 1:
+        elif m_type is MediaTypes.MOVIE_TMDB:
             tmdbid = getValue("Enter TMDB ID", True)
             return Metadata(MediaType.Movie, tmdbid=tmdbid, language=settings.taglanguage, logger=log)
-        elif m_type == 6:
+        elif m_type is MediaTypes.CONVERT:
             return None
-        elif m_type == 7:
+        elif m_type is MediaTypes.SKIP:
             raise SkipFileException
     else:
         if tagdata and tag:
