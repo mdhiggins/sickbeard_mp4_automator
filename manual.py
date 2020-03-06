@@ -102,30 +102,30 @@ def getInfo(fileName=None, silent=False, tag=True, tvdbid=None, tmdbid=None, imd
         else:
             print("Unable to determine identity based on filename, must enter manually")
         m_type = mediatype()
-        if m_type is 3:
+        if m_type == 3:
             tmdbid = getValue("Enter TMDB ID", True)
             season = getValue("Enter Season Number", True)
             episode = getValue("Enter Episode Number", True)
             return Metadata(MediaType.TV, tmdbid=tmdbid, season=season, episode=episode, language=settings.taglanguage, logger=log)
-        if m_type is 4:
+        if m_type == 4:
             tvdbid = getValue("Enter TVDB ID", True)
             season = getValue("Enter Season Number", True)
             episode = getValue("Enter Episode Number", True)
             return Metadata(MediaType.TV, tvdbid=tvdbid, season=season, episode=episode, language=settings.taglanguage, logger=log)
-        if m_type is 5:
+        if m_type == 5:
             imdbid = getValue("Enter IMDB ID", True)
             season = getValue("Enter Season Number", True)
             episode = getValue("Enter Episode Number", True)
             return Metadata(MediaType.TV, imdbid=imdbid, season=season, episode=episode, language=settings.taglanguage, logger=log)
-        elif m_type is 2:
+        elif m_type == 2:
             imdbid = getValue("Enter IMDB ID")
             return Metadata(MediaType.Movie, imdbid=imdbid, language=settings.taglanguage, logger=log)
-        elif m_type is 1:
+        elif m_type == 1:
             tmdbid = getValue("Enter TMDB ID", True)
             return Metadata(MediaType.Movie, tmdbid=tmdbid, language=settings.taglanguage, logger=log)
-        elif m_type is 6:
+        elif m_type == 6:
             return None
-        elif m_type is 7:
+        elif m_type == 7:
             raise SkipFileException
     else:
         if tagdata and tag:
@@ -209,8 +209,13 @@ def processFile(inputfile, tagdata, converter, info=None, relativePath=None):
         log.info("Processing %s" % (tagdata.title))
     elif tagdata.mediatype == MediaType.TV:
         log.info("Processing %s Season %02d Episode %02d - %s" % (tagdata.showname, int(tagdata.season), int(tagdata.episode), tagdata.title))
-
-    output = converter.process(inputfile, True)
+   
+    output = None
+    try:
+        output = converter.process(inputfile, True)
+    except Exception as ex:
+        log.exception("There was an error while converting the file: " + str(ex))
+        
     if output:
         if tagdata:
             try:
