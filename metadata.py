@@ -71,7 +71,7 @@ class Metadata:
                 rating = release['release_dates'][0]['certification']
                 self.rating = self.getRating(rating)
             except:
-                self.log.exception("Unable to retrieve rating.")
+                self.log.error("Unable to retrieve rating.")
                 self.rating = None
 
             self.title = self.moviedata['title']
