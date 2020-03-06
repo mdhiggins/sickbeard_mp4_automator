@@ -65,6 +65,14 @@ class Metadata:
             query = tmdb.Movies(self.tmdbid)
             self.moviedata = query.info(language=language)
             self.credit = query.credits()
+            try:
+                releases = query.release_dates()
+                release = next(x for x in releases['results'] if x['iso_3166_1'] == 'US')
+                rating = release['release_dates'][0]['certification']
+                self.rating = self.getRating(rating)
+            except:
+                self.log.exception("Unable to retrieve rating.")
+                self.rating = None
 
             self.title = self.moviedata['title']
             self.genre = self.moviedata['genres']
@@ -83,6 +91,14 @@ class Metadata:
             self.seasondata = seasonquery.info(language=language)
             self.episodedata = episodequery.info(language=language)
             self.credit = episodequery.credits()
+
+            try:
+                content_ratings = seriesquery.content_ratings()
+                rating = next(x for x in content_ratings['results'] if x['iso_3166_1'] == 'US')['rating']
+                self.rating = self.getRating(rating)
+            except:
+                self.log.exception("Unable to retrieve rating.")
+                self.rating = None
 
             self.showname = self.showdata['name']
             self.genre = self.showdata['genres']
@@ -193,7 +209,8 @@ class Metadata:
         if self.genre and len(self.genre) > 0:
             video["\xa9gen"] = self.genre[0].get('name')
         video["----:com.apple.iTunes:iTunMOVI"] = self.xml.encode("UTF-8", errors="ignore")  # XML - see xmlTags method
-        # video["----:com.apple.iTunes:iTunEXTC"] = self.setRating()  # iTunes content rating
+        if self.rating:
+            video["----:com.apple.iTunes:iTunEXTC"] = self.rating.encode("UTF-8", errors="ignore")  # iTunes content rating
 
         if artwork:
             coverpath = self.getArtwork(path, thumbnail=thumbnail)
@@ -219,7 +236,9 @@ class Metadata:
         return False
 
     def setHD(self, width, height):
-        if width >= 1900 or height >= 1060:
+        if width >= 3800 or height >= 2100:
+            self.HD = [3]
+        elif width >= 1900 or height >= 1060:
             self.HD = [2]
         elif width >= 1260 or height >= 700:
             self.HD = [1]
@@ -239,7 +258,7 @@ class Metadata:
             return ' '.join(description[:length + 1].split('.')[0:-1]) + suffix
 
     def getRating(self, rating):
-        return self.__CONTENTRATINGS.get(rating, self.__NOTRATED.get(self.mediatype))
+        return self.__CONTENTRATINGS.get(rating.upper(), self.__NOTRATED.get(self.mediatype))
 
     @property
     def xml(self):
