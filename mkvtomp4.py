@@ -484,7 +484,7 @@ class MkvtoMp4:
                         afilter = self.settings.afilter
                         acodec = self.settings.acodec[0]
                         adebug = adebug + ".audio-filter"
-                    
+
                     # Sample rates
                     if len(self.settings.audio_samplerates) > 0 and a.audio_samplerate not in self.settings.audio_samplerates:
                         self.log.info("Unable to copy codec because audio sample rate %d is not approved [audio-sample-rates]." % (a.audio_samplerate))
