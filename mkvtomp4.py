@@ -1123,8 +1123,20 @@ class MkvtoMp4:
                 self.removeFile(outputfile)
                 self.log.error("%s deleted." % outputfile)
             outputfile = None
-            os.rename(inputfile, originalinputfile)
-            raise Exception("FFMpegConvertError")
+            try:
+                os.rename(inputfile, originalinputfile)
+                return None, originalinputfile
+            except:
+                self.log.exception("Error restoring original inputfile after exception.")
+                return None, inputfile
+        except:
+            self.log.exception("Unexpected exception during conversion.")
+            try:
+                os.rename(inputfile, originalinputfile)
+                return None, originalinputfile
+            except:
+                self.log.exception("Error restoring original inputfile after FFMPEG error.")
+                return None, inputfile
 
         # Check if the finaloutputfile differs from the outputfile. This can happen during above renaming or from temporary extension option
         if outputfile != finaloutputfile:
