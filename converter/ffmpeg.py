@@ -205,7 +205,7 @@ class MediaStreamInfo(object):
         elif key == 'channels':
             self.audio_channels = self.parse_int(val)
         elif key == 'sample_rate':
-            self.audio_samplerate = self.parse_float(val)
+            self.audio_samplerate = self.parse_int(val)
         elif key == 'DISPOSITION:attached_pic':
             self.attached_pic = self.parse_int(val)
         elif key == 'profile':

@@ -52,6 +52,7 @@ audio-language =
 audio-default-language =
 audio-channel-bitrate =
 audio-filter =
+audio-sample-rates =
 audio-copy-original = False
 audio-first-track-of-language = False
 allow-audio-language-relax = True

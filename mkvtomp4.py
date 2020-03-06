@@ -430,6 +430,7 @@ class MkvtoMp4:
                         'codec': self.settings.iOS[0],
                         'channels': 2,
                         'bitrate': iOSbitrate,
+                        'samplerate': self.settings.audio_samplerates[0] if len(self.settings.audio_samplerates) > 0 else None,
                         'filter': self.settings.iOSfilter,
                         'language': a.metadata['language'],
                         'disposition': a.disposition,
@@ -442,6 +443,7 @@ class MkvtoMp4:
                 adebug = "base"
                 # If the iOS audio option is enabled and the source audio channel is only stereo, the additional iOS channel will be skipped and a single AAC 2.0 channel will be made regardless of codec preference to avoid multiple stereo channels
                 afilter = None
+                asample = None
                 if iOS and a.audio_channels <= 2:
                     self.log.debug("Overriding default channel settings because iOS audio is enabled but the source is stereo [iOS-audio].")
                     acodec = 'copy' if a.codec in self.settings.iOS else self.settings.iOS[0]
@@ -455,6 +457,13 @@ class MkvtoMp4:
                         afilter = self.settings.iOSfilter
                         acodec = self.settings.iOS[0]
                         adebug = adebug + ".ios-audio-filter"
+
+                    # Sample rates
+                    if len(self.settings.audio_samplerates) > 0 and a.audio_samplerate not in self.settings.audio_samplerates:
+                        self.log.debug("Unable to copy codec because audio sample rate %d is not approved [audio-sample-rates]." % (a.audio_samplerate))
+                        asample = self.settings.audio_samplerates[0]
+                        acodec = self.settings.iOS[0]
+                        adebug = adebug + ".audio-sample-rates"
                 else:
                     # If desired codec is the same as the source codec, copy to avoid quality loss
                     acodec = 'copy' if a.codec.lower() in self.settings.acodec else self.settings.acodec[0]
@@ -475,6 +484,13 @@ class MkvtoMp4:
                         afilter = self.settings.afilter
                         acodec = self.settings.acodec[0]
                         adebug = adebug + ".audio-filter"
+                    
+                    # Sample rates
+                    if len(self.settings.audio_samplerates) > 0 and a.audio_samplerate not in self.settings.audio_samplerates:
+                        self.log.info("Unable to copy codec because audio sample rate %d is not approved [audio-sample-rates]." % (a.audio_samplerate))
+                        asample = self.settings.audio_samplerates[0]
+                        acodec = self.settings.acodec[0]
+                        adebug = adebug + ".audio-sample-rates"
 
                 # Bitrate calculations/overrides
                 if self.settings.abitrate == 0:
@@ -507,6 +523,7 @@ class MkvtoMp4:
                     'channels': audio_channels,
                     'bitrate': abitrate,
                     'filter': afilter,
+                    'samplerate': asample,
                     'language': a.metadata['language'],
                     'disposition': a.disposition,
                     'bsf': absf,

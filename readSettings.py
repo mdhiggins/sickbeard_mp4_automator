@@ -101,6 +101,7 @@ class ReadSettings:
                         'audio-codec': 'ac3',
                         'ignore-truehd': 'True',
                         'audio-filter': '',
+                        'audio-sample-rates': '',
                         'audio-channel-bitrate': '256',
                         'audio-copy-original': 'False',
                         'audio-first-track-of-language': 'False',
@@ -341,6 +342,16 @@ class ReadSettings:
         self.afilter = config.get(section, "audio-filter").lower().strip()  # Audio filter
         if self.afilter == '':
             self.afilter = None
+
+        self.audio_samplerates = config.get(section, "audio-sample-rates").lower().strip().replace(' ', '')  # Audio sample rates
+        if self.audio_samplerates == '':
+            self.audio_samplerates = []
+        else:
+            try:
+                self.audio_samplerates = [int(x) for x in self.audio_samplerates.split(',') if x.isdigit()]
+            except:
+                self.log.error("Error parsing audio sample rates, must be numeric comma separated values")
+                self.audio_samplerates = []
 
         self.audio_first_language_track = config.getboolean(section, "audio-first-track-of-language")  # Only take the first audio track in a whitelisted language, then no more
 
