@@ -120,25 +120,25 @@ def getInfo(fileName=None, silent=False, tag=True, tvdbid=None, tmdbid=None, imd
             print("Unable to determine identity based on filename, must enter manually")
         m_type = mediatype()
         if m_type is MediaTypes.TV_TMDB:
-            tmdbid = getValue("Enter TMDB ID", True)
+            tmdbid = getValue("Enter TMDB ID (TV)", True)
             season = getValue("Enter Season Number", True)
             episode = getValue("Enter Episode Number", True)
             return Metadata(MediaType.TV, tmdbid=tmdbid, season=season, episode=episode, language=settings.taglanguage, logger=log)
         if m_type is MediaTypes.TV_TVDB:
-            tvdbid = getValue("Enter TVDB ID", True)
+            tvdbid = getValue("Enter TVDB ID (TV)", True)
             season = getValue("Enter Season Number", True)
             episode = getValue("Enter Episode Number", True)
             return Metadata(MediaType.TV, tvdbid=tvdbid, season=season, episode=episode, language=settings.taglanguage, logger=log)
         if m_type is MediaTypes.TV_IMDB:
-            imdbid = getValue("Enter IMDB ID", True)
+            imdbid = getValue("Enter IMDB ID (TV)", True)
             season = getValue("Enter Season Number", True)
             episode = getValue("Enter Episode Number", True)
             return Metadata(MediaType.TV, imdbid=imdbid, season=season, episode=episode, language=settings.taglanguage, logger=log)
         elif m_type is MediaTypes.MOVIE_IMDB:
-            imdbid = getValue("Enter IMDB ID")
+            imdbid = getValue("Enter IMDB ID (Movie)")
             return Metadata(MediaType.Movie, imdbid=imdbid, language=settings.taglanguage, logger=log)
         elif m_type is MediaTypes.MOVIE_TMDB:
-            tmdbid = getValue("Enter TMDB ID", True)
+            tmdbid = getValue("Enter TMDB ID (Movie)", True)
             return Metadata(MediaType.Movie, tmdbid=tmdbid, language=settings.taglanguage, logger=log)
         elif m_type is MediaTypes.CONVERT:
             return None
