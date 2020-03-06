@@ -170,15 +170,13 @@ class Metadata:
         return None
 
     def writeTags(self, path, artwork=True, thumbnail=False, width=None, height=None):
-        try:
-            if width and height:
-                self.setHD(width, height)
-        except:
-            self.log.exception("Unable to set HD tag.")
-        self.writeTags(path, artwork, thumbnail)
-
-    def writeTags(self, path, artwork=True, thumbnail=False):
         self.log.info("Tagging file: %s." % path)
+        if width and height:
+            try:
+                self.setHD(width, height)
+            except:
+                self.log.exception("Unable to set HD tag.")
+
         try:
             video = MP4(path)
         except MP4StreamInfoError:
