@@ -315,6 +315,11 @@ class VideoCodec(BaseCodec):
             if f < 1:
                 del safe['fps']
 
+        if 'bitrate' in safe:
+            bitrate = safe['bitrate']
+            if bitrate < 1:
+                del safe['bitrate']
+
         if 'crf' in safe:
             crf = safe['crf']
             if crf < 0 or crf > 51:
