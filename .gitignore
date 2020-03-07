@@ -5,6 +5,7 @@ autoProcess.ini
 postSonarr.sh
 postRadarr.sh
 update.py
+*.backup
 
 #################
 ## Eclipse
