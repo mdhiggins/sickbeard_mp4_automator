@@ -122,14 +122,14 @@ class ReadSettings:
             'filter': '',
             'sample-rates': '',
             'copy-original': False,
-            'first-track-of-language': False,
+            'first-stream-of-language': False,
             'allow-language-relax': True,
             'aac-adtstoasc': False,
             'ignore-truehd': 'mp4, m4v',
         },
         'Universal Audio': {
             'codec': 'aac',
-            'first-track-only': False,
+            'first-stream-only': False,
             'move-last': False,
             'filter': '',
         },
@@ -274,7 +274,7 @@ class ReadSettings:
             'delete_original': 'Converter.delete-original',
             'relocate_moov': 'Metadata.relocate-moov',
             'ios-audio': 'Universal Audio.codec',
-            'ios-first-track-only': 'Universal Audio.first-track-only',
+            'ios-first-track-only': 'Universal Audio.first-stream-only',
             'ios-move-last': 'Universal Audio.move-last',
             'ios-audio-filter': 'Universal Audio.filter',
             'max-audio-channels': 'Audio.max-channels',
@@ -286,7 +286,7 @@ class ReadSettings:
             'audio-sample-rates': 'Audio.sample-rates',
             'audio-channel-bitrate': 'Audio.channel-bitrate',
             'audio-copy-original': 'Audio.copy-original',
-            'audio-first-track-of-language': 'Audio.first-track-of-language',
+            'audio-first-track-of-language': 'Audio.first-stream-of-language',
             'allow-audio-language-relax': 'Audio.allow-language-relax',
             'sort-streams': 'Converter.sort-streams',
             'prefer-more-channels': 'Audio.prefer-more-channels',
@@ -614,7 +614,7 @@ class ReadSettings:
         self.afilter = config.get(section, "filter")
         self.audio_samplerates = [int(x) for x in config.getlist(section, "sample-rates") if x.isdigit()]
         self.audio_copyoriginal = config.getboolean(section, "copy-original")
-        self.audio_first_language_track = config.getboolean(section, "first-track-of-language")
+        self.audio_first_language_stream = config.getboolean(section, "first-stream-of-language")
         self.allow_language_relax = config.getboolean(section, "allow-language-relax")
         self.aac_adtstoasc = config.getboolean(section, 'aac-adtstoasc')
         self.ignore_truehd = config.getextension(section, "ignore-truehd")
@@ -622,7 +622,7 @@ class ReadSettings:
         # Universal Audio
         section = "Universal Audio"
         self.ua = config.getlist(section, "codec")
-        self.ua_first_only = config.getboolean(section, "first-track-only")
+        self.ua_first_only = config.getboolean(section, "first-stream-only")
         self.ua_last = config.getboolean(section, "move-last")
         self.ua_filter = config.get(section, "filter")
 

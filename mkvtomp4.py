@@ -537,7 +537,7 @@ class MkvtoMp4:
                     })
 
                 # Remove the language if we only want the first stream from a given language
-                if self.settings.audio_first_language_track:
+                if self.settings.audio_first_language_stream:
                     try:
                         blocked_audio_languages.append(a.metadata['language'].lower())
                         self.log.debug("Removing language from whitelist to prevent multiple streams of the same: %s [audio-first-track-of-language]." % a.metadata['language'])
