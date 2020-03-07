@@ -64,7 +64,7 @@ if info:
         try:
             host = settings.Sonarr['host']
             port = settings.Sonarr['port']
-            webroot = settings.Sonarr['web_root']
+            webroot = settings.Sonarr['webroot']
             apikey = settings.Sonarr['apikey']
             if apikey != '':
                 try:
@@ -87,7 +87,7 @@ if info:
 
                 # First trigger rescan
                 payload = {'name': 'RescanSeries', 'seriesId': seriesID}
-                url = protocol + host + ":" + port + webroot + "/api/command"
+                url = protocol + host + ":" + str(port) + webroot + "/api/command"
                 r = requests.post(url, json=payload, headers=headers)
                 rstate = r.json()
                 try:
@@ -98,7 +98,7 @@ if info:
                 log.debug(str(rstate))
 
                 # Then wait for it to finish
-                url = protocol + host + ":" + port + webroot + "/api/command/" + str(rstate['id'])
+                url = protocol + host + ":" + str(port) + webroot + "/api/command/" + str(rstate['id'])
                 log.info("Requesting episode information from Sonarr for series ID %s." % seriesID)
                 r = requests.get(url, headers=headers)
                 command = r.json()
@@ -113,7 +113,7 @@ if info:
                 log.info(str(command))
 
                 # Then get episode information
-                url = protocol + host + ":" + port + webroot + "/api/episode?seriesId=" + seriesID
+                url = protocol + host + ":" + str(port) + webroot + "/api/episode?seriesId=" + seriesID
                 log.info("Requesting updated episode information from Sonarr for series ID %s." % seriesID)
                 r = requests.get(url, headers=headers)
                 payload = r.json()
@@ -128,7 +128,7 @@ if info:
                 log.debug("Sending PUT request with following payload:")
                 log.debug(str(sonarrepinfo))
 
-                url = protocol + host + ":" + port + webroot + "/api/episode/" + str(sonarrepinfo['id'])
+                url = protocol + host + ":" + str(port) + webroot + "/api/episode/" + str(sonarrepinfo['id'])
                 r = requests.put(url, json=sonarrepinfo, headers=headers)
                 success = r.json()
 

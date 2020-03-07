@@ -59,7 +59,7 @@ if info:
         try:
             host = settings.Radarr['host']
             port = settings.Radarr['port']
-            webroot = settings.Radarr['web_root']
+            webroot = settings.Radarr['webroot']
             apikey = settings.Radarr['apikey']
             if apikey != '':
                 try:
@@ -82,7 +82,7 @@ if info:
 
                 # First trigger rescan
                 payload = {'name': 'RescanMovie', 'movieId': movieID}
-                url = protocol + host + ":" + port + webroot + "/api/command"
+                url = protocol + host + ":" + str(port) + webroot + "/api/command"
                 r = requests.post(url, json=payload, headers=headers)
                 rstate = r.json()
                 try:
@@ -93,7 +93,7 @@ if info:
                 log.debug(str(rstate))
 
                 # Then wait for it to finish
-                url = protocol + host + ":" + port + webroot + "/api/command/" + str(rstate['id'])
+                url = protocol + host + ":" + str(port) + webroot + "/api/command/" + str(rstate['id'])
                 log.info("Waiting rescan to complete")
                 r = requests.get(url, headers=headers)
                 command = r.json()
@@ -108,7 +108,7 @@ if info:
                 log.debug(str(command))
 
                 # Then get movie information
-                url = protocol + host + ":" + port + webroot + "/api/movie/" + movieID
+                url = protocol + host + ":" + str(port) + webroot + "/api/movie/" + movieID
                 log.info("Requesting updated information from Radarr for movie ID %s." % movieID)
                 r = requests.get(url, headers=headers)
                 payload = r.json()
@@ -118,7 +118,7 @@ if info:
                 log.debug("Sending PUT request with following payload:")
                 log.info(str(payload))  # debug
 
-                url = protocol + host + ":" + port + webroot + "/api/movie/" + str(movieID)
+                url = protocol + host + ":" + str(port) + webroot + "/api/movie/" + str(movieID)
                 r = requests.put(url, json=payload, headers=headers)
                 success = r.json()
 

@@ -48,11 +48,11 @@ def process(dirName, settings, nzbName=None, status=0, logger=None):
     delay = settings.CP['delay']
     method = settings.CP['method']
     delete_failed = settings.CP['delete_failed']
-    protocol = settings.CP['protocol']
-    web_root = settings.CP['web_root']
+    protocol = "https://" if settings.CP['ssl'] else "http://"
+    webroot = settings.CP['webroot']
 
-    if web_root != "" and not web_root.startswith("/"):
-        web_root = "/" + web_root
+    if webroot != "" and not webroot.startswith("/"):
+        webroot = "/" + webroot
 
     myOpener = AuthURLOpener(username, password)
     nzbName1 = str(nzbName)
@@ -70,7 +70,7 @@ def process(dirName, settings, nzbName=None, status=0, logger=None):
     log.debug("Method: %s." % method)
     log.debug("Delete Failed: %s." % delete_failed)
     log.debug("Protocol: %s." % protocol)
-    log.debug("Web Root: %s." % web_root)
+    log.debug("Web Root: %s." % webroot)
 
     if status == 0:
         if method == "manage":
@@ -78,7 +78,7 @@ def process(dirName, settings, nzbName=None, status=0, logger=None):
         else:
             command = "renamer.scan"
 
-        url = protocol + host + ":" + port + web_root + "/api/" + apikey + "/" + command
+        url = protocol + host + ":" + str(port) + webroot + "/api/" + apikey + "/" + command
 
         params = {'media_folder': dirName, 'downloader': 'manual'}
 
@@ -111,7 +111,7 @@ def process(dirName, settings, nzbName=None, status=0, logger=None):
             log.exception("Unable to determine release IMDB ID for requeueing.")
             sys.exit()
 
-        url = protocol + host + ":" + port + web_root + "/api/" + apikey + "/movie.list"
+        url = protocol + host + ":" + str(port) + webroot + "/api/" + apikey + "/movie.list"
         log.info("Opening URL: %s." % url)
 
         try:
@@ -139,7 +139,7 @@ def process(dirName, settings, nzbName=None, status=0, logger=None):
             log.error("Exiting postprocessing script")
             sys.exit(1)
 
-        url = protocol + host + ":" + port + web_root + "/api/" + apikey + "/movie.searcher.try_next/?media_id=" + movid
+        url = protocol + host + ":" + str(port) + webroot + "/api/" + apikey + "/movie.searcher.try_next/?media_id=" + movid
         log.info("Opening URL: %s." % url)
 
         try:

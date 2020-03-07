@@ -11,6 +11,12 @@ from mkvtomp4 import MkvtoMp4
 import logging
 from logging.config import fileConfig
 
+
+def getHost(host='localhost', port=8080, ssl=False):
+    protocol = "https://" if ssl else "http://"
+    return protocol + host + ":" + str(port) + "/"
+
+
 log = getLogger("qBittorrentPostProcess")
 
 log.info("qBittorrent post processing started.")
@@ -55,7 +61,9 @@ except ImportError:
 
 delete_dir = False
 
-qb = Client(settings.qBittorrent['host'])
+host = getHost(settings.qBittorrent['host'], settings.qBittorrent['port'], settings.qBittorrent['ssl'])
+
+qb = Client(host)
 qb.login(settings.qBittorrent['username'], settings.qBittorrent['password'])
 
 if settings.qBittorrent['actionBefore']:

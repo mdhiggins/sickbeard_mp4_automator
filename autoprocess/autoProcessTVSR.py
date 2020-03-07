@@ -45,13 +45,13 @@ def processEpisode(dir_to_process, settings, org_NZB_name=None, status=None, log
         ssl = 0
 
     try:
-        web_root = settings.Sickrage['web_root']
-        if not web_root.startswith("/"):
-            web_root = "/" + web_root
-        if not web_root.endswith("/"):
-            web_root = web_root + "/"
+        webroot = settings.Sickrage['webroot']
+        if not webroot.startswith("/"):
+            webroot = "/" + webroot
+        if not webroot.endswith("/"):
+            webroot = webroot + "/"
     except:
-        web_root = ""
+        webroot = ""
 
     params = {}
 
@@ -69,15 +69,15 @@ def processEpisode(dir_to_process, settings, org_NZB_name=None, status=None, log
     else:
         protocol = "http://"
 
-    url = protocol + host + ":" + port + web_root + "home/postprocess/processEpisode"
-    login_url = protocol + host + ":" + port + web_root + "login"
+    url = protocol + host + ":" + str(port) + webroot + "home/postprocess/processEpisode"
+    login_url = protocol + host + ":" + str(port) + webroot + "login"
 
     log.debug('Host: %s.' % host)
     log.debug('Port: %s.' % port)
     log.debug('Username: %s.' % username)
     log.debug('Password: %s.' % password)
     log.debug('Protocol: %s.' % protocol)
-    log.debug('Web Root: %s.' % web_root)
+    log.debug('Web Root: %s.' % webroot)
     log.debug('URL: %s.' % url)
     log.debug('Login URL: %s.' % login_url)
 

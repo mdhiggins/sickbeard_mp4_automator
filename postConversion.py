@@ -64,7 +64,15 @@ if len(sys.argv) > 4:
                 post_processor.run_scripts()
 
             try:
-                refresh = json.load(urllib.urlopen(settings.getRefreshURL(tvdb_id)))
+                protocol = "https://" if settings.Sickbeard['ssl'] else "http://"
+                host = settings.Sickbeard['host']  # Server Address
+                port = settings.Sickbeard['port']  # Server Port
+                apikey = settings.Sickbeard['apikey']  # Sickbeard API key
+                webroot = settings.Sickbeard['webroot']  # Sickbeard webroot
+
+                sickbeard_url = protocol + host + ":" + str(port) + webroot + "/api/" + apikey + "/?cmd=show.refresh&tvdbid=" + str(tvdb_id)
+
+                refresh = json.load(urllib.urlopen(sickbeard_url))
                 for item in refresh:
                     log.debug(refresh[item])
             except (IOError, ValueError):

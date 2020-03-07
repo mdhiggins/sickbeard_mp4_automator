@@ -16,6 +16,11 @@ log.info("uTorrent post processing started.")
 # Args: %L %T %D %K %F %I Label, Tracker, Directory, single|multi, NameofFile(if single), InfoHash
 
 
+def getHost(host='localhost', port=8080, ssl=False):
+    protocol = "https://" if ssl else "http://"
+    return protocol + host + ":" + str(port) + "/"
+
+
 def _authToken(session=None, host=None, username=None, password=None):
     auth = None
     if not session:
@@ -32,8 +37,8 @@ def _authToken(session=None, host=None, username=None, password=None):
 def _sendRequest(session, host='http://localhost:8080/', username=None, password=None, params=None, files=None, fnct=None):
     try:
         response = session.post(host + "gui/", auth=(username, password), params=params, files=files, timeout=30)
-    except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError), e:
-        log.exception("Problem sending command " + fnct + " - " + str(e) + ".")
+    except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError):
+        log.exception("Problem sending command")
         return False
 
     if response.status_code == 200:
@@ -87,23 +92,24 @@ except ImportError:
     sys.exit()
 
 try:
-    web_ui = settings.uTorrentWebUI
+    web_ui = settings.uTorrent['webui']
     log.debug("WebUI is true.")
 except:
     log.debug("WebUI is false.")
     web_ui = False
 
 delete_dir = False
+host = getHost(settings.uTorrent['host'], settings.uTorrent['port'], settings.uTorrent['ssl'])
 
 # Run a uTorrent action before conversion.
 if web_ui:
     session = requests.Session()
     if session:
-        auth, session = _authToken(session, settings.uTorrentHost, settings.uTorrentUsername, settings.uTorrentPassword)
-        if auth and settings.uTorrentActionBefore:
-            params = {'token': auth, 'action': settings.uTorrentActionBefore, 'hash': torrent_hash}
-            _sendRequest(session, settings.uTorrentHost, settings.uTorrentUsername, settings.uTorrentPassword, params, None, "Before Function")
-            log.debug("Sending action %s to uTorrent" % settings.uTorrentActionBefore)
+        auth, session = _authToken(session, host, settings.uTorrent['username'], settings.uTorrent['password'])
+        if auth and settings.uTorrent['action-before']:
+            params = {'token': auth, 'action': settings.uTorrent['action-before'], 'hash': torrent_hash}
+            _sendRequest(session, host, settings.uTorrent['username'], settings.uTorrent['password'], params, None, "Before Function")
+            log.debug("Sending action %s to uTorrent" % settings.uTorrent['action-before'])
 
 if settings.uTorrent['convert']:
     # Check for custom uTorrent output_dir
@@ -217,10 +223,10 @@ elif label == categories[5]:
 
 # Run a uTorrent action after conversion.
 if web_ui:
-    if session and auth and settings.uTorrentActionAfter:
-        params = {'token': auth, 'action': settings.uTorrentActionAfter, 'hash': torrent_hash}
-        _sendRequest(session, settings.uTorrentHost, settings.uTorrentUsername, settings.uTorrentPassword, params, None, "After Function")
-        log.debug("Sending action %s to uTorrent" % settings.uTorrentActionAfter)
+    if session and auth and settings.uTorrent['action-after']:
+        params = {'token': auth, 'action': settings.uTorrent['action-after'], 'hash': torrent_hash}
+        _sendRequest(session, host, settings.uTorrent['username'], settings.uTorrent['password'], params, None, "After Function")
+        log.debug("Sending action %s to uTorrent" % settings.uTorrent['action-after'])
 
 if delete_dir:
     if os.path.exists(delete_dir):
