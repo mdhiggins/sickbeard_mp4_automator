@@ -130,7 +130,7 @@ class ReadSettings:
         'Universal Audio': {
             'codec': 'aac',
             'first-stream-only': False,
-            'move-last': False,
+            'move-after': False,
             'filter': '',
         },
         'Subtitle': {
@@ -200,7 +200,7 @@ class ReadSettings:
             'sonarr-category': 'sonarr',
             'radarr-category': 'radarr',
             'bypass-category': 'bypass',
-            'output-directory': None,
+            'output-directory': '',
         },
         'Deluge': {
             'couchpotato-label': 'couchpotato',
@@ -214,7 +214,7 @@ class ReadSettings:
             'port': 58846,
             'username': '',
             'password': '',
-            'output-directory': None,
+            'output-directory': '',
             'remove': False,
         },
         'qBittorrent': {
@@ -243,8 +243,8 @@ class ReadSettings:
             'bypass-label': 'bypass',
             'convert': True,
             'webui': False,
-            'action-before': 'stop',
-            'action-after': 'removedata',
+            'action-before': '',
+            'action-after': '',
             'host': 'localhost',
             'ssl': False,
             'port': 8080,
@@ -275,7 +275,7 @@ class ReadSettings:
             'relocate_moov': 'Metadata.relocate-moov',
             'ios-audio': 'Universal Audio.codec',
             'ios-first-track-only': 'Universal Audio.first-stream-only',
-            'ios-move-last': 'Universal Audio.move-last',
+            'ios-move-last': 'Universal Audio.move-after',
             'ios-audio-filter': 'Universal Audio.filter',
             'max-audio-channels': 'Audio.max-channels',
             'audio-language': 'Audio.languages',
@@ -623,7 +623,7 @@ class ReadSettings:
         section = "Universal Audio"
         self.ua = config.getlist(section, "codec")
         self.ua_first_only = config.getboolean(section, "first-stream-only")
-        self.ua_last = config.getboolean(section, "move-last")
+        self.ua_last = config.getboolean(section, "move-after")
         self.ua_filter = config.get(section, "filter")
 
         # Subtitles
