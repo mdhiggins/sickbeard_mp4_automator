@@ -800,9 +800,11 @@ class ReadSettings:
         if config.has_section("MP4"):
             self.log.info("Old configuration file format found, attempting to migrate to new format.")
             backup = configFile + ".backup"
-            os.rename(configFile, configFile + ".backup")
+            import shutil
+            shutil.copy(configFile, backup)
             self.log.info("Old configuration file backed up to %s" % backup)
 
+            open(configFile, 'w').close()
             new = {}
 
             self.log.info("Begining Conversion")
