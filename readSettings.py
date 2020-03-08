@@ -802,7 +802,7 @@ class ReadSettings:
             backup = configFile + ".backup"
             i = 2
             while os.path.exists(backup):
-                backup = configFile + "." + i + ".backup"
+                backup = configFile + "." + str(i) + ".backup"
                 i += 1
             import shutil
             shutil.copy(configFile, backup)
