@@ -836,7 +836,7 @@ class ReadSettings:
                             self.log.info("%s.%s >> %s.%s | %s (%s)" % (section, key, newsection, "ssl", ssl, type(ssl).__name__))
                         except:
                             val = self.defaults[newsection][newkey]
-                    elif section == 'Universal Audio' and key == 'codec':
+                    elif section == 'MP4' and key == 'ios-audio':
                         if val.lower() in ['true', 't', 'yes']:
                             val = self.defaults[newsection][newkey]
                         elif val.lower() in ['false', 'f', 'no']:
