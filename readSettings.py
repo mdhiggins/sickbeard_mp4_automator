@@ -800,6 +800,10 @@ class ReadSettings:
         if config.has_section("MP4"):
             self.log.info("Old configuration file format found, attempting to migrate to new format.")
             backup = configFile + ".backup"
+            i = 2
+            while os.path.exists(backup):
+                backup = configFile + ".backup" + i
+                i += 1
             import shutil
             shutil.copy(configFile, backup)
             self.log.info("Old configuration file backed up to %s" % backup)
@@ -832,6 +836,11 @@ class ReadSettings:
                             self.log.info("%s.%s >> %s.%s | %s (%s)" % (section, key, newsection, "ssl", ssl, type(ssl).__name__))
                         except:
                             val = self.defaults[newsection][newkey]
+                    elif section == 'Universal Audio' and key == 'codec':
+                        if val.lower() in ['true', 't', 'yes']:
+                            val = self.defaults[newsection][newkey]
+                        elif val.lower() in ['false', 'f', 'no']:
+                            val = ''
                     elif key == 'ignore-truehd':
                         if val.lower() in ['true', 't', 'yes']:
                             val = self.defaults[newsection][newkey]
