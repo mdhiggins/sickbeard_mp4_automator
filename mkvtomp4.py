@@ -80,7 +80,7 @@ class MkvtoMp4:
 
             if outputfile == inputfile:
                 self.settings.deletesubs = set()
-                if self.settings.output_dir is not None:
+                if self.settings.output_dir:
                     try:
                         outputfile = os.path.join(self.settings.output_dir, os.path.split(inputfile)[1])
                         self.log.debug("Outputfile set to %s." % outputfile)
@@ -287,7 +287,7 @@ class MkvtoMp4:
         self.log.info("Profile: %s." % info.video.profile)
 
         vdebug = "video"
-        vcodec = 'copy' if info.video.codec.lower() in self.settings.vcodec else self.settings.vcodec[0]
+        vcodec = "copy" if info.video.codec.lower() in self.settings.vcodec else self.settings.vcodec[0]
 
         vpix_fmt = None
         if len(self.settings.pix_fmt) > 0 and info.video.pix_fmt.lower() not in self.settings.pix_fmt:
@@ -304,7 +304,7 @@ class MkvtoMp4:
             vcodec = self.settings.vcodec[0]
 
         vwidth = self.settings.vwidth
-        if self.settings.vwidth is not None and self.settings.vwidth < info.video.video_width:
+        if self.settings.vwidth and self.settings.vwidth < info.video.video_width:
             self.log.debug("Video width is over the max width, it will be downsampled. Video stream can no longer be copied [video-max-width].")
             vdebug = vdebug + ".max-width"
             vcodec = self.settings.vcodec[0]
@@ -1270,7 +1270,7 @@ class MkvtoMp4:
                 if os.path.exists(filename):
                     os.remove(filename)
                 # Replaces the newly deleted file with another by renaming (replacing an original with a newly created file)
-                if replacement is not None:
+                if replacement:
                     os.rename(replacement, filename)
                     filename = replacement
                 break
