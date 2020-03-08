@@ -1031,15 +1031,15 @@ class MkvtoMp4:
     def canBypassConvert(self, input_extension, options):
         # Process same extensions
         if self.settings.output_extension == input_extension:
-            if not self.settings.forceConvert and not self.settings.process_same_extensions:
+            if not self.settings.force_convert and not self.settings.process_same_extensions:
                 self.log.info("Input and output extensions are the same so passing back the original file [process-same-extensions: %s]." % self.settings.process_same_extensions)
                 return True
             # Force convert
-            elif not self.settings.forceConvert and len([x for x in [options['video']] + [x for x in options['audio']] + [x for x in options['subtitle']] if x['codec'] != 'copy']) == 0:
-                self.log.info("Input and output extensions match and every codec is copy, this file probably doesn't need conversion, returning [force-convert: %s]." % self.settings.forceConvert)
+            elif not self.settings.force_convert and len([x for x in [options['video']] + [x for x in options['audio']] + [x for x in options['subtitle']] if x['codec'] != 'copy']) == 0:
+                self.log.info("Input and output extensions match and every codec is copy, this file probably doesn't need conversion, returning [force-convert: %s]." % self.settings.force_convert)
                 return True
-            elif self.settings.forceConvert:
-                self.log.info("Input and output extensions match and every codec is copy, this file probably doesn't need conversion, but conversion being forced [force-convert: %s]." % self.settings.forceConvert)
+            elif self.settings.force_convert:
+                self.log.info("Input and output extensions match and every codec is copy, this file probably doesn't need conversion, but conversion being forced [force-convert: %s]." % self.settings.force_convert)
         return False
 
     # Encode a new file based on selected options, built in naming conflict resolution
