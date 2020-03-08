@@ -261,14 +261,15 @@ optional arguments:
   -nt, --notag          Overrides and disables tagging when using the
                         automated option
   -nd, --nodelete       Overrides and disables deleting of original files
-  -pr, --preserveRelative
+  -pr, --preserverelative
                         Preserves relative directories when processing
                         multiple files using the copy-to or move-to
                         functionality
-  -cmp4, --convertmp4   Overrides convert-mp4 setting in autoProcess.ini
-                        enabling the reprocessing of mp4 files
-  -fc, --forceconvert   Overrides force-convert setting in autoProcess.ini
-                        enabling the reprocessing of mp4 files, also sets convert-mp4 to True
+  -pse, --processsameextensions   
+                        Overrides process-same-extenions setting in 
+                        autoProcess.ini enabling the reprocessing of files
+  -fc, --forceconvert   Overrides force-convert setting in autoProcess.ini and 
+                        also enables process-same-extenions if true forcing the conversion of files
   -oo, --optionsonly    Display generated conversion options only, do not perform conversion
 ```
 
