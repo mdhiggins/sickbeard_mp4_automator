@@ -281,7 +281,7 @@ manual.py -i mp4path -tvdb tmbdid -s season -e episode
 Example: manual.py -i "C:\Futurama S03E10.mkv" -tvdb 73871‎ -s 3 -e 10
 
 Auto Single File (will gather movie ID or TV show ID / season / spisode from the file name if possible)
-manual.py -i mp4path -silent
+manual.py -i mp4path -a
 Example: manual.py -i "C:\Futurama S03E10.mkv" -a
 
 Directory (you will be prompted at each file for the type of file and ID)
@@ -298,7 +298,7 @@ Example: manual.py -i C:\TV\Futurama\ -a -tvdb 615
 ```
 You may also simply run `manual.py -i 'C:\The Matrix.mkv` and the script will prompt you for the missing information or attempt to guess based on the file name.
 You may run the script with a `--auto` or `-a` switch, which will let the script guess the tagging information based on the file name, avoiding any need for user input. This is the most ideal option for large batch file operations.
-The script may also be pointed to a directory, where it will process all files in the directory. If you run the script without the `-silent` switch, you will be prompted for each file with options on how to tag, to convert without tagging, or skip.
+The script may also be pointed to a directory, where it will process all files in the directory. If you run the script without the `-a` switch, you will be prompted for each file with options on how to tag, to convert without tagging, or skip.
 
 External Cover Art
 --------------
