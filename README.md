@@ -25,28 +25,30 @@ Integration
 
 Dependencies
 --------------
-- Python 3 (Python 2.7 unofficially supported)
-- FFMpeg and FFProbe
-- Python setup_tools
+- [Python 3](https://www.python.org/) (Python 2.7 unofficially supported)
+- [FFmpeg](https://ffmpeg.org/)
 - [Python Packages](https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/Dependencies)
 
 Default Settings
 --------------
-1. Container - MP4
-2. Video - H264
-3. Audio - AAC 2.0 with additional AC3 track when source has >2 channels (ex 5.1)
-4. Subtitles - mov_text
+- Container - MP4
+- Video - H264
+- Audio - AAC 2.0 with additional AC3 track when source has >2 channels (ex 5.1)
+- Subtitles - mov_text
 
-General MP4 Configuration
+General Configuration
 --------------
-1. Rename autoProcess.ini.sample to autoProcess.ini (or attempt to run the script which will generate a new config file if absent)
-2. Set the [configuration options](https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/autoProcess-Settings) to your desired output
+1. Download or compile FFmpeg 
+2. Rename autoProcess.ini.sample to autoProcess.ini (or attempt to run the script which will generate a new config file if absent)
+3. Set the [configuration options](https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/autoProcess-Settings) to your desired output and include the path of your new FFmpeg / FFprobe binaries
+4. Run [manual.py](#manual-script-usage) and test out a conversion
+5. Configure direct integration using the instructions below
 
 Sonarr Setup
 --------------
 1. Set your [Sonarr settings](https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/autoProcess-Settings#sonarr) in autoProcess.ini
 2. Browse to the Settings>Download Client tab and enable advanced settings [Show].
-3. Set the Drone Factory Interval' to 0 to disable it, and disable 'Completed Download Handling' in Sonarr settings. The script will trigger a specific path re-scan, allowing the conversion to be completed before Sonarr starts moving stuff around. This step is optional if you do not desire any processing between the downloading by whichever downloader you choose (NZB or Torrent), but is required if you wish to convert the file before it is handed back to Sonarr. You must use either a download script or enabled Completed Download Handling. If both are not used the file will never be passed back
+3. Set the Drone Factory Interval' to 0 to disable it, and disable 'Completed Download Handling' in Sonarr settings. The script will trigger a specific path re-scan, allowing the conversion to be completed before Sonarr starts moving stuff around. This step is optional if you do not desire any processing between the downloading by whichever downloader you choose (NZB or Torrent), but is required if you wish to convert the file before it is handed back to Sonarr. **You must use either a download script or enabled Completed Download Handling. If neither are used the file will never be passed back**
 4. Setup the postSonarr.py script via Settings > Connect > Connections > + (Add)
     - `name` - postSonarr
     - `On Grab` - No
@@ -61,7 +63,7 @@ Radarr Setup
 --------------
 1. Set your [Radarr settings](https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/autoProcess-Settings#radarr) in autoProcess.ini
 2. Browse to the Settings>Download Client tab and enable advanced settings [Show].
-3. Set the Drone Factory Interval' to 0 to disable it, and disable 'Completed Download Handling' in Radarr settings. The script will trigger a specific path re-scan, allowing the conversion to be completed before Radarr starts moving stuff around. This step is optional if you do not desire any processing between the downloading by whichever downloader you choose (NZB or Torrent), but is required if you wish to convert the file before it is handed back to Radarr. You must use either a download script or enabled Completed Download Handling. If both are not used the file will never be passed back
+3. Set the Drone Factory Interval' to 0 to disable it, and disable 'Completed Download Handling' in Radarr settings. The script will trigger a specific path re-scan, allowing the conversion to be completed before Radarr starts moving stuff around. This step is optional if you do not desire any processing between the downloading by whichever downloader you choose (NZB or Torrent), but is required if you wish to convert the file before it is handed back to Radarr. **You must use either a download script or enabled Completed Download Handling. If neither are used the file will never be passed back**
 4. Setup the postRadarr.py script via Settings > Connect > Connections > + (Add)
     - `name` - postRadarr
     - `On Grab` - No
@@ -209,7 +211,7 @@ The following environmental variables are available for usage:
 - `SMA_EPISODE` - Episode number if files processed was a TV show
 - `SMA_IMDBID` - IMDB ID if file processed was a movie
 A sample script as well as an OS X 'Add to iTunes' script (`iTunes.py`) have been provided.
-*Special thanks to jzucker2 for providing much of the initial code for this feature*
+*Special thanks to @jzucker2 for providing much of the initial code for this feature*
 
 Manual Script Usage
 --------------
@@ -314,6 +316,8 @@ subtitle srt - The.Matrix.1999.eng.srt
 Credits
 --------------
 This project makes use of, integrates with, or was inspired by the following projects:
+- http://www.ffmpeg.org/
+- http://www.python.org/
 - http://www.sickbeard.com/
 - http://couchpota.to/
 - http://sabnzbd.org/
