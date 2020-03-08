@@ -26,7 +26,7 @@ Dependencies
 - Python 3 (Python 2.7 unofficially supported)
 - FFMpeg and FFProbe
 - Python setup_tools
-- [Python Packages](./wiki/Dependencies)
+- [Python Packages](https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/Dependencies)
 
 Default Settings
 --------------
@@ -38,11 +38,11 @@ Default Settings
 General MP4 Configuration
 --------------
 1. Rename autoProcess.ini.sample to autoProcess.ini (or attempt to run the script which will generate a new config file if absent)
-2. Set the [configuration options](./wiki/autoProcess-Settings) to your desired output
+2. Set the [configuration options](https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/autoProcess-Settings) to your desired output
 
 Sonarr Setup
 --------------
-1. Set your [Sonarr settings](./wiki/autoProcess-Settings#sonarr) in autoProcess.ini
+1. Set your [Sonarr settings](https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/autoProcess-Settings#sonarr) in autoProcess.ini
 2. Browse to the Settings>Download Client tab and enable advanced settings [Show].
 3. Set the Drone Factory Interval' to 0 to disable it, and disable 'Completed Download Handling' in Sonarr settings. The script will trigger a specific path re-scan, allowing the conversion to be completed before Sonarr starts moving stuff around. This step is optional if you do not desire any processing between the downloading by whichever downloader you choose (NZB or Torrent), but is required if you wish to convert the file before it is handed back to Sonarr. You must use either a download script or enabled Completed Download Handling. If both are not used the file will never be passed back
 4. Setup the postSonarr.py script via Settings > Connect > Connections > + (Add)
@@ -57,7 +57,7 @@ Sonarr Setup
 
 Radarr Setup
 --------------
-1. Set your [Radarr settings](./wiki/autoProcess-Settings#radarr) in autoProcess.ini
+1. Set your [Radarr settings](https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/autoProcess-Settings#radarr) in autoProcess.ini
 2. Browse to the Settings>Download Client tab and enable advanced settings [Show].
 3. Set the Drone Factory Interval' to 0 to disable it, and disable 'Completed Download Handling' in Radarr settings. The script will trigger a specific path re-scan, allowing the conversion to be completed before Radarr starts moving stuff around. This step is optional if you do not desire any processing between the downloading by whichever downloader you choose (NZB or Torrent), but is required if you wish to convert the file before it is handed back to Radarr. You must use either a download script or enabled Completed Download Handling. If both are not used the file will never be passed back
 4. Setup the postRadarr.py script via Settings > Connect > Connections > + (Add)
@@ -75,18 +75,18 @@ Sickbeard Setup
     - Set "extra_scripts" value in the general section to the full path to "python postConversion.py" using double backslashes
         - Example: `C:\\Python27\\python C:\\Scripts\\postConversion.py`
         - Make sure this is done while Sick Beard is not running or it will be reverted
-2. Set your [SickBeard settings](./wiki/autoProcess-Settings#sickbeard) in autoProcess.ini
+2. Set your [SickBeard settings](https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/autoProcess-Settings#sickbeard) in autoProcess.ini
 
 SickRage Setup
 --------------
 1. Open the configuration page in Sickrage and scroll down to the option labelled "Extra Scripts". Here enter the path to python followed by the full script path. Examples:
     - `C:\\Python27\\python.exe C:\\sickbeard_mp4_automator\\postConversion.py`
     - `/usr/bin/python /home/user/sickbeard_mp4_automator/postConversion.py`
-2. Set the [Sickrage settings](./wiki/autoProcess-Settings#sickrage) in autoProcess.ini
+2. Set the [Sickrage settings](https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/autoProcess-Settings#sickrage) in autoProcess.ini
 
 CouchPotato Setup
 --------------
-1. Set your [CouchPotato settings](./wiki/autoProcess-Settings#couchpotato) in autoProcess.ini
+1. Set your [CouchPotato settings](https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/autoProcess-Settings#couchpotato) in autoProcess.ini
 2. Edit `main.py` in the `setup\PostProcess` folder
     - Set the path variable to the script location
     - By default it points to `C:\\Scripts\\`
@@ -128,7 +128,7 @@ NZBGet Setup
 
 SABNZBD Setup
 --------------
-1. Set your [SABNZBD settings](./wiki/autoProcess-Settings#sabnzbd) in autoProcess.ini
+1. Set your [SABNZBD settings](https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/autoProcess-Settings#sabnzbd) in autoProcess.ini
 2. Point SABNZBD's script directory to the root directory where you have extract the script.
 3. Configure categories. Categories will determine where the download is sent when it is finished
     - `Settings > Categories`
@@ -159,7 +159,7 @@ Deluge Daemon Setup
 4. Enabled the `Execute` plugin
     - Add event for `Torrent Complete`
     - Set path to the full path to `delugePostProcess.py` or `delugePostProcess.bat` for Windows users.
-5. Set your [Deluge settings](./wiki/autoProcess-Settings#deluge) in autoProcess.ini
+5. Set your [Deluge settings](https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/autoProcess-Settings#deluge) in autoProcess.ini
 6. Verify that whatever downloader you are using is assigning the label to match the label settings specified here so that file will be passed back to the appropriate location
 
 uTorrent Setup
@@ -168,7 +168,7 @@ uTorrent Setup
 2. Set `Run Program` option
     - Go to `Options > Preferences > Advanced > Run Program`
     - Point to `uTorrentPostProcess.py` with command line parameters: `%L %T %D %K %F %I %N` in that exact order.
-3. Set your [uTorrent settings](./wiki/autoProcess-Settings#utorrent) in autoProcess.ini
+3. Set your [uTorrent settings](https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/autoProcess-Settings#utorrent) in autoProcess.ini
 4. Verify that whatever media manager you are using is assigning the label to match the label settings specified here so that file will be passed back to the appropriate location
 
 qBittorrent Setup
@@ -177,7 +177,7 @@ qBittorrent Setup
 2. Set `Run Program` option
     - Go to `Tools > Options > Run external program on torrent completion`
     - Point to `qBittorrentPostProcess.py` with command line parameters: `"%L" "%T" "%R" "%F" "%N" "%I"` in that exact order.
-3. Set your [qBittorrent settings](./wiki/autoProcess-Settings#qbittorrent) in autoProcess.ini
+3. Set your [qBittorrent settings](https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/autoProcess-Settings#qbittorrent) in autoProcess.ini
 4. Verify that whatever media manager you are using is assigning the label to match the label settings specified here so that file will be passed back to the appropriate location
 
 Plex Notification
@@ -185,7 +185,7 @@ Plex Notification
 Send a Plex notification as the final step when all processing is completed. This feature prevents a file from being flagged as "in use" by Plex before processing has completed.
 1. Disable automatic refreshing on your Plex server
     - `Settings > Server > Library` and disable `Update my library automatically` and `Update my library periodically`.
-3. Set your [Plex settings](./wiki/autoProcess-Settings#plex) in autoProcess.ini
+3. Set your [Plex settings](https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/autoProcess-Settings#plex) in autoProcess.ini
 
 If you have secure connections enabled with Plex you will need to add your local IP addresss that the refresh requests are coming from to allow them to trigger the refresh, otherwise you will get an HTTP error. You can alternatively not force encryption by changing `Secure Connections` from `Required` to `Preferred` but this is not recommended as its less secure.
 
