@@ -211,6 +211,7 @@ The following environmental variables are available for usage:
 - `SMA_EPISODE` - Episode number if files processed was a TV show
 - `SMA_IMDBID` - IMDB ID if file processed was a movie
 A sample script as well as an OS X 'Add to iTunes' script (`iTunes.py`) have been provided.
+
 *Special thanks to @jzucker2 for providing much of the initial code for this feature*
 
 Manual Script Usage
