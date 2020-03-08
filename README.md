@@ -1,4 +1,4 @@
-SMA Conversion/Tagging Automation Script.
+SMA Conversion/Tagging Automation Script
 ==============
 
 **Automatically converts media files downloaded by various programs to a standardized format, and tags them with the appropriate metadata from TMDB if the container supports tagging.**
@@ -24,37 +24,22 @@ Integration
 Dependencies
 --------------
 - Python 3 (Python 2.7 unofficially supported)
-- FFMPEG and FFPROBE binaries
+- FFMpeg and FFProbe
 - Python setup_tools
 - https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/Dependencies
 
 Default Settings
 --------------
-1. Video - H264
-2. Audio - AAC 2.0 with additional AC3 track when source has >2 channels (ex 5.1)
-3. Subtitles - mov_text
-
-
+1. Container - MP4
+2. Video - H264
+3. Audio - AAC 2.0 with additional AC3 track when source has >2 channels (ex 5.1)
+4. Subtitles - mov_text
 
 General MP4 Configuration
 --------------
 1. Rename autoProcess.ini.sample to autoProcess.ini (or attempt to run the script which will generate a new config file if absent)
-2. Set the MP4 variables to your desired output
-
-Sickbeard Setup
---------------
-1. Open Sickbeard's config.ini in Sick Beard installation folder
-    - Set "extra_scripts" value in the general section to the full path to "python postConversion.py" using double backslashes
-        - Example: `C:\\Python27\\python C:\\Scripts\\postConversion.py`
-        - Make sure this is done while Sick Beard is not running or it will be reverted
-2. Set the SickBeard variables in autoProcess.ini under the [Sickbeard] section
-
-SickRage Setup
---------------
-1. Open the configuration page in Sickrage and scroll down to the option labelled "Extra Scripts". Here enter the path to python followed by the full script path. Examples:
-    - `C:\\Python27\\python.exe C:\\sickbeard_mp4_automator\\postConversion.py`
-    - `/usr/bin/python /home/user/sickbeard_mp4_automator/postConversion.py`
-2. Set the Sickrage variables in autoProcess.ini under the [Sickrage] section
+2. Set the configuration options to your desired output
+https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/autoProcess-Settings
 
 Sonarr Setup
 --------------
@@ -85,15 +70,24 @@ Radarr Setup
     - `Path` - Full path to your python executable
     - `Arguments` - Full path to `postRadarr.py`
 
+Sickbeard Setup
+--------------
+1. Open Sickbeard's config.ini in Sick Beard installation folder
+    - Set "extra_scripts" value in the general section to the full path to "python postConversion.py" using double backslashes
+        - Example: `C:\\Python27\\python C:\\Scripts\\postConversion.py`
+        - Make sure this is done while Sick Beard is not running or it will be reverted
+2. Set the SickBeard variables in autoProcess.ini under the [Sickbeard] section
+
+SickRage Setup
+--------------
+1. Open the configuration page in Sickrage and scroll down to the option labelled "Extra Scripts". Here enter the path to python followed by the full script path. Examples:
+    - `C:\\Python27\\python.exe C:\\sickbeard_mp4_automator\\postConversion.py`
+    - `/usr/bin/python /home/user/sickbeard_mp4_automator/postConversion.py`
+2. Set the Sickrage variables in autoProcess.ini under the [Sickrage] section
+
 CouchPotato Setup
 --------------
 1. Set your CouchPotato settings to the autoProcess.ini file
-    - `host` - default `localhost` - CouchPotato host address
-    - `port` - default `5050` - CouchPotato port (5050)
-    - `ssl` - `1` if enabled, `0` if not
-    - `apikey` - CouchPotato API Key
-    - `username` - your CouchPotato username
-    - `password` - your CouchPotato password
 2. Edit `main.py` in the `setup\PostProcess` folder
     - Set the path variable to the script location
     - By default it points to `C:\\Scripts\\`
@@ -149,24 +143,6 @@ SABNZBD Setup
     - Save EACH category
 4. Verify that whatever media manager you are using is assigning the label to match the label settings specified here so that file will be passed back to the appropriate location
 
-uTorrent Setup
---------------
-1. Launch uTorrent
-2. Set `Run Program` option
-    - Go to `Options > Preferences > Advanced > Run Program`
-    - Point to `uTorrentPostProcess.py` with command line parameters: `%L %T %D %K %F %I %N` in that exact order.
-3. Configure uTorrent section in `autoProcess.ini`
-4. Verify that whatever media manager you are using is assigning the label to match the label settings specified here so that file will be passed back to the appropriate location
-
-qBittorrent Setup
---------------
-1. Launch qBittorrent
-2. Set `Run Program` option
-    - Go to `Tools > Options > Run external program on torrent completion`
-    - Point to `qBittorrentPostProcess.py` with command line parameters: `"%L" "%T" "%R" "%F" "%N" "%I"` in that exact order.
-3. Configure qBittorrent section in `autoProcess.ini`
-4. Verify that whatever media manager you are using is assigning the label to match the label settings specified here so that file will be passed back to the appropriate location
-
 Deluge Daemon
 --------------
 1. Create username and password for deluge daemon
@@ -186,6 +162,24 @@ Deluge Daemon
     - Set path to the full path to `delugePostProcess.py` or `delugePostProcess.bat` for Windows users.
 5. Configure Deluge section in `autoProcess.ini`
 6. Verify that whatever downloader you are using is assigning the label to match the label settings specified here so that file will be passed back to the appropriate location
+
+uTorrent Setup
+--------------
+1. Launch uTorrent
+2. Set `Run Program` option
+    - Go to `Options > Preferences > Advanced > Run Program`
+    - Point to `uTorrentPostProcess.py` with command line parameters: `%L %T %D %K %F %I %N` in that exact order.
+3. Configure uTorrent section in `autoProcess.ini`
+4. Verify that whatever media manager you are using is assigning the label to match the label settings specified here so that file will be passed back to the appropriate location
+
+qBittorrent Setup
+--------------
+1. Launch qBittorrent
+2. Set `Run Program` option
+    - Go to `Tools > Options > Run external program on torrent completion`
+    - Point to `qBittorrentPostProcess.py` with command line parameters: `"%L" "%T" "%R" "%F" "%N" "%I"` in that exact order.
+3. Configure qBittorrent section in `autoProcess.ini`
+4. Verify that whatever media manager you are using is assigning the label to match the label settings specified here so that file will be passed back to the appropriate location
 
 Plex Notification
 --------------
