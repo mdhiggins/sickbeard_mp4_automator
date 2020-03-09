@@ -4,14 +4,10 @@ import sys
 import json
 import urllib
 import struct
-import logging
-from log import getLogger
-from readSettings import ReadSettings
-from autoprocess import plex
-from metadata import Metadata, MediaType
-from mkvtomp4 import MkvtoMp4
-from post_processor import PostProcessor
-from logging.config import fileConfig
+from resources.log import getLogger
+from resources.readsettings import ReadSettings
+from resources.metadata import MediaType
+from resources.mediaprocessor import MediaProcessor
 
 log = getLogger("SickbeardPostProcess")
 
@@ -26,60 +22,29 @@ if len(sys.argv) > 4:
     season = int(sys.argv[4])
     episode = int(sys.argv[5])
 
-    converter = MkvtoMp4(settings)
+    converter = MediaProcessor(settings)
 
     log.debug("Input file: %s." % inputfile)
     log.debug("Original name: %s." % original)
     log.debug("TVDB ID: %s." % tvdb_id)
     log.debug("Season: %s episode: %s." % (season, episode))
 
-    info = converter.isValidSource(inputfile)
-    if info:
-        log.info("Processing %s." % inputfile)
+    success = converter.fullprocess(inputfile, MediaType.TV, tvdbid=tvdb_id, season=season, episode=episode, original=original)
+    if success:
+        try:
+            protocol = "https://" if settings.Sickbeard['ssl'] else "http://"
+            host = settings.Sickbeard['host']  # Server Address
+            port = settings.Sickbeard['port']  # Server Port
+            apikey = settings.Sickbeard['apikey']  # Sickbeard API key
+            webroot = settings.Sickbeard['webroot']  # Sickbeard webroot
 
-        output = converter.process(inputfile, original=original, info=info)
+            sickbeard_url = protocol + host + ":" + str(port) + webroot + "/api/" + apikey + "/?cmd=show.refresh&tvdbid=" + str(tvdb_id)
 
-        if output:
-            # Tag with metadata
-            try:
-                tag = Metadata(MediaType.TV, tvdbid=tvdb_id, season=season, episode=episode, original=original, language=settings.taglanguage)
-                if settings.tagfile:
-                    log.info("Tagging %s with ID %s season %s episode %s." % (inputfile, tvdb_id, season, episode))
-                    tag.setHD(output['x'], output['y'])
-                    tag.writeTags(output['output'], settings.artwork, settings.thumbnail)
-            except:
-                log.exception("Unable to tag file")
-
-            # QTFS
-            if settings.relocate_moov:
-                converter.QTFS(output['output'])
-
-            # Copy to additional locations
-            output_files = converter.replicate(output['output'])
-
-            # Run any post process scripts
-            if settings.postprocess:
-                post_processor = PostProcessor(output_files, log)
-                post_processor.setTV(tag.tmdbid, tag.season, tag.episode)
-                post_processor.run_scripts()
-
-            try:
-                protocol = "https://" if settings.Sickbeard['ssl'] else "http://"
-                host = settings.Sickbeard['host']  # Server Address
-                port = settings.Sickbeard['port']  # Server Port
-                apikey = settings.Sickbeard['apikey']  # Sickbeard API key
-                webroot = settings.Sickbeard['webroot']  # Sickbeard webroot
-
-                sickbeard_url = protocol + host + ":" + str(port) + webroot + "/api/" + apikey + "/?cmd=show.refresh&tvdbid=" + str(tvdb_id)
-
-                refresh = json.load(urllib.urlopen(sickbeard_url))
-                for item in refresh:
-                    log.debug(refresh[item])
-            except (IOError, ValueError):
-                log.exception("Couldn't refresh Sickbeard, check your autoProcess.ini settings.")
-
-            plex.refreshPlex(settings, 'show', log)
-
+            refresh = json.load(urllib.urlopen(sickbeard_url))
+            for item in refresh:
+                log.debug(refresh[item])
+        except (IOError, ValueError):
+            log.exception("Couldn't refresh Sickbeard, check your autoProcess.ini settings.")
 else:
     log.error("Not enough command line arguments present %s." % len(sys.argv))
     sys.exit()

@@ -68,12 +68,10 @@ if 'NZBPO_OUTPUT_DIR' in os.environ:
 
 sys.path.append(MP4folder)
 try:
-    from readSettings import ReadSettings
-    from mkvtomp4 import MkvtoMp4
+    from resources.readsettings import ReadSettings
+    from resources.mediaprocessor import MediaProcessor
     from autoprocess import autoProcessMovie, autoProcessTV, autoProcessTVSR, sonarr, radarr
-    import logging
     from log import getLogger
-    from logging.config import fileConfig
 except ImportError:
     print("[ERROR] Wrong path to sickbeard_mp4_automator: " + os.environ['NZBPO_MP4_FOLDER'])
     print("[ERROR] %s" % traceback.print_exc())
@@ -181,7 +179,7 @@ if 'NZBOP_SCRIPTDIR' in os.environ and not os.environ['NZBOP_VERSION'][0:5] < '1
     if shouldConvert:
         if output_dir:
             settings.output_dir = output_dir
-        converter = MkvtoMp4(settings, logger=log)
+        converter = MediaProcessor(settings, logger=log)
         for r, d, f in os.walk(path):
             for files in f:
                 inputfile = os.path.join(r, files)

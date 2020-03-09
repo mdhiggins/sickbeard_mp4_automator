@@ -6,7 +6,10 @@ import sys
 import shutil
 import logging
 from converter import Converter, FFMpegConvertError, ConverterError
-from extensions import subtitle_codec_extensions
+from resources.extensions import subtitle_codec_extensions
+from resources.metadata import Metadata
+from resources.postprocess import PostProcessor
+from autoprocess import plex
 try:
     from babelfish import Language
 except:
@@ -17,7 +20,7 @@ except:
     pass
 
 
-class MkvtoMp4:
+class MediaProcessor:
     log = logging.getLogger(__name__)
     deletesubs = set()
 
@@ -27,6 +30,46 @@ class MkvtoMp4:
             self.log = logger
         self.settings = settings
         self.converter = Converter(settings.ffmpeg, settings.ffprobe)
+
+    def fullprocess(self, inputfile, mediatype, reportProgress=False, original=None, info=None, tmbdid=None, tvdbid=None, imdbid=None, season=None, episode=None, language=None):
+        try:
+            if not language:
+                language = self.settings.taglanguage
+
+            info = self.isValidSource(inputfile)
+            if info:
+                self.log.info("Processing %s." % inputfile)
+
+                output = self.process(inputfile, original=original, info=info)
+
+                if output:
+                    # Tag with metadata
+                    try:
+                        tag = Metadata(mediatype, tvdbid=tvdbid, tmdbid=tmbdid, imdbid=imdbid, season=season, episode=episode, original=original, language=language)
+                        if settings.tagfile:
+                            log.info("Tagging %s with TMDB ID %s." % (inputfile, tag.tmdbid))
+                            tag.writeTags(output['output'], settings.artwork, settings.thumbnail, output['x'], output['y'])
+                    except:
+                        log.exception("Unable to tag file")
+
+                    # QTFS
+                    if settings.relocate_moov:
+                        converter.QTFS(output['output'])
+
+                    # Copy to additional locations
+                    output_files = converter.replicate(output['output'])
+
+                    # Run any post process scripts
+                    if settings.postprocess:
+                        postprocessor = PostProcessor(output_files, self.log)
+                        postprocessor.setEnv(mediatype, tag.tmdbid, season, episode)
+                        postprocessor.run_scripts()
+
+                    plex.refreshPlex(settings, mediatype, self.log)
+                    return True
+        except:
+            self.log.exception("Error processing")
+        return False
 
     # Process a file from start to finish, with checking to make sure formats are compatible with selected settings
     def process(self, inputfile, reportProgress=False, original=None, info=None):

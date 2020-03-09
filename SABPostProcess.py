@@ -4,10 +4,8 @@ import os
 import sys
 from log import getLogger
 from autoprocess import autoProcessTV, autoProcessMovie, autoProcessTVSR, sonarr, radarr
-from readSettings import ReadSettings
-from mkvtomp4 import MkvtoMp4
-import logging
-from logging.config import fileConfig
+from resources.readsettings import ReadSettings
+from resources.mediaprocessor import MediaProcessor
 
 log = getLogger("SABPostProcess")
 
@@ -52,7 +50,7 @@ if settings.SAB['convert']:
         settings.output_dir = settings.SAB['output_dir']
         log.debug("Overriding output_dir to %s." % settings.SAB['output_dir'])
 
-    converter = MkvtoMp4(settings)
+    converter = MediaProcessor(settings)
     for r, d, f in os.walk(path):
         for files in f:
             inputfile = os.path.join(r, files)

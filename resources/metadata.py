@@ -11,7 +11,7 @@ import time
 import logging
 import tmdbsimple as tmdb
 from mutagen.mp4 import MP4, MP4Cover, MP4StreamInfoError
-from extensions import valid_poster_extensions, tmdb_api_key
+from resources.extensions import valid_poster_extensions, tmdb_api_key
 
 
 class TMDBIDError(Exception):

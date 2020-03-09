@@ -4,12 +4,10 @@ import os
 import sys
 from log import getLogger
 from autoprocess import autoProcessTV, autoProcessMovie, autoProcessTVSR, sonarr, radarr
-from readSettings import ReadSettings
-from mkvtomp4 import MkvtoMp4
+from resources.readsettings import ReadSettings
+from resources.mediaprocessor import MediaProcessor
 from deluge_client import DelugeRPCClient
-import logging
 import shutil
-from logging.config import fileConfig
 
 log = getLogger("DelugePostProcess")
 
@@ -88,7 +86,7 @@ try:
             except:
                 log.exception("Unable to make output directory %s." % settings.output_dir)
 
-        converter = MkvtoMp4(settings)
+        converter = MediaProcessor(settings)
 
         if len(files) < 1:
             log.error("No files provided by torrent")

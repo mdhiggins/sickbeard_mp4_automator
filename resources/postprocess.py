@@ -2,7 +2,8 @@ import os
 import logging
 import json
 from subprocess import Popen, PIPE
-from extensions import bad_post_files, bad_post_extensions
+from resources.extensions import bad_post_files, bad_post_extensions
+from resources.metadata import MediaType
 
 
 class PostProcessor:
@@ -26,7 +27,7 @@ class PostProcessor:
     def gather_scripts(self):
         self.log.debug("Gathering scripts.")
         current_directory = os.path.dirname(os.path.realpath(__file__))
-        post_process_directory = os.path.join(current_directory, 'post_process')
+        post_process_directory = os.path.join(current_directory, '../post_process')
         scripts = []
         for script in sorted(os.listdir(post_process_directory)):
             if os.path.splitext(script)[1] in bad_post_extensions or os.path.isdir(script) or script in bad_post_files:
@@ -36,6 +37,12 @@ class PostProcessor:
                 self.log.debug("Script added: %s." % script)
                 scripts.append(os.path.join(post_process_directory, script))
         return scripts
+
+    def setEnv(self, mediatype, tmdbid, season=None, episode=None):
+        if mediatype == MediaType.TV:
+            self.setTV(tmdbid, season, episode)
+        elif mediatype == MediaType.Movie:
+            self.setMovie(tmdbid)
 
     def setTV(self, tmdbid, season, episode):
         self.log.debug("Setting TV metadata.")

@@ -5,6 +5,12 @@ except ImportError:
     from urllib import urlopen
 import logging
 from xml.dom import minidom
+from resources.metadata import MediaType
+
+__MediaTypeSources = {
+    MediaType.Movie: 'movie',
+    MediaType.TV: 'show'
+}
 
 
 def refreshPlex(settings, source_type, logger=None):
@@ -22,6 +28,10 @@ def refreshPlex(settings, source_type, logger=None):
     log.debug("Token: %s." % token)
 
     approved_sources = ['movie', 'show']
+
+    if isinstance(source_type, MediaType):
+        source_type = __MediaTypeSources.get(source_type)
+
     if settings.Plex['refresh'] and source_type in approved_sources:
         base_url = 'http://%s:%s/library/sections' % (host, port)
         refresh_url = '%s/%%s/refresh' % base_url
@@ -51,6 +61,7 @@ def refreshPlex(settings, source_type, logger=None):
                 log.error("Unable to refresh plex https, check your settings.")
         except Exception:
             log.exception("Unable to refresh plex, check your settings.")
+
 
 def refresh(base_url, refresh_url, source_type, ctx=None):
     xml_sections = minidom.parse(urlopen(base_url, context=ctx))

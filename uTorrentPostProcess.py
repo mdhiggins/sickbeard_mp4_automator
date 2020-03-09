@@ -4,10 +4,8 @@ import sys
 import shutil
 from log import getLogger
 from autoprocess import autoProcessTV, autoProcessMovie, autoProcessTVSR, sonarr, radarr
-from readSettings import ReadSettings
-from mkvtomp4 import MkvtoMp4
-import logging
-from logging.config import fileConfig
+from resources.readsettings import ReadSettings
+from resources.mediaprocessor import MediaProcessor
 
 log = getLogger("uTorrentPostProcess")
 
@@ -141,7 +139,7 @@ if settings.uTorrent['convert']:
             except:
                 log.exception("Error creating output sub directory.")
 
-    converter = MkvtoMp4(settings)
+    converter = MediaProcessor(settings)
 
     if kind == 'single':
         inputfile = os.path.join(path, filename)

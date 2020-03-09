@@ -9,15 +9,14 @@ import argparse
 import struct
 import enum
 import logging
-from log import getLogger
-from readSettings import ReadSettings
-from mkvtomp4 import MkvtoMp4
-from metadata import Metadata, MediaType
-from post_processor import PostProcessor
 import tmdbsimple as tmdb
-from extensions import tmdb_api_key
+from resources.log import getLogger
+from resources.readsettings import ReadSettings
+from resources.mediaprocessor import MediaProcessor
+from resources.metadata import Metadata, MediaType
+from resources.postprocess import PostProcessor
+from resources.extensions import tmdb_api_key
 from logging.config import fileConfig
-import traceback
 
 if sys.version[0] == "3":
     raw_input = input
@@ -238,20 +237,20 @@ def processFile(inputfile, tagdata, converter, info=None, relativePath=None):
             converter.QTFS(output['output'])
         output_files = converter.replicate(output['output'], relativePath=relativePath)
         if settings.postprocess:
-            post_processor = PostProcessor(output_files)
+            postprocessor = PostProcessor(output_files)
             if tagdata:
                 if tagdata.mediatype == MediaType.Movie:
-                    post_processor.setMovie(tagdata.tmdbid)
+                    postprocessor.setMovie(tagdata.tmdbid)
                 elif tagdata.mediatype == MediaType.TV:
-                    post_processor.setTV(tagdata.tmdbid, tagdata.season, tagdata.episode)
-            post_processor.run_scripts()
+                    postprocessor.setTV(tagdata.tmdbid, tagdata.season, tagdata.episode)
+            postprocessor.run_scripts()
     else:
         log.error("There was an error processing file %s, no output data received" % inputfile)
 
 
 def walkDir(dir, silent=False, preserveRelative=False, tmdbid=None, imdbid=None, tvdbid=None, tag=True, optionsOnly=False):
     files = []
-    converter = MkvtoMp4(settings, logger=log)
+    converter = MediaProcessor(settings, logger=log)
     for r, d, f in os.walk(dir):
         for file in f:
             files.append(os.path.join(r, file))
@@ -274,7 +273,7 @@ def walkDir(dir, silent=False, preserveRelative=False, tmdbid=None, imdbid=None,
 
 
 def displayOptions(path):
-    converter = MkvtoMp4(settings)
+    converter = MediaProcessor(settings)
     log.info(converter.jsonDump(path))
 
 
@@ -344,7 +343,7 @@ def main():
         settings.postprocess = False
         print("No post processing enabled")
     if (args['optionsonly']):
-        logging.getLogger("mkvtomp4").setLevel(logging.CRITICAL)
+        logging.getLogger("mediaprocessor").setLevel(logging.CRITICAL)
         print("Options only mode enabled")
 
     # Establish the path we will be working with
@@ -360,7 +359,7 @@ def main():
     if os.path.isdir(path):
         walkDir(path, silent=silent, tmdbid=args.get('tmdbid'), tvdbid=args.get('tvdbid'), imdbid=args.get('imdbid'), preserveRelative=args['preserverelative'], tag=settings.tagfile, optionsOnly=args['optionsonly'])
     elif (os.path.isfile(path)):
-        converter = MkvtoMp4(settings, logger=log)
+        converter = MediaProcessor(settings, logger=log)
         info = converter.isValidSource(path)
         if info:
             if (args['optionsonly']):

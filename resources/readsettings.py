@@ -11,7 +11,7 @@ try:
 except ImportError:
     pass
 import logging
-from extensions import *
+from resources.extensions import *
 
 
 class SMAConfigParser(configparser.SafeConfigParser):

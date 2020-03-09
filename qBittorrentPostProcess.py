@@ -6,10 +6,8 @@ import sys
 import shutil
 from log import getLogger
 from autoprocess import autoProcessTV, autoProcessMovie, autoProcessTVSR, sonarr, radarr
-from readSettings import ReadSettings
-from mkvtomp4 import MkvtoMp4
-import logging
-from logging.config import fileConfig
+from resources.readsettings import ReadSettings
+from resources.mediaprocessor import MediaProcessor
 
 
 def getHost(host='localhost', port=8080, ssl=False):
@@ -93,7 +91,7 @@ if settings.qBittorrent['convert']:
         except:
             log.exception("Unable to make output directory %s." % settings.output_dir)
 
-    converter = MkvtoMp4(settings)
+    converter = MediaProcessor(settings)
 
     if single_file:
         # single file

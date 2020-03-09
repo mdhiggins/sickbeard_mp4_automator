@@ -12,11 +12,11 @@ def getLogger(name=None, custompath=None):
 
     logpath = '/var/log/sickbeard_mp4_automator'
 
-    rootpath = os.path.realpath(sys.argv[0])
+    rootpath = os.path.join(os.path.realpath(__file__))
     rootpath = os.path.dirname(rootpath)
 
     if os.name == 'nt':
-        logpath = custompath if custompath else rootpath
+        logpath = custompath if custompath else os.path.join(rootpath, "../")
     elif not os.path.isdir(logpath):
         try:
             os.mkdir(logpath)
