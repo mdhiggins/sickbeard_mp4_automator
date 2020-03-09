@@ -2,8 +2,8 @@
 
 import os
 import sys
-from log import getLogger
 from autoprocess import autoProcessTV, autoProcessMovie, autoProcessTVSR, sonarr, radarr
+from resources.log import getLogger
 from resources.readsettings import ReadSettings
 from resources.mediaprocessor import MediaProcessor
 

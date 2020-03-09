@@ -16,7 +16,6 @@ from resources.mediaprocessor import MediaProcessor
 from resources.metadata import Metadata, MediaType
 from resources.postprocess import PostProcessor
 from resources.extensions import tmdb_api_key
-from logging.config import fileConfig
 
 if sys.version[0] == "3":
     raw_input = input
