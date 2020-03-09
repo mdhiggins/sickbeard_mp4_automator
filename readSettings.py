@@ -109,7 +109,7 @@ class ReadSettings:
             'crf-profiles': '',
             'max-width': 0,
             'profile': '',
-            'max-level': 0,
+            'max-level': 0.0,
             'pix-fmt': '',
         },
         'Audio': {
