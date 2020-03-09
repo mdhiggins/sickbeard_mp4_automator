@@ -1,0 +1,15 @@
+setuptools
+requests
+requests[security]
+requests-cache
+babelfish
+tmdbsimple
+mutagen
+guessit
+subliminal
+stevedore #(this will be automatically installed with subliminal)
+python-dateutil #(this will be automatically installed with subliminal)
+qtfaststart
+#deluge-client #optional
+#gevent #optional
+#python-qbittorrent #optional
