@@ -117,6 +117,8 @@ try:
                 log.error("Your Sonarr API Key can not be blank. Update autoProcess.ini.")
         except:
             log.exception("Sonarr monitor status update failed.")
+    else:
+        log.info("Processing returned False.")
 except:
     log.exception("Error processing file")
     sys.exit(1)

@@ -30,7 +30,7 @@ log.debug("Original name: %s." % original)
 log.debug("IMDB ID: %s." % imdbid)
 
 try:
-    success = converter.fullprocess(inputfile, MediaType.Movie, original=original, imdbid=imdbid)
+    success = converter.fullprocess(inputfile, MediaType.Movie, original=original, imdbid=imdbid, logger=log)
 
     if success:
         # Update Radarr to continue monitored status
@@ -107,6 +107,8 @@ try:
                 log.error("Your Radarr API Key can not be blank. Update autoProcess.ini.")
         except:
             log.exception("Radarr monitor status update failed.")
+    else:
+        log.info("Processing returned False.")
 except:
     log.exception("Error processing file")
     sys.exit(1)
