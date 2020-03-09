@@ -54,10 +54,10 @@ class MediaProcessor:
 
                     # QTFS
                     if self.settings.relocate_moov:
-                        converter.QTFS(output['output'])
+                        self.QTFS(output['output'])
 
                     # Copy to additional locations
-                    output_files = converter.replicate(output['output'])
+                    output_files = self.replicate(output['output'])
 
                     # Run any post process scripts
                     if self.settings.postprocess:
