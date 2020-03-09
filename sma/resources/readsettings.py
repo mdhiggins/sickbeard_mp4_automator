@@ -445,14 +445,18 @@ class ReadSettings:
 
         self.log.info(sys.executable)
 
-        defaultConfigFile = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), "autoProcess.ini")
+        defaultConfigFile = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../config/autoProcess.ini"))
+        oldConfigFile = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../autoProcess.ini"))
         envConfigFile = os.environ.get("SMA_CONFIG")
 
         if envConfigFile and os.path.exists(os.path.realpath(envConfigFile)):
             configFile = os.path.realpath(envConfigFile)
             self.log.debug("SMACONFIG environment variable override found.")
         elif not configFile:
-            configFile = defaultConfigFile
+            if not os.path.exists(defaultConfigFile) and os.path.exists(oldConfigFile):
+                configFile = oldConfigFile
+            else:
+                configFile = defaultConfigFile
             self.log.debug("Loading default config file.")
 
         if os.path.isdir(configFile):
