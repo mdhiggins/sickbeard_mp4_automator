@@ -45,7 +45,7 @@ Two official Docker containers are maintained for Radarr and Sonarr with SMA inc
 General Configuration
 --------------
 1. Download or compile FFmpeg 
-2. Rename autoProcess.ini.sample to autoProcess.ini (or attempt to run the script which will generate a new config file if absent)
+2. Rename autoProcess.ini.sample to autoProcess.ini inside your `config` directory (or attempt to run the script which will generate a new config file if absent)
 3. Set the [configuration options](https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/autoProcess-Settings) to your desired output and include the path of your new FFmpeg / FFprobe binaries
 4. Run [manual.py](#manual-script-usage) and test out a conversion
 5. Configure direct integration using the instructions below
@@ -82,16 +82,16 @@ Radarr Setup
 Sickbeard Setup
 --------------
 1. Open Sickbeard's config.ini in Sick Beard installation folder
-    - Set "extra_scripts" value in the general section to the full path to "python postConversion.py" using double backslashes
-        - Example: `C:\\Python27\\python C:\\Scripts\\postConversion.py`
+    - Set "extra_scripts" value in the general section to the full path to "python postSickbeard.py" using double backslashes
+        - Example: `C:\\Python27\\python C:\\Scripts\\postSickbeard.py`
         - Make sure this is done while Sick Beard is not running or it will be reverted
 2. Set your [SickBeard settings](https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/autoProcess-Settings#sickbeard) in autoProcess.ini
 
 SickRage Setup
 --------------
 1. Open the configuration page in Sickrage and scroll down to the option labelled "Extra Scripts". Here enter the path to python followed by the full script path. Examples:
-    - `C:\\Python27\\python.exe C:\\sickbeard_mp4_automator\\postConversion.py`
-    - `/usr/bin/python /home/user/sickbeard_mp4_automator/postConversion.py`
+    - `C:\\Python27\\python.exe C:\\sickbeard_mp4_automator\\postSickbeard.py`
+    - `/usr/bin/python /home/user/sickbeard_mp4_automator/postSickbeard.py`
 2. Set the [Sickrage settings](https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/autoProcess-Settings#sickrage) in autoProcess.ini
 
 CouchPotato Setup
