@@ -46,26 +46,26 @@ class MediaProcessor:
                     # Tag with metadata
                     try:
                         tag = Metadata(mediatype, tvdbid=tvdbid, tmdbid=tmbdid, imdbid=imdbid, season=season, episode=episode, original=original, language=language)
-                        if settings.tagfile:
+                        if self.settings.tagfile:
                             self.log.info("Tagging %s with TMDB ID %s." % (inputfile, tag.tmdbid))
-                            tag.writeTags(output['output'], settings.artwork, settings.thumbnail, output['x'], output['y'])
+                            tag.writeTags(output['output'], self.settings.artwork, self.settings.thumbnail, output['x'], output['y'])
                     except:
                         self.log.exception("Unable to tag file")
 
                     # QTFS
-                    if settings.relocate_moov:
+                    if self.settings.relocate_moov:
                         converter.QTFS(output['output'])
 
                     # Copy to additional locations
                     output_files = converter.replicate(output['output'])
 
                     # Run any post process scripts
-                    if settings.postprocess:
+                    if self.settings.postprocess:
                         postprocessor = PostProcessor(output_files, self.log)
                         postprocessor.setEnv(mediatype, tag.tmdbid, season, episode)
                         postprocessor.run_scripts()
 
-                    plex.refreshPlex(settings, mediatype, self.log)
+                    plex.refreshPlex(self.settings, mediatype, self.log)
                     return True
             else:
                 self.log.info("File %s is not valid" % inputfile)
