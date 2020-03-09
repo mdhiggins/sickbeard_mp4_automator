@@ -47,10 +47,10 @@ class MediaProcessor:
                     try:
                         tag = Metadata(mediatype, tvdbid=tvdbid, tmdbid=tmbdid, imdbid=imdbid, season=season, episode=episode, original=original, language=language)
                         if settings.tagfile:
-                            log.info("Tagging %s with TMDB ID %s." % (inputfile, tag.tmdbid))
+                            self.log.info("Tagging %s with TMDB ID %s." % (inputfile, tag.tmdbid))
                             tag.writeTags(output['output'], settings.artwork, settings.thumbnail, output['x'], output['y'])
                     except:
-                        log.exception("Unable to tag file")
+                        self.log.exception("Unable to tag file")
 
                     # QTFS
                     if settings.relocate_moov:
