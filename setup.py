@@ -28,7 +28,7 @@ setuptools.setup(
         "Topic :: Multimedia :: Video :: Conversion",
     ],
     install_requires=[
-        'requests'
+        'requests',
         'requests[security]',
         'requests-cache',
         'babelfish',
