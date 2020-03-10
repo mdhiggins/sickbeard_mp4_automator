@@ -212,9 +212,9 @@ def tvInfo(guessData, tmdbid=None, tvdbid=None, imdbid=None, season=None, episod
     return metadata
 
 
-def processFile(inputfile, tagdata, converter, info=None, relativePath=None):
+def processFile(inputfile, tagdata, mp, info=None, relativePath=None):
     # Process
-    info = info or converter.isValidSource(inputfile)
+    info = info or mp.isValidSource(inputfile)
     if not info:
         log.debug("Invalid file %s." % inputfile)
         return
@@ -225,7 +225,7 @@ def processFile(inputfile, tagdata, converter, info=None, relativePath=None):
     elif tagdata.mediatype == MediaType.TV:
         log.info("Processing %s Season %02d Episode %02d - %s" % (tagdata.showname, int(tagdata.season), int(tagdata.episode), tagdata.title))
 
-    output = converter.process(inputfile, True)
+    output = mp.process(inputfile, True)
     if output:
         if tagdata:
             try:
@@ -233,8 +233,8 @@ def processFile(inputfile, tagdata, converter, info=None, relativePath=None):
             except:
                 log.exception("There was an error tagging the file")
         if settings.relocate_moov:
-            converter.QTFS(output['output'])
-        output_files = converter.replicate(output['output'], relativePath=relativePath)
+            mp.QTFS(output['output'])
+        output_files = mp.replicate(output['output'], relativePath=relativePath)
         if settings.postprocess:
             postprocessor = PostProcessor(output_files)
             if tagdata:
@@ -249,12 +249,12 @@ def processFile(inputfile, tagdata, converter, info=None, relativePath=None):
 
 def walkDir(dir, silent=False, preserveRelative=False, tmdbid=None, imdbid=None, tvdbid=None, tag=True, optionsOnly=False):
     files = []
-    converter = MediaProcessor(settings, logger=log)
+    mp = MediaProcessor(settings, logger=log)
     for r, d, f in os.walk(dir):
         for file in f:
             files.append(os.path.join(r, file))
     for filepath in files:
-        info = converter.isValidSource(filepath)
+        info = mp.isValidSource(filepath)
         if info:
             log.info("Processing file %s" % (filepath))
             relative = os.path.split(os.path.relpath(filepath, dir))[0] if preserveRelative else None
@@ -264,16 +264,16 @@ def walkDir(dir, silent=False, preserveRelative=False, tmdbid=None, imdbid=None,
             if tag:
                 try:
                     tagdata = getInfo(filepath, silent, tmdbid=tmdbid, tvdbid=tvdbid, imdbid=imdbid)
-                    processFile(filepath, tagdata, converter, info=info, relativePath=relative)
+                    processFile(filepath, tagdata, mp, info=info, relativePath=relative)
                 except SkipFileException:
                     log.debug("Skipping file %s." % filepath)
             else:
-                processFile(filepath, None, converter, info=info, relativePath=relative)
+                processFile(filepath, None, mp, info=info, relativePath=relative)
 
 
 def displayOptions(path):
-    converter = MediaProcessor(settings)
-    log.info(converter.jsonDump(path))
+    mp = MediaProcessor(settings)
+    log.info(mp.jsonDump(path))
 
 
 def main():
@@ -308,11 +308,10 @@ def main():
     print("Guessit version: %s." % guessit.__version__)
 
     # Settings overrides
-    if(args['config']):
-        if os.path.exists(args['config']):
-            settings = ReadSettings(args['config'], logger=log)
-        elif os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), args['config'])):
-            settings = ReadSettings(os.path.join(os.path.dirname(sys.argv[0]), args['config']), logger=log)
+    if args['config'] and os.path.exists(args['config']):
+        settings = ReadSettings(args['config'], logger=log)
+    elif args['config'] and os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), args['config'])):
+        settings = ReadSettings(os.path.join(os.path.dirname(sys.argv[0]), args['config']), logger=log)
     else:
         settings = ReadSettings(logger=log)
     if (args['nomove']):
@@ -358,18 +357,18 @@ def main():
     if os.path.isdir(path):
         walkDir(path, silent=silent, tmdbid=args.get('tmdbid'), tvdbid=args.get('tvdbid'), imdbid=args.get('imdbid'), preserveRelative=args['preserverelative'], tag=settings.tagfile, optionsOnly=args['optionsonly'])
     elif (os.path.isfile(path)):
-        converter = MediaProcessor(settings, logger=log)
-        info = converter.isValidSource(path)
+        mp = MediaProcessor(settings, logger=log)
+        info = mp.isValidSource(path)
         if info:
             if (args['optionsonly']):
                 displayOptions(path)
                 return
             if not settings.tagfile:
-                processFile(path, None, converter, info=info)
+                processFile(path, None, mp, info=info)
             else:
                 try:
                     tagdata = getInfo(path, silent=silent, tmdbid=args.get('tmdbid'), tvdbid=args.get('tvdbid'), imdbid=args.get('imdbid'), season=args.get('season'), episode=args.get('episode'))
-                    processFile(path, tagdata, converter, info=info)
+                    processFile(path, tagdata, mp, info=info)
                 except SkipFileException:
                     log.debug("Skipping file %s" % path)
 

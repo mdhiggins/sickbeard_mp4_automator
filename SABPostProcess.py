@@ -50,15 +50,15 @@ if settings.SAB['convert']:
         settings.output_dir = settings.SAB['output_dir']
         log.debug("Overriding output_dir to %s." % settings.SAB['output_dir'])
 
-    converter = MediaProcessor(settings)
+    mp = MediaProcessor(settings, logger=log)
     for r, d, f in os.walk(path):
         for files in f:
             inputfile = os.path.join(r, files)
-            info = converter.isValidSource(inputfile)
+            info = mp.isValidSource(inputfile)
             if info:
                 log.info("Processing file %s." % inputfile)
                 try:
-                    output = converter.process(inputfile, info=info)
+                    output = mp.process(inputfile, info=info)
                 except:
                     log.exception("Error converting file %s." % inputfile)
             else:

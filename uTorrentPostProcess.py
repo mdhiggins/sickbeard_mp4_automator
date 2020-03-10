@@ -139,15 +139,15 @@ if settings.uTorrent['convert']:
             except:
                 log.exception("Error creating output sub directory.")
 
-    converter = MediaProcessor(settings)
+    mp = MediaProcessor(settings, logger=log)
 
     if kind == 'single':
         inputfile = os.path.join(path, filename)
-        info = converter.isValidSource(inputfile)
+        info = mp.isValidSource(inputfile)
         if info:
             log.info("Processing file %s." % inputfile)
             try:
-                output = converter.process(inputfile, reportProgress=True, info=info)
+                output = mp.process(inputfile, reportProgress=True, info=info)
             except:
                 log.exception("Error converting file %s." % inputfile)
         else:
@@ -158,11 +158,11 @@ if settings.uTorrent['convert']:
         for r, d, f in os.walk(path):
             for files in f:
                 inputfile = os.path.join(r, files)
-                info = converter.isValidSource(inputfile)
+                info = mp.isValidSource(inputfile)
                 if info and inputfile not in ignore:
                     log.info("Processing file %s." % inputfile)
                     try:
-                        output = converter.process(inputfile, info=info)
+                        output = mp.process(inputfile, info=info)
                         if output is not False:
                             ignore.append(output['output'])
                         else:

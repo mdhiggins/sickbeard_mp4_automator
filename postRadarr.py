@@ -23,14 +23,14 @@ inputfile = os.environ.get('radarr_moviefile_path')
 original = os.environ.get('radarr_moviefile_scenename')
 imdbid = os.environ.get('radarr_movie_imdbid')
 
-converter = MediaProcessor(settings, logger=log)
+mp = MediaProcessor(settings, logger=log)
 
 log.debug("Input file: %s." % inputfile)
 log.debug("Original name: %s." % original)
 log.debug("IMDB ID: %s." % imdbid)
 
 try:
-    success = converter.fullprocess(inputfile, MediaType.Movie, original=original, imdbid=imdbid)
+    success = mp.fullprocess(inputfile, MediaType.Movie, original=original, imdbid=imdbid)
 
     if success:
         # Update Radarr to continue monitored status

@@ -86,18 +86,18 @@ try:
             except:
                 log.exception("Unable to make output directory %s." % settings.output_dir)
 
-        converter = MediaProcessor(settings)
+        mp = MediaProcessor(settings, logger=log)
 
         if len(files) < 1:
             log.error("No files provided by torrent")
 
         for filename in files:
             inputfile = os.path.join(path, filename)
-            info = converter.isValidSource(inputfile)
+            info = mp.isValidSource(inputfile)
             if info:
                 log.info("Converting file %s at location %s." % (inputfile, settings.output_dir))
                 try:
-                    output = converter.process(inputfile, info=info)
+                    output = mp.process(inputfile, info=info)
                 except:
                     log.exception("Error converting file %s." % inputfile)
 

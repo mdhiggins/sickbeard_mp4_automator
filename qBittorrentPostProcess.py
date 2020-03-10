@@ -91,16 +91,16 @@ if settings.qBittorrent['convert']:
         except:
             log.exception("Unable to make output directory %s." % settings.output_dir)
 
-    converter = MediaProcessor(settings)
+    mp = MediaProcessor(settings, logger=log)
 
     if single_file:
         # single file
         inputfile = content_path
-        info = converter.isValidSource(inputfile)
+        info = mp.isValidSource(inputfile)
         if info:
             log.info("Processing file %s." % inputfile)
             try:
-                output = converter.process(inputfile, reportProgress=True, info=info)
+                output = mp.process(inputfile, reportProgress=True, info=info)
             except:
                 log.exception("Error converting file %s." % inputfile)
         else:
@@ -111,11 +111,11 @@ if settings.qBittorrent['convert']:
         for r, d, f in os.walk(root_path):
             for files in f:
                 inputfile = os.path.join(r, files)
-                info = converter.isValidSource(inputfile)
+                info = mp.isValidSource(inputfile)
                 if info and inputfile not in ignore:
                     log.info("Processing file %s." % inputfile)
                     try:
-                        output = converter.process(inputfile, info=info)
+                        output = mp.process(inputfile, info=info)
                         if output is not False:
                             ignore.append(output['output'])
                         else:

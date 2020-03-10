@@ -13,7 +13,7 @@ log = getLogger("CouchPotatoPostProcess")
 log.info('MP4 Automator - Post processing script initialized')
 
 settings = ReadSettings()
-converter = MediaProcessor(settings)
+mp = MediaProcessor(settings)
 
 imdbid = sys.argv[1]
 inputfile = sys.argv[2]
@@ -23,4 +23,8 @@ log.debug("IMDBID: %s." % imdbid)
 log.debug("Input file path: %s." % inputfile)
 log.debug("Original file name: %s." % original)
 
-success = converter.fullprocess(inputfile, MediaType.Movie, imdbid=imdbid, original=original)
+try:
+    success = mp.fullprocess(inputfile, MediaType.Movie, imdbid=imdbid, original=original)
+    log.warning("Processor returned %s." % success)
+except:
+    log.exception("Exception occurred")

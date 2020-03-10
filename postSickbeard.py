@@ -22,14 +22,14 @@ if len(sys.argv) > 4:
     season = int(sys.argv[4])
     episode = int(sys.argv[5])
 
-    converter = MediaProcessor(settings)
-
     log.debug("Input file: %s." % inputfile)
     log.debug("Original name: %s." % original)
     log.debug("TVDB ID: %s." % tvdb_id)
     log.debug("Season: %s episode: %s." % (season, episode))
 
-    success = converter.fullprocess(inputfile, MediaType.TV, tvdbid=tvdb_id, season=season, episode=episode, original=original)
+    mp = MediaProcessor(settings, logger=log)
+
+    success = mp.fullprocess(inputfile, MediaType.TV, tvdbid=tvdb_id, season=season, episode=episode, original=original)
     if success:
         try:
             protocol = "https://" if settings.Sickbeard['ssl'] else "http://"

@@ -27,7 +27,7 @@ try:
 except:
     episode = int(os.environ.get('sonarr_episodefile_episodenumbers').split(",")[0])
 
-converter = MediaProcessor(settings, logger=log)
+mp = MediaProcessor(settings, logger=log)
 
 log.debug("Input file: %s." % inputfile)
 log.debug("Original name: %s." % original)
@@ -35,7 +35,7 @@ log.debug("TVDB ID: %s." % tvdb_id)
 log.debug("Season: %s episode: %s." % (season, episode))
 
 try:
-    success = converter.fullprocess(inputfile, MediaType.TV, tvdbid=tvdb_id, season=season, episode=episode, original=original)
+    success = mp.fullprocess(inputfile, MediaType.TV, tvdbid=tvdb_id, season=season, episode=episode, original=original)
 
     if success:
         # Update Sonarr to continue monitored status
