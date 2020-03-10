@@ -52,186 +52,190 @@ if len(sys.argv) < 6:
     log.error("#Args: %L %T %D %K %F %I %N Label, Tracker, Directory, single|multi, NameofFile(if single), InfoHash, Name")
     log.error("Length was %s" % str(len(sys.argv)))
     log.error(str(sys.argv[1:]))
-    sys.exit()
-
-settings = ReadSettings()
-path = str(sys.argv[3])
-label = sys.argv[1].lower().strip()
-kind = sys.argv[4].lower().strip()
-filename = sys.argv[5].strip()
-categories = [settings.uTorrent['cp'], settings.uTorrent['sb'], settings.uTorrent['sonarr'], settings.uTorrent['radarr'], settings.uTorrent['sr'], settings.uTorrent['bypass']]
-torrent_hash = sys.argv[6]
-try:
-    name = sys.argv[7]
-except:
-    name = sys.argv[6]
-
-log.debug("Path: %s." % path)
-log.debug("Label: %s." % label)
-log.debug("Categories: %s." % categories)
-log.debug("Torrent hash: %s." % torrent_hash)
-log.debug("Torrent name: %s." % name)
-log.debug("Kind: %s." % kind)
-log.debug("Filename: %s." % filename)
-
-if label not in categories:
-    log.error("No valid label detected.")
-    sys.exit()
-
-if len(categories) != len(set(categories)):
-    log.error("Duplicate category detected. Category names must be unique.")
-    sys.exit()
-
-# Import requests
-try:
-    import requests
-except ImportError:
-    log.exception("Python module REQUESTS is required. Install with 'pip install requests' then try again.")
-    sys.exit()
+    sys.exit(1)
 
 try:
-    web_ui = settings.uTorrent['webui']
-    log.debug("WebUI is true.")
-except:
-    log.debug("WebUI is false.")
-    web_ui = False
+    settings = ReadSettings()
+    path = str(sys.argv[3])
+    label = sys.argv[1].lower().strip()
+    kind = sys.argv[4].lower().strip()
+    filename = sys.argv[5].strip()
+    categories = [settings.uTorrent['cp'], settings.uTorrent['sb'], settings.uTorrent['sonarr'], settings.uTorrent['radarr'], settings.uTorrent['sr'], settings.uTorrent['bypass']]
+    torrent_hash = sys.argv[6]
+    try:
+        name = sys.argv[7]
+    except:
+        name = sys.argv[6]
 
-delete_dir = False
-host = getHost(settings.uTorrent['host'], settings.uTorrent['port'], settings.uTorrent['ssl'])
+    log.debug("Path: %s." % path)
+    log.debug("Label: %s." % label)
+    log.debug("Categories: %s." % categories)
+    log.debug("Torrent hash: %s." % torrent_hash)
+    log.debug("Torrent name: %s." % name)
+    log.debug("Kind: %s." % kind)
+    log.debug("Filename: %s." % filename)
 
-# Run a uTorrent action before conversion.
-if web_ui:
-    session = requests.Session()
-    if session:
-        auth, session = _authToken(session, host, settings.uTorrent['username'], settings.uTorrent['password'])
-        if auth and settings.uTorrent['action-before']:
-            params = {'token': auth, 'action': settings.uTorrent['action-before'], 'hash': torrent_hash}
-            _sendRequest(session, host, settings.uTorrent['username'], settings.uTorrent['password'], params, None, "Before Function")
-            log.debug("Sending action %s to uTorrent" % settings.uTorrent['action-before'])
+    if label not in categories:
+        log.error("No valid label detected.")
+        sys.exit(1)
 
-if settings.uTorrent['convert']:
-    # Check for custom uTorrent output_dir
-    if settings.uTorrent['output_dir']:
-        settings.output_dir = settings.uTorrent['output_dir']
-        log.debug("Overriding output_dir to %s." % settings.uTorrent['output_dir'])
+    if len(categories) != len(set(categories)):
+        log.error("Duplicate category detected. Category names must be unique.")
+        sys.exit(1)
 
-    # Perform conversion.
-    log.info("Performing conversion")
-    settings.delete = False
-    if not settings.output_dir:
-        suffix = "convert"
+    # Import requests
+    try:
+        import requests
+    except ImportError:
+        log.exception("Python module REQUESTS is required. Install with 'pip install requests' then try again.")
+        sys.exit(1)
+
+    try:
+        web_ui = settings.uTorrent['webui']
+        log.debug("WebUI is true.")
+    except:
+        log.debug("WebUI is false.")
+        web_ui = False
+
+    delete_dir = False
+    host = getHost(settings.uTorrent['host'], settings.uTorrent['port'], settings.uTorrent['ssl'])
+
+    # Run a uTorrent action before conversion.
+    if web_ui:
+        session = requests.Session()
+        if session:
+            auth, session = _authToken(session, host, settings.uTorrent['username'], settings.uTorrent['password'])
+            if auth and settings.uTorrent['actionbefore']:
+                params = {'token': auth, 'action': settings.uTorrent['actionbefore'], 'hash': torrent_hash}
+                _sendRequest(session, host, settings.uTorrent['username'], settings.uTorrent['password'], params, None, "Before Function")
+                log.debug("Sending action %s to uTorrent" % settings.uTorrent['actionbefore'])
+
+    if settings.uTorrent['convert']:
+        # Check for custom uTorrent output_dir
+        if settings.uTorrent['output_dir']:
+            settings.output_dir = settings.uTorrent['output_dir']
+            log.debug("Overriding output_dir to %s." % settings.uTorrent['output_dir'])
+
+        # Perform conversion.
+        log.info("Performing conversion")
+        settings.delete = False
+        if not settings.output_dir:
+            suffix = "convert"
+            if kind == 'single':
+                log.info("Single File Torrent")
+                settings.output_dir = os.path.join(path, ("%s-%s" % (name, suffix)))
+            else:
+                log.info("Multi File Torrent")
+                settings.output_dir = os.path.abspath(os.path.join(path, '..', ("%s-%s" % (name, suffix))))
+            if not os.path.exists(settings.output_dir):
+                try:
+                    os.mkdir(settings.output_dir)
+                except:
+                    log.exception("Error creating output directory.")
+        else:
+            settings.output_dir = os.path.abspath(os.path.join(settings.output_dir, name))
+            if not os.path.exists(settings.output_dir):
+                try:
+                    os.makedirs(settings.output_dir)
+                except:
+                    log.exception("Error creating output sub directory.")
+
+        mp = MediaProcessor(settings, logger=log)
+
+        if kind == 'single':
+            inputfile = os.path.join(path, filename)
+            info = mp.isValidSource(inputfile)
+            if info:
+                log.info("Processing file %s." % inputfile)
+                try:
+                    output = mp.process(inputfile, info=info)
+                except:
+                    log.exception("Error converting file %s." % inputfile)
+            else:
+                log.debug("Ignoring file %s." % inputfile)
+        else:
+            log.debug("Processing multiple files.")
+            ignore = []
+            for r, d, f in os.walk(path):
+                for files in f:
+                    inputfile = os.path.join(r, files)
+                    info = mp.isValidSource(inputfile)
+                    if info and inputfile not in ignore:
+                        log.info("Processing file %s." % inputfile)
+                        try:
+                            output = mp.process(inputfile, info=info)
+                            if output is not False:
+                                ignore.append(output['output'])
+                            else:
+                                log.error("Converting file failed %s." % inputfile)
+                        except:
+                            log.exception("Error converting file %s." % inputfile)
+                    else:
+                        log.debug("Ignoring file %s." % inputfile)
+        path = settings.output_dir
+        delete_dir = settings.output_dir
+    else:
+        suffix = "copy"
+        # name = name[:260-len(suffix)]
         if kind == 'single':
             log.info("Single File Torrent")
-            settings.output_dir = os.path.join(path, ("%s-%s" % (name, suffix)))
+            newpath = os.path.join(path, ("%s-%s" % (name, suffix)))
         else:
             log.info("Multi File Torrent")
-            settings.output_dir = os.path.abspath(os.path.join(path, '..', ("%s-%s" % (name, suffix))))
-        if not os.path.exists(settings.output_dir):
+            newpath = os.path.abspath(os.path.join(path, '..', ("%s-%s" % (name, suffix))))
+        if not os.path.exists(newpath):
             try:
-                os.mkdir(settings.output_dir)
+                os.mkdir(newpath)
+                log.debug("Creating temporary directory %s" % newpath)
             except:
-                log.exception("Error creating output directory.")
-    else:
-        settings.output_dir = os.path.abspath(os.path.join(settings.output_dir, name))
-        if not os.path.exists(settings.output_dir):
-            try:
-                os.makedirs(settings.output_dir)
-            except:
-                log.exception("Error creating output sub directory.")
-
-    mp = MediaProcessor(settings, logger=log)
-
-    if kind == 'single':
-        inputfile = os.path.join(path, filename)
-        info = mp.isValidSource(inputfile)
-        if info:
-            log.info("Processing file %s." % inputfile)
-            try:
-                output = mp.process(inputfile, reportProgress=True, info=info)
-            except:
-                log.exception("Error converting file %s." % inputfile)
+                log.exception("Error creating temporary directory.")
+        if kind == 'single':
+            inputfile = os.path.join(path, filename)
+            shutil.copy(inputfile, newpath)
+            log.debug("Copying %s to %s" % (inputfile, newpath))
         else:
-            log.debug("Ignoring file %s." % inputfile)
-    else:
-        log.debug("Processing multiple files.")
-        ignore = []
-        for r, d, f in os.walk(path):
-            for files in f:
-                inputfile = os.path.join(r, files)
-                info = mp.isValidSource(inputfile)
-                if info and inputfile not in ignore:
-                    log.info("Processing file %s." % inputfile)
-                    try:
-                        output = mp.process(inputfile, info=info)
-                        if output is not False:
-                            ignore.append(output['output'])
-                        else:
-                            log.error("Converting file failed %s." % inputfile)
-                    except:
-                        log.exception("Error converting file %s." % inputfile)
-                else:
-                    log.debug("Ignoring file %s." % inputfile)
-    path = settings.output_dir
-    delete_dir = settings.output_dir
-else:
-    suffix = "copy"
-    # name = name[:260-len(suffix)]
-    if kind == 'single':
-        log.info("Single File Torrent")
-        newpath = os.path.join(path, ("%s-%s" % (name, suffix)))
-    else:
-        log.info("Multi File Torrent")
-        newpath = os.path.abspath(os.path.join(path, '..', ("%s-%s" % (name, suffix))))
-    if not os.path.exists(newpath):
-        try:
-            os.mkdir(newpath)
-            log.debug("Creating temporary directory %s" % newpath)
-        except:
-            log.exception("Error creating temporary directory.")
-    if kind == 'single':
-        inputfile = os.path.join(path, filename)
-        shutil.copy(inputfile, newpath)
-        log.debug("Copying %s to %s" % (inputfile, newpath))
-    else:
-        for r, d, f in os.walk(path):
-            for files in f:
-                inputfile = os.path.join(r, files)
-                shutil.copy(inputfile, newpath)
-                log.debug("Copying %s to %s" % (inputfile, newpath))
-    path = newpath
-    delete_dir = newpath
+            for r, d, f in os.walk(path):
+                for files in f:
+                    inputfile = os.path.join(r, files)
+                    shutil.copy(inputfile, newpath)
+                    log.debug("Copying %s to %s" % (inputfile, newpath))
+        path = newpath
+        delete_dir = newpath
 
-if label == categories[0]:
-    log.info("Passing %s directory to Couch Potato." % path)
-    autoProcessMovie.process(path, settings)
-elif label == categories[1]:
-    log.info("Passing %s directory to Sickbeard." % path)
-    autoProcessTV.processEpisode(path, settings)
-elif label == categories[2]:
-    log.info("Passing %s directory to Sonarr." % path)
-    sonarr.processEpisode(path, settings)
-elif label == categories[3]:
-    log.info("Passing %s directory to Radarr." % path)
-    radarr.processMovie(path, settings)
-elif label == categories[4]:
-    log.info("Passing %s directory to Sickrage." % path)
-    autoProcessTVSR.processEpisode(path, settings)
-elif label == categories[5]:
-    log.info("Bypassing any further processing as per category.")
+    if label == categories[0]:
+        log.info("Passing %s directory to Couch Potato." % path)
+        autoProcessMovie.process(path, settings)
+    elif label == categories[1]:
+        log.info("Passing %s directory to Sickbeard." % path)
+        autoProcessTV.processEpisode(path, settings)
+    elif label == categories[2]:
+        log.info("Passing %s directory to Sonarr." % path)
+        sonarr.processEpisode(path, settings)
+    elif label == categories[3]:
+        log.info("Passing %s directory to Radarr." % path)
+        radarr.processMovie(path, settings)
+    elif label == categories[4]:
+        log.info("Passing %s directory to Sickrage." % path)
+        autoProcessTVSR.processEpisode(path, settings)
+    elif label == categories[5]:
+        log.info("Bypassing any further processing as per category.")
 
-# Run a uTorrent action after conversion.
-if web_ui:
-    if session and auth and settings.uTorrent['action-after']:
-        params = {'token': auth, 'action': settings.uTorrent['action-after'], 'hash': torrent_hash}
-        _sendRequest(session, host, settings.uTorrent['username'], settings.uTorrent['password'], params, None, "After Function")
-        log.debug("Sending action %s to uTorrent" % settings.uTorrent['action-after'])
+    # Run a uTorrent action after conversion.
+    if web_ui:
+        if session and auth and settings.uTorrent['actionafter']:
+            params = {'token': auth, 'action': settings.uTorrent['actionafter'], 'hash': torrent_hash}
+            _sendRequest(session, host, settings.uTorrent['username'], settings.uTorrent['password'], params, None, "After Function")
+            log.debug("Sending action %s to uTorrent" % settings.uTorrent['actionafter'])
 
-if delete_dir:
-    if os.path.exists(delete_dir):
-        try:
-            os.rmdir(delete_dir)
-            log.debug("Successfully removed tempoary directory %s." % delete_dir)
-        except:
-            log.exception("Unable to delete temporary directory")
+    if delete_dir:
+        if os.path.exists(delete_dir):
+            try:
+                os.rmdir(delete_dir)
+                log.debug("Successfully removed tempoary directory %s." % delete_dir)
+            except:
+                log.exception("Unable to delete temporary directory")
 
-sys.exit()
+    sys.exit(0)
+except:
+    log.exception("Unexpected exception.")
+    sys.exit(1)
