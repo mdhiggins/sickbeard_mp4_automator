@@ -3,8 +3,8 @@
 #############################
 autoProcess.ini
 update.py
-./*.sh
-./*.bat
+*.sh
+*.bat
 *.backup
 
 #################
