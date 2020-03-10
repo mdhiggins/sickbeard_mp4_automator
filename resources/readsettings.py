@@ -14,7 +14,7 @@ import logging
 from resources.extensions import *
 
 
-class SMAConfigParser(configparser.SafeConfigParser):
+class SMAConfigParser(configparser.SafeConfigParser, object):
     def getlist(self, section, option, vars=None, separator=",", default=[], lower=True, replace=[' ']):
         value = self.get(section, option, vars=vars)
 
@@ -64,6 +64,11 @@ class SMAConfigParser(configparser.SafeConfigParser):
         if extension == '':
             return None
         return extension
+
+    def getint(self, section, option, vars=None):
+        if sys.version[0] == '2':
+            return int(super(SMAConfigParser, self).get(section, option, vars=vars))
+        return super(SMAConfigParser, self).getint(section, option, vars=vars)
 
 
 class ReadSettings:
