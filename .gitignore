@@ -2,9 +2,9 @@
 ## sickbeard-mp4-automator
 #############################
 autoProcess.ini
-postSonarr.sh
-postRadarr.sh
 update.py
+./*.sh
+./*.bat
 *.backup
 
 #################
