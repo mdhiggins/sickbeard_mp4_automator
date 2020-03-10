@@ -10,9 +10,3 @@ python-dateutil
 stevedore
 qtfaststart
 
-[deluge]
-deluge-client
-gevent
-
-[qbittorrent]
-python-qbittorrent
