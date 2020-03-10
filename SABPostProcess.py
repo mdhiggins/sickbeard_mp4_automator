@@ -90,7 +90,6 @@ try:
     # Bypass
     elif (category == categories[5]):
         log.info("Bypassing any further processing as per category.")
-    sys.exit(0)
 except:
     log.exception("Unexpected exception.")
     sys.exit(1)
