@@ -12,19 +12,21 @@ log = getLogger("CouchPotatoPostProcess")
 
 log.info('MP4 Automator - Post processing script initialized')
 
-settings = ReadSettings()
-mp = MediaProcessor(settings)
-
-imdbid = sys.argv[1]
-inputfile = sys.argv[2]
-original = sys.argv[3]
-
-log.debug("IMDBID: %s." % imdbid)
-log.debug("Input file path: %s." % inputfile)
-log.debug("Original file name: %s." % original)
-
 try:
+    settings = ReadSettings()
+    mp = MediaProcessor(settings, logger=log)
+
+    imdbid = sys.argv[1]
+    inputfile = sys.argv[2]
+    original = sys.argv[3]
+
+    log.debug("IMDBID: %s." % imdbid)
+    log.debug("Input file path: %s." % inputfile)
+    log.debug("Original file name: %s." % original)
+
     success = mp.fullprocess(inputfile, MediaType.Movie, imdbid=imdbid, original=original)
-    log.warning("Processor returned %s." % success)
+    log.info("Processor returned %s." % success)
+    sys.exit(0)
 except:
-    log.exception("Exception occurred")
+    log.exception("Unexpected exception.")
+    sys.exit(1)

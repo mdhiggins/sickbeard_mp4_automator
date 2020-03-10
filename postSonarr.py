@@ -119,6 +119,7 @@ try:
             log.exception("Sonarr monitor status update failed.")
     else:
         log.info("Processing returned False.")
+        sys.exit(1)
 except:
     log.exception("Error processing file")
     sys.exit(1)

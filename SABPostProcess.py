@@ -13,7 +13,7 @@ log.info("SAB post processing started.")
 
 if len(sys.argv) < 8:
     log.error("Not enough command line parameters specified. Is this being called from SAB?")
-    sys.exit()
+    sys.exit(1)
 
 # SABnzbd argv:
 # 1 The final directory of the job (full path)
@@ -24,68 +24,73 @@ if len(sys.argv) < 8:
 # 6 Group that the NZB was posted in e.g. alt.binaries.x
 # 7 Status of post processing. 0 = OK, 1=failed verification, 2=failed unpack, 3=1+2
 
-settings = ReadSettings()
-categories = [settings.SAB['sb'], settings.SAB['cp'], settings.SAB['sonarr'], settings.SAB['radarr'], settings.SAB['sr'], settings.SAB['bypass']]
-category = str(sys.argv[5]).lower()
-path = str(sys.argv[1])
-nzb = str(sys.argv[2])
+try:
+    settings = ReadSettings()
+    categories = [settings.SAB['sb'], settings.SAB['cp'], settings.SAB['sonarr'], settings.SAB['radarr'], settings.SAB['sr'], settings.SAB['bypass']]
+    category = str(sys.argv[5]).lower()
+    path = str(sys.argv[1])
+    nzb = str(sys.argv[2])
 
-log.debug("Path: %s." % path)
-log.debug("Category: %s." % category)
-log.debug("Categories: %s." % categories)
-log.debug("NZB: %s." % nzb)
+    log.debug("Path: %s." % path)
+    log.debug("Category: %s." % category)
+    log.debug("Categories: %s." % categories)
+    log.debug("NZB: %s." % nzb)
 
-if category.lower() not in categories:
-    log.error("No valid category detected.")
-    sys.exit()
+    if category.lower() not in categories:
+        log.error("No valid category detected.")
+        sys.exit(1)
 
-if len(categories) != len(set(categories)):
-    log.error("Duplicate category detected. Category names must be unique.")
-    sys.exit()
+    if len(categories) != len(set(categories)):
+        log.error("Duplicate category detected. Category names must be unique.")
+        sys.exit(1)
 
-if settings.SAB['convert']:
-    log.info("Performing conversion")
-    # Check for custom uTorrent output_dir
-    if settings.SAB['output_dir']:
-        settings.output_dir = settings.SAB['output_dir']
-        log.debug("Overriding output_dir to %s." % settings.SAB['output_dir'])
+    if settings.SAB['convert']:
+        log.info("Performing conversion")
+        # Check for custom uTorrent output_dir
+        if settings.SAB['output_dir']:
+            settings.output_dir = settings.SAB['output_dir']
+            log.debug("Overriding output_dir to %s." % settings.SAB['output_dir'])
 
-    mp = MediaProcessor(settings, logger=log)
-    for r, d, f in os.walk(path):
-        for files in f:
-            inputfile = os.path.join(r, files)
-            info = mp.isValidSource(inputfile)
-            if info:
-                log.info("Processing file %s." % inputfile)
-                try:
-                    output = mp.process(inputfile, info=info)
-                except:
-                    log.exception("Error converting file %s." % inputfile)
-            else:
-                log.debug("Ignoring file %s." % inputfile)
-    if settings.output_dir:
-        path = settings.output_dir
-else:
-    log.info("Passing without conversion.")
+        mp = MediaProcessor(settings, logger=log)
+        for r, d, f in os.walk(path):
+            for files in f:
+                inputfile = os.path.join(r, files)
+                info = mp.isValidSource(inputfile)
+                if info:
+                    log.info("Processing file %s." % inputfile)
+                    try:
+                        output = mp.process(inputfile, info=info)
+                    except:
+                        log.exception("Error converting file %s." % inputfile)
+                else:
+                    log.debug("Ignoring file %s." % inputfile)
+        if settings.output_dir:
+            path = settings.output_dir
+    else:
+        log.info("Passing without conversion.")
 
-# Send to Sickbeard
-if (category == categories[0]):
-    log.info("Passing %s directory to Sickbeard." % path)
-    autoProcessTV.processEpisode(path, settings, nzb)
-# Send to CouchPotato
-elif (category == categories[1]):
-    log.info("Passing %s directory to Couch Potato." % path)
-    autoProcessMovie.process(path, settings, nzb, sys.argv[7])
-# Send to Sonarr
-elif (category == categories[2]):
-    log.info("Passing %s directory to Sonarr." % path)
-    sonarr.processEpisode(path, settings)
-elif (category == categories[3]):
-    log.info("Passing %s directory to Radarr." % path)
-    radarr.processMovie(path, settings)
-elif (category == categories[4]):
-    log.info("Passing %s directory to Sickrage." % path)
-    autoProcessTVSR.processEpisode(path, settings, nzb)
-# Bypass
-elif (category == categories[5]):
-    log.info("Bypassing any further processing as per category.")
+    # Send to Sickbeard
+    if (category == categories[0]):
+        log.info("Passing %s directory to Sickbeard." % path)
+        autoProcessTV.processEpisode(path, settings, nzb)
+    # Send to CouchPotato
+    elif (category == categories[1]):
+        log.info("Passing %s directory to Couch Potato." % path)
+        autoProcessMovie.process(path, settings, nzb, sys.argv[7])
+    # Send to Sonarr
+    elif (category == categories[2]):
+        log.info("Passing %s directory to Sonarr." % path)
+        sonarr.processEpisode(path, settings)
+    elif (category == categories[3]):
+        log.info("Passing %s directory to Radarr." % path)
+        radarr.processMovie(path, settings)
+    elif (category == categories[4]):
+        log.info("Passing %s directory to Sickrage." % path)
+        autoProcessTVSR.processEpisode(path, settings, nzb)
+    # Bypass
+    elif (category == categories[5]):
+        log.info("Bypassing any further processing as per category.")
+    sys.exit(0)
+except:
+    log.exception("Unexpected exception.")
+    sys.exit(1)
