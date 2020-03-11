@@ -14,12 +14,7 @@ sys.path.insert(1, os.path.abspath(os.path.join(os.path.dirname(__file__), 'lib'
 
 
 def processEpisode(dir_to_process, settings, org_NZB_name=None, status=None, logger=None):
-
-    # Setup logging
-    if logger:
-        log = logger
-    else:
-        log = logging.getLogger(__name__)
+    log = logger or logging.getLogger(__name__)
 
     try:
         import requests

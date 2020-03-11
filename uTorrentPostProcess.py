@@ -140,7 +140,7 @@ try:
                 except:
                     log.exception("Error creating output sub directory.")
 
-        mp = MediaProcessor(settings, logger=log)
+        mp = MediaProcessor(settings)
 
         if kind == 'single':
             inputfile = os.path.join(path, filename)

@@ -28,7 +28,7 @@ try:
         log.debug("TVDB ID: %s." % tvdb_id)
         log.debug("Season: %s episode: %s." % (season, episode))
 
-        mp = MediaProcessor(settings, logger=log)
+        mp = MediaProcessor(settings)
 
         success = mp.fullprocess(inputfile, MediaType.TV, tvdbid=tvdb_id, season=season, episode=episode, original=original)
         if success:

@@ -24,7 +24,6 @@ class MediaProcessor:
     deletesubs = set()
 
     def __init__(self, settings, logger=None):
-        # Setup Logging
         self.log = logger or logging.getLogger(__name__)
         self.settings = settings
         self.converter = Converter(settings.ffmpeg, settings.ffprobe)

@@ -14,7 +14,7 @@ log.info('MP4 Automator - Post processing script initialized')
 
 try:
     settings = ReadSettings()
-    mp = MediaProcessor(settings, logger=log)
+    mp = MediaProcessor(settings)
 
     imdbid = sys.argv[1]
     inputfile = sys.argv[2]

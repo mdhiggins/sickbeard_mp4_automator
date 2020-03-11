@@ -14,10 +14,7 @@ __MediaTypeSources = {
 
 
 def refreshPlex(settings, source_type, logger=None):
-    if logger:
-        log = logger
-    else:
-        log = logging.getLogger(__name__)
+    log = logger or logging.getLogger(__name__)
 
     host = settings.Plex['host']
     port = settings.Plex['port']

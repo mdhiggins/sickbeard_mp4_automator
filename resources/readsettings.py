@@ -72,7 +72,6 @@ class SMAConfigParser(configparser.SafeConfigParser, object):
 
 
 class ReadSettings:
-    log = logging.getLogger(__name__)
     defaults = {
         'Converter': {
             'ffmpeg': 'ffmpeg' if os.name != 'nt' else 'ffmpeg.exe',
@@ -444,9 +443,7 @@ class ReadSettings:
     }
 
     def __init__(self, configFile=None, logger=None):
-        # Setup logging
-        if logger:
-            self.log = logger
+        self.log = logger or logging.getLogger(__name__)
 
         self.log.info(sys.executable)
         if sys.version_info.major == 2:

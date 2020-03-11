@@ -23,7 +23,7 @@ inputfile = os.environ.get('radarr_moviefile_path')
 original = os.environ.get('radarr_moviefile_scenename')
 imdbid = os.environ.get('radarr_movie_imdbid')
 
-mp = MediaProcessor(settings, logger=log)
+mp = MediaProcessor(settings)
 
 log.debug("Input file: %s." % inputfile)
 log.debug("Original name: %s." % original)

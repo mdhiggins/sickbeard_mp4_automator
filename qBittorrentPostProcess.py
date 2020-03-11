@@ -92,7 +92,7 @@ try:
             except:
                 log.exception("Unable to make output directory %s." % settings.output_dir)
 
-        mp = MediaProcessor(settings, logger=log)
+        mp = MediaProcessor(settings)
 
         if single_file:
             # single file

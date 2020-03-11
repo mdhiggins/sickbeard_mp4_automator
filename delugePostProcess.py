@@ -87,7 +87,7 @@ try:
                 except:
                     log.exception("Unable to make output directory %s." % settings.output_dir)
 
-            mp = MediaProcessor(settings, logger=log)
+            mp = MediaProcessor(settings)
 
             if len(files) < 1:
                 log.error("No files provided by torrent")

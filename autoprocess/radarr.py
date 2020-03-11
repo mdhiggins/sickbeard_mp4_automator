@@ -12,11 +12,7 @@ def processMovie(dirName, settings, nzbGet=False, logger=None):
         errorprefix = ""
         infoprefix = ""
 
-    # Setup logging
-    if logger:
-        log = logger
-    else:
-        log = logging.getLogger(__name__)
+    log = logger or logging.getLogger(__name__)
 
     log.info("%sRadarr notifier started." % infoprefix)
 

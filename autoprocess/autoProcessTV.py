@@ -48,12 +48,7 @@ class AuthURLOpener(FancyURLopener):
 
 
 def processEpisode(dirName, settings, nzbName=None, logger=None):
-
-    # Setup logging
-    if logger:
-        log = logger
-    else:
-        log = logging.getLogger(__name__)
+    log = logger or logging.getLogger(__name__)
 
     host = settings.Sickbeard['host']
     port = settings.Sickbeard['port']

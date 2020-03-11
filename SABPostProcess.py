@@ -51,7 +51,7 @@ try:
             settings.output_dir = settings.SAB['output_dir']
             log.debug("Overriding output_dir to %s." % settings.SAB['output_dir'])
 
-        mp = MediaProcessor(settings, logger=log)
+        mp = MediaProcessor(settings)
         for r, d, f in os.walk(path):
             for files in f:
                 inputfile = os.path.join(r, files)

@@ -8,11 +8,7 @@ from resources.metadata import MediaType
 
 class PostProcessor:
     def __init__(self, files, logger=None):
-        # Setup Logging
-        if logger:
-            self.log = logger
-        else:
-            self.log = logging.getLogger(__name__)
+        log = logger or logging.getLogger(__name__)
 
         self.log.debug("Output: %s." % files)
 

@@ -31,12 +31,7 @@ class AuthURLOpener(FancyURLopener):
 
 
 def process(dirName, settings, nzbName=None, status=0, logger=None):
-
-    # Setup logging
-    if logger:
-        log = logger
-    else:
-        log = logging.getLogger(__name__)
+    log = logger or logging.getLogger(__name__)
 
     status = int(status)
 
