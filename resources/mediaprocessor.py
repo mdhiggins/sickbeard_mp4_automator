@@ -21,13 +21,11 @@ except:
 
 
 class MediaProcessor:
-    log = logging.getLogger(__name__)
     deletesubs = set()
 
     def __init__(self, settings, logger=None):
         # Setup Logging
-        if logger:
-            self.log = logger
+        self.log = logger or logging.getLogger(__name__)
         self.settings = settings
         self.converter = Converter(settings.ffmpeg, settings.ffprobe)
 
