@@ -46,6 +46,7 @@ def refreshPlex(settings, source_type, logger=None):
 
         try:
             refresh(base_url, refresh_url, source_type)
+            log.info("Plex refreshed: %s" % source_type)
         except IOError:
             try:
                 import ssl
@@ -55,6 +56,7 @@ def refreshPlex(settings, source_type, logger=None):
                 refresh_url = refresh_url.replace("http://", "https://")
                 base_url = base_url.replace("http://", "https://")
                 refresh(base_url, refresh_url, source_type, ctx=ctx)
+                log.info("Plex refreshed: %s" % source_type)
             except:
                 log.error(refresh_url)
                 log.error(base_url)
