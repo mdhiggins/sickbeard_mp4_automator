@@ -27,7 +27,7 @@ try:
 except:
     episode = int(os.environ.get('sonarr_episodefile_episodenumbers').split(",")[0])
 
-mp = MediaProcessor(settings, logger=log)
+mp = MediaProcessor(settings)
 
 log.debug("Input file: %s." % inputfile)
 log.debug("Original name: %s." % original)
