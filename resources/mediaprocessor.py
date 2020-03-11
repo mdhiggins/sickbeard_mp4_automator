@@ -65,7 +65,12 @@ class MediaProcessor:
                         postprocessor.setEnv(mediatype, tag.tmdbid, season, episode)
                         postprocessor.run_scripts()
 
-                    plex.refreshPlex(self.settings, mediatype, self.log)
+                    # Refresh Plex
+                    if self.settings.Plex.get('refresh', False):
+                        try:
+                            plex.refreshPlex(self.settings, mediatype, self.log)
+                        except:
+                            self.log.exception("Error refreshing Plex.")
                     return True
             else:
                 self.log.info("File %s is not valid" % inputfile)

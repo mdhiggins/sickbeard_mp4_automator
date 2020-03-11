@@ -58,8 +58,8 @@ def refreshPlex(settings, source_type, logger=None):
             except:
                 log.error(refresh_url)
                 log.error(base_url)
-                log.error("Unable to refresh plex https, check your settings.")
-        except Exception:
+                log.exception("Unable to refresh plex https, check your settings.")
+        except:
             log.exception("Unable to refresh plex, check your settings.")
 
 
