@@ -285,7 +285,7 @@ class MediaProcessor:
                 self.log.debug("Undefined language detected, defaulting to %s [audio-default-language]." % self.settings.adl)
                 a.metadata['language'] = self.settings.adl
 
-            if (len(awl) > 0 and a.metadata['language'].lower() in awl):
+            if (len(awl) > 0 and a.metadata['language'] in awl):
                 overrideLang = False
 
         if overrideLang and self.settings.allow_language_relax:
@@ -441,7 +441,7 @@ class MediaProcessor:
 
             # Proceed if no whitelist is set, or if the language is in the whitelist
             uadata = None
-            if len(awl) == 0 or (a.metadata['language'].lower() in awl and a.metadata['language'].lower() not in blocked_audio_languages):
+            if (len(awl) == 0 or a.metadata['language'] in awl) and a.metadata['language'] not in blocked_audio_languages:
                 # Create friendly audio stream if the default audio stream has too many channels
                 if ua and a.audio_channels > 2:
                     ua_bitrate = 256 if (self.settings.abitrate * 2) > 256 else (self.settings.abitrate * 2)
@@ -548,7 +548,7 @@ class MediaProcessor:
 
                 # If the ua_first_only option is enabled, disable the ua option after the first audio stream is processed
                 if ua and self.settings.ua_first_only:
-                    self.log.debug("Not creating any additional universal audio streams [universal-audio-first-track-only].")
+                    self.log.debug("Not creating any additional universal audio streams [universal-audio-first-stream-only].")
                     ua = False
 
                 absf = 'aac_adtstoasc' if acodec == 'copy' and a.codec == 'aac' and self.settings.aac_adtstoasc else None
@@ -585,17 +585,14 @@ class MediaProcessor:
 
                 # Remove the language if we only want the first stream from a given language
                 if self.settings.audio_first_language_stream:
-                    try:
-                        blocked_audio_languages.append(a.metadata['language'].lower())
-                        self.log.debug("Removing language from whitelist to prevent multiple streams of the same: %s [audio-first-track-of-language]." % a.metadata['language'])
-                    except:
-                        self.log.error("Unable to remove language %s from whitelist [audio-first-track-of-language]." % a.metadata['language'])
+                    blocked_audio_languages.append(a.metadata['language'])
+                    self.log.debug("Blocking further %s audio streams to prevent multiple streams of the same language [audio-first-stream-of-language]." % a.metadata['language'])
 
         # Set Default Audio Stream
         try:
             self.setDefaultAudioStream(audio_settings)
         except:
-            self.log.exception("Unable to set the default audio track.")
+            self.log.exception("Unable to set the default audio stream.")
 
         # Iterate through subtitle streams
         subtitle_settings = []
@@ -612,7 +609,7 @@ class MediaProcessor:
 
             if scodec:
                 # Proceed if no whitelist is set, or if the language is in the whitelist
-                if len(swl) == 0 or s.metadata['language'].lower() in swl:
+                if len(swl) == 0 or s.metadata['language'] in swl:
                     subtitle_settings.append({
                         'map': s.index,
                         'codec': scodec,
@@ -623,7 +620,7 @@ class MediaProcessor:
                     })
                     self.log.info("Creating %s subtitle stream from source stream %d." % (self.settings.scodec[0], s.index))
             else:
-                if len(swl) == 0 or s.metadata['language'].lower() in swl:
+                if len(swl) == 0 or s.metadata['language'] in swl:
                     for codec in (self.settings.scodec_image if image_based else self.settings.scodec):
                         ripsub = [{
                             'map': s.index,
@@ -686,7 +683,7 @@ class MediaProcessor:
         try:
             self.setDefaultSubtitleStream(subtitle_settings)
         except:
-            self.log.exception("Unable to set the default subtitle track.")
+            self.log.exception("Unable to set the default subtitle stream.")
 
         # Burn subtitles
         try:
@@ -782,7 +779,7 @@ class MediaProcessor:
 
             self.log.debug("%d total audio streams with %d set to default disposition. %d defaults in your preferred language (%s), %d in other languages." % (len(audio_streams), len(default_streams), len(default_preferred_language_streams), self.settings.adl, len(default_streams_not_in_preferred_language)))
             if len(preferred_language_audio_streams) < 1:
-                self.log.debug("No audio tracks in your preferred language, using other languages to determine default stream.")
+                self.log.debug("No audio streams in your preferred language, using other languages to determine default stream.")
 
             if len(default_preferred_language_streams) < 1:
                 try:
@@ -930,7 +927,7 @@ class MediaProcessor:
 
         return valid_external_subs
 
-    def downloadSubtitles(self, inputfile, existing_subtitle_tracks, swl, original=None):
+    def downloadSubtitles(self, inputfile, existing_subtitle_streams, swl, original=None):
         if self.settings.downloadsubs:
             try:
                 self.log.debug(subliminal.__version__)
@@ -964,7 +961,7 @@ class MediaProcessor:
 
             try:
                 video = subliminal.scan_video(os.path.abspath(inputfile))
-                video.subtitle_languages = set([Language(x.metadata['language']) for x in existing_subtitle_tracks])
+                video.subtitle_languages = set([Language(x.metadata['language']) for x in existing_subtitle_streams])
 
                 # If data about the original release is available, include that in the search to best chance at accurate subtitles
                 if original:
