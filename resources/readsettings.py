@@ -449,6 +449,8 @@ class ReadSettings:
             self.log = logger
 
         self.log.info(sys.executable)
+        if sys.version_info.major == 2:
+            self.log.warning("Python 2 is no longer officially supported. Use with caution.")
 
         defaultConfigFile = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../config/autoProcess.ini"))
         oldConfigFile = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../autoProcess.ini"))
