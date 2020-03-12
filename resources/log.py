@@ -16,14 +16,14 @@ def getLogger(name=None, custompath=None):
     rootpath = os.path.dirname(rootpath)
 
     if os.name == 'nt':
-        logpath = custompath if custompath else os.path.join(rootpath, "../")
+        logpath = custompath or os.path.join(rootpath, "../")
     elif not os.path.isdir(logpath):
         try:
             os.mkdir(logpath)
         except:
             logpath = rootpath
 
-    configPath = os.path.abspath(os.path.join(custompath if custompath else rootpath, 'logging.ini')).replace("\\", "\\\\")
+    configPath = os.path.abspath(os.path.join(custompath or rootpath, 'logging.ini')).replace("\\", "\\\\")
     logPath = os.path.abspath(os.path.join(logpath, 'index.log')).replace("\\", "\\\\")
     fileConfig(configPath, defaults={'logfilename': logPath})
     return logging.getLogger(name)
