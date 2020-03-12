@@ -470,7 +470,11 @@ class ReadSettings:
             self.log.debug("Loading default config file.")
 
         if os.path.isdir(configFile):
-            configFile = os.path.realpath(os.path.join(configFile, "autoProcess.ini"))
+            new = os.path.realpath(os.path.join(configFile, "autoProcess.ini"))
+            if not os.path.exists(new):
+                configFile = os.path.realpath(os.path.join(os.path.join(configFile, "config"), "autoProcess.ini"))
+            else:
+                configFile = new
             self.log.debug("ConfigFile specified is a directory, joining with autoProcess.ini.")
 
         self.log.info("Loading config file %s." % configFile)
