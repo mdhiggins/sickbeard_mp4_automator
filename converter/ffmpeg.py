@@ -191,7 +191,7 @@ class MediaStreamInfo(object):
         elif key == 'codec_type':
             self.type = val
         elif key == 'codec_name':
-            self.codec = val
+            self.codec = val.lower()
         elif key == 'codec_long_name':
             self.codec_desc = val
         elif key == 'duration':
@@ -209,7 +209,7 @@ class MediaStreamInfo(object):
         elif key == 'DISPOSITION:attached_pic':
             self.attached_pic = self.parse_int(val)
         elif key == 'profile':
-            self.profile = val
+            self.profile = val.lower()
         elif key == 'DISPOSITION:forced':
             self.forced = self.parse_bool(self.parse_int(val))
         elif key == 'DISPOSITION:default':
@@ -244,9 +244,9 @@ class MediaStreamInfo(object):
             elif key == 'level':
                 self.video_level = self.parse_float(val)
             elif key == 'pix_fmt':
-                self.pix_fmt = val
+                self.pix_fmt = val.lower()
             elif key == "field_order":
-                self.field_order = val
+                self.field_order = val.lower()
 
     def __repr__(self):
         d = ''

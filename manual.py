@@ -341,7 +341,7 @@ def main():
         settings.postprocess = False
         print("No post processing enabled")
     if (args['optionsonly']):
-        logging.getLogger("mediaprocessor").setLevel(logging.CRITICAL)
+        logging.getLogger("resources.mediaprocessor").setLevel(logging.CRITICAL)
         print("Options only mode enabled")
 
     # Establish the path we will be working with

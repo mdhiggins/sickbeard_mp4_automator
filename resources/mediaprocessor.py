@@ -155,8 +155,8 @@ class MediaProcessor:
                 self.deletesubs = set()
 
             dim = self.getDimensions(outputfile)
-            input_extension = self.parseFile(inputfile)[2].lower()
-            output_extension = self.parseFile(outputfile)[2].lower()
+            input_extension = self.parseFile(inputfile)[2]
+            output_extension = self.parseFile(outputfile)[2]
 
             return {'input': inputfile,
                     'input_extension': input_extension,
@@ -174,7 +174,7 @@ class MediaProcessor:
     # Determine if a file can be read by FFPROBE
     def isValidSource(self, inputfile):
         try:
-            extension = self.parseFile(inputfile)[2].lower()
+            extension = self.parseFile(inputfile)[2]
             if extension in self.settings.ignored_extensions:
                 return None
             info = self.converter.probe(inputfile)
@@ -309,7 +309,6 @@ class MediaProcessor:
     # Generate a dict of options to be passed to FFMPEG based on selected settings and the source file parameters and streams
     def generateOptions(self, inputfile, info=None, original=None):
         # Get path information from the input file
-        input_dir, filename, input_extension = self.parseFile(inputfile)
         sources = [inputfile]
         ripsubopts = []
 
@@ -334,10 +333,10 @@ class MediaProcessor:
         self.log.info("Profile: %s." % info.video.profile)
 
         vdebug = "video"
-        vcodec = "copy" if info.video.codec.lower() in self.settings.vcodec else self.settings.vcodec[0]
+        vcodec = "copy" if info.video.codec in self.settings.vcodec else self.settings.vcodec[0]
 
         vpix_fmt = None
-        if len(self.settings.pix_fmt) > 0 and info.video.pix_fmt.lower() not in self.settings.pix_fmt:
+        if len(self.settings.pix_fmt) > 0 and info.video.pix_fmt not in self.settings.pix_fmt:
             self.log.debug("Overriding video pix_fmt. Codec cannot be copied because pix_fmt is not approved [pix-fmt].")
             vdebug = vdebug + ".pix_fmt"
             vcodec = self.settings.vcodec[0]
@@ -363,7 +362,7 @@ class MediaProcessor:
             vcodec = self.settings.vcodec[0]
 
         vprofile = None
-        if len(self.settings.vprofile) > 0 and info.video.profile.lower().replace(" ", "") not in self.settings.vprofile:
+        if len(self.settings.vprofile) > 0 and info.video.profile not in self.settings.vprofile:
             self.log.debug("Video profile is not supported. Video stream can no longer be copied [video-profile].")
             vdebug = vdebug + ".profile"
             vcodec = self.settings.vcodec[0]
@@ -432,7 +431,7 @@ class MediaProcessor:
         for a in audio_streams:
             self.log.info("Audio detected for stream %s - %s %s %d channel." % (a.index, a.codec, a.metadata['language'], a.audio_channels))
 
-            if a.codec.lower() == 'truehd' and self.settings.output_extension in self.settings.ignore_truehd:
+            if a.codec == 'truehd' and self.settings.output_extension in self.settings.ignore_truehd:
                 if len(info.audio) > 1:
                     self.log.info("Skipping trueHD stream %s as typically the 2nd audio stream is the AC3 core of the truehd stream [audio-ignore-truehd]." % a.index)
                     continue
@@ -503,7 +502,7 @@ class MediaProcessor:
                         adebug = adebug + ".audio-sample-rates"
                 else:
                     # If desired codec is the same as the source codec, copy to avoid quality loss
-                    acodec = 'copy' if a.codec.lower() in self.settings.acodec else self.settings.acodec[0]
+                    acodec = 'copy' if a.codec in self.settings.acodec else self.settings.acodec[0]
                     # Audio channel adjustments
                     if self.settings.maxchannels and a.audio_channels > self.settings.maxchannels:
                         self.log.debug("Audio source exceeds maximum channels, can not be copied. Settings channels to %d [audio-max-channels]." % self.settings.maxchannels)
@@ -572,7 +571,7 @@ class MediaProcessor:
                     self.log.info("Creating %s audio stream from source audio stream %d [universal-audio]." % (self.settings.ua[0], a.index))
                     audio_settings.append(uadata)
 
-                if self.settings.audio_copyoriginal and acodec != 'copy' and not (a.codec.lower() == 'truehd' and self.settings.ignore_truehd):
+                if self.settings.audio_copyoriginal and acodec != 'copy' and not (a.codec == 'truehd' and self.settings.output_extension in self.settings.ignore_truehd):
                     self.log.info("Copying audio stream from source stream %d format %s [audio-copy-original]." % (a.index, a.codec))
                     audio_settings.append({
                         'map': a.index,
@@ -740,7 +739,7 @@ class MediaProcessor:
         postopts.extend(self.settings.postopts)
 
         # HEVC Tagging for copied streams
-        if info.video.codec.lower() in ['x265', 'h265', 'hevc'] and vcodec == 'copy':
+        if info.video.codec in ['x265', 'h265', 'hevc'] and vcodec == 'copy':
             postopts.extend(['-tag:v', 'hvc1'])
             self.log.info("Tagging copied video stream as hvc1")
 
@@ -1215,7 +1214,7 @@ class MediaProcessor:
         input_dir, filename = os.path.split(path)
         filename, input_extension = os.path.splitext(filename)
         input_extension = input_extension[1:]
-        return input_dir, filename, input_extension
+        return input_dir, filename, input_extension.lower()
 
     # Process a file with QTFastStart, removing the original file
     def QTFS(self, inputfile):
