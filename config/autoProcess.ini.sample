@@ -129,7 +129,7 @@ couchpotato-category = couchpotato
 sonarr-category = sonarr
 radarr-category = radarr
 bypass-category = bypass
-output-directory = None
+output-directory =
 
 [Deluge]
 couchpotato-label = couchpotato
@@ -143,7 +143,7 @@ host = localhost
 port = 58846
 username = 
 password = 
-output-directory = None
+output-directory =
 remove = False
 
 [qBittorrent]
