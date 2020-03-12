@@ -458,7 +458,13 @@ class ReadSettings:
             self.log.debug("SMACONFIG environment variable override found.")
         elif not configFile:
             if not os.path.exists(defaultConfigFile) and os.path.exists(oldConfigFile):
-                configFile = oldConfigFile
+                try:
+                    os.rename(oldConfigFile, defaultConfigFile)
+                    self.log.info("Moved configuration file to new default location %s." % defaultConfigFile)
+                    configFile = defaultConfigFile
+                except:
+                    configFile = oldConfigFile
+                    self.log.debug("Unable to move configuration file to new location, using old location.")
             else:
                 configFile = defaultConfigFile
             self.log.debug("Loading default config file.")
