@@ -259,7 +259,7 @@ class ReadSettings:
         'Plex': {
             'host': 'localhost',
             'port': 32400,
-            'refresh': True,
+            'refresh': False,
             'token': '',
         },
     }
