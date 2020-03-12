@@ -9,21 +9,28 @@ def getLogger(name=None, custompath=None):
         custompath = os.path.realpath(custompath)
         if not os.path.isdir(custompath):
             custompath = os.path.dirname(custompath)
+        rootpath = os.path.abspath(custompath)
+        resourcepath = os.path.join(rootpath, "resources")
+        configpath = os.path.join(rootpath, "config")
+    else:
+        resourcepath = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
+        rootpath = os.path.abspath(os.path.join(resourcepath, "../"))
+        configpath = os.path.join(rootpath, "config")
 
-    logpath = '/var/log/sickbeard_mp4_automator'
+    loglocal = os.environ.get("SMA_LOGLOCAL", "false").lower() in ['true', 'yes', 't', '1', 'y']
+    if os.name == 'nt' or loglocal:
+        logpath = configpath
+    else:
+        logpath = '/var/log'
 
-    rootpath = os.path.join(os.path.realpath(__file__))
-    rootpath = os.path.dirname(rootpath)
-
-    if os.name == 'nt':
-        logpath = custompath or os.path.join(rootpath, "../")
-    elif not os.path.isdir(logpath):
+    if not os.path.isdir(logpath):
         try:
             os.mkdir(logpath)
         except:
-            logpath = rootpath
+            logpath = configpath
 
-    configPath = os.path.abspath(os.path.join(custompath or rootpath, 'logging.ini')).replace("\\", "\\\\")
-    logPath = os.path.abspath(os.path.join(logpath, 'index.log')).replace("\\", "\\\\")
-    fileConfig(configPath, defaults={'logfilename': logPath})
+    configfile = os.path.abspath(os.path.join(resourcepath, 'logging.ini')).replace("\\", "\\\\")
+    logfile = os.path.abspath(os.path.join(logpath, 'sma.log')).replace("\\", "\\\\")
+    fileConfig(configfile, defaults={'logfilename': logfile})
+
     return logging.getLogger(name)
