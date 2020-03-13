@@ -822,6 +822,8 @@ class MediaProcessor:
                 self.log.debug("Cleaning up default disposition settings from not preferred languages. %d streams will have default flag removed." % (len(default_streams_not_in_preferred_language)))
                 for remove in default_streams_not_in_preferred_language:
                     remove['disposition'] = remove.get('disposition', '').replace('+default', '')
+                    if not remove.get('disposition'):
+                        remove['disposition'] = None
 
             try:
                 if 'default' not in default_stream.get('disposition', ''):
