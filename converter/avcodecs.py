@@ -708,6 +708,10 @@ class DtsCodec(AudioCodec):
     """
     codec_name = 'dts'
     ffmpeg_codec_name = 'dts'
+    dts_experimental_enable = ['-strict', 'experimental']
+
+    def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
+        return self.dts_experimental_enable
 
 
 class Mp3Codec(AudioCodec):
@@ -732,9 +736,10 @@ class Opus(AudioCodec):
     """
     codec_name = 'opus'
     ffmpeg_codec_name = 'libopus'
+    opus_experimental_enable = ['-strict', 'experimental']
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
-        return ['-strict', '-2']
+        return self.opus_experimental_enable
 
 
 class PCMS24LE(AudioCodec):
@@ -743,7 +748,6 @@ class PCMS24LE(AudioCodec):
     """
     codec_name = 'pcm_s24le'
     ffmpeg_codec_name = 'pcm_s24le'
-
 
 
 class PCMS16LE(AudioCodec):
