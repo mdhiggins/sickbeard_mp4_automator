@@ -132,22 +132,23 @@ class MediaStreamInfo(object):
 
     @property
     def toJson(self):
-        language = self.metadata.get("language", "und").lower().strip()
-        out = {'index': self.index,
-               'codec': self.codec,
-               'type': self.type}
+        language = self.metadata.get("language", "und")
+        out = {
+            'index': self.index,
+            'codec': self.codec
+        }
         if self.type == 'audio':
             out['channels'] = self.audio_channels
+            out['samplerate'] = self.audio_samplerate
             out['language'] = language
-            out['default'] = self.default
+            out['disposition'] = self.disposition
         elif self.type == 'video':
             out['pix_fmt'] = self.pix_fmt
             out['profile'] = self.profile
             out['fps'] = self.fps
             out['field_order'] = self.field_order
         elif self.type == 'subtitle':
-            out['forced'] = self.forced
-            out['default'] = self.default
+            out['disposition'] = self.disposition
             out['language'] = language
         return out
 
