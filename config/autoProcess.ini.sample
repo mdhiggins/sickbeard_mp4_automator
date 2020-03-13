@@ -48,6 +48,7 @@ default-language =
 channel-bitrate = 256
 max-channels = 0
 prefer-more-channels = True
+default-more-channels = True
 filter = 
 sample-rates = 
 copy-original = False

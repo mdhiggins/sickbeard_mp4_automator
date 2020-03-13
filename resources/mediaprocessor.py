@@ -770,7 +770,7 @@ class MediaProcessor:
 
     def setDefaultAudioStream(self, audio_settings):
         if len(audio_settings) > 0:
-            audio_streams = sorted(audio_settings, key=lambda x: x['channels'], reverse=self.settings.prefer_more_channels)
+            audio_streams = sorted(audio_settings, key=lambda x: x['channels'], reverse=self.settings.default_more_channels)
             preferred_language_audio_streams = [x for x in audio_streams if x['language'] == self.settings.adl] if self.settings.adl else audio_streams
             default_stream = audio_streams[0]
             default_streams = [x for x in audio_streams if 'default' in x['disposition']]
@@ -810,7 +810,7 @@ class MediaProcessor:
                     default_stream['disposition'] += "+default"
             except:
                 default_stream['disposition'] = "+default"
-            self.log.info("Default audio stream set to %s %s %s channel stream [prefer-more-channels: %s]." % (default_stream['language'], default_stream['codec'], default_stream['channels'], self.settings.prefer_more_channels))
+            self.log.info("Default audio stream set to %s %s %s channel stream [default-more-channels: %s]." % (default_stream['language'], default_stream['codec'], default_stream['channels'], self.settings.default_more_channels))
         else:
             self.log.debug("Audio output is empty, unable to set default audio streams.")
 

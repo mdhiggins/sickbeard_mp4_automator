@@ -123,6 +123,7 @@ class ReadSettings:
             'channel-bitrate': 256,
             'max-channels': 0,
             'prefer-more-channels': True,
+            'default-more-channels': True,
             'filter': '',
             'sample-rates': '',
             'copy-original': False,
@@ -630,6 +631,7 @@ class ReadSettings:
         self.abitrate = config.getint(section, "channel-bitrate")
         self.maxchannels = config.getint(section, 'max-channels')
         self.prefer_more_channels = config.getboolean(section, "prefer-more-channels")
+        self.default_more_channels = config.getboolean(section, "default-more-channels")
         self.afilter = config.get(section, "filter")
         self.audio_samplerates = [int(x) for x in config.getlist(section, "sample-rates") if x.isdigit()]
         self.audio_copyoriginal = config.getboolean(section, "copy-original")
