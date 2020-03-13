@@ -441,7 +441,7 @@ class MediaProcessor:
 
             # Proceed if no whitelist is set, or if the language is in the whitelist
             uadata = None
-            if (len(awl) == 0 or a.metadata['language'] in awl) and a.metadata['language'] not in blocked_audio_languages:
+            if self.validLanguage(a.metadata['language'], awl, blocked_audio_languages):
                 # Create friendly audio stream if the default audio stream has too many channels
                 if ua and a.audio_channels > 2:
                     ua_bitrate = 256 if (self.settings.abitrate * 2) > 256 else (self.settings.abitrate * 2)
@@ -614,7 +614,7 @@ class MediaProcessor:
 
                 if scodec:
                     # Proceed if no whitelist is set, or if the language is in the whitelist
-                    if (len(swl) == 0 or s.metadata['language'] in swl) and s.metadata['language'] not in blocked_subtitle_languages:
+                    if self.validLanguage(s.metadata['language'], swl, blocked_subtitle_languages):
                         subtitle_settings.append({
                             'map': s.index,
                             'codec': scodec,
@@ -627,7 +627,7 @@ class MediaProcessor:
                         if self.settings.sub_first_language_stream:
                             blocked_subtitle_languages.append(s.metadata['language'])
                 else:
-                    if (len(swl) == 0 or s.metadata['language'] in swl) and s.metadata['language'] not in blocked_subtitle_languages:
+                    if self.validLanguage(s.metadata['language'], swl, blocked_subtitle_languages):
                         for codec in (self.settings.scodec_image if image_based else self.settings.scodec):
                             ripsub = [{
                                 'map': s.index,
@@ -658,7 +658,7 @@ class MediaProcessor:
         # External subtitle import
         valid_external_subs = None
         if not self.settings.embedonlyinternalsubs:
-            valid_external_subs = self.scanForExternalSubs(inputfile, swl, blocked_subtitle_languages)
+            valid_external_subs = self.scanForExternalSubs(inputfile, swl)
             for external_sub in valid_external_subs:
                 image_based = self.isImageBasedSubtitle(external_sub.path, 0)
                 scodec = None
@@ -671,26 +671,28 @@ class MediaProcessor:
                 if not scodec:
                     self.log.info("Skipping external subtitle file %s, no appropriate codecs found or embed disabled." % os.path.basename(external_sub.path))
                     continue
-                if external_sub.path not in sources:
-                    sources.append(external_sub.path)
-                subtitle_settings.append({
-                    'source': sources.index(external_sub.path),
-                    'map': 0,
-                    'codec': scodec,
-                    'disposition': sdisposition,
-                    'language': external_sub.subtitle[0].metadata['language'],
-                    'debug': 'subtitle.embed-subs'})
 
-                self.log.info("Creating %s subtitle stream by importing %s-based %s [embed-subs]." % (scodec, "Image" if image_based else "Text", os.path.basename(external_sub.path)))
-                self.log.debug("Path: %s." % external_sub.path)
-                self.log.debug("Codec: %s." % self.settings.scodec[0])
-                self.log.debug("Langauge: %s." % external_sub.subtitle[0].metadata['language'])
-                self.log.debug("Disposition: %s." % sdisposition)
+                if self.validLanguage(external_sub.subtitle[0].metadata['language'], swl, blocked_subtitle_languages):
+                    if external_sub.path not in sources:
+                        sources.append(external_sub.path)
+                    subtitle_settings.append({
+                        'source': sources.index(external_sub.path),
+                        'map': 0,
+                        'codec': scodec,
+                        'disposition': sdisposition,
+                        'language': external_sub.subtitle[0].metadata['language'],
+                        'debug': 'subtitle.embed-subs'})
 
-                self.deletesubs.add(external_sub.path)
+                    self.log.info("Creating %s subtitle stream by importing %s-based %s [embed-subs]." % (scodec, "Image" if image_based else "Text", os.path.basename(external_sub.path)))
+                    self.log.debug("Path: %s." % external_sub.path)
+                    self.log.debug("Codec: %s." % self.settings.scodec[0])
+                    self.log.debug("Langauge: %s." % external_sub.subtitle[0].metadata['language'])
+                    self.log.debug("Disposition: %s." % sdisposition)
 
-                if self.settings.sub_first_language_stream:
-                    blocked_subtitle_languages.append(external_sub.subtitle[0].metadata['language'])
+                    self.deletesubs.add(external_sub.path)
+
+                    if self.settings.sub_first_language_stream:
+                        blocked_subtitle_languages.append(external_sub.subtitle[0].metadata['language'])
 
         # Set Default Subtitle Stream
         try:
@@ -758,6 +760,9 @@ class MediaProcessor:
             self.log.info("Tagging copied video stream as hvc1")
 
         return options, preopts, postopts, ripsubopts, downloaded_subs
+
+    def validLanguage(self, language, whitelist, blocked=[]):
+        return ((len(whitelist) < 1 or language in whitelist) and language not in blocked)
 
     def setAcceleration(self, video_codec):
         opts = []
@@ -902,7 +907,7 @@ class MediaProcessor:
             self.log.info("No valid subtitle stream candidates found to be burned into video stream [burn-subtitles].")
         return None
 
-    def scanForExternalSubs(self, inputfile, swl, blocked):
+    def scanForExternalSubs(self, inputfile, swl):
         input_dir, filename, input_extension = self.parseFile(inputfile)
         valid_external_subs = []
         for dirName, subdirList, fileList in os.walk(input_dir):
@@ -926,14 +931,12 @@ class MediaProcessor:
                     # If subtitle file name and input video name are the same, proceed
                     if fname.startswith(filename):  # filename in fname:
                         self.log.debug("External %s subtitle file detected." % lang)
-                        if (len(swl) == 0 or lang in swl) and lang not in blocked:
+                        if self.validLanguage(lang, swl):
                             if ".default" in fname:
                                 valid_external_sub.subtitle[0].default = True
                             if ".forced" in fname:
                                 valid_external_sub.subtitle[0].forced = True
                             valid_external_subs.append(valid_external_sub)
-                            if self.settings.sub_first_language_stream:
-                                blocked.append(lang)
                         else:
                             self.log.debug("Ignoring %s external subtitle stream due to language %s." % (fname, lang))
         self.log.info("Scanned for external subtitles and found %d results in your approved languages." % (len(valid_external_subs)))
