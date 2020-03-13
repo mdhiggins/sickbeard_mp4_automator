@@ -105,6 +105,7 @@ class ReadSettings:
             'tag': True,
             'tag-language': 'eng',
             'download-artwork': 'poster',
+            'preserve-source-disposition': True,
         },
         'Video': {
             'codec': 'h264, x264',
@@ -592,6 +593,7 @@ class ReadSettings:
             except:
                 self.artwork = True
                 self.log.error("Invalid download-artwork value, defaulting to 'poster'.")
+        self.preservedisposition = config.getboolean(section, "preserve-source-disposition")
 
         # Video
         section = "Video"

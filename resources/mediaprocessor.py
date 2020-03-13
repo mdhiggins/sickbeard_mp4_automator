@@ -445,6 +445,7 @@ class MediaProcessor:
                 # Create friendly audio stream if the default audio stream has too many channels
                 if ua and a.audio_channels > 2:
                     ua_bitrate = 256 if (self.settings.abitrate * 2) > 256 else (self.settings.abitrate * 2)
+                    ua_disposition = a.disposition if self.settings.preservedisposition else ""
 
                     # Bitrate calculations/overrides
                     if self.settings.abitrate == 0:
@@ -470,7 +471,7 @@ class MediaProcessor:
                         'samplerate': self.settings.audio_samplerates[0] if len(self.settings.audio_samplerates) > 0 else None,
                         'filter': self.settings.ua_filter,
                         'language': a.metadata['language'],
-                        'disposition': a.disposition,
+                        'disposition': ua_disposition,
                         'debug': 'universal-audio'
                     }
                     if not self.settings.ua_last:
@@ -481,6 +482,7 @@ class MediaProcessor:
                 # If the universal audio option is enabled and the source audio channel is only stereo, the additional universal stream will be skipped and a single channel will be made regardless of codec preference to avoid multiple stereo channels
                 afilter = None
                 asample = None
+                adisposition = a.disposition if self.settings.preservedisposition else ""
                 if ua and a.audio_channels <= 2:
                     self.log.debug("Overriding default channel settings because universal audio is enabled but the source is stereo [universal-audio].")
                     acodec = 'copy' if a.codec in self.settings.ua else self.settings.ua[0]
@@ -543,7 +545,7 @@ class MediaProcessor:
                 self.log.debug("Bitrate: %s." % abitrate)
                 self.log.debug("Language: %s" % a.metadata['language'])
                 self.log.debug("Filter: %s" % afilter)
-                self.log.debug("Disposition: %s" % a.disposition)
+                self.log.debug("Disposition: %s" % adisposition)
                 self.log.debug("Debug: %s" % adebug)
 
                 # If the ua_first_only option is enabled, disable the ua option after the first audio stream is processed
@@ -562,7 +564,7 @@ class MediaProcessor:
                     'filter': afilter,
                     'samplerate': asample,
                     'language': a.metadata['language'],
-                    'disposition': a.disposition,
+                    'disposition': adisposition,
                     'bsf': absf,
                     'debug': adebug
                 })
@@ -579,7 +581,7 @@ class MediaProcessor:
                         'codec': 'copy',
                         'channels': a.audio_channels,
                         'language': a.metadata['language'],
-                        'disposition': a.disposition,
+                        'disposition': adisposition,
                         'debug': 'audio-copy-original'
                     })
 
@@ -602,6 +604,7 @@ class MediaProcessor:
             self.log.info("%s-based subtitle detected for stream %s - %s %s." % ("Image" if image_based else "Text", s.index, s.codec, s.metadata['language']))
 
             scodec = None
+            sdisposition = s.disposition if self.settings.preservedisposition else ""
             if image_based and self.settings.embedimgsubs and self.settings.scodec_image and len(self.settings.scodec_image) > 0:
                 scodec = 'copy' if s.codec in self.settings.scodec_image else self.settings.scodec_image[0]
             elif not image_based and self.settings.embedsubs and self.settings.scodec and len(self.settings.scodec) > 0:
@@ -615,7 +618,7 @@ class MediaProcessor:
                         'codec': scodec,
                         'language': s.metadata['language'],
                         'encoding': self.settings.subencoding,
-                        'disposition': s.disposition,
+                        'disposition': sdisposition,
                         'debug': 'subtitle.embed-subs'
                     })
                     self.log.info("Creating %s subtitle stream from source stream %d." % (self.settings.scodec[0], s.index))
@@ -653,6 +656,7 @@ class MediaProcessor:
             for external_sub in valid_external_subs:
                 image_based = self.isImageBasedSubtitle(external_sub.path, 0)
                 scodec = None
+                sdisposition = external_sub.subtitle[0].disposition if self.settings.preservedisposition else ""
                 if image_based and self.settings.embedimgsubs and self.settings.scodec_image and len(self.settings.scodec_image) > 0:
                     scodec = self.settings.scodec_image[0]
                 elif not image_based and self.settings.embedsubs and self.settings.scodec and len(self.settings.scodec) > 0:
@@ -667,7 +671,7 @@ class MediaProcessor:
                     'source': sources.index(external_sub.path),
                     'map': 0,
                     'codec': scodec,
-                    'disposition': external_sub.subtitle[0].disposition,
+                    'disposition': sdisposition,
                     'language': external_sub.subtitle[0].metadata['language'],
                     'debug': 'subtitle.embed-subs'})
 
@@ -675,7 +679,7 @@ class MediaProcessor:
                 self.log.debug("Path: %s." % external_sub.path)
                 self.log.debug("Codec: %s." % self.settings.scodec[0])
                 self.log.debug("Langauge: %s." % external_sub.subtitle[0].metadata['language'])
-                self.log.debug("Disposition: %s." % external_sub.subtitle[0].disposition)
+                self.log.debug("Disposition: %s." % sdisposition)
 
                 self.deletesubs.add(external_sub.path)
 
