@@ -28,7 +28,7 @@ if len(sys.argv) != 7:
 
 try:
     settings = ReadSettings()
-    label = sys.argv[1].lower()
+    label = sys.argv[1].lower().strip()
     root_path = str(sys.argv[3])
     content_path = str(sys.argv[4])
     name = sys.argv[5]
@@ -43,7 +43,7 @@ try:
 
     single_file = os.path.isfile(content_path)
 
-    if label not in categories:
+    if len([x for x in categories if x.startswith(label)]) < 1:
         log.error("No valid label detected.")
         sys.exit(1)
 
@@ -154,22 +154,22 @@ try:
         path = newpath
         delete_dir = newpath
 
-    if label == categories[0]:
+    if categories[0].startswith(label):
         log.info("Passing %s directory to Couch Potato." % path)
         autoProcessMovie.process(path, settings)
-    elif label == categories[1]:
+    elif categories[1].startswith(label):
         log.info("Passing %s directory to Sickbeard." % path)
         autoProcessTV.processEpisode(path, settings)
-    elif label == categories[2]:
+    elif categories[2].startswith(label):
         log.info("Passing %s directory to Sonarr." % path)
         sonarr.processEpisode(path, settings)
-    elif label == categories[3]:
+    elif categories[3].startswith(label):
         log.info("Passing %s directory to Radarr." % path)
         radarr.processMovie(path, settings)
-    elif label == categories[4]:
+    elif categories[4].startswith(label):
         log.info("Passing %s directory to Sickrage." % path)
         autoProcessTVSR.processEpisode(path, settings)
-    elif label == categories[5]:
+    elif categories[5].startswith(label):
         log.info("Bypassing any further processing as per category.")
 
     # Run a qbittorrent action after conversion.

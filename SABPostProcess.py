@@ -27,7 +27,7 @@ if len(sys.argv) < 8:
 try:
     settings = ReadSettings()
     categories = [settings.SAB['sb'], settings.SAB['cp'], settings.SAB['sonarr'], settings.SAB['radarr'], settings.SAB['sr'], settings.SAB['bypass']]
-    category = str(sys.argv[5]).lower()
+    category = str(sys.argv[5]).lower().strip()
     path = str(sys.argv[1])
     nzb = str(sys.argv[2])
 
@@ -36,7 +36,7 @@ try:
     log.debug("Categories: %s." % categories)
     log.debug("NZB: %s." % nzb)
 
-    if category.lower() not in categories:
+    if len([x for x in categories if x.startswith(category)]) < 1:
         log.error("No valid category detected.")
         sys.exit(1)
 
@@ -69,26 +69,22 @@ try:
     else:
         log.info("Passing without conversion.")
 
-    # Send to Sickbeard
-    if (category == categories[0]):
+    if categories[0].startswith(category):
         log.info("Passing %s directory to Sickbeard." % path)
         autoProcessTV.processEpisode(path, settings, nzb)
-    # Send to CouchPotato
-    elif (category == categories[1]):
+    elif categories[1].startswith(category):
         log.info("Passing %s directory to Couch Potato." % path)
         autoProcessMovie.process(path, settings, nzb, sys.argv[7])
-    # Send to Sonarr
-    elif (category == categories[2]):
+    elif categories[2].startswith(category):
         log.info("Passing %s directory to Sonarr." % path)
         sonarr.processEpisode(path, settings)
-    elif (category == categories[3]):
+    elif categories[3].startswith(category):
         log.info("Passing %s directory to Radarr." % path)
         radarr.processMovie(path, settings)
-    elif (category == categories[4]):
+    elif categories[4].startswith(category):
         log.info("Passing %s directory to Sickrage." % path)
         autoProcessTVSR.processEpisode(path, settings, nzb)
-    # Bypass
-    elif (category == categories[5]):
+    elif categories[5].startswith(category):
         log.info("Bypassing any further processing as per category.")
 except:
     log.exception("Unexpected exception.")

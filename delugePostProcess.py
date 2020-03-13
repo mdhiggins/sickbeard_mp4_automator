@@ -58,7 +58,7 @@ try:
             files.append(contents['path'])
             log.debug(contents['path'])
 
-    if category not in categories:
+    if len([x for x in categories if x.startswith(category)]) < 1:
         log.error("No valid category detected.")
         sys.exit(1)
 
@@ -120,25 +120,22 @@ try:
     except:
         log.exception("Error occurred handling file")
 
-    # Send to Sickbeard
-    if (category == categories[0]):
+    if categories[0].startswith(category):
         log.info("Passing %s directory to Sickbeard." % path)
         autoProcessTV.processEpisode(path, settings)
-    # Send to CouchPotato
-    elif (category == categories[1]):
+    elif categories[1].startswith(category):
         log.info("Passing %s directory to Couch Potato." % path)
         autoProcessMovie.process(path, settings, torrent_name)
-    # Send to Sonarr
-    elif (category == categories[2]):
+    elif categories[2].startswith(category):
         log.info("Passing %s directory to Sonarr." % path)
         sonarr.processEpisode(path, settings)
-    elif (category == categories[3]):
+    elif categories[3].startswith(category):
         log.info("Passing %s directory to Radarr." % path)
         radarr.processMovie(path, settings)
-    elif (category == categories[4]):
+    elif categories[4].startswith(category):
         log.info("Passing %s directory to Sickrage." % path)
         autoProcessTVSR.processEpisode(path, settings)
-    elif (category == categories[5]):
+    elif categories[5].startswith(category):
         log.info("Bypassing any further processing as per category.")
 
     if delete_dir:

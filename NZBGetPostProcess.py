@@ -88,15 +88,15 @@ if 'NZBOP_SCRIPTDIR' in os.environ and not os.environ['NZBOP_VERSION'][0:5] < '1
 
     path = os.environ['NZBPP_DIRECTORY']  # Path to NZB directory
     nzb = os.environ['NZBPP_NZBFILENAME']  # Original NZB name
-    category = os.environ['NZBPP_CATEGORY']  # NZB Category to determine destination
+    category = os.environ['NZBPP_CATEGORY'].lower().strip()  # NZB Category to determine destination
     #DEBUG#print "Category is %s." % category
 
-    couchcat = os.environ['NZBPO_CP_CAT'].lower()
-    sonarrcat = os.environ['NZBPO_SONARR_CAT'].lower()
-    radarrcat = os.environ['NZBPO_RADARR_CAT'].lower()
-    sickbeardcat = os.environ['NZBPO_SICKBEARD_CAT'].lower()
-    sickragecat = os.environ['NZBPO_SICKRAGE_CAT'].lower()
-    bypass = os.environ['NZBPO_BYPASS_CAT'].lower()
+    couchcat = os.environ['NZBPO_CP_CAT'].lower().strip()
+    sonarrcat = os.environ['NZBPO_SONARR_CAT'].lower().strip()
+    radarrcat = os.environ['NZBPO_RADARR_CAT'].lower().strip()
+    sickbeardcat = os.environ['NZBPO_SICKBEARD_CAT'].lower().strip()
+    sickragecat = os.environ['NZBPO_SICKRAGE_CAT'].lower().strip()
+    bypass = os.environ['NZBPO_BYPASS_CAT'].lower().strip()
 
     categories = [sickbeardcat, couchcat, sonarrcat, radarrcat, sickragecat, bypass]
 
@@ -162,7 +162,7 @@ if 'NZBOP_SCRIPTDIR' in os.environ and not os.environ['NZBOP_VERSION'][0:5] < '1
         sys.exit(POSTPROCESS_NONE)
 
     # Make sure one of the appropriate categories is set
-    if category.lower() not in categories:
+    if len([x for x in categories if x.startswith(category)]) < 1:
         log.error("Post-Process: No valid category detected. Category was %s." % (category))
         status = 1
         sys.exit(POSTPROCESS_NONE)
@@ -195,33 +195,33 @@ if 'NZBOP_SCRIPTDIR' in os.environ and not os.environ['NZBOP_VERSION'][0:5] < '1
                             log.exception("File processing failed.")
         if settings.output_dir:
             path = settings.output_dir
-    if (category.lower() == categories[0]):
+    if (sickbeardcat.startswith(category)):
         #DEBUG#print "Sickbeard Processing Activated"
         autoProcessTV.processEpisode(path, settings, nzb)
         sys.exit(POSTPROCESS_SUCCESS)
-    elif (category.lower() == categories[1]):
+    elif (couchcat.startswith(category)):
         #DEBUG#print "CouchPotato Processing Activated"
         autoProcessMovie.process(path, settings, nzb, status)
         sys.exit(POSTPROCESS_SUCCESS)
-    elif (category.lower() == categories[2]):
+    elif (sonarrcat.startswith(category)):
         #DEBUG#print "Sonarr Processing Activated"
         success = sonarr.processEpisode(path, settings, True)
         if success:
             sys.exit(POSTPROCESS_SUCCESS)
         else:
             sys.exit(POSTPROCESS_ERROR)
-    elif (category.lower() == categories[3]):
+    elif (radarrcat.startswith(category)):
         #DEBUG#print "Radarr Processing Activated"
         success = radarr.processMovie(path, settings, True)
         if success:
             sys.exit(POSTPROCESS_SUCCESS)
         else:
             sys.exit(POSTPROCESS_ERROR)
-    elif (category.lower() == categories[4]):
+    elif (sickragecat.startswith(category)):
         #DEBUG#print "Sickrage Processing Activated"
         autoProcessTVSR.processEpisode(path, settings, nzb)
         sys.exit(POSTPROCESS_SUCCESS)
-    elif (category.lower() == categories[5]):
+    elif (bypass.startswith(category)):
         #DEBUG#print "Bypass Further Processing"
         sys.exit(POSTPROCESS_NONE)
 
