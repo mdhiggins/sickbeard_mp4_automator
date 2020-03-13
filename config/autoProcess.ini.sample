@@ -30,7 +30,7 @@ full-path-guess = True
 tag = True
 tag-language = eng
 download-artwork = poster
-preserve-source-disposition = False
+preserve-source-disposition = True
 
 [Video]
 codec = h264, x264
