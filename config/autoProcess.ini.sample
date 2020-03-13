@@ -46,6 +46,8 @@ pix-fmt =
 codec = ac3
 languages = 
 default-language = 
+first-stream-of-language = False
+allow-language-relax = True
 channel-bitrate = 256
 max-channels = 0
 prefer-more-channels = True
@@ -53,15 +55,13 @@ default-more-channels = True
 filter = 
 sample-rates = 
 copy-original = False
-first-track-of-language = False
-allow-language-relax = True
 aac-adtstoasc = False
 ignore-truehd = mp4, m4v
 
 [Universal Audio]
 codec = aac
-first-track-only = False
-move-last = False
+first-stream-only = False
+move-after = False
 filter = 
 
 [Subtitle]
@@ -69,6 +69,7 @@ codec = mov_text
 codec-image-based = 
 languages = 
 default-language = 
+first-stream-of-language = False
 encoding = 
 burn-subtitles = False
 download-subs = False
@@ -77,6 +78,7 @@ download-providers =
 embed-subs = True
 embed-image-subs = False
 embed-only-internal-subs = False
+ignore-embedded-subs = False
 attachment-codec = 
 
 [Sonarr]
@@ -131,7 +133,7 @@ couchpotato-category = couchpotato
 sonarr-category = sonarr
 radarr-category = radarr
 bypass-category = bypass
-output-directory =
+output-directory = 
 
 [Deluge]
 couchpotato-label = couchpotato
@@ -145,7 +147,7 @@ host = localhost
 port = 58846
 username = 
 password = 
-output-directory =
+output-directory = 
 remove = False
 
 [qBittorrent]
@@ -174,8 +176,8 @@ radarr-label = radarr
 bypass-label = bypass
 convert = True
 webui = False
-action-before = stop
-action-after = removedata
+action-before = 
+action-after = 
 host = localhost
 ssl = False
 port = 8080

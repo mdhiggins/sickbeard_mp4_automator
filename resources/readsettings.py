@@ -121,6 +121,8 @@ class ReadSettings:
             'codec': 'ac3',
             'languages': '',
             'default-language': '',
+            'first-stream-of-language': False,
+            'allow-language-relax': True,
             'channel-bitrate': 256,
             'max-channels': 0,
             'prefer-more-channels': True,
@@ -128,8 +130,6 @@ class ReadSettings:
             'filter': '',
             'sample-rates': '',
             'copy-original': False,
-            'first-stream-of-language': False,
-            'allow-language-relax': True,
             'aac-adtstoasc': False,
             'ignore-truehd': 'mp4, m4v',
         },
@@ -144,6 +144,7 @@ class ReadSettings:
             'codec-image-based': '',
             'languages': '',
             'default-language': '',
+            'first-stream-of-language': False,
             'encoding': '',
             'burn-subtitles': False,
             'download-subs': False,
@@ -152,6 +153,7 @@ class ReadSettings:
             'embed-subs': True,
             'embed-image-subs': False,
             'embed-only-internal-subs': False,
+            'ignore-embedded-subs': False,
             'attachment-codec': '',
         },
         'Sonarr': {
@@ -655,6 +657,7 @@ class ReadSettings:
         self.scodec_image = config.getlist(section, 'codec-image-based')
         self.swl = config.getlist(section, 'languages')
         self.sdl = config.get(section, 'default-language').lower()
+        self.sub_first_language_stream = config.getboolean(section, "first-stream-of-language")
         self.subencoding = config.get(section, 'encoding')
         try:
             self.burn_subtitles = config.getboolean(section, "burn-subtitles")
@@ -669,6 +672,7 @@ class ReadSettings:
         self.embedsubs = config.getboolean(section, 'embed-subs')
         self.embedimgsubs = config.getboolean(section, 'embed-image-subs')
         self.embedonlyinternalsubs = config.getboolean(section, 'embed-only-internal-subs')
+        self.ignore_embedded_subs = config.getboolean(section, 'ignore-embedded-subs')
         self.attachmentcodec = config.getlist(section, 'attachment-codec')
 
         # Sonarr
