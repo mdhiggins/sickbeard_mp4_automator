@@ -810,6 +810,8 @@ class MediaProcessor:
                 try:
                     for remove in default_preferred_language_streams[1:]:
                         remove['disposition'] = remove.get('disposition', '').replace('+default', '')
+                        if not remove.get('disposition'):
+                            remove['disposition'] = None
                     self.log.debug("%d streams in preferred language cleared of default disposition flag from preferred language." % (len(default_preferred_language_streams) - 1))
                 except:
                     self.log.exception("Error in removing default disposition flag from extra audio streams, multiple streams may be set as default.")
