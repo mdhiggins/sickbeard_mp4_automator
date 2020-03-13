@@ -137,6 +137,10 @@ class MediaStreamInfo(object):
             'index': self.index,
             'codec': self.codec
         }
+
+        if self.bitrate:
+            out['bitrate'] = self.bitrate
+
         if self.type == 'audio':
             out['channels'] = self.audio_channels
             out['samplerate'] = self.audio_samplerate
@@ -146,6 +150,8 @@ class MediaStreamInfo(object):
             out['pix_fmt'] = self.pix_fmt
             out['profile'] = self.profile
             out['fps'] = self.fps
+            if self.video_level:
+                out['level'] = self.video_level / 10
             out['field_order'] = self.field_order
         elif self.type == 'subtitle':
             out['disposition'] = self.disposition
@@ -159,7 +165,9 @@ class MediaStreamInfo(object):
             disposition += '+default'
         if self.forced:
             disposition += '+forced'
-        return disposition
+        if disposition:
+            return disposition
+        return None
 
     @staticmethod
     def parse_float(val, default=0.0):

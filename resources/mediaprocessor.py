@@ -445,7 +445,7 @@ class MediaProcessor:
                 # Create friendly audio stream if the default audio stream has too many channels
                 if ua and a.audio_channels > 2:
                     ua_bitrate = 256 if (self.settings.abitrate * 2) > 256 else (self.settings.abitrate * 2)
-                    ua_disposition = a.disposition if self.settings.preservedisposition else ""
+                    ua_disposition = a.disposition if self.settings.preservedisposition else None
 
                     # Bitrate calculations/overrides
                     if self.settings.abitrate == 0:
@@ -482,7 +482,7 @@ class MediaProcessor:
                 # If the universal audio option is enabled and the source audio channel is only stereo, the additional universal stream will be skipped and a single channel will be made regardless of codec preference to avoid multiple stereo channels
                 afilter = None
                 asample = None
-                adisposition = a.disposition if self.settings.preservedisposition else ""
+                adisposition = a.disposition if self.settings.preservedisposition else None
                 if ua and a.audio_channels <= 2:
                     self.log.debug("Overriding default channel settings because universal audio is enabled but the source is stereo [universal-audio].")
                     acodec = 'copy' if a.codec in self.settings.ua else self.settings.ua[0]
@@ -604,7 +604,7 @@ class MediaProcessor:
             self.log.info("%s-based subtitle detected for stream %s - %s %s." % ("Image" if image_based else "Text", s.index, s.codec, s.metadata['language']))
 
             scodec = None
-            sdisposition = s.disposition if self.settings.preservedisposition else ""
+            sdisposition = s.disposition if self.settings.preservedisposition else None
             if image_based and self.settings.embedimgsubs and self.settings.scodec_image and len(self.settings.scodec_image) > 0:
                 scodec = 'copy' if s.codec in self.settings.scodec_image else self.settings.scodec_image[0]
             elif not image_based and self.settings.embedsubs and self.settings.scodec and len(self.settings.scodec) > 0:
@@ -656,7 +656,7 @@ class MediaProcessor:
             for external_sub in valid_external_subs:
                 image_based = self.isImageBasedSubtitle(external_sub.path, 0)
                 scodec = None
-                sdisposition = external_sub.subtitle[0].disposition if self.settings.preservedisposition else ""
+                sdisposition = external_sub.subtitle[0].disposition if self.settings.preservedisposition else None
                 if image_based and self.settings.embedimgsubs and self.settings.scodec_image and len(self.settings.scodec_image) > 0:
                     scodec = self.settings.scodec_image[0]
                 elif not image_based and self.settings.embedsubs and self.settings.scodec and len(self.settings.scodec) > 0:
@@ -777,7 +777,7 @@ class MediaProcessor:
             audio_streams = sorted(audio_settings, key=lambda x: x['channels'], reverse=self.settings.default_more_channels)
             preferred_language_audio_streams = [x for x in audio_streams if x['language'] == self.settings.adl] if self.settings.adl else audio_streams
             default_stream = audio_streams[0]
-            default_streams = [x for x in audio_streams if 'default' in x['disposition']]
+            default_streams = [x for x in audio_streams if x.get('disposition') and 'default' in x.get('disposition')]
             default_preferred_language_streams = [x for x in default_streams if x['language'] == self.settings.adl] if self.settings.adl else default_streams
             default_streams_not_in_preferred_language = [x for x in default_streams if x not in default_preferred_language_streams]
 
@@ -795,7 +795,7 @@ class MediaProcessor:
                 default_stream = default_preferred_language_streams[0]
                 try:
                     for remove in default_preferred_language_streams[1:]:
-                        remove['disposition'] = remove['disposition'].replace("+default", "")
+                        remove['disposition'] = remove.get('disposition', '').replace('+default', '')
                     self.log.debug("%d streams in preferred language cleared of default disposition flag from preferred language." % (len(default_preferred_language_streams) - 1))
                 except:
                     self.log.exception("Error in removing default disposition flag from extra audio streams, multiple streams may be set as default.")
@@ -807,10 +807,10 @@ class MediaProcessor:
             if len(default_streams_not_in_preferred_language) > 0:
                 self.log.debug("Cleaning up default disposition settings from not preferred languages. %d streams will have default flag removed." % (len(default_streams_not_in_preferred_language)))
                 for remove in default_streams_not_in_preferred_language:
-                    remove['disposition'] = remove['disposition'].replace("+default", "")
+                    remove['disposition'] = remove.get('disposition', '').replace('+default', '')
 
             try:
-                if 'default' not in default_stream['disposition']:
+                if 'default' not in default_stream.get('disposition', ''):
                     default_stream['disposition'] += "+default"
             except:
                 default_stream['disposition'] = "+default"
@@ -820,9 +820,9 @@ class MediaProcessor:
 
     def setDefaultSubtitleStream(self, subtitle_settings):
         if len(subtitle_settings) > 0 and self.settings.sdl:
-            if len([x for x in subtitle_settings if 'default' in x['disposition']]) < 1:
+            if len([x for x in subtitle_settings if x.get('disposition') and 'default' in x.get('disposition')]) < 1:
                 try:
-                    default_stream = [x for x in subtitle_settings if x['language'] == self.settings.sdl][0]
+                    default_stream = [x for x in subtitle_settings if x.get('language') == self.settings.sdl][0]
                     default_stream['disposition'] = '+default'
                 except:
                     subtitle_settings[0]['disposition'] = '+default'
@@ -838,15 +838,15 @@ class MediaProcessor:
                 if isinstance(streams[0], dict):
                     streams.sort(key=lambda x: x.get('channels', 999), reverse=self.settings.prefer_more_channels)
                     if languages:
-                        streams.sort(key=lambda x: languages.index(x['language']) if x['language'] in languages else 999)
+                        streams.sort(key=lambda x: languages.index(x.get('language')) if x.get('language') in languages else 999)
                 else:
                     streams.sort(key=lambda x: x.audio_channels, reverse=self.settings.prefer_more_channels)
                     if languages:
-                        streams.sort(key=lambda x: languages.index(x.metadata['language']) if x.metadata['language'] in languages else 999)
+                        streams.sort(key=lambda x: languages.index(x.metadata.get('language')) if x.metadata.get('language') in languages else 999)
 
     def burnSubtitleFilter(self, inputfile, subtitle_streams, swl, valid_external_subs=None):
         if self.settings.burn_subtitles:
-            subtitle_streams = sorted(subtitle_streams, key=lambda x: swl.index(x.metadata['language']) if x.metadata['language'] in swl else 999)
+            subtitle_streams = sorted(subtitle_streams, key=lambda x: swl.index(x.metadata.get('language')) if x.metadata.get('language') in swl else 999)
             sub_candidates = []
             if len(subtitle_streams) > 0:
                 first_index = sorted([x.index for x in subtitle_streams])[0]
@@ -918,7 +918,6 @@ class MediaProcessor:
                     if fname.startswith(filename):  # filename in fname:
                         self.log.debug("External %s subtitle file detected." % lang)
                         if len(swl) == 0 or lang in swl:
-                            disposition = ''
                             if ".default" in fname:
                                 valid_external_sub.subtitle[0].default = True
                             if ".forced" in fname:
