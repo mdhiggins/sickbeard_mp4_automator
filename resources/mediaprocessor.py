@@ -641,7 +641,7 @@ class MediaProcessor:
         # Attempt to download subtitles if they are missing using subliminal
         downloaded_subs = []
         try:
-            downloaded_subs = self.downloadSubtitles(inputfile, info.subtitle, original)
+            downloaded_subs = self.downloadSubtitles(inputfile, info.subtitle, swl, original)
         except:
             self.log.exception("Unable to download subitltes [download-subs].")
 
@@ -928,12 +928,6 @@ class MediaProcessor:
 
     def downloadSubtitles(self, inputfile, existing_subtitle_streams, swl, original=None):
         if self.settings.downloadsubs:
-            try:
-                self.log.debug(subliminal.__version__)
-            except:
-                self.log.error("Subliminal is not installed, downloading subtitles aborted.")
-                return []
-
             languages = set()
             for alpha3 in swl:
                 try:
