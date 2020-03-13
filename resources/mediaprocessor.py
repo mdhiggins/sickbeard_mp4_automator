@@ -349,11 +349,12 @@ class MediaProcessor:
             vdebug = vdebug + ".bitrate"
             vcodec = self.settings.vcodec[0]
 
-        vwidth = self.settings.vwidth
+        vwidth = None
         if self.settings.vwidth and self.settings.vwidth < info.video.video_width:
             self.log.debug("Video width is over the max width, it will be downsampled. Video stream can no longer be copied [video-max-width].")
             vdebug = vdebug + ".max-width"
             vcodec = self.settings.vcodec[0]
+            vwidth = self.settings.vwidth
 
         vlevel = self.settings.video_level
         if self.settings.video_level and info.video.video_level and (info.video.video_level / 10 > self.settings.video_level):
