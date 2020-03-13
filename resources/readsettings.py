@@ -3,9 +3,9 @@ import sys
 import locale
 
 try:
-    import configparser
+    from configparser import ConfigParser
 except ImportError:
-    import ConfigParser as configparser
+    from ConfigParser import SafeConfigParser as ConfigParser
 try:
     from importlib import reload
 except ImportError:
@@ -14,7 +14,7 @@ import logging
 from resources.extensions import *
 
 
-class SMAConfigParser(configparser.SafeConfigParser, object):
+class SMAConfigParser(ConfigParser, object):
     def getlist(self, section, option, vars=None, separator=",", default=[], lower=True, replace=[' ']):
         value = self.get(section, option, vars=vars)
 
