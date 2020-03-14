@@ -2,7 +2,7 @@ import sys
 from babelfish import Language
 
 
-def getAlpha3TCode(code, default=None):  # We need to make sure that language codes are alpha3T
+def getAlpha3TCode(code, default=None):
     code = code.strip().lower().replace('.', '')
     lang = default or 'und'
 
