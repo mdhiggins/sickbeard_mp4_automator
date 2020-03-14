@@ -9,6 +9,7 @@ from converter import Converter, FFMpegConvertError, ConverterError
 from resources.extensions import subtitle_codec_extensions
 from resources.metadata import Metadata
 from resources.postprocess import PostProcessor
+from resources.lang import getAlpha3TCode
 from autoprocess import plex
 try:
     from babelfish import Language
@@ -918,24 +919,21 @@ class MediaProcessor:
             for fname in fileList:
                 subname, subextension = os.path.splitext(fname)
                 # Watch for appropriate file extension
-                valid_external_sub = self.isValidSubtitleSource(os.path.join(dirName, fname))
-                if valid_external_sub:
-                    x, lang = os.path.splitext(subname)
-                    while '.forced' in lang or '.default' in lang or lang.replace('.', "").isdigit():
-                        x, lang = os.path.splitext(x)
-                    lang = lang[1:].lower()
-                    # Using bablefish to convert a 2 language code to a 3 language code
-                    if len(lang) == 2:
-                        try:
-                            babel = Language.fromalpha2(lang)
-                            lang = babel.alpha3
-                        except:
-                            pass
-                    valid_external_sub.subtitle[0].metadata['language'] = lang
-                    # If subtitle file name and input video name are the same, proceed
-                    if fname.startswith(filename):  # filename in fname:
-                        self.log.debug("External %s subtitle file detected." % lang)
+                if fname.startswith(filename):  # filename in fname:
+                    valid_external_sub = self.isValidSubtitleSource(os.path.join(dirName, fname))
+                    if valid_external_sub:
+                        subname, langext = os.path.splitext(subname)
+                        while langext:
+                            lang = getAlpha3TCode(langext)
+                            if lang != 'und':
+                                break
+                            subname, langext = os.path.splitext(subname)
+                        if self.settings.sdl and lang == 'und':
+                            lang = self.settings.sdl
+                        valid_external_sub.subtitle[0].metadata['language'] = lang
+
                         if self.validLanguage(lang, swl):
+                            self.log.debug("External %s subtitle file detected %s." % (lang, fname))
                             if ".default" in fname:
                                 valid_external_sub.subtitle[0].default = True
                             if ".forced" in fname:
