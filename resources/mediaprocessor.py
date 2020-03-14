@@ -976,7 +976,10 @@ class MediaProcessor:
 
             try:
                 video = subliminal.scan_video(os.path.abspath(inputfile))
-                video.subtitle_languages = set([Language(x.metadata['language']) for x in existing_subtitle_streams])
+                if self.settings.ignore_embedded_subs:
+                    video.subtitle_languages = set()
+                else:
+                    video.subtitle_languages = set([Language(x.metadata['language']) for x in existing_subtitle_streams])
 
                 # If data about the original release is available, include that in the search to best chance at accurate subtitles
                 if original:
