@@ -26,7 +26,6 @@ try:
 
     success = mp.fullprocess(inputfile, MediaType.Movie, imdbid=imdbid, original=original)
     log.info("Processor returned %s." % success)
-    sys.exit(0)
 except:
     log.exception("Unexpected exception.")
     sys.exit(1)

@@ -113,4 +113,3 @@ try:
 except:
     log.exception("Error processing file")
     sys.exit(1)
-sys.exit(0)

@@ -46,7 +46,6 @@ try:
                     log.debug(refresh[item])
             except (IOError, ValueError):
                 log.exception("Couldn't refresh Sickbeard, check your autoProcess.ini settings.")
-        sys.exit(0)
     else:
         log.error("Not enough command line arguments present %s." % len(sys.argv))
         sys.exit(1)

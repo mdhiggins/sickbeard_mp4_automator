@@ -75,7 +75,7 @@ try:
 except ImportError:
     print("[ERROR] Wrong path to sickbeard_mp4_automator: " + os.environ['NZBPO_MP4_FOLDER'])
     print("[ERROR] %s" % traceback.print_exc())
-    sys.exit(0)
+    sys.exit(1)
 
 # Setup Logging
 log = getLogger("NZBGetPostProcess", MP4folder)
@@ -227,4 +227,4 @@ if 'NZBOP_SCRIPTDIR' in os.environ and not os.environ['NZBOP_VERSION'][0:5] < '1
 
 else:
     log.error("This script can only be called from NZBGet (11.0 or later).")
-    sys.exit(0)
+    sys.exit(1)

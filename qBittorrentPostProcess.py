@@ -194,8 +194,6 @@ try:
                 log.debug("Successfully removed tempoary directory %s." % delete_dir)
             except:
                 log.exception("Unable to delete temporary directory")
-
-    sys.exit(0)
 except:
     log.exception("Unexpected exception.")
     sys.exit(1)
