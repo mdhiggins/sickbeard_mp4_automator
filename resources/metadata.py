@@ -98,7 +98,7 @@ class Metadata:
                 rating = next(x for x in content_ratings['results'] if x['iso_3166_1'] == 'US')['rating']
                 self.rating = self.getRating(rating)
             except:
-                self.log.exception("Unable to retrieve rating.")
+                self.log.error("Unable to retrieve rating.")
                 self.rating = None
 
             self.showname = self.showdata['name']
@@ -136,7 +136,6 @@ class Metadata:
             if find and len(find.tv_results) > 0:
                 tmdbid = find.tv_results[0].get('id')
         return tmdbid
-
 
     def writeTags(self, path, artwork=True, thumbnail=False, width=None, height=None):
         self.log.info("Tagging file: %s." % path)
