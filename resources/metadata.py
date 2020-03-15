@@ -197,9 +197,9 @@ class Metadata:
                     video["covr"] = [MP4Cover(cover, MP4Cover.FORMAT_JPEG)]  # jpeg poster
 
         if self.original:
-            video["\xa9too"] = "MDH:" + os.path.basename(self.original)
+            video["\xa9too"] = "SMA:" + os.path.basename(self.original)
         else:
-            video["\xa9too"] = "MDH:" + os.path.basename(path)
+            video["\xa9too"] = "SMA:" + os.path.basename(path)
 
         try:
             self.log.info("Trying to write tags.")
