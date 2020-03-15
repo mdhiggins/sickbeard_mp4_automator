@@ -12,7 +12,7 @@ import logging
 import tmdbsimple as tmdb
 from mutagen.mp4 import MP4, MP4Cover, MP4StreamInfoError
 from resources.extensions import valid_poster_extensions, tmdb_api_key
-from resources.lang import getAlpha3TCode
+from resources.lang import getAlpha2BCode
 
 
 class TMDBIDError(Exception):
@@ -59,7 +59,7 @@ class Metadata:
             raise TMDBIDError
 
         self.mediatype = mediatype
-        self.language = getAlpha3TCode(language, default='eng')
+        self.language = getAlpha2BCode(language, default='en')
         self.original = original
 
         if self.mediatype == MediaType.Movie:
