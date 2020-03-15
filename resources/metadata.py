@@ -12,6 +12,7 @@ import logging
 import tmdbsimple as tmdb
 from mutagen.mp4 import MP4, MP4Cover, MP4StreamInfoError
 from resources.extensions import valid_poster_extensions, tmdb_api_key
+from resources.lang import getAlpha3TCode
 
 
 class TMDBIDError(Exception):
@@ -58,12 +59,12 @@ class Metadata:
             raise TMDBIDError
 
         self.mediatype = mediatype
-        self.language = self.checkLanguage(language)
+        self.language = getAlpha3TCode(language, default='eng')
         self.original = original
 
         if self.mediatype == MediaType.Movie:
             query = tmdb.Movies(self.tmdbid)
-            self.moviedata = query.info(language=language)
+            self.moviedata = query.info(language=self.language)
             self.credit = query.credits()
             try:
                 releases = query.release_dates()
@@ -87,9 +88,9 @@ class Metadata:
             seasonquery = tmdb.TV_Seasons(self.tmdbid, season)
             episodequery = tmdb.TV_Episodes(self.tmdbid, season, episode)
 
-            self.showdata = seriesquery.info(language=language)
-            self.seasondata = seasonquery.info(language=language)
-            self.episodedata = episodequery.info(language=language)
+            self.showdata = seriesquery.info(language=self.language)
+            self.seasondata = seasonquery.info(language=self.language)
+            self.episodedata = episodequery.info(language=self.language)
             self.credit = episodequery.credits()
 
             try:
@@ -136,38 +137,6 @@ class Metadata:
                 tmdbid = find.tv_results[0].get('id')
         return tmdbid
 
-    def checkLanguage(self, language):
-        if not language:
-            return None
-
-        if len(language) < 2:
-            self.log.error("Unable to set tag language, not enough characters [tag-language].")
-            return None
-
-        try:
-            from babelfish import Language
-        except:
-            self.log.exception("Unable to important Language from babelfish [tag-language].")
-            return None
-
-        if len(language) == 2:
-            try:
-                return Language.fromalpha2(language).alpha3
-                self.log.exception("Unable to set tag language [tag-language].")
-            except:
-                return None
-
-        try:
-            return Language(language).alpha3
-        except:
-            try:
-                return Language.fromalpha3b(language).alpha3
-            except:
-                try:
-                    return Language.fromalpha3t(language).alpha3
-                except:
-                    self.log.exception("Unable to set tag language [tag-language].")
-        return None
 
     def writeTags(self, path, artwork=True, thumbnail=False, width=None, height=None):
         self.log.info("Tagging file: %s." % path)

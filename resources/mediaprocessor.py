@@ -275,18 +275,8 @@ class MediaProcessor:
 
         # Loop through audio streams and clean up language metadata by standardizing undefined languages and applying the ADL setting
         for a in info.audio:
-            try:
-                if 'language' not in a.metadata or a.metadata['language'].strip() == "" or a.metadata['language'] is None:
-                    a.metadata['language'] = 'und'
-            except KeyError:
-                a.metadata['language'] = 'und'
-
-            # Set undefined language to default language if specified
-            if self.settings.adl and a.metadata['language'] == 'und':
-                self.log.debug("Undefined language detected, defaulting to %s [audio-default-language]." % self.settings.adl)
-                a.metadata['language'] = self.settings.adl
-
-            if (len(awl) > 0 and a.metadata['language'] in awl):
+            a.metadata['language'] = getAlpha3TCode(a.metadata.get('language'), self.settings.adl)
+            if len(awl) > 0 and a.metadata.get('language') in awl:
                 overrideLang = False
 
         if overrideLang and self.settings.allow_language_relax:
@@ -295,16 +285,7 @@ class MediaProcessor:
 
         # Prep subtitle streams by cleaning up languages and setting SDL
         for s in info.subtitle:
-            try:
-                if 'language' not in s.metadata or s.metadata['language'] == "" or s.metadata['language'] is None:
-                    s.metadata['language'] = 'und'
-            except KeyError:
-                s.metadata['language'] = 'und'
-
-            # Set undefined language to default language if specified
-            if self.settings.sdl and s.metadata['language'] == 'und':
-                self.log.debug("Undefined language detected, defaulting to %s [subtitle-default-language]." % self.settings.sdl)
-                s.metadata['language'] = self.settings.sdl
+            s.metadata['language'] = getAlpha3TCode(a.metadata.get('language'), self.settings.sdl)
         return awl, swl
 
     # Generate a dict of options to be passed to FFMPEG based on selected settings and the source file parameters and streams
