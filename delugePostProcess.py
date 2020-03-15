@@ -61,8 +61,8 @@ try:
         if os.path.isdir(path):
             for r, d, f in os.walk(path):
                 for file in f:
-                    files.append(file)
-                    log.debug(file)
+                    files.append(os.path.join(r, file))
+                    log.debug(os.path.join(r, file))
         else:
             log.debug(path)
             files.append(path)
