@@ -55,6 +55,7 @@ class AudioCodec(BaseCodec):
     encoder_options = {
         'codec': str,
         'language': str,
+        'title': str,
         'channels': int,
         'bitrate': int,
         'samplerate': int,
@@ -123,6 +124,8 @@ class AudioCodec(BaseCodec):
             optlist.extend(['-ar:a:' + stream, str(safe['samplerate'])])
         if 'filter' in safe:
             optlist.extend(['-filter:a:' + stream, str(safe['filter'])])
+        if 'title' in safe:
+            optlist.extend(['-metadata:s:a:' + stream, "title=" + str(safe['title'])])
         if 'language' in safe:
             lang = str(safe['language'])
         else:
@@ -147,6 +150,7 @@ class SubtitleCodec(BaseCodec):
     encoder_options = {
         'codec': str,
         'language': str,
+        'title': str,
         'map': int,
         'source': int,
         'path': str,
@@ -190,6 +194,8 @@ class SubtitleCodec(BaseCodec):
             optlist.extend(['-disposition:s:' + stream, str(safe['disposition'])])
         if 'path' in safe:
             optlist.extend(['-i', str(safe['path'])])
+        if 'title' in safe:
+            optlist.extend(['-metadata:s:s:' + stream, "title=" + str(safe['title'])])
         if 'language' in safe:
             lang = str(safe['language'])
         else:
@@ -459,11 +465,12 @@ class AudioCopyCodec(BaseCodec):
     Copy audio stream directly from the source.
     """
     codec_name = 'copy'
-    encoder_options = {'language': str,
+    encoder_options = {'map': int,
                        'source': str,
-                       'map': int,
                        'bsf': str,
-                       'disposition': str}
+                       'disposition': str,
+                       'language': str,
+                       'title': str}
 
     def parse_options(self, opt, stream=0):
         safe = self.safe_options(opt)
@@ -471,6 +478,11 @@ class AudioCopyCodec(BaseCodec):
         if 'disposition' in safe:
             if len(safe['disposition'].strip()) < 1:
                 del safe['disposition']
+
+        if 'language' in safe:
+            l = safe['language']
+            if len(l) > 3:
+                del safe['language']
 
         stream = str(stream)
         optlist = []
@@ -483,13 +495,12 @@ class AudioCopyCodec(BaseCodec):
             optlist.extend(['-map', s + ':' + str(safe['map'])])
         if 'bsf' in safe:
             optlist.extend(['-bsf:a:' + stream, str(safe['bsf'])])
-        lang = 'und'
+        if 'title' in safe:
+            optlist.extend(['-metadata:s:a:' + stream, "title=" + str(safe['title'])])
         if 'language' in safe:
-            l = safe['language']
-            if len(l) > 3:
-                del safe['language']
-            else:
-                lang = str(safe['language'])
+            lang = str(safe['language'])
+        else:
+            lang = 'und'
         optlist.extend(['-metadata:s:a:' + stream, "language=" + lang])
         if 'disposition' in safe:
             optlist.extend(['-disposition:a:' + stream, str(safe['disposition'])])
@@ -533,7 +544,9 @@ class SubtitleCopyCodec(BaseCodec):
     codec_name = 'copy'
     encoder_options = {'map': int,
                        'source': str,
-                       'disposition': str}
+                       'disposition': str,
+                       'language': str,
+                       'title': str}
 
     optlist = []
 
@@ -544,6 +557,11 @@ class SubtitleCopyCodec(BaseCodec):
             if len(safe['disposition'].strip()) < 1:
                 del safe['disposition']
 
+        if 'language' in safe:
+            l = safe['language']
+            if len(l) > 3:
+                del safe['language']
+
         stream = str(stream)
         optlist = []
         optlist.extend(['-c:s:' + stream, 'copy'])
@@ -553,6 +571,13 @@ class SubtitleCopyCodec(BaseCodec):
             s = str(0)
         if 'map' in safe:
             optlist.extend(['-map', s + ':' + str(safe['map'])])
+        if 'title' in safe:
+            optlist.extend(['-metadata:s:s:' + stream, "title=" + str(safe['title'])])
+        if 'language' in safe:
+            lang = str(safe['language'])
+        else:
+            lang = 'und'
+        optlist.extend(['-metadata:s:s:' + stream, "language=" + lang])
         return optlist
 
 

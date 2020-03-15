@@ -172,6 +172,15 @@ class MediaProcessor:
                     'y': dim['y']}
         return None
 
+    def audioStreamTitle(self, channels):
+        if channels == 1:
+            return "Mono"
+        if channels == 2:
+            return "Stereo"
+        if channels > 2:
+            return "%d.1 Channel" % (channels - 1)
+        return "Audio"
+
     # Determine if a file can be read by FFPROBE
     def isValidSource(self, inputfile):
         try:
@@ -454,6 +463,7 @@ class MediaProcessor:
                         'filter': self.settings.ua_filter,
                         'language': a.metadata['language'],
                         'disposition': ua_disposition,
+                        'title': self.audioStreamTitle(2),
                         'debug': 'universal-audio'
                     }
                     if not self.settings.ua_last:
@@ -548,6 +558,7 @@ class MediaProcessor:
                     'language': a.metadata['language'],
                     'disposition': adisposition,
                     'bsf': absf,
+                    'title': self.audioStreamTitle(audio_channels),
                     'debug': adebug
                 })
 
