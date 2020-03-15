@@ -224,7 +224,7 @@ class Metadata:
     def shortDescription(self):
         if self.description:
             return self.getShortDescription(self.description)
-        return None
+        return ""
 
     def getShortDescription(self, description, length=255, splitter='.', suffix='.'):
         if len(description) <= length:
