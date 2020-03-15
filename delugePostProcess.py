@@ -168,7 +168,6 @@ try:
             client.call('core.remove_torrent', torrent_id, True)
         except:
             log.exception("Unable to remove torrent from deluge.")
-    sys.exit(0)
 except:
     log.exception("Unexpected exception.")
     sys.exit(1)
