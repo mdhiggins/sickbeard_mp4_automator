@@ -64,6 +64,7 @@ class MediaFormatInfo(object):
         self.bitrate = None
         self.duration = None
         self.filesize = None
+        self.metadata = {}
 
     def parse_ffprobe(self, key, val):
         """
@@ -79,6 +80,11 @@ class MediaFormatInfo(object):
             self.duration = MediaStreamInfo.parse_float(val, None)
         elif key == 'size':
             self.size = MediaStreamInfo.parse_float(val, None)
+
+        if key.startswith('TAG:'):
+            key = key.split('TAG:')[1].lower()
+            value = val.lower().strip()
+            self.metadata[key] = value
 
     def __repr__(self):
         if self.duration is None:
