@@ -58,19 +58,24 @@ try:
 
     if force:
         log.debug("List of files in path override:")
-        for r, d, f in os.walk(path):
-            for file in f:
-                files.append(file)
-                log.debug(file)
+        if os.path.isdir(path):
+            for r, d, f in os.walk(path):
+                for file in f:
+                    files.append(file)
+                    log.debug(file)
+        else:
+            log.debug(path)
+            files.append(path)
+            path = os.path.dirname(path)
     else:
         log.debug("List of files in torrent:")
         for contents in torrent_files:
             try:
-                files.append(contents[b'path'].decode())
-                log.debug(contents[b'path'].decode())
+                files.append(os.path.join(path, contents[b'path'].decode()))
+                log.debug(os.path.join(path, contents[b'path'].decode()))
             except:
-                files.append(contents['path'])
-                log.debug(contents['path'])
+                files.append(os.path.join(path, contents['path']))
+                log.debug(os.path.join(path, contents['path']))
 
     if len([x for x in categories if x.startswith(category)]) < 1:
         log.error("No valid category detected.")
@@ -106,8 +111,7 @@ try:
             if len(files) < 1:
                 log.error("No files provided by torrent")
 
-            for filename in files:
-                inputfile = filename if force else os.path.join(path, filename)
+            for inputfile in files:
                 info = mp.isValidSource(inputfile)
                 if info:
                     log.info("Converting file %s at location %s." % (inputfile, settings.output_dir))
@@ -125,8 +129,7 @@ try:
                     os.mkdir(newpath)
                 except:
                     log.exception("Unable to make copy directory %s." % newpath)
-            for filename in files:
-                inputfile = filename if force else os.path.join(path, filename)
+            for inputfile in files:
                 log.info("Copying file %s to %s." % (inputfile, newpath))
                 shutil.copy(inputfile, newpath)
             path = newpath
