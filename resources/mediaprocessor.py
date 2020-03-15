@@ -297,7 +297,7 @@ class MediaProcessor:
 
         # Prep subtitle streams by cleaning up languages and setting SDL
         for s in info.subtitle:
-            s.metadata['language'] = getAlpha3TCode(a.metadata.get('language'), self.settings.sdl)
+            s.metadata['language'] = getAlpha3TCode(s.metadata.get('language'), self.settings.sdl)
         return awl, swl
 
     # Generate a dict of options to be passed to FFMPEG based on selected settings and the source file parameters and streams
