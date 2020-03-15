@@ -29,7 +29,7 @@ def getLogger(name=None, custompath=None):
         except:
             logpath = configpath
 
-    configfile = os.path.abspath(os.path.join(resourcepath, 'logging.ini')).replace("\\", "\\\\")
+    configfile = os.path.abspath(os.path.join(configpath, 'logging.ini')).replace("\\", "\\\\")
     logfile = os.path.abspath(os.path.join(logpath, 'sma.log')).replace("\\", "\\\\")
     fileConfig(configfile, defaults={'logfilename': logfile})
 
