@@ -114,11 +114,14 @@ class MediaProcessor:
 
             ripped_subs = self.ripSubs(inputfile, ripsubopts)
 
-            try:
-                outputfile, inputfile = self.convert(options, preopts, postopts, reportProgress)
-            except:
-                self.log.exception("Unexpected exception encountered during conversion")
-                return None
+            if self.canBypassConvert(inputfile, info, options):
+                outputfile = inputfile
+            else:
+                try:
+                    outputfile, inputfile = self.convert(options, preopts, postopts, reportProgress)
+                except:
+                    self.log.exception("Unexpected exception encountered during conversion")
+                    return None
 
             if not outputfile:
                 self.log.debug("Error converting, no outputfile generated for inputfile %s." % inputfile)
@@ -732,7 +735,7 @@ class MediaProcessor:
         }
 
         preopts = []
-        postopts = ['-threads', str(self.settings.threads)]
+        postopts = ['-threads', str(self.settings.threads), '-metadata:g', 'encoding_tool=SMA']
 
         if len(options['subtitle']) > 0:
             self.log.debug("Subtitle streams detected, adding fix_sub_duration option to preopts.")
@@ -1080,11 +1083,14 @@ class MediaProcessor:
             return True
         return False
 
-    def canBypassConvert(self, input_extension, options):
+    def canBypassConvert(self, inputfile, info, options):
         # Process same extensions
-        if self.settings.output_extension == input_extension:
+        if self.settings.output_extension == self.parseFile(inputfile)[2]:
             if not self.settings.force_convert and not self.settings.process_same_extensions:
                 self.log.info("Input and output extensions are the same so passing back the original file [process-same-extensions: %s]." % self.settings.process_same_extensions)
+                return True
+            elif info.format.metadata.get('encoder', '').startswith('sma') and not self.settings.force_convert:
+                self.log.info("Input and output extensions match and the file appears to have already been processed by SMA, enable force-convert to override [force-convert: %s]." % self.settings.force_convert)
                 return True
             # Force convert
             elif not self.settings.force_convert and len([x for x in [options['video']] + [x for x in options['audio']] + [x for x in options['subtitle']] if x['codec'] != 'copy']) == 0:
@@ -1108,9 +1114,6 @@ class MediaProcessor:
         if len(options['audio']) == 0:
             self.log.error("Conversion has no audio streams, aborting")
             return None, inputfile
-
-        if self.canBypassConvert(input_extension, options):
-            return inputfile, inputfile
 
         # Check if input file and the final output file are the same and preferentially rename files (input first, then output if that fails)
         if os.path.abspath(inputfile) == os.path.abspath(finaloutputfile):
