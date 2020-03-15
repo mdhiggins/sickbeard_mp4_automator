@@ -49,14 +49,28 @@ try:
         category = torrent_data['label'].lower()
 
     files = []
-    log.debug("List of files in torrent:")
-    for contents in torrent_files:
-        try:
-            files.append(contents[b'path'].decode())
-            log.debug(contents[b'path'].decode())
-        except:
-            files.append(contents['path'])
-            log.debug(contents['path'])
+
+    # Check forcepath which overrides talking to deluge for files and instead reads the path
+    try:
+        force = (str(sys.argv[4]).lower().strip() == 'forcepath')
+    except:
+        force = False
+
+    if force:
+        log.debug("List of files in path override:")
+        for r, d, f in os.walk(path):
+            for file in f:
+                files.append(file)
+                log.debug(file)
+    else:
+        log.debug("List of files in torrent:")
+        for contents in torrent_files:
+            try:
+                files.append(contents[b'path'].decode())
+                log.debug(contents[b'path'].decode())
+            except:
+                files.append(contents['path'])
+                log.debug(contents['path'])
 
     if len([x for x in categories if x.startswith(category)]) < 1:
         log.error("No valid category detected.")
@@ -93,7 +107,7 @@ try:
                 log.error("No files provided by torrent")
 
             for filename in files:
-                inputfile = os.path.join(path, filename)
+                inputfile = filename if force else os.path.join(path, filename)
                 info = mp.isValidSource(inputfile)
                 if info:
                     log.info("Converting file %s at location %s." % (inputfile, settings.output_dir))
@@ -112,7 +126,7 @@ try:
                 except:
                     log.exception("Unable to make copy directory %s." % newpath)
             for filename in files:
-                inputfile = os.path.join(path, filename)
+                inputfile = filename if force else os.path.join(path, filename)
                 log.info("Copying file %s to %s." % (inputfile, newpath))
                 shutil.copy(inputfile, newpath)
             path = newpath
