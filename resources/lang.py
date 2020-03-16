@@ -3,8 +3,11 @@ from babelfish import Language
 
 
 def getAlpha3TCode(code, default=None):
-    code = code.strip().lower().replace('.', '')
     lang = default or 'und'
+    if not code:
+        return lang
+
+    code = code.strip().lower().replace('.', '')
 
     if len(code) == 3:
         try:
@@ -26,8 +29,11 @@ def getAlpha3TCode(code, default=None):
 
 
 def getAlpha2BCode(code, default=None):
-    code = code.strip().lower().replace('.', '')
     lang = default or 'un'
+    if not code:
+        return lang
+
+    code = code.strip().lower().replace('.', '')
 
     if len(code) == 3:
         try:
