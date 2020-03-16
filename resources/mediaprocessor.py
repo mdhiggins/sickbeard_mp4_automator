@@ -23,6 +23,7 @@ except:
 
 class MediaProcessor:
     deletesubs = set()
+    default_channel_bitrate = 128
 
     def __init__(self, settings, logger=None):
         self.log = logger or logging.getLogger(__name__)
@@ -438,7 +439,7 @@ class MediaProcessor:
             if self.validLanguage(a.metadata['language'], awl, blocked_audio_languages):
                 # Create friendly audio stream if the default audio stream has too many channels
                 if ua and a.audio_channels > 2:
-                    ua_bitrate = 256 if (self.settings.abitrate * 2) > 256 else (self.settings.abitrate * 2)
+                    ua_bitrate = (self.default_channel_bitrate * 2) if (self.settings.abitrate * 2) > (self.default_channel_bitrate * 2) else (self.settings.abitrate * 2)
                     ua_disposition = a.disposition if self.settings.preservedisposition else None
 
                     # Bitrate calculations/overrides
@@ -447,8 +448,8 @@ class MediaProcessor:
                         try:
                             ua_bitrate = ((a.bitrate / 1000) / a.audio_channels) * 2
                         except:
-                            self.log.warning("Unable to determine universal audio bitrate from source stream %s, defaulting to 128 per channel." % a.index)
-                            ua_bitrate = 2 * 128
+                            self.log.warning("Unable to determine universal audio bitrate from source stream %s, defaulting to %d per channel." % (a.index, self.default_channel_bitrate))
+                            ua_bitrate = 2 * self.default_channel_bitrate
 
                     self.log.debug("Audio codec: %s." % self.settings.ua[0])
                     self.log.debug("Channels: 2.")
@@ -482,7 +483,7 @@ class MediaProcessor:
                     self.log.debug("Overriding default channel settings because universal audio is enabled but the source is stereo [universal-audio].")
                     acodec = 'copy' if a.codec in self.settings.ua else self.settings.ua[0]
                     audio_channels = a.audio_channels
-                    abitrate = a.audio_channels * 128 if (a.audio_channels * self.settings.abitrate) > (a.audio_channels * 128) else (a.audio_channels * self.settings.abitrate)
+                    abitrate = (a.audio_channels * self.default_channel_bitrate) if (a.audio_channels * self.settings.abitrate) > (a.audio_channels * self.default_channel_bitrate) else (a.audio_channels * self.settings.abitrate)
                     adebug = "universal-audio"
 
                     # UA Filters
@@ -532,8 +533,8 @@ class MediaProcessor:
                     try:
                         abitrate = ((a.bitrate / 1000) / a.audio_channels) * audio_channels
                     except:
-                        self.log.warning("Unable to determine audio bitrate from source stream %s, defaulting to 256 per channel." % a.index)
-                        abitrate = audio_channels * 256
+                        self.log.warning("Unable to determine audio bitrate from source stream %s, defaulting to %d per channel." % (a.index, self.default_channel_bitrate))
+                        abitrate = audio_channels * self.default_channel_bitrate
 
                 self.log.debug("Audio codec: %s." % acodec)
                 self.log.debug("Channels: %s." % audio_channels)
