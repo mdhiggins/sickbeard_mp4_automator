@@ -926,6 +926,7 @@ class MediaProcessor:
                     valid_external_sub = self.isValidSubtitleSource(os.path.join(dirName, fname))
                     if valid_external_sub:
                         subname, langext = os.path.splitext(subname)
+                        lang = 'und'
                         while langext:
                             lang = getAlpha3TCode(langext)
                             if lang != 'und':
