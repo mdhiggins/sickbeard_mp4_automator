@@ -439,11 +439,11 @@ class MediaProcessor:
             if self.validLanguage(a.metadata['language'], awl, blocked_audio_languages):
                 # Create friendly audio stream if the default audio stream has too many channels
                 if ua and a.audio_channels > 2:
-                    ua_bitrate = (self.default_channel_bitrate * 2) if (self.settings.abitrate * 2) > (self.default_channel_bitrate * 2) else (self.settings.abitrate * 2)
+                    ua_bitrate = (self.default_channel_bitrate * 2) if (self.settings.ua_bitrate * 2) > (self.default_channel_bitrate * 2) else (self.settings.ua_bitrate * 2)
                     ua_disposition = a.disposition if self.settings.preservedisposition else None
 
                     # Bitrate calculations/overrides
-                    if self.settings.abitrate == 0:
+                    if self.settings.ua_bitrate == 0:
                         self.log.debug("Attempting to set universal audio stream bitrate based on source stream bitrate.")
                         try:
                             ua_bitrate = ((a.bitrate / 1000) / a.audio_channels) * 2
@@ -483,7 +483,7 @@ class MediaProcessor:
                     self.log.debug("Overriding default channel settings because universal audio is enabled but the source is stereo [universal-audio].")
                     acodec = 'copy' if a.codec in self.settings.ua else self.settings.ua[0]
                     audio_channels = a.audio_channels
-                    abitrate = (a.audio_channels * self.default_channel_bitrate) if (a.audio_channels * self.settings.abitrate) > (a.audio_channels * self.default_channel_bitrate) else (a.audio_channels * self.settings.abitrate)
+                    abitrate = (a.audio_channels * self.default_channel_bitrate) if (a.audio_channels * self.settings.ua_bitrate) > (a.audio_channels * self.default_channel_bitrate) else (a.audio_channels * self.settings.ua_bitrate)
                     adebug = "universal-audio"
 
                     # UA Filters

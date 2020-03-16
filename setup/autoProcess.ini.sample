@@ -48,7 +48,7 @@ languages =
 default-language = 
 first-stream-of-language = False
 allow-language-relax = True
-channel-bitrate = 256
+channel-bitrate = 128
 max-channels = 0
 prefer-more-channels = True
 default-more-channels = True
@@ -60,6 +60,7 @@ ignore-truehd = mp4, m4v
 
 [Universal Audio]
 codec = aac
+channel-bitrate = 128
 first-stream-only = False
 move-after = False
 filter = 

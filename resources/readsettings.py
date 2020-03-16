@@ -123,7 +123,7 @@ class ReadSettings:
             'default-language': '',
             'first-stream-of-language': False,
             'allow-language-relax': True,
-            'channel-bitrate': 256,
+            'channel-bitrate': 128,
             'max-channels': 0,
             'prefer-more-channels': True,
             'default-more-channels': True,
@@ -135,6 +135,7 @@ class ReadSettings:
         },
         'Universal Audio': {
             'codec': 'aac',
+            'channel-bitrate': 128,
             'first-stream-only': False,
             'move-after': False,
             'filter': '',
@@ -647,6 +648,7 @@ class ReadSettings:
         # Universal Audio
         section = "Universal Audio"
         self.ua = config.getlist(section, "codec")
+        self.ua_bitrate = config.getint(section, "channel-bitrate")
         self.ua_first_only = config.getboolean(section, "first-stream-only")
         self.ua_last = config.getboolean(section, "move-after")
         self.ua_filter = config.get(section, "filter")
