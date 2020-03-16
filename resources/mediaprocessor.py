@@ -439,6 +439,9 @@ class MediaProcessor:
             if self.validLanguage(a.metadata['language'], awl, blocked_audio_languages):
                 # Create friendly audio stream if the default audio stream has too many channels
                 if ua and a.audio_channels > 2:
+                    if self.settings.ua_bitrate == 0:
+                        self.log.warning("Universal audio channel bitrate must be greater than 0, defaulting to %d [universal-audio-channel-bitrate]." % self.default_channel_bitrate)
+                        self.settings.ua_bitrate = self.default_channel_bitrate
                     ua_bitrate = (self.default_channel_bitrate * 2) if (self.settings.ua_bitrate * 2) > (self.default_channel_bitrate * 2) else (self.settings.ua_bitrate * 2)
                     ua_disposition = a.disposition if self.settings.preservedisposition else None
 
@@ -535,6 +538,9 @@ class MediaProcessor:
                     except:
                         self.log.warning("Unable to determine audio bitrate from source stream %s, defaulting to %d per channel." % (a.index, self.default_channel_bitrate))
                         abitrate = audio_channels * self.default_channel_bitrate
+                if self.settings.amaxbitrate and abitrate > self.settings.amaxbitrate:
+                    self.log.debug("Calculated bitrate of %d exceeds maximum bitrate %d, setting to max value [audio-max-bitrate]." % (abitrate, self.settings.amaxbitrate))
+                    abitrate = self.settings.amaxbitrate
 
                 self.log.debug("Audio codec: %s." % acodec)
                 self.log.debug("Channels: %s." % audio_channels)

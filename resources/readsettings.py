@@ -124,6 +124,7 @@ class ReadSettings:
             'first-stream-of-language': False,
             'allow-language-relax': True,
             'channel-bitrate': 128,
+            'max-bitrate': 0,
             'max-channels': 0,
             'prefer-more-channels': True,
             'default-more-channels': True,
@@ -634,6 +635,7 @@ class ReadSettings:
         self.awl = config.getlist(section, 'languages')
         self.adl = config.get(section, 'default-language').lower()
         self.abitrate = config.getint(section, "channel-bitrate")
+        self.amaxbitrate = config.getint(section, 'max-bitrate')
         self.maxchannels = config.getint(section, 'max-channels')
         self.prefer_more_channels = config.getboolean(section, "prefer-more-channels")
         self.default_more_channels = config.getboolean(section, "default-more-channels")

@@ -49,6 +49,7 @@ default-language =
 first-stream-of-language = False
 allow-language-relax = True
 channel-bitrate = 128
+max-bitrate = 0
 max-channels = 0
 prefer-more-channels = True
 default-more-channels = True
