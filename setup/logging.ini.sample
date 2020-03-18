@@ -51,6 +51,7 @@ args = ('%(logfilename)s', 10000, 1)
 class = handlers.SysLogHandler
 level = INF
 formatter = simpleFormatter
+args = ('/dev/log', 'sma')
 
 [formatter_simpleFormatter]
 format = %(asctime)s - %(name)s - %(levelname)s - %(message)s

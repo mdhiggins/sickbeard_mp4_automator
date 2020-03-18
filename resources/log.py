@@ -61,6 +61,7 @@ defaults = {
         'class': 'handlers.SysLogHandler',
         'level': 'INFO',
         'formatter': 'simpleFormatter',
+        'args': "('/dev/log/', 'sma')",
     },
     'formatter_simpleFormatter': {
         'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
