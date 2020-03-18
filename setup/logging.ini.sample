@@ -2,7 +2,7 @@
 keys = root, manual, nzbget
 
 [handlers]
-keys = consoleHandler, nzbgetHandler, fileHandler, manualHandler
+keys = consoleHandler, nzbgetHandler, fileHandler, manualHandler, sysLogHandler
 
 [formatters]
 keys = simpleFormatter, minimalFormatter, nzbgetFormatter
@@ -31,7 +31,7 @@ args = (sys.stdout,)
 
 [handler_nzbgetHandler]
 class = StreamHandler
-level = DEBUG
+level = INFO
 formatter = nzbgetFormatter
 args = (sys.stdout,)
 
@@ -47,6 +47,11 @@ level = INFO
 formatter = simpleFormatter
 args = ('%(logfilename)s', 10000, 1)
 
+[handler_sysLogHandler]
+class = handlers.SysLogHandler
+level = INF
+formatter = simpleFormatter
+
 [formatter_simpleFormatter]
 format = %(asctime)s - %(name)s - %(levelname)s - %(message)s
 datefmt = %Y-%m-%d %H:%M:%S
@@ -58,4 +63,3 @@ datefmt =
 [formatter_nzbgetFormatter]
 format = [%(levelname)s] %(message)s
 datefmt = 
-

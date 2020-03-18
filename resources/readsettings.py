@@ -818,6 +818,8 @@ class ReadSettings:
         self.Plex['token'] = config.get(section, "token")
 
     def writeConfig(self, config, cfgfile):
+        if not os.path.isdir(os.path.dirname(cfgfile)):
+            os.mkdir(os.path.dirname(cfgfile))
         try:
             fp = open(cfgfile, "w")
             config.write(fp)

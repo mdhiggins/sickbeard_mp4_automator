@@ -12,7 +12,7 @@ defaults = {
         'keys': 'root, manual, nzbget',
     },
     'handlers': {
-        'keys': 'consoleHandler, nzbgetHandler, fileHandler, manualHandler',
+        'keys': 'consoleHandler, nzbgetHandler, fileHandler, manualHandler, sysLogHandler',
     },
     'formatters': {
         'keys': 'simpleFormatter, minimalFormatter, nzbgetFormatter',
@@ -56,6 +56,11 @@ defaults = {
         'level': 'INFO',
         'formatter': 'simpleFormatter',
         'args': "('%(logfilename)s', 10000, 1)",
+    },
+    'handler_sysLogHandler': {
+        'class': 'handlers.SysLogHandler',
+        'level': 'INFO',
+        'formatter': 'simpleFormatter',
     },
     'formatter_simpleFormatter': {
         'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -104,16 +109,12 @@ def getLogger(name=None, custompath=None):
         rootpath = os.path.abspath(os.path.join(resourcepath, "../"))
         configpath = os.path.join(rootpath, "config")
 
-    if os.name == 'nt':
-        logpath = configpath
-    else:
-        logpath = '/var/log'
-
+    logpath = configpath
     if not os.path.isdir(logpath):
-        try:
-            os.mkdir(logpath)
-        except:
-            logpath = configpath
+        os.mkdir(logpath)
+
+    if not os.path.isdir(configpath):
+        os.mkdir(configpath)
 
     configfile = os.path.abspath(os.path.join(configpath, 'logging.ini')).replace("\\", "\\\\")
     checkLoggingConfig(configfile)
