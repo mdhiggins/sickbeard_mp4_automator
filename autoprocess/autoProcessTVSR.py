@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #
 # This file is adapted from the autoProcessTV file included with SickRage.

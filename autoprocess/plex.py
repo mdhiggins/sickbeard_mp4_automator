@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 try:
     from urllib.request import urlopen
 except ImportError:
