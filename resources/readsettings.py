@@ -824,6 +824,10 @@ class ReadSettings:
             fp = open(cfgfile, "w")
             config.write(fp)
             fp.close()
+            try:
+                os.chmod(cfgfile, int('0664', 8))
+            except:
+                self.log.exception("Unable to set permissions")
         except IOError:
             self.log.exception("Error writing to autoProcess.ini.")
         except PermissionError:
