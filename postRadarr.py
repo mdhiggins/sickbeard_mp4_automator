@@ -17,7 +17,7 @@ if os.environ.get('radarr_eventtype') == "Test":
 
 settings = ReadSettings()
 
-log.info(os.environ)
+log.debug(os.environ)
 
 inputfile = os.environ.get('radarr_moviefile_path')
 original = os.environ.get('radarr_moviefile_scenename')

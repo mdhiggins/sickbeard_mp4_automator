@@ -17,6 +17,8 @@ if os.environ.get('sonarr_eventtype') == "Test":
 
 settings = ReadSettings()
 
+log.debug(os.environ)
+
 inputfile = os.environ.get('sonarr_episodefile_path')
 original = os.environ.get('sonarr_episodefile_scenename')
 tvdb_id = int(os.environ.get('sonarr_series_tvdbid'))
