@@ -1004,7 +1004,7 @@ class MediaProcessor:
 
     def setPermissions(self, path):
         try:
-            os.chmod(path, self.settings.permissions.get('chmod', int('0664', 8)))
+            os.chmod(path, self.settings.permissions.get('chmod', int('0755', 8)))
             if os.name != 'nt':
                 os.chown(path, self.settings.permissions.get('uid', -1), self.settings.permissions.get('gid', -1))
         except:

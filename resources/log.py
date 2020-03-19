@@ -103,10 +103,6 @@ def checkLoggingConfig(configfile):
         fp = open(configfile, "w")
         config.write(fp)
         fp.close()
-        try:
-            os.chmod(configfile, int('0664', 8))
-        except:
-            pass
 
 
 def getLogger(name=None, custompath=None):
