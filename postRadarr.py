@@ -15,9 +15,13 @@ log.info("Radarr extra script post processing started.")
 if os.environ.get('radarr_eventtype') == "Test":
     sys.exit(0)
 
-settings = ReadSettings()
+if len(sys.argv > 1) and os.path.exists(sys.argv[1]):
+    log.info("Overriding config path to %s." % sys.argv[1])
+    settings = ReadSettings(sys.argv[1])
+else:
+    settings = ReadSettings()
 
-log.info(os.environ)
+log.debug(os.environ)
 
 inputfile = os.environ.get('radarr_moviefile_path')
 original = os.environ.get('radarr_moviefile_scenename')
