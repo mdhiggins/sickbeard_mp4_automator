@@ -15,13 +15,7 @@ log.info("Sonarr extra script post processing started.")
 if os.environ.get('sonarr_eventtype') == "Test":
     sys.exit(0)
 
-if len(sys.argv > 1) and os.path.exists(sys.argv[1]):
-    log.info("Overriding config path to %s." % sys.argv[1])
-    settings = ReadSettings(sys.argv[1])
-else:
-    settings = ReadSettings()
-
-log.debug(os.environ)
+settings = ReadSettings()
 
 inputfile = os.environ.get('sonarr_episodefile_path')
 original = os.environ.get('sonarr_episodefile_scenename')
