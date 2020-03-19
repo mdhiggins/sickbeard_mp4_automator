@@ -49,7 +49,7 @@ args = ('%(logfilename)s', 10000, 1)
 
 [handler_sysLogHandler]
 class = handlers.SysLogHandler
-level = INF
+level = INFO
 formatter = simpleFormatter
 args = ('/dev/log', 'sma')
 
