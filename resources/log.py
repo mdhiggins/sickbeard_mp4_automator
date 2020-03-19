@@ -91,6 +91,14 @@ def checkLoggingConfig(configfile):
         for k in defaults[s]:
             if not config.has_option(s, k):
                 config.set(s, k, str(defaults[s][k]))
+
+    # Remove sysLogHandler if you're on Windows
+    if os.name == 'nt' and 'sysLogHandler' in config.get('handlers', 'keys'):
+        config.set('handlers', 'keys', config.get('handlers', 'keys').replace('sysLogHandler', ''))
+        write = True
+    while config.get('handlers', 'keys').endswith(",") or config.get('handlers', 'keys').endswith(" "):
+        config.set('handlers', 'keys', config.get('handlers', 'keys')[:-1])
+        write = True
     if write:
         fp = open(configfile, "w")
         config.write(fp)
