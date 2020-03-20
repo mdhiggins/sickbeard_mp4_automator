@@ -403,6 +403,9 @@ class VideoCodec(BaseCodec):
                 optlist.extend(['-bufsize', str(safe['bufsize'])])
         elif 'bitrate' in safe:
             optlist.extend(['-vb', str(safe['bitrate']) + 'k'])
+        if 'bitrate' in safe:
+            optlist.extend(['-metadata:s:v', 'BPS=' + str(safe['bitrate'] * 1000)])
+            optlist.extend(['-metadata:s:v', 'BPS-eng=' + str(safe['bitrate'] * 1000)])
         if 'filter' in safe:
             optlist.extend(['-vf', str(safe['filter'])])
         if filters:
