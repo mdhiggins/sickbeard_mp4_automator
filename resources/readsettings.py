@@ -87,7 +87,7 @@ class ReadSettings:
             'copy-to': '',
             'move-to': '',
             'delete-original': True,
-            'sort-streams': False,
+            'sort-streams': True,
             'process-same-extensions': False,
             'force-convert': False,
             'post-process': False,
