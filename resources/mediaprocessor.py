@@ -716,7 +716,6 @@ class MediaProcessor:
 
         # Sort Options
         try:
-            self.sortStreams(audio_settings, awl)
             self.sortStreams(subtitle_settings, swl)
         except:
             self.log.exception("Error sorting output stream options [sort-streams].")
