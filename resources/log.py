@@ -12,7 +12,7 @@ defaults = {
         'keys': 'root, manual, nzbget',
     },
     'handlers': {
-        'keys': 'consoleHandler, nzbgetHandler, fileHandler, manualHandler, sysLogHandler',
+        'keys': 'consoleHandler, nzbgetHandler, fileHandler, manualHandler',
     },
     'formatters': {
         'keys': 'simpleFormatter, minimalFormatter, nzbgetFormatter',
@@ -57,12 +57,6 @@ defaults = {
         'formatter': 'simpleFormatter',
         'args': "('%(logfilename)s', 10000, 1)",
     },
-    'handler_sysLogHandler': {
-        'class': 'handlers.SysLogHandler',
-        'level': 'INFO',
-        'formatter': 'simpleFormatter',
-        'args': "('/dev/log/', 'sma')",
-    },
     'formatter_simpleFormatter': {
         'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         'datefmt': '%Y-%m-%d %H:%M:%S',
@@ -93,7 +87,7 @@ def checkLoggingConfig(configfile):
                 config.set(s, k, str(defaults[s][k]))
 
     # Remove sysLogHandler if you're on Windows
-    if os.name == 'nt' and 'sysLogHandler' in config.get('handlers', 'keys'):
+    if 'sysLogHandler' in config.get('handlers', 'keys'):
         config.set('handlers', 'keys', config.get('handlers', 'keys').replace('sysLogHandler', ''))
         write = True
     while config.get('handlers', 'keys').endswith(",") or config.get('handlers', 'keys').endswith(" "):

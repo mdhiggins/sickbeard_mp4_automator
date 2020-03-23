@@ -2,7 +2,7 @@
 keys = root, manual, nzbget
 
 [handlers]
-keys = consoleHandler, nzbgetHandler, fileHandler, manualHandler, sysLogHandler
+keys = consoleHandler, nzbgetHandler, fileHandler, manualHandler
 
 [formatters]
 keys = simpleFormatter, minimalFormatter, nzbgetFormatter
@@ -46,12 +46,6 @@ class = handlers.RotatingFileHandler
 level = INFO
 formatter = simpleFormatter
 args = ('%(logfilename)s', 10000, 1)
-
-[handler_sysLogHandler]
-class = handlers.SysLogHandler
-level = INFO
-formatter = simpleFormatter
-args = ('/dev/log', 'sma')
 
 [formatter_simpleFormatter]
 format = %(asctime)s - %(name)s - %(levelname)s - %(message)s
