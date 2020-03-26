@@ -585,6 +585,7 @@ class MediaProcessor:
                         'channels': a.audio_channels,
                         'language': a.metadata['language'],
                         'disposition': adisposition,
+                        'title': self.audioStreamTitle(a.audio_channels),
                         'debug': 'audio-copy-original'
                     })
 
