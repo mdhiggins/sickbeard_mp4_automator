@@ -52,18 +52,27 @@ try:
             log.debug("Overriding output_dir to %s." % settings.SAB['output_dir'])
 
         mp = MediaProcessor(settings)
+        ignore = []
         for r, d, f in os.walk(path):
             for files in f:
                 inputfile = os.path.join(r, files)
                 info = mp.isValidSource(inputfile)
-                if info:
+                if info and inputfile not in ignore:
                     log.info("Processing file %s." % inputfile)
                     try:
                         output = mp.process(inputfile, info=info)
+                        if output and output.get('output'):
+                            log.info("Successfully processed %s." % inputfile)
+                            ignore.append(output.get('output'))
+                        else:
+                            log.error("Converting file failed %s." % inputfile)
                     except:
                         log.exception("Error converting file %s." % inputfile)
                 else:
                     log.debug("Ignoring file %s." % inputfile)
+        if len(ignore) < 1:
+            log.error("No valid files found for conversion in download, aborting.")
+            sys.exit(1)
         if settings.output_dir:
             path = settings.output_dir
     else:

@@ -180,19 +180,28 @@ if 'NZBOP_SCRIPTDIR' in os.environ and not os.environ['NZBOP_VERSION'][0:5] < '1
         if output_dir:
             settings.output_dir = output_dir
         mp = MediaProcessor(settings, logger=log)
+        ignore = []
         for r, d, f in os.walk(path):
             for files in f:
                 inputfile = os.path.join(r, files)
                 #DEBUG#print inputfile
-                #Ignores files under 50MB
-                if os.path.getsize(inputfile) > 50000000:
-                    info = mp.isValidSource(inputfile)
-                    if info:
-                        try:
-                            output = mp.process(inputfile, info=info)
+                info = mp.isValidSource(inputfile)
+                if info and inputfile not in ignore:
+                    log.info("Processing file %s." % inputfile)
+                    try:
+                        output = mp.process(inputfile, info=info)
+                        if output and output.get('output'):
                             log.info("Successfully processed %s." % inputfile)
-                        except:
-                            log.exception("File processing failed.")
+                            ignore.append(output.get('output'))
+                        else:
+                            log.error("Converting file failed %s." % inputfile)
+                    except:
+                        log.exception("File processing failed.")
+                else:
+                    log.debug("Ignoring file %s." % inputfile)
+        if len(ignore) < 1:
+            log.error("No valid files for processing found, aborting.")
+            sys.exit(POSTPROCESS_ERROR)
         if settings.output_dir:
             path = settings.output_dir
     if (sickbeardcat.startswith(category)):

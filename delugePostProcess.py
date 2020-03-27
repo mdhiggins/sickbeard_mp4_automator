@@ -111,14 +111,23 @@ try:
             if len(files) < 1:
                 log.error("No files provided by torrent")
 
+            ignore = []
             for inputfile in files:
                 info = mp.isValidSource(inputfile)
-                if info:
-                    log.info("Converting file %s at location %s." % (inputfile, settings.output_dir))
+                if info and inputfile not in ignore:
+                    log.info("Processing file %s." % inputfile)
                     try:
                         output = mp.process(inputfile, info=info)
+                        if output and output.get('output'):
+                            log.info("Successfully processed %s." % inputfile)
+                            ignore.append(output.get('output'))
+                        else:
+                            log.error("Converting file failed %s." % inputfile)
                     except:
                         log.exception("Error converting file %s." % inputfile)
+            if len(ignore) < 1:
+                log.error("No valid files detected for conversion in download, aborting.")
+                sys.exit(1)
 
             path = settings.output_dir
         else:

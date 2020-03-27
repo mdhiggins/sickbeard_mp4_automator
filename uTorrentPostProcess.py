@@ -151,6 +151,9 @@ try:
                     output = mp.process(inputfile, info=info)
                 except:
                     log.exception("Error converting file %s." % inputfile)
+                if not output:
+                    log.error("No output file generated for single torrent download.")
+                    sys.exit(1)
             else:
                 log.debug("Ignoring file %s." % inputfile)
         else:
@@ -164,14 +167,18 @@ try:
                         log.info("Processing file %s." % inputfile)
                         try:
                             output = mp.process(inputfile, info=info)
-                            if output is not False:
-                                ignore.append(output['output'])
+                            if output and output.get('output'):
+                                ignore.append(output.get('output'))
                             else:
                                 log.error("Converting file failed %s." % inputfile)
                         except:
                             log.exception("Error converting file %s." % inputfile)
                     else:
                         log.debug("Ignoring file %s." % inputfile)
+            if len(ignore) < 1:
+                log.error("No output files generated for the entirety of this mutli file torrent, aborting.")
+                sys.exit(1)
+
         path = settings.output_dir
         delete_dir = settings.output_dir
     else:
