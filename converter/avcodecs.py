@@ -115,7 +115,14 @@ class AudioCodec(BaseCodec):
         if 'map' in safe:
             optlist.extend(['-map', s + ':' + str(safe['map'])])
         if 'disposition' in safe:
-            optlist.extend(['-disposition:a:' + stream, str(safe['disposition'])])
+            dispo = str(safe['disposition'])
+            if '+default' not in dispo:
+                dispo = dispo + '-default'
+            if '+forced' not in dispo:
+                dispo = dispo + '-forced'
+            optlist.extend(['-disposition:a:' + stream, dispo])
+        else:
+            optlist.extend(['-disposition:a:' + stream, '-default-forced'])
         if 'channels' in safe:
             optlist.extend(['-ac:a:' + stream, str(safe['channels'])])
         if 'bitrate' in safe:
@@ -193,7 +200,14 @@ class SubtitleCodec(BaseCodec):
         if 'map' in safe:
             optlist.extend(['-map', s + ':' + str(safe['map'])])
         if 'disposition' in safe:
-            optlist.extend(['-disposition:s:' + stream, str(safe['disposition'])])
+            dispo = str(safe['disposition'])
+            if '+default' not in dispo:
+                dispo = dispo + '-default'
+            if '+forced' not in dispo:
+                dispo = dispo + '-forced'
+            optlist.extend(['-disposition:s:' + stream, dispo])
+        else:
+            optlist.extend(['-disposition:s:' + stream, '-default-forced'])
         if 'path' in safe:
             optlist.extend(['-i', str(safe['path'])])
         if 'title' in safe:
