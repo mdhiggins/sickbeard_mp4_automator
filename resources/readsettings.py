@@ -83,6 +83,7 @@ class ReadSettings:
             'output-format': 'mp4',
             'output-extension': 'mp4',
             'temp-extension': '',
+            'minimum-size': '0',
             'ignored-extensions': 'nfo, ds_store',
             'copy-to': '',
             'move-to': '',
@@ -550,6 +551,7 @@ class ReadSettings:
         self.output_format = config.get(section, "output-format")
         self.output_extension = config.getextension(section, "output-extension")
         self.temp_extension = config.getextension(section, "temp-extension")
+        self.minimum_size = config.getint(section, "minimum-size")
         self.ignored_extensions = config.getlist(section, 'ignored-extensions', replace=[' ', '.'])
         self.copyto = config.getdirectories(section, "copy-to", separator='|')
         self.moveto = config.getdirectory(section, "move-to")

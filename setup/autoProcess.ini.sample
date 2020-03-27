@@ -8,6 +8,7 @@ output-directory =
 output-format = mp4
 output-extension = mp4
 temp-extension = 
+minimum-size = 0
 ignored-extensions = nfo, ds_store
 copy-to = 
 move-to = 

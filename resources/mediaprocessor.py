@@ -194,6 +194,9 @@ class MediaProcessor:
             extension = self.parseFile(inputfile)[2]
             if extension in self.settings.ignored_extensions:
                 return None
+            if self.settings.minimum_size > 0 and os.path.getsize(inputfile) < (self.settings.minimum_size * 1000000):
+                self.log.debug("Invalid source, below minimum size threshold [minimum-size].")
+                return None
             info = self.converter.probe(inputfile)
             if not info:
                 self.log.debug("Invalid source, no data returned.")
