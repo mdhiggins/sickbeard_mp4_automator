@@ -117,6 +117,9 @@ class MediaProcessor:
 
             if self.canBypassConvert(inputfile, info, options):
                 outputfile = inputfile
+                for sub in downloaded_subs:
+                    self.log.debug("Removing downloaded sub %s for media that is not being converted." % (sub))
+                    self.removeFile(sub)
             else:
                 try:
                     outputfile, inputfile = self.convert(options, preopts, postopts, reportProgress)
@@ -265,6 +268,9 @@ class MediaProcessor:
             suboutputfile = self.getSubOutputFileFromOptions(inputfile, suboptions, extension)
             subcmds = self.converter.ffmpeg.generateCommands(suboutputfile, subparsed)
             dump["ffmpeg_commands"].append(" ".join(str(item) for item in subcmds))
+        for sub in dump["downloadedsubs"]:
+            self.log.debug("Cleaning up downloaded sub %s which was only used to simulate options." % (sub))
+            self.removeFile(sub)
 
         return json.dumps(dump, sort_keys=False, indent=4)
 
