@@ -522,7 +522,14 @@ class AudioCopyCodec(BaseCodec):
             lang = 'und'
         optlist.extend(['-metadata:s:a:' + stream, "language=" + lang])
         if 'disposition' in safe:
-            optlist.extend(['-disposition:a:' + stream, str(safe['disposition'])])
+            dispo = str(safe['disposition'])
+            if '+default' not in dispo:
+                dispo = dispo + '-default'
+            if '+forced' not in dispo:
+                dispo = dispo + '-forced'
+            optlist.extend(['-disposition:a:' + stream, dispo])
+        else:
+            optlist.extend(['-disposition:a:' + stream, '-default-forced'])
         return optlist
 
 
@@ -597,6 +604,15 @@ class SubtitleCopyCodec(BaseCodec):
         else:
             lang = 'und'
         optlist.extend(['-metadata:s:s:' + stream, "language=" + lang])
+        if 'disposition' in safe:
+            dispo = str(safe['disposition'])
+            if '+default' not in dispo:
+                dispo = dispo + '-default'
+            if '+forced' not in dispo:
+                dispo = dispo + '-forced'
+            optlist.extend(['-disposition:s:' + stream, dispo])
+        else:
+            optlist.extend(['-disposition:s:' + stream, '-default-forced'])
         return optlist
 
 
@@ -606,17 +622,12 @@ class AttachmentCopyCodec(BaseCodec):
     """
     codec_name = 'copy'
     encoder_options = {'map': int,
-                       'source': str,
-                       'disposition': str}
+                       'source': str}
 
     optlist = []
 
     def parse_options(self, opt, stream=0):
         safe = self.safe_options(opt)
-
-        if 'disposition' in safe:
-            if len(safe['disposition'].strip()) < 1:
-                del safe['disposition']
 
         stream = str(stream)
         optlist = []
