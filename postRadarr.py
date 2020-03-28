@@ -96,7 +96,7 @@ try:
 
                     # Then set that movie to monitored
                     log.debug("Sending PUT request with following payload:")
-                    log.info(str(payload))  # debug
+                    log.debug(str(payload))  # debug
 
                     url = protocol + host + ":" + str(port) + webroot + "/api/movie/" + str(movieID)
                     r = requests.put(url, json=payload, headers=headers)
@@ -107,6 +107,7 @@ try:
                     log.info("Radarr monitoring information updated for movie %s." % success['title'])
                 else:
                     log.error("Rescan command timed out")
+                    sys.exit(1)
             else:
                 log.error("Your Radarr API Key is blank. Update autoProcess.ini to enable status updates.")
         except:

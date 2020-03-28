@@ -119,8 +119,9 @@ try:
                     log.info("Sonarr monitoring information updated for episode %s." % success['title'])
                 else:
                     log.error("Rescan command timed out")
+                    sys.exit(1)
             else:
-                log.error("Your Sonarr API Key can not be blank. Update autoProcess.ini.")
+                log.error("Your Sonarr API Key is blank. Update autoProcess.ini to enable status updates.")
         except:
             log.exception("Sonarr monitor status update failed.")
     else:
