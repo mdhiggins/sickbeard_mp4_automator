@@ -82,29 +82,33 @@ try:
                     r = requests.get(url, headers=headers)
                     command = r.json()
                     attempts += 1
-                log.info("Command completed")
+
                 log.debug(str(command))
+                if command['state'].lower() in ['complete', 'completed']:
+                    log.info("Rescan command completed")
 
-                # Then get movie information
-                url = protocol + host + ":" + str(port) + webroot + "/api/movie/" + movieID
-                log.info("Requesting updated information from Radarr for movie ID %s." % movieID)
-                r = requests.get(url, headers=headers)
-                payload = r.json()
-                payload['monitored'] = True
+                    # Then get movie information
+                    url = protocol + host + ":" + str(port) + webroot + "/api/movie/" + movieID
+                    log.info("Requesting updated information from Radarr for movie ID %s." % movieID)
+                    r = requests.get(url, headers=headers)
+                    payload = r.json()
+                    payload['monitored'] = True
 
-                # Then set that movie to monitored
-                log.debug("Sending PUT request with following payload:")
-                log.info(str(payload))  # debug
+                    # Then set that movie to monitored
+                    log.debug("Sending PUT request with following payload:")
+                    log.info(str(payload))  # debug
 
-                url = protocol + host + ":" + str(port) + webroot + "/api/movie/" + str(movieID)
-                r = requests.put(url, json=payload, headers=headers)
-                success = r.json()
+                    url = protocol + host + ":" + str(port) + webroot + "/api/movie/" + str(movieID)
+                    r = requests.put(url, json=payload, headers=headers)
+                    success = r.json()
 
-                log.debug("PUT request returned:")
-                log.debug(str(success))
-                log.info("Radarr monitoring information updated for movie %s." % success['title'])
+                    log.debug("PUT request returned:")
+                    log.debug(str(success))
+                    log.info("Radarr monitoring information updated for movie %s." % success['title'])
+                else:
+                    log.error("Rescan command timed out")
             else:
-                log.error("Your Radarr API Key can not be blank. Update autoProcess.ini.")
+                log.error("Your Radarr API Key is blank. Update autoProcess.ini to enable status updates.")
         except:
             log.exception("Radarr monitor status update failed.")
     else:

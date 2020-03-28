@@ -89,32 +89,36 @@ try:
                     r = requests.get(url, headers=headers)
                     command = r.json()
                     attempts += 1
-                log.info("Command completed.")
-                log.info(str(command))
 
-                # Then get episode information
-                url = protocol + host + ":" + str(port) + webroot + "/api/episode?seriesId=" + seriesID
-                log.info("Requesting updated episode information from Sonarr for series ID %s." % seriesID)
-                r = requests.get(url, headers=headers)
-                payload = r.json()
-                sonarrepinfo = None
-                for ep in payload:
-                    if int(ep['episodeNumber']) == episode and int(ep['seasonNumber']) == season:
-                        sonarrepinfo = ep
-                        break
-                sonarrepinfo['monitored'] = True
+                log.debug(str(command))
+                if command['state'].lower() in ['complete', 'completed']:
+                    log.info("Rescan command completed")
 
-                # Then set that episode to monitored
-                log.debug("Sending PUT request with following payload:")
-                log.debug(str(sonarrepinfo))
+                    # Then get episode information
+                    url = protocol + host + ":" + str(port) + webroot + "/api/episode?seriesId=" + seriesID
+                    log.info("Requesting updated episode information from Sonarr for series ID %s." % seriesID)
+                    r = requests.get(url, headers=headers)
+                    payload = r.json()
+                    sonarrepinfo = None
+                    for ep in payload:
+                        if int(ep['episodeNumber']) == episode and int(ep['seasonNumber']) == season:
+                            sonarrepinfo = ep
+                            break
+                    sonarrepinfo['monitored'] = True
 
-                url = protocol + host + ":" + str(port) + webroot + "/api/episode/" + str(sonarrepinfo['id'])
-                r = requests.put(url, json=sonarrepinfo, headers=headers)
-                success = r.json()
+                    # Then set that episode to monitored
+                    log.debug("Sending PUT request with following payload:")
+                    log.debug(str(sonarrepinfo))
 
-                log.debug("PUT request returned:")
-                log.debug(str(success))
-                log.info("Sonarr monitoring information updated for episode %s." % success['title'])
+                    url = protocol + host + ":" + str(port) + webroot + "/api/episode/" + str(sonarrepinfo['id'])
+                    r = requests.put(url, json=sonarrepinfo, headers=headers)
+                    success = r.json()
+
+                    log.debug("PUT request returned:")
+                    log.debug(str(success))
+                    log.info("Sonarr monitoring information updated for episode %s." % success['title'])
+                else:
+                    log.error("Rescan command timed out")
             else:
                 log.error("Your Sonarr API Key can not be blank. Update autoProcess.ini.")
         except:
