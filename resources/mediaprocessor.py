@@ -1110,12 +1110,13 @@ class MediaProcessor:
             elif info.format.metadata.get('encoder', '').startswith('sma') and not self.settings.force_convert:
                 self.log.info("Input and output extensions match and the file appears to have already been processed by SMA, enable force-convert to override [force-convert: %s]." % self.settings.force_convert)
                 return True
-            # Force convert
+            '''
             elif not self.settings.force_convert and len([x for x in [options['video']] + [x for x in options['audio']] + [x for x in options['subtitle']] if x['codec'] != 'copy']) == 0:
                 self.log.info("Input and output extensions match and every codec is copy, this file probably doesn't need conversion, returning [force-convert: %s]." % self.settings.force_convert)
                 return True
             elif self.settings.force_convert:
                 self.log.info("Input and output extensions match and every codec is copy, this file probably doesn't need conversion, but conversion being forced [force-convert: %s]." % self.settings.force_convert)
+            '''
         return False
 
     # Encode a new file based on selected options, built in naming conflict resolution
