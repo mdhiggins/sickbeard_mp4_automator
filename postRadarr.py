@@ -30,17 +30,18 @@ def rescanAndWait(host, port, webroot, apikey, protocol, movieid, log, retries=6
     command = r.json()
     attempts = 0
     while command['state'].lower() not in ['complete', 'completed'] and attempts < retries:
-        log.info(str(command['state']))
+        log.debug("State: %s." % (command['state']))
         time.sleep(delay)
         r = requests.get(url, headers=headers)
         command = r.json()
         attempts += 1
-
+    log.info("Final state: %s." % (command['state']))
     log.debug(str(command))
     return command['state'].lower() in ['complete', 'completed']
 
 
 def getMovieInformation(host, port, webroot, apikey, protocol, movieid, log):
+    headers = {'X-Api-Key': apikey}
     url = protocol + host + ":" + str(port) + webroot + "/api/movie/" + movieid
     log.info("Requesting updated information from Radarr for movie ID %s." % movieid)
     r = requests.get(url, headers=headers)
@@ -96,12 +97,12 @@ try:
                 if rescanAndWait(host, port, webroot, apikey, protocol, movieid, log):
                     log.info("Rescan command completed")
 
-                    payload = getMovieInformation(host, port, webroot, apikey, protocol, movieid, log)
-                    if not payload.get('hasFile'):
+                    movieinfo = getMovieInformation(host, port, webroot, apikey, protocol, movieid, log)
+                    if not movieinfo.get('hasFile'):
                         log.warning("Rescanned movie does not have a file, attempting second rescan.")
                         if rescanAndWait(host, port, webroot, apikey, protocol, movieid, log):
-                            payload = getMovieInformation(host, port, webroot, apikey, protocol, movieid, log)
-                            if not payload.get('hasFile'):
+                            movieinfo = getMovieInformation(host, port, webroot, apikey, protocol, movieid, log)
+                            if not movieinfo.get('hasFile'):
                                 log.warning("Rescanned movie still does not have a file, will not set to monitored to prevent endless loop.")
                                 sys.exit(1)
                             else:
@@ -110,14 +111,14 @@ try:
                             log.error("Rescan command timed out")
                             sys.exit(1)
 
-                    payload['monitored'] = True
+                    movieinfo['monitored'] = True
 
                     # Then set that movie to monitored
                     log.debug("Sending PUT request with following payload:")
-                    log.debug(str(payload))  # debug
+                    log.debug(str(movieinfo))  # debug
 
                     url = protocol + host + ":" + str(port) + webroot + "/api/movie/" + str(movieid)
-                    r = requests.put(url, json=payload, headers=headers)
+                    r = requests.put(url, json=movieinfo, headers=headers)
                     success = r.json()
 
                     log.debug("PUT request returned:")
