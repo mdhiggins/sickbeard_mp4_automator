@@ -117,6 +117,10 @@ class MediaProcessor:
                     if not self.settings.embedsubs:
                         self.log.info("Subtitle Extracts")
                         self.log.info(json.dumps(ripsubopts, sort_keys=False, indent=4))
+                    if self.settings.downloadsubs:
+                        self.log.info("Downloaded Subtitles")
+                        self.log.info(json.dumps(downloaded_subs, sort_keys=False, indent=4))
+
                 except:
                     self.log.exception("Unable to log options.")
 
