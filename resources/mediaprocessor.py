@@ -86,41 +86,41 @@ class MediaProcessor:
         options = None
         preopts = None
         postopts = None
+        outputfile = None
+        ripped_subs = []
+        downloaded_subs = []
 
         info = info or self.isValidSource(inputfile)
 
         if info:
-            try:
-                options, preopts, postopts, ripsubopts, downloaded_subs = self.generateOptions(inputfile, info=info, original=original)
-            except:
-                self.log.exception("Unable to generate options, unexpected exception occurred.")
-                return None
-
-            if not options:
-                self.log.error("Error converting, inputfile %s had a valid extension but returned no data. Either the file does not exist, was unreadable, or was an incorrect format." % inputfile)
-                return None
-
-            try:
-                self.log.info("Output Data")
-                self.log.info(json.dumps(options, sort_keys=False, indent=4))
-                self.log.info("Preopts")
-                self.log.info(json.dumps(preopts, sort_keys=False, indent=4))
-                self.log.info("Postopts")
-                self.log.info(json.dumps(postopts, sort_keys=False, indent=4))
-                if not self.settings.embedsubs:
-                    self.log.info("Subtitle Extracts")
-                    self.log.info(json.dumps(ripsubopts, sort_keys=False, indent=4))
-            except:
-                self.log.exception("Unable to log options.")
-
-            ripped_subs = self.ripSubs(inputfile, ripsubopts)
-
-            if self.canBypassConvert(inputfile, info, options):
+            if self.canBypassConvert(inputfile, info):
                 outputfile = inputfile
-                for sub in downloaded_subs:
-                    self.log.debug("Removing downloaded sub %s for media that is not being converted." % (sub))
-                    self.removeFile(sub)
+                self.log.info("Bypassing conversion and setting outputfile to inputfile.")
             else:
+                try:
+                    options, preopts, postopts, ripsubopts, downloaded_subs = self.generateOptions(inputfile, info=info, original=original)
+                except:
+                    self.log.exception("Unable to generate options, unexpected exception occurred.")
+                    return None
+
+                if not options:
+                    self.log.error("Error converting, inputfile %s had a valid extension but returned no data. Either the file does not exist, was unreadable, or was an incorrect format." % inputfile)
+                    return None
+
+                try:
+                    self.log.info("Output Data")
+                    self.log.info(json.dumps(options, sort_keys=False, indent=4))
+                    self.log.info("Preopts")
+                    self.log.info(json.dumps(preopts, sort_keys=False, indent=4))
+                    self.log.info("Postopts")
+                    self.log.info(json.dumps(postopts, sort_keys=False, indent=4))
+                    if not self.settings.embedsubs:
+                        self.log.info("Subtitle Extracts")
+                        self.log.info(json.dumps(ripsubopts, sort_keys=False, indent=4))
+                except:
+                    self.log.exception("Unable to log options.")
+
+                ripped_subs = self.ripSubs(inputfile, ripsubopts)
                 try:
                     outputfile, inputfile = self.convert(options, preopts, postopts, reportProgress)
                 except:
@@ -257,23 +257,27 @@ class MediaProcessor:
     # Generate a JSON formatter dataset with the input and output information and ffmpeg command for a theoretical conversion
     def jsonDump(self, inputfile, original=None):
         dump = {}
-        dump["input"] = self.generateSourceDict(inputfile)
-        dump["output"], dump["preopts"], dump["postopts"], dump["ripsubopts"], dump["downloadedsubs"] = self.generateOptions(inputfile, original)
-        parsed = self.converter.parse_options(dump["output"])
-        input_dir, filename, input_extension = self.parseFile(inputfile)
-        outputfile, output_extension = self.getOutputFile(input_dir, filename, input_extension)
-        cmds = self.converter.ffmpeg.generateCommands(outputfile, parsed, dump["preopts"], dump["postopts"])
-        dump["ffmpeg_commands"] = []
-        dump["ffmpeg_commands"].append(" ".join(str(item) for item in cmds))
-        for suboptions in dump["ripsubopts"]:
-            subparsed = self.converter.parse_options(suboptions)
-            extension = self.getSubExtensionFromCodec(suboptions['format'])
-            suboutputfile = self.getSubOutputFileFromOptions(inputfile, suboptions, extension)
-            subcmds = self.converter.ffmpeg.generateCommands(suboutputfile, subparsed)
-            dump["ffmpeg_commands"].append(" ".join(str(item) for item in subcmds))
-        for sub in dump["downloadedsubs"]:
-            self.log.debug("Cleaning up downloaded sub %s which was only used to simulate options." % (sub))
-            self.removeFile(sub)
+        dump["input"], info = self.generateSourceDict(inputfile)
+        if self.canBypassConvert(inputfile, info):
+            dump["output"] = dump["input"]
+            dump["output"]["bypassConvert"] = True
+        else:
+            dump["output"], dump["preopts"], dump["postopts"], dump["ripsubopts"], dump["downloadedsubs"] = self.generateOptions(inputfile, original)
+            parsed = self.converter.parse_options(dump["output"])
+            input_dir, filename, input_extension = self.parseFile(inputfile)
+            outputfile, output_extension = self.getOutputFile(input_dir, filename, input_extension)
+            cmds = self.converter.ffmpeg.generateCommands(outputfile, parsed, dump["preopts"], dump["postopts"])
+            dump["ffmpeg_commands"] = []
+            dump["ffmpeg_commands"].append(" ".join(str(item) for item in cmds))
+            for suboptions in dump["ripsubopts"]:
+                subparsed = self.converter.parse_options(suboptions)
+                extension = self.getSubExtensionFromCodec(suboptions['format'])
+                suboutputfile = self.getSubOutputFileFromOptions(inputfile, suboptions, extension)
+                subcmds = self.converter.ffmpeg.generateCommands(suboutputfile, subparsed)
+                dump["ffmpeg_commands"].append(" ".join(str(item) for item in subcmds))
+            for sub in dump["downloadedsubs"]:
+                self.log.debug("Cleaning up downloaded sub %s which was only used to simulate options." % (sub))
+                self.removeFile(sub)
 
         return json.dumps(dump, sort_keys=False, indent=4)
 
@@ -287,7 +291,7 @@ class MediaProcessor:
             output.update(probe.toJson)
         else:
             output['error'] = "Invalid input, unable to read"
-        return output
+        return output, probe
 
     # Pass over audio and subtitle streams to ensure the language properties are safe, return any adjustments made to SWL/AWL if relax is enabled
     def safeLanguage(self, info):
@@ -1101,7 +1105,7 @@ class MediaProcessor:
             return True
         return False
 
-    def canBypassConvert(self, inputfile, info, options):
+    def canBypassConvert(self, inputfile, info):
         # Process same extensions
         if self.settings.output_extension == self.parseFile(inputfile)[2]:
             if not self.settings.force_convert and not self.settings.process_same_extensions:
@@ -1110,13 +1114,6 @@ class MediaProcessor:
             elif info.format.metadata.get('encoder', '').startswith('sma') and not self.settings.force_convert:
                 self.log.info("Input and output extensions match and the file appears to have already been processed by SMA, enable force-convert to override [force-convert: %s]." % self.settings.force_convert)
                 return True
-            '''
-            elif not self.settings.force_convert and len([x for x in [options['video']] + [x for x in options['audio']] + [x for x in options['subtitle']] if x['codec'] != 'copy']) == 0:
-                self.log.info("Input and output extensions match and every codec is copy, this file probably doesn't need conversion, returning [force-convert: %s]." % self.settings.force_convert)
-                return True
-            elif self.settings.force_convert:
-                self.log.info("Input and output extensions match and every codec is copy, this file probably doesn't need conversion, but conversion being forced [force-convert: %s]." % self.settings.force_convert)
-            '''
         return False
 
     # Encode a new file based on selected options, built in naming conflict resolution
