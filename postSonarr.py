@@ -20,7 +20,7 @@ def rescanAndWait(host, port, webroot, apikey, protocol, seriesid, log, retries=
         rstate = rstate[0]
     except:
         pass
-    log.info("Sonarr response: ID %d %s." % (rstate['id'], rstate['state']))
+    log.info("Sonarr response RescanSeries command: ID %d %s." % (rstate['id'], rstate['state']))
     log.debug(str(rstate))
 
     # Then wait for it to finish
@@ -51,6 +51,21 @@ def getEpisodeInformation(host, port, webroot, apikey, protocol, episodeid, log)
         if int(ep['episodeNumber']) == episode and int(ep['seasonNumber']) == season:
             return ep
     return None
+
+
+def renameSeries(host, port, webroot, apikey, protocol, seriesid, log):
+    headers = {'X-Api-Key': apikey}
+    # First trigger rescan
+    payload = {'name': 'RenameSeries', 'seriesId': [seriesid]}
+    url = protocol + host + ":" + str(port) + webroot + "/api/command"
+    r = requests.post(url, json=payload, headers=headers)
+    rstate = r.json()
+    try:
+        rstate = rstate[0]
+    except:
+        pass
+    log.info("Sonarr response RenameSeries command: ID %d %s." % (rstate['id'], rstate['state']))
+    log.debug(str(rstate))
 
 
 log = getLogger("SonarrPostProcess")
@@ -141,6 +156,8 @@ try:
                     log.debug("PUT request returned:")
                     log.debug(str(success))
                     log.info("Sonarr monitoring information updated for episode %s." % success['title'])
+
+                    renameSeries(host, port, webroot, apikey, protocol, seriesid, log)
                 else:
                     log.error("Rescan command timed out")
                     sys.exit(1)
