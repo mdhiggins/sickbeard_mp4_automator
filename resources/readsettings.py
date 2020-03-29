@@ -150,12 +150,14 @@ class ReadSettings:
             'first-stream-of-language': False,
             'encoding': '',
             'burn-subtitles': False,
+            'burn-dispositions': '',
             'download-subs': False,
             'download-hearing-impaired-subs': False,
             'download-providers': '',
             'embed-subs': True,
             'embed-image-subs': False,
             'embed-only-internal-subs': False,
+            'filename-dispositions': 'forced',
             'ignore-embedded-subs': False,
             'attachment-codec': '',
         },
@@ -665,19 +667,15 @@ class ReadSettings:
         self.sdl = config.get(section, 'default-language').lower()
         self.sub_first_language_stream = config.getboolean(section, "first-stream-of-language")
         self.subencoding = config.get(section, 'encoding')
-        try:
-            self.burn_subtitles = config.getboolean(section, "burn-subtitles")
-            if self.burn_subtitles:
-                self.burn_subtitles = "any"
-        except:
-            self.burn_subtitles = config.get(section, "burn-subtitles").lower()
-
+        self.burn_subtitles = config.getboolean(section, "burn-subtitles")
+        self.burn_dispositions = config.getlist(section, "burn-dispositions")
         self.downloadsubs = config.getboolean(section, "download-subs")
         self.hearing_impaired = config.getboolean(section, 'download-hearing-impaired-subs')
         self.subproviders = config.getlist(section, 'download-providers')
         self.embedsubs = config.getboolean(section, 'embed-subs')
         self.embedimgsubs = config.getboolean(section, 'embed-image-subs')
         self.embedonlyinternalsubs = config.getboolean(section, 'embed-only-internal-subs')
+        self.filename_dispositions = config.getlist(section, "filename-dispositions")
         self.ignore_embedded_subs = config.getboolean(section, 'ignore-embedded-subs')
         self.attachmentcodec = config.getlist(section, 'attachment-codec')
 

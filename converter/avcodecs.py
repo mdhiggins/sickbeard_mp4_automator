@@ -3,8 +3,25 @@
 
 class BaseCodec(object):
     """
-    Base audio/video codec class.
+    Base audio/video/subtitle codec class.
     """
+    DISPOSITIONS = [
+        'default',
+        'dub',
+        'original',
+        'comment',
+        'lyrics',
+        'karaoke',
+        'forced',
+        'hearing_impaired',
+        'visual_impaired',
+        # 'clean_effects',
+        # 'attached_pic',
+        'captions',
+        # 'descriptions',
+        # 'dependent',
+        # 'metadata',
+    ]
 
     encoder_options = {}
     codec_name = None
@@ -20,6 +37,13 @@ class BaseCodec(object):
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         return []
+
+    def safe_disposition(self, dispo):
+        dispo = dispo or ""
+        for d in self.DISPOSITIONS:
+            if d not in dispo:
+                dispo += '-' + d
+        return dispo
 
     def safe_options(self, opts):
         safe = {}
@@ -114,15 +138,6 @@ class AudioCodec(BaseCodec):
             optlist.extend(['-i', str(safe['path'])])
         if 'map' in safe:
             optlist.extend(['-map', s + ':' + str(safe['map'])])
-        if 'disposition' in safe:
-            dispo = str(safe['disposition'])
-            if '+default' not in dispo:
-                dispo = dispo + '-default'
-            if '+forced' not in dispo:
-                dispo = dispo + '-forced'
-            optlist.extend(['-disposition:a:' + stream, dispo])
-        else:
-            optlist.extend(['-disposition:a:' + stream, '-default-forced'])
         if 'channels' in safe:
             optlist.extend(['-ac:a:' + stream, str(safe['channels'])])
         if 'bitrate' in safe:
@@ -140,6 +155,7 @@ class AudioCodec(BaseCodec):
         else:
             lang = 'und'  # Never leave blank if not specified, always set to und for undefined
         optlist.extend(['-metadata:s:a:' + stream, "language=" + lang])
+        optlist.extend(['-disposition:a:' + stream, self.safe_disposition(safe.get('dispo'))])
 
         optlist.extend(self._codec_specific_produce_ffmpeg_list(safe))
         return optlist
@@ -199,15 +215,6 @@ class SubtitleCodec(BaseCodec):
         stream = str(stream)
         if 'map' in safe:
             optlist.extend(['-map', s + ':' + str(safe['map'])])
-        if 'disposition' in safe:
-            dispo = str(safe['disposition'])
-            if '+default' not in dispo:
-                dispo = dispo + '-default'
-            if '+forced' not in dispo:
-                dispo = dispo + '-forced'
-            optlist.extend(['-disposition:s:' + stream, dispo])
-        else:
-            optlist.extend(['-disposition:s:' + stream, '-default-forced'])
         if 'path' in safe:
             optlist.extend(['-i', str(safe['path'])])
         if 'title' in safe:
@@ -217,6 +224,7 @@ class SubtitleCodec(BaseCodec):
         else:
             lang = 'und'  # Never leave blank if not specified, always set to und for undefined
         optlist.extend(['-metadata:s:s:' + stream, "language=" + lang])
+        optlist.extend(['-disposition:s:' + stream, self.safe_disposition(safe.get('dispo'))])
 
         optlist.extend(self._codec_specific_produce_ffmpeg_list(safe))
         return optlist
@@ -521,15 +529,7 @@ class AudioCopyCodec(BaseCodec):
         else:
             lang = 'und'
         optlist.extend(['-metadata:s:a:' + stream, "language=" + lang])
-        if 'disposition' in safe:
-            dispo = str(safe['disposition'])
-            if '+default' not in dispo:
-                dispo = dispo + '-default'
-            if '+forced' not in dispo:
-                dispo = dispo + '-forced'
-            optlist.extend(['-disposition:a:' + stream, dispo])
-        else:
-            optlist.extend(['-disposition:a:' + stream, '-default-forced'])
+        optlist.extend(['-disposition:a:' + stream, self.safe_disposition(safe.get('dispo'))])
         return optlist
 
 
@@ -604,15 +604,8 @@ class SubtitleCopyCodec(BaseCodec):
         else:
             lang = 'und'
         optlist.extend(['-metadata:s:s:' + stream, "language=" + lang])
-        if 'disposition' in safe:
-            dispo = str(safe['disposition'])
-            if '+default' not in dispo:
-                dispo = dispo + '-default'
-            if '+forced' not in dispo:
-                dispo = dispo + '-forced'
-            optlist.extend(['-disposition:s:' + stream, dispo])
-        else:
-            optlist.extend(['-disposition:s:' + stream, '-default-forced'])
+        optlist.extend(['-disposition:s:' + stream, self.safe_disposition(safe.get('dispo'))])
+
         return optlist
 
 

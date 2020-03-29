@@ -7,6 +7,7 @@ import signal
 from subprocess import Popen, PIPE
 import logging
 import locale
+from converter.avcodecs import BaseCodec
 
 logger = logging.getLogger(__name__)
 
@@ -131,13 +132,12 @@ class MediaStreamInfo(object):
         self.audio_channels = None
         self.audio_samplerate = None
         self.attached_pic = None
-        self.forced = False
         self.field_order = None
-        self.default = False
         self.metadata = {}
+        self.disposition = {}
 
     @property
-    def toJson(self):
+    def json(self):
         language = self.metadata.get("language", "und")
         out = {
             'index': self.index,
@@ -151,7 +151,7 @@ class MediaStreamInfo(object):
             out['channels'] = self.audio_channels
             out['samplerate'] = self.audio_samplerate
             out['language'] = language
-            out['disposition'] = self.disposition
+            out['disposition'] = self.dispostr
         elif self.type == 'video':
             out['pix_fmt'] = self.pix_fmt
             out['profile'] = self.profile
@@ -160,20 +160,20 @@ class MediaStreamInfo(object):
                 out['level'] = self.video_level / 10
             out['field_order'] = self.field_order
         elif self.type == 'subtitle':
-            out['disposition'] = self.disposition
+            out['disposition'] = self.dispostr
             out['language'] = language
         return out
 
     @property
-    def disposition(self):
+    def dispostr(self):
         disposition = ''
-        if self.default:
-            disposition += '+default'
-        if self.forced:
-            disposition += '+forced'
-        if disposition:
-            return disposition
-        return None
+        for k in self.disposition:
+            if k in BaseCodec.DISPOSITIONS:
+                if self.disposition[k]:
+                    disposition += "+" + k
+                else:
+                    disposition += "-" + k
+        return disposition
 
     @staticmethod
     def parse_float(val, default=0.0):
@@ -234,6 +234,11 @@ class MediaStreamInfo(object):
             key = key.split('TAG:')[1].lower()
             value = val.lower().strip()
             self.metadata[key] = value
+
+        if key.startswith('DISPOSITION:'):
+            key = key.split('DISPOSITION:')[1].lower()
+            value = val.lower().strip()
+            self.disposition[key] = self.parse_bool(self.parse_int(value))
 
         if self.type == 'audio':
             if key == 'avg_frame_rate':
@@ -308,13 +313,13 @@ class MediaInfo(object):
         self.path = None
 
     @property
-    def toJson(self):
+    def json(self):
         return {'format': self.format.format,
                 'format-fullname': self.format.fullname,
-                'video': self.video.toJson,
-                'audio': [x.toJson for x in self.audio],
-                'subtitle': [x.toJson for x in self.subtitle],
-                'attachment': [x.toJson for x in self.attachment]}
+                'video': self.video.json,
+                'audio': [x.json for x in self.audio],
+                'subtitle': [x.json for x in self.subtitle],
+                'attachment': [x.json for x in self.attachment]}
 
     def parse_ffprobe(self, raw):
         """
