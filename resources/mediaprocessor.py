@@ -384,12 +384,13 @@ class MediaProcessor:
             vcodec = self.settings.vcodec[0]
             vpix_fmt = self.settings.pix_fmt[0]
 
-        vbr = self.estimateVideoBitrate(info)
-        vbitrate = self.settings.vbitrate or vbr
-        if self.settings.vbitrate and vbr > self.settings.vbitrate:
-            self.log.debug("Overriding video bitrate. Codec cannot be copied because video bitrate is too high [video-bitrate].")
+        vbitrate_estimate = self.estimateVideoBitrate(info)
+        vbitrate = vbitrate_estimate
+        if self.settings.vmaxbitrate and vbitrate > self.settings.vmaxbitrate:
+            self.log.debug("Overriding video bitrate. Codec cannot be copied because video bitrate is too high [video-max-bitrate].")
             vdebug = vdebug + ".bitrate"
             vcodec = self.settings.vcodec[0]
+            vbitrate = self.settings.vmaxbitrate
 
         vwidth = None
         if self.settings.vwidth and self.settings.vwidth < info.video.video_width:
@@ -420,11 +421,11 @@ class MediaProcessor:
             self.log.debug("VCRF profiles detected [video-crf-profiles].")
             for profile in self.settings.vcrf_profiles:
                 try:
-                    if profile['source_bitrate'] < vbr:
+                    if profile['source_bitrate'] < vbitrate_estimate:
                         vcrf = profile['crf']
                         vmaxrate = profile['maxrate']
                         vbufsize = profile['bufsize']
-                        self.log.info("Acceptable profile match found for VBR %s using CRF %d, maxrate %s, bufsize %s." % (vbr, vcrf, vmaxrate, vbufsize))
+                        self.log.info("Acceptable profile match found for VBR %s using CRF %d, maxrate %s, bufsize %s." % (vbitrate_estimate, vcrf, vmaxrate, vbufsize))
                         break
                 except:
                     self.log.exception("Error setting VCRF profile information.")

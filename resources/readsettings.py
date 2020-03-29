@@ -110,7 +110,7 @@ class ReadSettings:
         },
         'Video': {
             'codec': 'h264, x264',
-            'bitrate': 0,
+            'max-bitrate': 0,
             'crf': -1,
             'crf-profiles': '',
             'max-width': 0,
@@ -304,7 +304,7 @@ class ReadSettings:
             'sort-streams': 'Converter.sort-streams',
             'prefer-more-channels': 'Audio.prefer-more-channels',
             'video-codec': 'Video.codec',
-            'video-bitrate': 'Video.bitrate',
+            'video-bitrate': 'Video.max-bitrate',
             'video-crf': 'Video.crf',
             'video-crf-profiles': 'Video.crf-profiles',
             'video-max-width': 'Video.max-width',
@@ -606,7 +606,7 @@ class ReadSettings:
         # Video
         section = "Video"
         self.vcodec = config.getlist(section, "codec")
-        self.vbitrate = config.getint(section, "bitrate")
+        self.vmaxbitrate = config.getint(section, "max-bitrate")
         self.vcrf = config.getint(section, "crf")
 
         self.vcrf_profiles = []

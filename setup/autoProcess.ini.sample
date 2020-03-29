@@ -35,7 +35,7 @@ preserve-source-disposition = True
 
 [Video]
 codec = h264, x264
-bitrate = 0
+max-bitrate = 0
 crf = -1
 crf-profiles = 
 max-width = 0
