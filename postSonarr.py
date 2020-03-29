@@ -56,7 +56,7 @@ def getEpisodeInformation(host, port, webroot, apikey, protocol, episodeid, log)
 def renameSeries(host, port, webroot, apikey, protocol, seriesid, log):
     headers = {'X-Api-Key': apikey}
     # First trigger rescan
-    payload = {'name': 'RenameSeries', 'seriesId': [seriesid]}
+    payload = {'name': 'RenameSeries', 'seriesIds': [seriesid]}
     url = protocol + host + ":" + str(port) + webroot + "/api/command"
     r = requests.post(url, json=payload, headers=headers)
     rstate = r.json()

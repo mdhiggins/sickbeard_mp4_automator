@@ -52,7 +52,7 @@ def getMovieInformation(host, port, webroot, apikey, protocol, movieid, log):
 def renameMovie(host, port, webroot, apikey, protocol, movieid, log):
     headers = {'X-Api-Key': apikey}
     # First trigger rescan
-    payload = {'name': 'RenameMovie', 'movieId': [movieid]}
+    payload = {'name': 'RenameMovie', 'movieIds': [movieid]}
     url = protocol + host + ":" + str(port) + webroot + "/api/command"
     r = requests.post(url, json=payload, headers=headers)
     rstate = r.json()
