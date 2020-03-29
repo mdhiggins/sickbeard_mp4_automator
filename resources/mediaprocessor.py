@@ -712,7 +712,7 @@ class MediaProcessor:
             for external_sub in valid_external_subs:
                 image_based = self.isImageBasedSubtitle(external_sub.path, 0)
                 scodec = None
-                sdisposition = external_sub.subtitle[0].disposition if self.settings.preservedisposition else None
+                sdisposition = external_sub.subtitle[0].dispostr if self.settings.preservedisposition else None
                 if image_based and self.settings.embedimgsubs and self.settings.scodec_image and len(self.settings.scodec_image) > 0:
                     scodec = self.settings.scodec_image[0]
                 elif not image_based and self.settings.embedsubs and self.settings.scodec and len(self.settings.scodec) > 0:
