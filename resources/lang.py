@@ -1,10 +1,12 @@
 import sys
 from babelfish import Language
 
+UNDEFINED = 'und'
+
 
 def getAlpha3TCode(code, default=None):
-    lang = default or 'und'
-    if not code:
+    lang = default or UNDEFINED
+    if not code or code == UNDEFINED:
         return lang
 
     code = code.strip().lower().replace('.', '')
@@ -29,8 +31,8 @@ def getAlpha3TCode(code, default=None):
 
 
 def getAlpha2BCode(code, default=None):
-    lang = default or 'un'
-    if not code:
+    lang = default or UNDEFINED
+    if not code or code == UNDEFINED:
         return lang
 
     code = code.strip().lower().replace('.', '')
