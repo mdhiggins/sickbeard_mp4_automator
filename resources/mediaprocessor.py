@@ -388,7 +388,7 @@ class MediaProcessor:
         vbitrate = vbitrate_estimate
         if self.settings.vmaxbitrate and vbitrate > self.settings.vmaxbitrate:
             self.log.debug("Overriding video bitrate. Codec cannot be copied because video bitrate is too high [video-max-bitrate].")
-            vdebug = vdebug + ".bitrate"
+            vdebug = vdebug + ".max-bitrate"
             vcodec = self.settings.vcodec[0]
             vbitrate = self.settings.vmaxbitrate
 
