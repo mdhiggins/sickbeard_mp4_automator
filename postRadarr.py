@@ -20,7 +20,7 @@ def rescanAndWait(host, port, webroot, apikey, protocol, movieid, log, retries=6
         rstate = rstate[0]
     except:
         pass
-    log.info("Radarr response: ID %d %s." % (rstate['id'], rstate['state']))
+    log.info("Radarr response Rescan command: ID %d %s." % (rstate['id'], rstate['state']))
     log.debug(str(rstate))
 
     # Then wait for it to finish
@@ -47,6 +47,21 @@ def getMovieInformation(host, port, webroot, apikey, protocol, movieid, log):
     r = requests.get(url, headers=headers)
     payload = r.json()
     return payload
+
+
+def renameMovie(host, port, webroot, apikey, protocol, movieid, log):
+    headers = {'X-Api-Key': apikey}
+    # First trigger rescan
+    payload = {'name': 'RenameMovie', 'movieIds': [movieid]}
+    url = protocol + host + ":" + str(port) + webroot + "/api/command"
+    r = requests.post(url, json=payload, headers=headers)
+    rstate = r.json()
+    try:
+        rstate = rstate[0]
+    except:
+        pass
+    log.info("Radarr response Rename command: ID %d %s." % (rstate['id'], rstate['state']))
+    log.debug(str(rstate))
 
 
 log = getLogger("RadarrPostProcess")
@@ -124,6 +139,8 @@ try:
                     log.debug("PUT request returned:")
                     log.debug(str(success))
                     log.info("Radarr monitoring information updated for movie %s." % success['title'])
+
+                    renameMovie(host, port, webroot, apikey, protocol, movieid, log)
                 else:
                     log.error("Rescan command timed out")
                     sys.exit(1)
