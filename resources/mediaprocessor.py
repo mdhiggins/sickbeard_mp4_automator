@@ -837,11 +837,12 @@ class MediaProcessor:
 
     def setDefaultAudioStream(self, audio_settings):
         if len(audio_settings) > 0:
-            audio_streams = sorted(audio_settings, key=lambda x: x['channels'], reverse=self.settings.default_more_channels)
-            preferred_language_audio_streams = [x for x in audio_streams if x['language'] == self.settings.adl] if self.settings.adl else audio_streams
+            audio_streams = sorted(audio_settings, key=lambda x: x.get('channels', 1), reverse=self.settings.default_more_channels)
+            audio_streams = sorted(audio_settings, key=lambda x: '+comment' in (x.get('disposition') or ''))
+            preferred_language_audio_streams = [x for x in audio_streams if x.get('language') == self.settings.adl] if self.settings.adl else audio_streams
             default_stream = audio_streams[0]
-            default_streams = [x for x in audio_streams if '+default' in x.get('disposition', '')]
-            default_preferred_language_streams = [x for x in default_streams if x['language'] == self.settings.adl] if self.settings.adl else default_streams
+            default_streams = [x for x in audio_streams if '+default' in (x.get('disposition') or '')]
+            default_preferred_language_streams = [x for x in default_streams if x.get('language') == self.settings.adl] if self.settings.adl else default_streams
             default_streams_not_in_preferred_language = [x for x in default_streams if x not in default_preferred_language_streams]
 
             self.log.debug("%d total audio streams with %d set to default disposition. %d defaults in your preferred language (%s), %d in other languages." % (len(audio_streams), len(default_streams), len(default_preferred_language_streams), self.settings.adl, len(default_streams_not_in_preferred_language)))
@@ -858,7 +859,8 @@ class MediaProcessor:
                 default_stream = default_preferred_language_streams[0]
                 try:
                     for remove in default_preferred_language_streams[1:]:
-                        remove['disposition'] = remove.get('disposition', '').replace('+default', '-default')
+                        if remove.get('disposition'):
+                            remove['disposition'] = remove.get('disposition').replace('+default', '-default')
                     self.log.debug("%d streams in preferred language cleared of default disposition flag from preferred language." % (len(default_preferred_language_streams) - 1))
                 except:
                     self.log.exception("Error in removing default disposition flag from extra audio streams, multiple streams may be set as default.")
@@ -870,10 +872,11 @@ class MediaProcessor:
             if len(default_streams_not_in_preferred_language) > 0:
                 self.log.debug("Cleaning up default disposition settings from not preferred languages. %d streams will have default flag removed." % (len(default_streams_not_in_preferred_language)))
                 for remove in default_streams_not_in_preferred_language:
-                    remove['disposition'] = remove.get('disposition', '').replace('+default', '-default')
-
-            default_stream['disposition'] = default_stream.get('disposition', '').replace('-default', '+default')
-            if '+default' not in default_stream.get('disposition', ''):
+                    if remove.get('disposition'):
+                        remove['disposition'] = remove.get('disposition').replace('+default', '-default')
+            if default_stream.get('disposition'):
+                default_stream['disposition'] = default_stream.get('disposition').replace('-default', '+default')
+            if '+default' not in (default_stream.get('disposition') or ''):
                 default_stream['disposition'] += "+default"
 
             self.log.info("Default audio stream set to %s %s %s channel stream [default-more-channels: %s]." % (default_stream['language'], default_stream['codec'], default_stream['channels'], self.settings.default_more_channels))
@@ -882,11 +885,12 @@ class MediaProcessor:
 
     def setDefaultSubtitleStream(self, subtitle_settings):
         if len(subtitle_settings) > 0 and self.settings.sdl:
-            if len([x for x in subtitle_settings if '+default' in x.get('disposition', '')]) < 1:
+            if len([x for x in subtitle_settings if '+default' in (x.get('disposition') or '')]) < 1:
                 default_stream = [x for x in subtitle_settings if x.get('language') == self.settings.sdl][0]
 
-                default_stream['disposition'] = default_stream.get('disposition', '').replace('-default', '+default')
-                if '+default' not in default_stream.get('disposition', ''):
+                if default_stream.get('disposition'):
+                    default_stream['disposition'] = default_stream.get('disposition').replace('-default', '+default')
+                if '+default' not in (default_stream.get('disposition') or ''):
                     default_stream['disposition'] = '+default'
 
             else:
