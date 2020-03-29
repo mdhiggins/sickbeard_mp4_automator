@@ -838,9 +838,7 @@ class MediaProcessor:
     def setDefaultAudioStream(self, audio_settings):
         if len(audio_settings) > 0:
             audio_streams = sorted(audio_settings, key=lambda x: x.get('channels', 1), reverse=self.settings.default_more_channels)
-            print(audio_streams)
             audio_streams = sorted(audio_streams, key=lambda x: '+comment' in (x.get('disposition') or ''))
-            print(audio_streams)
             preferred_language_audio_streams = [x for x in audio_streams if x.get('language') == self.settings.adl] if self.settings.adl else audio_streams
             default_stream = audio_streams[0]
             default_streams = [x for x in audio_streams if '+default' in (x.get('disposition') or '')]
@@ -1275,6 +1273,7 @@ class MediaProcessor:
             if newline:
                 sys.stdout.write('\n')
             sys.stdout.flush()
+            self.log.debug(complete)
         except:
             print(complete)
 
