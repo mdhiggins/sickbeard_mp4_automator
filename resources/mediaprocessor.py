@@ -193,7 +193,7 @@ class MediaProcessor:
             output = "Stereo"
         elif channels > 2:
             output = "%d.1 Channel" % (channels - 1)
-        
+
         if disposition.get("comment"):
             output += " (Commentary)"
         if disposition.get("hearing_impaired"):
