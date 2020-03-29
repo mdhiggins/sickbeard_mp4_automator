@@ -6,3 +6,20 @@ subtitle_codec_extensions = {'srt': 'srt',
                              'pgs': 'sup'}
 bad_post_files = ['resources', '.DS_Store']
 bad_post_extensions = ['.txt', '.log', '.pyc']
+valid_dispositions = [
+    'default',
+    'dub',
+    'original',
+    'comment',
+    'lyrics',
+    'karaoke',
+    'forced',
+    'hearing_impaired',
+    'visual_impaired',
+    'clean_effects',
+    'attached_pic',
+    'captions',
+    'descriptions',
+    'dependent',
+    'metadata'
+]
