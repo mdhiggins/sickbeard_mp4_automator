@@ -140,7 +140,7 @@ try:
                     log.debug(str(success))
                     log.info("Radarr monitoring information updated for movie %s." % success['title'])
 
-                    renameMovie(host, port, webroot, apikey, protocol, movieid)
+                    renameMovie(host, port, webroot, apikey, protocol, movieid, log)
                 else:
                     log.error("Rescan command timed out")
                     sys.exit(1)
