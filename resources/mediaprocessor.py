@@ -838,7 +838,9 @@ class MediaProcessor:
     def setDefaultAudioStream(self, audio_settings):
         if len(audio_settings) > 0:
             audio_streams = sorted(audio_settings, key=lambda x: x.get('channels', 1), reverse=self.settings.default_more_channels)
-            audio_streams = sorted(audio_settings, key=lambda x: '+comment' in (x.get('disposition') or ''))
+            print(audio_streams)
+            audio_streams = sorted(audio_streams, key=lambda x: '+comment' in (x.get('disposition') or ''))
+            print(audio_streams)
             preferred_language_audio_streams = [x for x in audio_streams if x.get('language') == self.settings.adl] if self.settings.adl else audio_streams
             default_stream = audio_streams[0]
             default_streams = [x for x in audio_streams if '+default' in (x.get('disposition') or '')]
@@ -876,8 +878,10 @@ class MediaProcessor:
                         remove['disposition'] = remove.get('disposition').replace('+default', '-default')
             if default_stream.get('disposition'):
                 default_stream['disposition'] = default_stream.get('disposition').replace('-default', '+default')
-            if '+default' not in (default_stream.get('disposition') or ''):
-                default_stream['disposition'] += "+default"
+                if '+default' not in default_stream.get('disposition'):
+                    default_stream['disposition'] += "+default"
+            else:
+                default_stream['disposition'] = "+default"
 
             self.log.info("Default audio stream set to %s %s %s channel stream [default-more-channels: %s]." % (default_stream['language'], default_stream['codec'], default_stream['channels'], self.settings.default_more_channels))
         else:
@@ -890,7 +894,9 @@ class MediaProcessor:
 
                 if default_stream.get('disposition'):
                     default_stream['disposition'] = default_stream.get('disposition').replace('-default', '+default')
-                if '+default' not in (default_stream.get('disposition') or ''):
+                    if '+default' not in default_stream.get('disposition'):
+                        default_stream['disposition'] += '+default'
+                else:
                     default_stream['disposition'] = '+default'
 
             else:
