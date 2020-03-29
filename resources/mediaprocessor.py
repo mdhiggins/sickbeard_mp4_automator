@@ -334,17 +334,18 @@ class MediaProcessor:
 
     # Check and see if clues about the disposition are in the title
     def titleDispositionCheck(self, info):
-        for stream in info.streams:
-            title = stream.metadata.get('title', '')
-            if 'comment' in title:
-                self.log.debug("Found comment in stream title, setting comment disposition to True.")
-                stream.disposition['comment'] = True
-            elif 'hearing' in title:
-                self.log.debug("Found hearing in stream title, setting hearing_impaired disposition to True.")
-                stream.disposition['hearing_impaired'] = True
-            elif 'visual' in title:
-                self.log.debug("Found visual in stream title, setting visual_impaired disposition to True.")
-                stream.disposition['visual_impaired'] = True
+        if self.settings.preservedisposition:
+            for stream in info.streams:
+                title = stream.metadata.get('title', '')
+                if 'comment' in title:
+                    self.log.debug("Found comment in stream title, setting comment disposition to True.")
+                    stream.disposition['comment'] = True
+                elif 'hearing' in title:
+                    self.log.debug("Found hearing in stream title, setting hearing_impaired disposition to True.")
+                    stream.disposition['hearing_impaired'] = True
+                elif 'visual' in title:
+                    self.log.debug("Found visual in stream title, setting visual_impaired disposition to True.")
+                    stream.disposition['visual_impaired'] = True
 
     # Generate a dict of options to be passed to FFMPEG based on selected settings and the source file parameters and streams
     def generateOptions(self, inputfile, info=None, original=None):
