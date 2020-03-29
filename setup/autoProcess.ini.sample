@@ -75,12 +75,14 @@ default-language =
 first-stream-of-language = False
 encoding = 
 burn-subtitles = False
+burn-dispositions = 
 download-subs = False
 download-hearing-impaired-subs = False
 download-providers = 
 embed-subs = True
 embed-image-subs = False
 embed-only-internal-subs = False
+filename-dispositions = forced
 ignore-embedded-subs = False
 attachment-codec = 
 
@@ -193,4 +195,3 @@ host = localhost
 port = 32400
 refresh = False
 token = 
-
