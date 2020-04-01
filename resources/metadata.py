@@ -42,6 +42,7 @@ class Metadata:
         MediaType.Movie: 'mpaa|Not Rated|000',
         MediaType.TV: 'us-tv|Not Rated|000'
     }
+    HD = None
 
     def __init__(self, mediatype, tmdbid=None, imdbid=None, tvdbid=None, season=None, episode=None, original=None, language=None, logger=None):
         tmdb.API_KEY = tmdb_api_key
