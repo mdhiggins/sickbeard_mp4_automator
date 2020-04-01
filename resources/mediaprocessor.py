@@ -654,7 +654,11 @@ class MediaProcessor:
         self.log.info("Reading subtitle streams.")
         if not self.settings.ignore_embedded_subs:
             for s in info.subtitle:
-                image_based = self.isImageBasedSubtitle(inputfile, s.index)
+                try:
+                    image_based = self.isImageBasedSubtitle(inputfile, s.index)
+                except:
+                    self.log.error("Unknown error occurred while trying to determine if subtitle is text or image based. Probably corrupt, skipping.")
+                    continue
                 self.log.info("%s-based subtitle detected for stream %s - %s %s." % ("Image" if image_based else "Text", s.index, s.codec, s.metadata['language']))
 
                 scodec = None
@@ -711,7 +715,11 @@ class MediaProcessor:
         if not self.settings.embedonlyinternalsubs:
             valid_external_subs = self.scanForExternalSubs(inputfile, swl)
             for external_sub in valid_external_subs:
-                image_based = self.isImageBasedSubtitle(external_sub.path, 0)
+                try:
+                    image_based = self.isImageBasedSubtitle(external_sub.path, 0)
+                except:
+                    self.log.error("Unknown error occurred while trying to determine if subtitle is text or image based. Probably corrupt, skipping.")
+                    continue
                 scodec = None
                 sdisposition = external_sub.subtitle[0].dispostr if self.settings.preservedisposition else None
                 if image_based and self.settings.embedimgsubs and self.settings.scodec_image and len(self.settings.scodec_image) > 0:
@@ -942,7 +950,13 @@ class MediaProcessor:
                 # Filter subtitles to be burned based on setting
                 sub_candidates = [x for x in subtitle_streams if self.checkDisposition(self.settings.burn_dispositions, x.disposition)]
                 # Filter out image based subtitles (until we can find a method to get this to work)
-                sub_candidates = [x for x in sub_candidates if not self.isImageBasedSubtitle(inputfile, x.index)]
+                for x in sub_candidates[:]:
+                    try:
+                        if self.isImageBasedSubtitle(inputfile, x.index):
+                            sub_candidates.remove(x)
+                    except:
+                        self.log.error("Unknown error occurred while trying to determine if subtitle is text or image based. Probably corrupt, skipping.")
+                        sub_candidates.remove(x)
 
                 if len(sub_candidates) > 0:
                     self.log.debug("Found %d potential sources from the included subs for burning [burn-subtitle]." % len(sub_candidates))
@@ -959,7 +973,13 @@ class MediaProcessor:
                 # Filter subtitles to be burned based on setting
                 sub_candidates = [x for x in valid_external_subs if self.checkDisposition(self.settings.burn_dispositions, x.subtitle[0].disposition)]
                 # Filter out image based subtitles (until we can find a method to get this to work)
-                sub_candidates = [x for x in sub_candidates if not self.isImageBasedSubtitle(x.path, 0)]
+                for x in sub_candidates[:]:
+                    try:
+                        if self.isImageBasedSubtitle(x.path, 0):
+                            sub_candidates.remove(x)
+                    except:
+                        self.log.error("Unknown error occurred while trying to determine if subtitle is text or image based. Probably corrupt, skipping.")
+                        sub_candidates.remove(x)
 
                 if len(sub_candidates) > 0:
                     burn_sub = sub_candidates[0]
@@ -1140,9 +1160,6 @@ class MediaProcessor:
             for timecode in conv:
                 pass
         except FFMpegConvertError:
-            return True
-        except:
-            self.log.exception("Unknown error when trying to determine if subtitle is image based.")
             return True
         return False
 
