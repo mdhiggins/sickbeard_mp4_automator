@@ -185,6 +185,12 @@ class MediaProcessor:
                     'y': dim['y']}
         return None
 
+    def cleanDispositions(self, info):
+        for stream in info.streams:
+            for dispo in self.settings.sanitizedisposition:
+                self.log.debug("Setting %s to False for stream %d [santizie-disposition]." % (dispo, stream.index))
+                stream.disposition[dispo] = False
+
     def audioStreamTitle(self, channels, disposition):
         output = "Audio"
         if channels == 1:
@@ -204,6 +210,20 @@ class MediaProcessor:
             output += " (Dub)"
 
         return output
+
+    def subtitleStreamTitle(self, disposition):
+        output = ""
+        if disposition.get("forced"):
+            output += "Forced "
+        if disposition.get("hearing_impaired"):
+            output += "Hearing Impaired "
+        if disposition.get("comment"):
+            output += "Commentary "
+        if disposition.get("visual_impaired"):
+            output += "Visual Impaired "
+        if disposition.get("dub"):
+            output += "Dub "
+        return output.strip()
 
     # Determine if a file can be read by FFPROBE
     def isValidSource(self, inputfile):
@@ -334,18 +354,21 @@ class MediaProcessor:
 
     # Check and see if clues about the disposition are in the title
     def titleDispositionCheck(self, info):
-        if self.settings.preservedisposition:
-            for stream in info.streams:
-                title = stream.metadata.get('title', '')
-                if 'comment' in title:
-                    self.log.debug("Found comment in stream title, setting comment disposition to True.")
-                    stream.disposition['comment'] = True
-                elif 'hearing' in title:
-                    self.log.debug("Found hearing in stream title, setting hearing_impaired disposition to True.")
-                    stream.disposition['hearing_impaired'] = True
-                elif 'visual' in title:
-                    self.log.debug("Found visual in stream title, setting visual_impaired disposition to True.")
-                    stream.disposition['visual_impaired'] = True
+        for stream in info.streams:
+            title = stream.metadata.get('title', '')
+            if 'comment' in title:
+                self.log.debug("Found comment in stream title, setting comment disposition to True.")
+                stream.disposition['comment'] = True
+            if 'hearing' in title:
+                self.log.debug("Found hearing in stream title, setting hearing_impaired disposition to True.")
+                stream.disposition['hearing_impaired'] = True
+            if 'visual' in title:
+                self.log.debug("Found visual in stream title, setting visual_impaired disposition to True.")
+                stream.disposition['visual_impaired'] = True
+            if 'forced' in title:
+                self.log.debug("Found foced in stream title, setting forced disposition to True.")
+                stream.disposition['forced'] = True
+
 
     # Generate a dict of options to be passed to FFMPEG based on selected settings and the source file parameters and streams
     def generateOptions(self, inputfile, info=None, original=None):
@@ -361,6 +384,7 @@ class MediaProcessor:
 
         awl, swl = self.safeLanguage(info)
         self.titleDispositionCheck(info)
+        self.cleanDispositions(info)
 
         try:
             self.log.info("Input Data")
@@ -491,7 +515,7 @@ class MediaProcessor:
                         self.log.warning("Universal audio channel bitrate must be greater than 0, defaulting to %d [universal-audio-channel-bitrate]." % self.default_channel_bitrate)
                         self.settings.ua_bitrate = self.default_channel_bitrate
                     ua_bitrate = (self.default_channel_bitrate * 2) if (self.settings.ua_bitrate * 2) > (self.default_channel_bitrate * 2) else (self.settings.ua_bitrate * 2)
-                    ua_disposition = a.dispostr if self.settings.preservedisposition else None
+                    ua_disposition = a.dispostr
 
                     # Bitrate calculations/overrides
                     if self.settings.ua_bitrate == 0:
@@ -507,7 +531,7 @@ class MediaProcessor:
                     self.log.debug("Filter: %s." % self.settings.ua_filter)
                     self.log.debug("Bitrate: %s." % ua_bitrate)
                     self.log.debug("Language: %s." % a.metadata['language'])
-                    self.log.debug("Disposition: %s." % a.dispostr)
+                    self.log.debug("Disposition: %s." % ua_disposition)
 
                     uadata = {
                         'map': a.index,
@@ -529,7 +553,7 @@ class MediaProcessor:
                 # If the universal audio option is enabled and the source audio channel is only stereo, the additional universal stream will be skipped and a single channel will be made regardless of codec preference to avoid multiple stereo channels
                 afilter = None
                 asample = None
-                adisposition = a.dispostr if self.settings.preservedisposition else None
+                adisposition = a.dispostr
                 if ua and a.audio_channels <= 2:
                     self.log.debug("Overriding default channel settings because universal audio is enabled but the source is stereo [universal-audio].")
                     acodec = 'copy' if a.codec in self.settings.ua else self.settings.ua[0]
@@ -662,7 +686,7 @@ class MediaProcessor:
                 self.log.info("%s-based subtitle detected for stream %s - %s %s." % ("Image" if image_based else "Text", s.index, s.codec, s.metadata['language']))
 
                 scodec = None
-                sdisposition = s.dispostr if self.settings.preservedisposition else None
+                sdisposition = s.dispostr
                 if image_based and self.settings.embedimgsubs and self.settings.scodec_image and len(self.settings.scodec_image) > 0:
                     scodec = 'copy' if s.codec in self.settings.scodec_image else self.settings.scodec_image[0]
                 elif not image_based and self.settings.embedsubs and self.settings.scodec and len(self.settings.scodec) > 0:
@@ -677,6 +701,7 @@ class MediaProcessor:
                             'language': s.metadata['language'],
                             'encoding': self.settings.subencoding,
                             'disposition': sdisposition,
+                            'title': self.subtitleStreamTitle(s.disposition),
                             'debug': 'subtitle.embed-subs'
                         })
                         self.log.info("Creating %s subtitle stream from source stream %d." % (self.settings.scodec[0], s.index))
@@ -721,7 +746,8 @@ class MediaProcessor:
                     self.log.error("Unknown error occurred while trying to determine if subtitle is text or image based. Probably corrupt, skipping.")
                     continue
                 scodec = None
-                sdisposition = external_sub.subtitle[0].dispostr if self.settings.preservedisposition else None
+                self.cleanDispositions(external_sub)
+                sdisposition = external_sub.subtitle[0].dispostr
                 if image_based and self.settings.embedimgsubs and self.settings.scodec_image and len(self.settings.scodec_image) > 0:
                     scodec = self.settings.scodec_image[0]
                 elif not image_based and self.settings.embedsubs and self.settings.scodec and len(self.settings.scodec) > 0:
@@ -739,6 +765,7 @@ class MediaProcessor:
                         'map': 0,
                         'codec': scodec,
                         'disposition': sdisposition,
+                        'title': self.subtitleStreamTitle(external_sub.subtitle[0].disposition),
                         'language': external_sub.subtitle[0].metadata['language'],
                         'debug': 'subtitle.embed-subs'})
 
