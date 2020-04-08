@@ -796,6 +796,7 @@ class MediaProcessor:
             self.log.debug("Found valid subtitle stream to burn into video, video cannot be copied [burn-subtitles].")
             video_settings['codec'] = self.settings.vcodec[0]
             video_settings['filter'] = vfilter
+            video_settings['debug'] += ".burn-subtitles"
 
         # Sort Options
         try:
