@@ -516,6 +516,7 @@ class MediaProcessor:
                         self.settings.ua_bitrate = self.default_channel_bitrate
                     ua_bitrate = (self.default_channel_bitrate * 2) if (self.settings.ua_bitrate * 2) > (self.default_channel_bitrate * 2) else (self.settings.ua_bitrate * 2)
                     ua_disposition = a.dispostr
+                    ua_filter = self.settings.ua_filter or None
 
                     # Bitrate calculations/overrides
                     if self.settings.ua_bitrate == 0:
@@ -528,7 +529,7 @@ class MediaProcessor:
 
                     self.log.debug("Audio codec: %s." % self.settings.ua[0])
                     self.log.debug("Channels: 2.")
-                    self.log.debug("Filter: %s." % self.settings.ua_filter)
+                    self.log.debug("Filter: %s." % ua_filter)
                     self.log.debug("Bitrate: %s." % ua_bitrate)
                     self.log.debug("Language: %s." % a.metadata['language'])
                     self.log.debug("Disposition: %s." % ua_disposition)
@@ -539,7 +540,7 @@ class MediaProcessor:
                         'channels': 2,
                         'bitrate': ua_bitrate,
                         'samplerate': self.settings.audio_samplerates[0] if len(self.settings.audio_samplerates) > 0 else None,
-                        'filter': self.settings.ua_filter,
+                        'filter': ua_filter,
                         'language': a.metadata['language'],
                         'disposition': ua_disposition,
                         'title': self.audioStreamTitle(2, a.disposition),
@@ -617,10 +618,10 @@ class MediaProcessor:
                 self.log.debug("Audio codec: %s." % acodec)
                 self.log.debug("Channels: %s." % audio_channels)
                 self.log.debug("Bitrate: %s." % abitrate)
-                self.log.debug("Language: %s" % a.metadata['language'])
-                self.log.debug("Filter: %s" % afilter)
-                self.log.debug("Disposition: %s" % adisposition)
-                self.log.debug("Debug: %s" % adebug)
+                self.log.debug("Language: %s." % a.metadata['language'])
+                self.log.debug("Filter: %s." % afilter)
+                self.log.debug("Disposition: %s." % adisposition)
+                self.log.debug("Debug: %s." % adebug)
 
                 # If the ua_first_only option is enabled, disable the ua option after the first audio stream is processed
                 if ua and self.settings.ua_first_only:
