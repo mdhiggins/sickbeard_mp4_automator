@@ -20,6 +20,8 @@ from resources.extensions import tmdb_api_key
 if sys.version[0] == "3":
     raw_input = input
 
+os.environ["REGEX_DISABLED"] = "1"  # Fixes Toilal/rebulk#20
+
 log = getLogger("MANUAL")
 
 logging.getLogger("subliminal").setLevel(logging.CRITICAL)
