@@ -66,7 +66,7 @@ if 'NZBPO_OUTPUT_DIR' in os.environ:
             output_dir += "/"
         #DEBUG#print Overriding output directory
 
-sys.path.append(MP4folder)
+sys.path.insert(0, MP4folder)
 try:
     from resources.readsettings import ReadSettings
     from resources.mediaprocessor import MediaProcessor
