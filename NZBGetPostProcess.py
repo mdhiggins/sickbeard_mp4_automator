@@ -189,7 +189,7 @@ if 'NZBOP_SCRIPTDIR' in os.environ and not os.environ['NZBOP_VERSION'][0:5] < '1
                 if info and inputfile not in ignore:
                     log.info("Processing file %s." % inputfile)
                     try:
-                        output = mp.process(inputfile, info=info)
+                        output = mp.process(inputfile, info=info, reportProgress=True, progressOutput=log.info)
                         if output and output.get('output'):
                             log.info("Successfully processed %s." % inputfile)
                             ignore.append(output.get('output'))

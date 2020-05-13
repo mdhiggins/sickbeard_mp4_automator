@@ -80,7 +80,7 @@ class MediaProcessor:
         return False
 
     # Process a file from start to finish, with checking to make sure formats are compatible with selected settings
-    def process(self, inputfile, reportProgress=False, original=None, info=None):
+    def process(self, inputfile, reportProgress=False, original=None, info=None, progressOutput=None):
         self.log.debug("Process started.")
 
         delete = self.settings.delete
@@ -128,7 +128,7 @@ class MediaProcessor:
 
                 ripped_subs = self.ripSubs(inputfile, ripsubopts)
                 try:
-                    outputfile, inputfile = self.convert(options, preopts, postopts, reportProgress)
+                    outputfile, inputfile = self.convert(options, preopts, postopts, reportProgress, progressOutput)
                 except:
                     self.log.exception("Unexpected exception encountered during conversion")
                     return None
@@ -1205,7 +1205,7 @@ class MediaProcessor:
         return False
 
     # Encode a new file based on selected options, built in naming conflict resolution
-    def convert(self, options, preopts, postopts, reportProgress=False):
+    def convert(self, options, preopts, postopts, reportProgress=False, progressOutput=None):
         self.log.info("Starting conversion.")
         inputfile = options['source'][0]
         input_dir, filename, input_extension = self.parseFile(inputfile)
@@ -1268,9 +1268,15 @@ class MediaProcessor:
         try:
             for timecode in conv:
                 if reportProgress:
-                    self.displayProgressBar(timecode)
+                    if progressOutput:
+                        progressOutput(timecode)
+                    else:
+                        self.displayProgressBar(timecode)
             if reportProgress:
-                self.displayProgressBar(100, newline=True)
+                if progressOutput:
+                    progressOutput(timecode)
+                else:
+                    self.displayProgressBar(100, newline=True)
 
             self.log.info("%s created." % outputfile)
             self.setPermissions(outputfile)
