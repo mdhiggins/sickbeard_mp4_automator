@@ -1001,6 +1001,15 @@ class H265Codec(VideoCodec):
         return optlist
 
 
+class H265QSV(H265Codec):
+    """
+    HEVC video codec.
+    """
+    codec_name = 'h265qsv'
+    ffmpeg_codec_name = 'hevc_qsv'
+    scale_filter = 'scale_qsv'
+
+
 class HEVCQSV(H265Codec):
     """
     HEVC video codec.
@@ -1197,7 +1206,7 @@ audio_codec_list = [
 ]
 
 video_codec_list = [
-    VideoNullCodec, VideoCopyCodec, TheoraCodec, H264Codec, H264QSV, HEVCQSV, H265Codec,
+    VideoNullCodec, VideoCopyCodec, TheoraCodec, H264Codec, H264QSV, HEVCQSV, H265QSV, H265Codec,
     DivxCodec, Vp8Codec, H263Codec, FlvCodec, Mpeg1Codec, NVEncH264, NVEncH265,
     Mpeg2Codec, H264VAAPI, H265VAAPI, OMXH264, VideotoolboxEncH264
 ]
