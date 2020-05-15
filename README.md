@@ -168,7 +168,7 @@ Deluge Daemon Setup
     - Default password is `deluge`
 4. Enabled the `Execute` plugin
     - Add event for `Torrent Complete`
-    - Set path to the full path to `delugePostProcess.py` or `delugePostProcess.bat` for Windows users.
+    - Set path to the full path to `delugePostProcess.py` or a batch file wrapper that passes command line arguments for Windows users with difficulty executing python files directly
 5. Set your [Deluge settings](https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/autoProcess-Settings#deluge) in autoProcess.ini
 6. Verify that whatever downloader you are using is assigning the label to match the label settings specified here so that file will be passed back to the appropriate location
 
