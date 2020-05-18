@@ -31,8 +31,11 @@ def processEpisode(dir_to_process, settings, org_NZB_name=None, status=None, log
 
     host = settings.Sickrage['host']
     port = settings.Sickrage['port']
-    username = settings.Sickrage['user']
-    password = settings.Sickrage['pass']
+    apikey = settings.Sickrage['apikey']
+
+    if apikey == '':
+        log.error("Your Sickrage API Key can not be blank. Update autoProcess.ini.")
+        sys.exit(1)
 
     try:
         ssl = int(settings.Sickrage['ssl'])
@@ -48,11 +51,12 @@ def processEpisode(dir_to_process, settings, org_NZB_name=None, status=None, log
     except:
         webroot = ""
 
-    params = {}
+    params = {
+        'cmd': 'postprocess',
+        'return_data': 0,
+        'path': dir_to_process
+    }
 
-    params['quiet'] = 1
-
-    params['dir'] = dir_to_process
     if org_NZB_name is not None:
         params['nzbName'] = org_NZB_name
 
@@ -64,27 +68,22 @@ def processEpisode(dir_to_process, settings, org_NZB_name=None, status=None, log
     else:
         protocol = "http://"
 
-    url = protocol + host + ":" + str(port) + webroot + "home/postprocess/processEpisode"
-    login_url = protocol + host + ":" + str(port) + webroot + "login"
+    url = "{}{}:{}{}api/{}/".format(protocol, host, port, webroot, apikey)
 
     log.debug('Host: %s.' % host)
     log.debug('Port: %s.' % port)
-    log.debug('Username: %s.' % username)
-    log.debug('Password: %s.' % password)
+    log.debug('Sickrage apikey: %s.' % apikey)
     log.debug('Protocol: %s.' % protocol)
     log.debug('Web Root: %s.' % webroot)
     log.debug('URL: %s.' % url)
-    log.debug('Login URL: %s.' % login_url)
+    log.debug('Params: %s.' % params)
 
     log.info("Opening URL: %s." % url)
 
     try:
-        sess = requests.Session()
-        sess.post(login_url, data={'username': username, 'password': password}, stream=True, verify=False)
-        result = sess.get(url, params=params, stream=True, verify=False)
-        lastline = None
+        r = requests.get(url, params=params, verify=False, allow_redirects=False, stream=True)
 
-        for line in result.iter_lines():
+        for line in r.iter_lines():
             if line:
                 log.debug(line.strip())
                 lastline = line.strip()
