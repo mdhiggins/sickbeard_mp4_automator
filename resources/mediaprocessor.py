@@ -500,11 +500,11 @@ class MediaProcessor:
             self.log.info("Audio detected for stream %s - %s %s %d channel." % (a.index, a.codec, a.metadata['language'], a.audio_channels))
 
             if a.codec == 'truehd' and self.settings.output_extension in self.settings.ignore_truehd:
-                if len(info.audio) > 1:
+                if len([x for x in info.audio if x.audio_channels == a.audio_channels and x.metadata['language'] == a.metadata['language']]) > 1:
                     self.log.info("Skipping trueHD stream %s as typically the 2nd audio stream is the AC3 core of the truehd stream [audio-ignore-truehd]." % a.index)
                     continue
                 else:
-                    self.log.info("TrueHD stream detected but no other audio streams in source, cannot skip stream %s [audio-ignore-truehd]." % a.index)
+                    self.log.info("TrueHD stream detected but no other comparable audio streams in source, cannot skip stream %s [audio-ignore-truehd]." % a.index)
 
             # Proceed if no whitelist is set, or if the language is in the whitelist
             uadata = None
