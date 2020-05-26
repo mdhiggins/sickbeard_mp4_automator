@@ -65,6 +65,9 @@ class SMAConfigParser(ConfigParser, object):
             return None
         return extension
 
+    def getextensions(self, section, option, separator=",", vars=None):
+        return self.getlist(section, option, vars, separator, replace=[' ', '.'])
+
     def getint(self, section, option, vars=None):
         if sys.version[0] == '2':
             return int(super(SMAConfigParser, self).get(section, option, vars=vars))
@@ -554,7 +557,7 @@ class ReadSettings:
         self.output_extension = config.getextension(section, "output-extension")
         self.temp_extension = config.getextension(section, "temp-extension")
         self.minimum_size = config.getint(section, "minimum-size")
-        self.ignored_extensions = config.getlist(section, 'ignored-extensions', replace=[' ', '.'])
+        self.ignored_extensions = config.getextensions(section, 'ignored-extensions')
         self.copyto = config.getdirectories(section, "copy-to", separator='|')
         self.moveto = config.getdirectory(section, "move-to")
         self.delete = config.getboolean(section, "delete-original")
@@ -649,7 +652,7 @@ class ReadSettings:
         self.audio_first_language_stream = config.getboolean(section, "first-stream-of-language")
         self.allow_language_relax = config.getboolean(section, "allow-language-relax")
         self.aac_adtstoasc = config.getboolean(section, 'aac-adtstoasc')
-        self.ignore_truehd = config.getextension(section, "ignore-truehd")
+        self.ignore_truehd = config.getextensions(section, "ignore-truehd")
 
         # Universal Audio
         section = "Universal Audio"
