@@ -155,7 +155,7 @@ class AudioCodec(BaseCodec):
         else:
             lang = 'und'  # Never leave blank if not specified, always set to und for undefined
         optlist.extend(['-metadata:s:a:' + stream, "language=" + lang])
-        optlist.extend(['-disposition:a:' + stream, self.safe_disposition(safe.get('dispo'))])
+        optlist.extend(['-disposition:a:' + stream, self.safe_disposition(safe.get('disposition'))])
 
         optlist.extend(self._codec_specific_produce_ffmpeg_list(safe))
         return optlist
@@ -224,7 +224,7 @@ class SubtitleCodec(BaseCodec):
         else:
             lang = 'und'  # Never leave blank if not specified, always set to und for undefined
         optlist.extend(['-metadata:s:s:' + stream, "language=" + lang])
-        optlist.extend(['-disposition:s:' + stream, self.safe_disposition(safe.get('dispo'))])
+        optlist.extend(['-disposition:s:' + stream, self.safe_disposition(safe.get('disposition'))])
 
         optlist.extend(self._codec_specific_produce_ffmpeg_list(safe))
         return optlist
@@ -529,7 +529,7 @@ class AudioCopyCodec(BaseCodec):
         else:
             lang = 'und'
         optlist.extend(['-metadata:s:a:' + stream, "language=" + lang])
-        optlist.extend(['-disposition:a:' + stream, self.safe_disposition(safe.get('dispo'))])
+        optlist.extend(['-disposition:a:' + stream, self.safe_disposition(safe.get('disposition'))])
         return optlist
 
 
@@ -604,7 +604,7 @@ class SubtitleCopyCodec(BaseCodec):
         else:
             lang = 'und'
         optlist.extend(['-metadata:s:s:' + stream, "language=" + lang])
-        optlist.extend(['-disposition:s:' + stream, self.safe_disposition(safe.get('dispo'))])
+        optlist.extend(['-disposition:s:' + stream, self.safe_disposition(safe.get('disposition'))])
 
         return optlist
 
