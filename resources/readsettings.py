@@ -604,7 +604,7 @@ class ReadSettings:
             except:
                 self.artwork = True
                 self.log.error("Invalid download-artwork value, defaulting to 'poster'.")
-        self.sanitizedisposition = config.getlist(section, "sanitize-disposition")
+        self.sanitize_disposition = config.getlist(section, "sanitize-disposition")
 
         # Video
         section = "Video"

@@ -187,8 +187,8 @@ class MediaProcessor:
 
     def cleanDispositions(self, info):
         for stream in info.streams:
-            for dispo in self.settings.sanitizedisposition:
-                self.log.debug("Setting %s to False for stream %d [santizie-disposition]." % (dispo, stream.index))
+            for dispo in self.settings.sanitize_disposition:
+                self.log.debug("Setting %s to False for stream %d [sanitize-disposition]." % (dispo, stream.index))
                 stream.disposition[dispo] = False
 
     def audioStreamTitle(self, channels, disposition):
