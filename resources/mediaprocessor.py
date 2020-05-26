@@ -370,7 +370,6 @@ class MediaProcessor:
                 self.log.debug("Found foced in stream title, setting forced disposition to True.")
                 stream.disposition['forced'] = True
 
-
     # Generate a dict of options to be passed to FFMPEG based on selected settings and the source file parameters and streams
     def generateOptions(self, inputfile, info=None, original=None):
         # Get path information from the input file
