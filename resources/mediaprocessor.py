@@ -970,12 +970,13 @@ class MediaProcessor:
 
     def burnSubtitleFilter(self, inputfile, subtitle_streams, swl, valid_external_subs=None):
         if self.settings.burn_subtitles:
+            if len(subtitle_streams) > 0:
+                first_index = sorted([x.index for x in subtitle_streams])[0]
+
             subtitle_streams = [x for x in subtitle_streams if self.validLanguage(x.metadata.get('language'), swl)]
             subtitle_streams = sorted(subtitle_streams, key=lambda x: swl.index(x.metadata.get('language')) if x.metadata.get('language') in swl else 999)
             sub_candidates = []
             if len(subtitle_streams) > 0:
-                first_index = sorted([x.index for x in subtitle_streams])[0]
-
                 # Filter subtitles to be burned based on setting
                 sub_candidates = [x for x in subtitle_streams if self.checkDisposition(self.settings.burn_dispositions, x.disposition)]
                 # Filter out image based subtitles (until we can find a method to get this to work)
