@@ -1184,8 +1184,9 @@ class MediaProcessor:
     def isImageBasedSubtitle(self, inputfile, map):
         ripsub = [{'map': map, 'codec': 'srt'}]
         options = {'source': [inputfile], 'format': 'srt', 'subtitle': ripsub}
+        postopts = ['-t', '00:00:01']
         try:
-            conv = self.converter.convert(None, options, timeout=30)
+            conv = self.converter.convert(None, options, timeout=30, postopts=postopts)
             for timecode in conv:
                 pass
         except FFMpegConvertError:
