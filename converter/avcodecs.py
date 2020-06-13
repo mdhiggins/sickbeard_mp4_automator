@@ -1165,15 +1165,14 @@ class PGSCodec(SubtitleCodec):
     PGS subtitle codec.
     """
     codec_name = 'pgs'
-    ffmpeg_codec_name = 'copy'
+    ffmpeg_codec_name = 'copy'  # Does not have an encoder
 
 
-class HDMVPGSCodec(SubtitleCodec):
+class PGSCodecAlt(PGSCodec):
     """
-    PGS subtitle codec HDMV.
+    PGS subtitle codec alternate.
     """
     codec_name = 'hdmv_pgs_subtitle'
-    ffmpeg_codec_name = 'copy'
 
 
 class SSA(SubtitleCodec):
@@ -1208,6 +1207,13 @@ class DVDSub(SubtitleCodec):
     ffmpeg_codec_name = 'dvdsub'
 
 
+class DVDSubAlt(DVDSub):
+    """
+    DVD subtitles alternate.
+    """
+    codec_name = 'dvd_subtitle'
+
+
 audio_codec_list = [
     AudioNullCodec, AudioCopyCodec, VorbisCodec, AacCodec, Mp3Codec, Mp2Codec,
     FdkAacCodec, FAacCodec, EAc3Codec, Ac3Codec, DtsCodec, FlacCodec, Opus, PCMS24LE, PCMS16LE
@@ -1221,7 +1227,7 @@ video_codec_list = [
 
 subtitle_codec_list = [
     SubtitleNullCodec, SubtitleCopyCodec, MOVTextCodec, SrtCodec, SSA, SubRip, DVDSub,
-    DVBSub, WebVTTCodec, HDMVPGSCodec, PGSCodec
+    DVBSub, DVDSubAlt, WebVTTCodec, PGSCodec, PGSCodecAlt
 ]
 
 attachment_codec_list = [
