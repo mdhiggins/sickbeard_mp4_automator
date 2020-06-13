@@ -778,7 +778,7 @@ class Mp2Codec(AudioCodec):
     ffmpeg_codec_name = 'mp2'
 
 
-class Opus(AudioCodec):
+class OpusCodec(AudioCodec):
     """
     Opus audio codec
     """
@@ -790,7 +790,7 @@ class Opus(AudioCodec):
         return self.opus_experimental_enable
 
 
-class PCMS24LE(AudioCodec):
+class PCMS24LECodec(AudioCodec):
     """
     PCM_S24LE Audio Codec
     """
@@ -798,7 +798,7 @@ class PCMS24LE(AudioCodec):
     ffmpeg_codec_name = 'pcm_s24le'
 
 
-class PCMS16LE(AudioCodec):
+class PCMS16LECodec(AudioCodec):
     """
     PCM_S16LE Audio Codec
     """
@@ -878,6 +878,13 @@ class H264Codec(VideoCodec):
         return optlist
 
 
+class H264CodecAlt(H264Codec):
+    """
+    H.264/AVC video codec alternate.
+    """
+    codec_name = 'x264'
+
+
 class NVEncH264(H264Codec):
     """
     Nvidia H.264/AVC video codec.
@@ -895,7 +902,7 @@ class VideotoolboxEncH264(H264Codec):
     ffmpeg_codec_name = 'h264_videotoolbox'
 
 
-class OMXH264(H264Codec):
+class OMXH264Codec(H264Codec):
     """
     OMX H.264/AVC video codec.
     """
@@ -903,7 +910,7 @@ class OMXH264(H264Codec):
     ffmpeg_codec_name = 'h264_omx'
 
 
-class H264VAAPI(H264Codec):
+class H264VAAPICodec(H264Codec):
     """
     H.264/AVC VAAPI video codec.
     """
@@ -923,7 +930,7 @@ class H264VAAPI(H264Codec):
         return safe
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
-        optlist = super(H264VAAPI, self)._codec_specific_produce_ffmpeg_list(safe, stream)
+        optlist = super(H264VAAPICodec, self)._codec_specific_produce_ffmpeg_list(safe, stream)
         optlist.extend(['-vaapi_device', '/dev/dri/renderD128'])
         if 'vaapi_wscale' in safe and 'vaapi_hscale' in safe:
             optlist.extend(['-vf', 'hwupload,%s=%s:%s:format=nv12' % (self.scale_filter, safe['vaapi_wscale'], safe['vaapi_hscale'])])
@@ -937,7 +944,7 @@ class H264VAAPI(H264Codec):
         return optlist
 
 
-class H264QSV(H264Codec):
+class H264QSVCodec(H264Codec):
     """
     H.264/AVC video codec.
     """
@@ -946,7 +953,7 @@ class H264QSV(H264Codec):
     scale_filter = 'scale_qsv'
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
-        optlist = super(H264QSV, self)._codec_specific_produce_ffmpeg_list(safe, stream)
+        optlist = super(H264QSVCodec, self)._codec_specific_produce_ffmpeg_list(safe, stream)
         optlist.extend(['-look_ahead', '0'])
         return optlist
 
@@ -1001,7 +1008,14 @@ class H265Codec(VideoCodec):
         return optlist
 
 
-class H265QSV(H265Codec):
+class H265CodecAlt(VideoCodec):
+    """
+    H.265/AVC video codec alternate.
+    """
+    codec_name = 'hevc'
+
+
+class H265QSVCodec(H265Codec):
     """
     HEVC video codec.
     """
@@ -1010,16 +1024,14 @@ class H265QSV(H265Codec):
     scale_filter = 'scale_qsv'
 
 
-class HEVCQSV(H265Codec):
+class H265QSVCodecAlt(H265QSVCodec):
     """
-    HEVC video codec.
+    HEVC video codec alternate.
     """
     codec_name = 'hevcqsv'
-    ffmpeg_codec_name = 'hevc_qsv'
-    scale_filter = 'scale_qsv'
 
 
-class H265VAAPI(H265Codec):
+class H265VAAPICodec(H265Codec):
     """
     H.265/AVC VAAPI ideo codec.
     """
@@ -1039,7 +1051,7 @@ class H265VAAPI(H265Codec):
         return safe
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
-        optlist = super(H265VAAPI, self)._codec_specific_produce_ffmpeg_list(safe, stream)
+        optlist = super(H265VAAPICodec, self)._codec_specific_produce_ffmpeg_list(safe, stream)
         optlist.extend(['-vaapi_device', '/dev/dri/renderD128'])
         if 'vaapi_wscale' in safe and 'vaapi_hscale' in safe:
             optlist.extend(['-vf', 'hwupload,%s=%s:%s:format=nv12' % (self.scale_filter, safe['vaapi_wscale'], safe['vaapi_hscale'])])
@@ -1053,7 +1065,7 @@ class H265VAAPI(H265Codec):
         return optlist
 
 
-class NVEncH265(H265Codec):
+class NVEncH265Codec(H265Codec):
     """
     Nvidia H.265/AVC video codec.
     """
@@ -1175,7 +1187,7 @@ class PGSCodecAlt(PGSCodec):
     codec_name = 'hdmv_pgs_subtitle'
 
 
-class SSA(SubtitleCodec):
+class SSACodec(SubtitleCodec):
     """
     SSA (SubStation Alpha) subtitle.
     """
@@ -1216,17 +1228,17 @@ class DVDSubAlt(DVDSub):
 
 audio_codec_list = [
     AudioNullCodec, AudioCopyCodec, VorbisCodec, AacCodec, Mp3Codec, Mp2Codec,
-    FdkAacCodec, FAacCodec, EAc3Codec, Ac3Codec, DtsCodec, FlacCodec, Opus, PCMS24LE, PCMS16LE
+    FdkAacCodec, FAacCodec, EAc3Codec, Ac3Codec, DtsCodec, FlacCodec, OpusCodec, PCMS24LECodec, PCMS16LECodec
 ]
 
 video_codec_list = [
-    VideoNullCodec, VideoCopyCodec, TheoraCodec, H264Codec, H264QSV, HEVCQSV, H265QSV, H265Codec,
-    DivxCodec, Vp8Codec, H263Codec, FlvCodec, Mpeg1Codec, NVEncH264, NVEncH265,
-    Mpeg2Codec, H264VAAPI, H265VAAPI, OMXH264, VideotoolboxEncH264
+    VideoNullCodec, VideoCopyCodec, TheoraCodec, H264Codec, H264CodecAlt, H264QSVCodec, H265QSVCodecAlt, H265QSVCodec, H265Codec,
+    DivxCodec, Vp8Codec, H263Codec, FlvCodec, Mpeg1Codec, NVEncH264, NVEncH265Codec,
+    Mpeg2Codec, H264VAAPICodec, H265VAAPICodec, OMXH264Codec, VideotoolboxEncH264
 ]
 
 subtitle_codec_list = [
-    SubtitleNullCodec, SubtitleCopyCodec, MOVTextCodec, SrtCodec, SSA, SubRip, DVDSub,
+    SubtitleNullCodec, SubtitleCopyCodec, MOVTextCodec, SrtCodec, SSACodec, SubRip, DVDSub,
     DVBSub, DVDSubAlt, WebVTTCodec, PGSCodec, PGSCodecAlt
 ]
 
