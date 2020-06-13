@@ -547,7 +547,7 @@ class MediaProcessor:
                         'debug': 'universal-audio'
                     }
                     if not self.settings.ua_last:
-                        self.log.info("Creating %s audio stream source audio stream %d [universal-audio]." % (self.settings.ua[0], a.index))
+                        self.log.info("Creating %s audio stream source audio stream %d [universal-audio]." % (uadata.get('codec'), a.index))
                         audio_settings.append(uadata)
 
                 adebug = "audio"
@@ -647,7 +647,7 @@ class MediaProcessor:
 
                 # Add the universal audio stream last instead
                 if self.settings.ua_last and uadata:
-                    self.log.info("Creating %s audio stream from source audio stream %d [universal-audio]." % (self.settings.ua[0], a.index))
+                    self.log.info("Creating %s audio stream from source audio stream %d [universal-audio]." % (uadata.get('codec'), a.index))
                     audio_settings.append(uadata)
 
                 if self.settings.audio_copyoriginal and acodec != 'copy' and not (a.codec == 'truehd' and self.settings.output_extension in self.settings.ignore_truehd):
@@ -696,6 +696,7 @@ class MediaProcessor:
                 if scodec:
                     # Proceed if no whitelist is set, or if the language is in the whitelist
                     if self.validLanguage(s.metadata['language'], swl, blocked_subtitle_languages):
+                        self.log.info("Creating %s subtitle stream from source stream %d." % (scodec, s.index))
                         subtitle_settings.append({
                             'map': s.index,
                             'codec': scodec,
@@ -705,7 +706,6 @@ class MediaProcessor:
                             'title': self.subtitleStreamTitle(s.disposition),
                             'debug': 'subtitle.embed-subs'
                         })
-                        self.log.info("Creating %s subtitle stream from source stream %d." % (self.settings.scodec[0], s.index))
                         if self.settings.sub_first_language_stream:
                             blocked_subtitle_languages.append(s.metadata['language'])
                 else:
@@ -761,6 +761,8 @@ class MediaProcessor:
                 if self.validLanguage(external_sub.subtitle[0].metadata['language'], swl, blocked_subtitle_languages):
                     if external_sub.path not in sources:
                         sources.append(external_sub.path)
+                    
+                    self.log.info("Creating %s subtitle stream by importing %s-based %s [embed-subs]." % (scodec, "Image" if image_based else "Text", os.path.basename(external_sub.path)))
                     subtitle_settings.append({
                         'source': sources.index(external_sub.path),
                         'map': 0,
@@ -770,7 +772,6 @@ class MediaProcessor:
                         'language': external_sub.subtitle[0].metadata['language'],
                         'debug': 'subtitle.embed-subs'})
 
-                    self.log.info("Creating %s subtitle stream by importing %s-based %s [embed-subs]." % (scodec, "Image" if image_based else "Text", os.path.basename(external_sub.path)))
                     self.log.debug("Path: %s." % external_sub.path)
                     self.log.debug("Codec: %s." % self.settings.scodec[0])
                     self.log.debug("Langauge: %s." % external_sub.subtitle[0].metadata['language'])
@@ -1045,6 +1046,7 @@ class MediaProcessor:
                             valid_external_subs.append(valid_external_sub)
                         else:
                             self.log.debug("Ignoring %s external subtitle stream due to language %s." % (fname, lang))
+            break
         self.log.info("Scanned for external subtitles and found %d results in your approved languages." % (len(valid_external_subs)))
         valid_external_subs.sort(key=lambda x: swl.index(x.subtitle[0].metadata['language']) if x.subtitle[0].metadata['language'] in swl else 999)
 

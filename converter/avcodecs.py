@@ -1168,6 +1168,14 @@ class PGSCodec(SubtitleCodec):
     ffmpeg_codec_name = 'copy'
 
 
+class HDMVPGSCodec(SubtitleCodec):
+    """
+    PGS subtitle codec HDMV.
+    """
+    codec_name = 'hdmv_pgs_subtitle'
+    ffmpeg_codec_name = 'copy'
+
+
 class SSA(SubtitleCodec):
     """
     SSA (SubStation Alpha) subtitle.
@@ -1213,7 +1221,7 @@ video_codec_list = [
 
 subtitle_codec_list = [
     SubtitleNullCodec, SubtitleCopyCodec, MOVTextCodec, SrtCodec, SSA, SubRip, DVDSub,
-    DVBSub, WebVTTCodec, PGSCodec
+    DVBSub, WebVTTCodec, HDMVPGSCodec, PGSCodec
 ]
 
 attachment_codec_list = [
