@@ -271,6 +271,7 @@ optional arguments:
   -fc, --forceconvert   Overrides force-convert setting in autoProcess.ini and 
                         also enables process-same-extenions if true forcing the conversion of files
   -oo, --optionsonly    Display generated conversion options only, do not perform conversion
+  -cl, --codeclist      Print a list of supported codecs and their paired FFMPEG encoders
 ```
 
 Examples

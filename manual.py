@@ -16,6 +16,7 @@ from resources.mediaprocessor import MediaProcessor
 from resources.metadata import Metadata, MediaType
 from resources.postprocess import PostProcessor
 from resources.extensions import tmdb_api_key
+from converter.avcodecs import audio_codec_list, video_codec_list, subtitle_codec_list, attachment_codec_list
 
 if sys.version[0] == "3":
     raw_input = input
@@ -278,6 +279,24 @@ def displayOptions(path):
     log.info(mp.jsonDump(path))
 
 
+def showCodecs():
+    data = {
+        'video': video_codec_list,
+        'audio': audio_codec_list,
+        'subtitle': subtitle_codec_list,
+        'attachment': attachment_codec_list
+    }
+    print("List of supported codecs within SMA")
+    print("Format:")
+    print("  [SMA Codec]: [FFMPEG Encoder]")
+    for key in data:
+        print("=============")
+        print(" " + key)
+        print("=============")
+        for codec in data[key]:
+            print("%s: %s" % (codec.codec_name, codec.ffmpeg_codec_name))
+
+
 def main():
     global settings
 
@@ -300,6 +319,7 @@ def main():
     parser.add_argument('-fc', '--forceconvert', action='store_true', help="Overrides force-convert setting in autoProcess.ini and also enables process-same-extenions if true forcing the conversion of files")
     parser.add_argument('-m', '--moveto', help="Override move-to value setting in autoProcess.ini changing the final destination of the file")
     parser.add_argument('-oo', '--optionsonly', action="store_true", help="Display generated conversion options only, do not perform conversion")
+    parser.add_argument('-cl', '--codeclist', action="store_true", help="Print a list of supported codecs and their paired FFMPEG encoders")
 
     args = vars(parser.parse_args())
 
@@ -308,6 +328,10 @@ def main():
 
     print("Python %s-bit %s." % (struct.calcsize("P") * 8, sys.version))
     print("Guessit version: %s." % guessit.__version__)
+
+    if args['codeclist']:
+        showCodecs()
+        return
 
     # Settings overrides
     if args['config'] and os.path.exists(args['config']):
