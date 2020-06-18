@@ -454,6 +454,19 @@ class MediaProcessor:
                 except:
                     self.log.exception("Error setting VCRF profile information.")
 
+        vfilter = self.settings.vfilter or None
+        if self.isHDR(info.video) and self.settings.hdr.get('filter'):
+            self.log.debug("Setting HDR filter [hdr-filter].")
+            vfilter = self.settings.hdr.get('filter')
+            if self.settings.hdr.get('forcefilter'):
+                self.log.debug("Video HDR force filter is enabled. Video stream can no longer be copied [hdr-force-filter].")
+                vdebug = vdebug + ".hdr.force-filter"
+                vcodec = self.settings.vcodec[0]
+        elif vfilter and self.settings.vforcefilter:
+            self.log.debug("Video force filter is enabled. Video stream can no longer be copied [video-force-filter].")
+            vcodec = self.settings.vcodec[0]
+            vdebug = vdebug + ".force-filter"
+
         self.log.debug("Video codec: %s." % vcodec)
         self.log.debug("Video bitrate: %s." % vbitrate)
         self.log.debug("Video CRF: %s." % vcrf)
@@ -478,6 +491,7 @@ class MediaProcessor:
             'pix_fmt': vpix_fmt,
             'field_order': vfieldorder,
             'width': vwidth,
+            'filter': vfilter,
             'debug': vdebug,
         }
 
@@ -563,11 +577,11 @@ class MediaProcessor:
                     adebug = "universal-audio"
 
                     # UA Filters
-                    if self.settings.ua_filter:
-                        self.log.debug("Unable to copy codec because an universal audio filter is set [universal-audio-filter].")
-                        afilter = self.settings.ua_filter
+                    afilter = self.settings.ua_filter or None
+                    if afilter and self.settings.ua_forcefilter:
+                        self.log.debug("Unable to copy codec because an universal audio filter is set [universal-audio-force-filter].")
                         acodec = self.settings.ua[0]
-                        adebug = adebug + ".filter"
+                        adebug = adebug + ".force-filter"
 
                     # Sample rates
                     if len(self.settings.audio_samplerates) > 0 and a.audio_samplerate not in self.settings.audio_samplerates:
@@ -590,11 +604,11 @@ class MediaProcessor:
                         abitrate = a.audio_channels * self.settings.abitrate
 
                     # Filters
-                    if self.settings.afilter:
-                        self.log.debug("Unable to copy codec because an audio filter is set [audio-filter].")
-                        afilter = self.settings.afilter
+                    afilter = self.settings.afilter or None
+                    if afilter and self.settings.aforcefilter:
+                        self.log.debug("Unable to copy codec because an audio filter is set [audio-force-filter].")
                         acodec = self.settings.acodec[0]
-                        adebug = adebug + ".audio-filter"
+                        adebug = adebug + ".audio-force-filter"
 
                     # Sample rates
                     if len(self.settings.audio_samplerates) > 0 and a.audio_samplerate not in self.settings.audio_samplerates:
@@ -797,7 +811,10 @@ class MediaProcessor:
         if vfilter:
             self.log.debug("Found valid subtitle stream to burn into video, video cannot be copied [burn-subtitles].")
             video_settings['codec'] = self.settings.vcodec[0]
-            video_settings['filter'] = vfilter
+            if video_settings.get('filter'):
+                video_settings['filter'] = "%s, %s" % (video_settings['filter'], vfilter)
+            else:
+                video_settings['filter'] = vfilter
             video_settings['debug'] += ".burn-subtitles"
 
         # Sort Options
@@ -1182,6 +1199,20 @@ class MediaProcessor:
 
         self.log.debug("Output file: %s." % outputfile)
         return outputfile, output_dir
+
+    def isHDR(self, videostream):
+        if len(self.settings.hdr['space']) < 1 and len(self.settings.hdr['transfer']) < 1 and len(self.settings.hdr['primaries']) < 1:
+            self.log.debug("No HDR screening parameters defined, returning false [hdr].")
+            return False
+
+        params = ['space', 'transfer', 'primaries']
+        for param in params:
+            if param in videostream.color and len(self.settings.hdr.get(param)) > 0 and videostream.color.get(param) not in self.settings.hdr.get(param):
+                self.log.debug("Stream is not HDR, color parameter %s does not match %s [hdr-%s]." % (videostream.color.get(param), self.settings.hdr.get(param), self.settings.hdr.get(param)))
+                return False
+
+        self.log.info("HDR video stream detected for %d." % videostream.index)
+        return True
 
     def isImageBasedSubtitle(self, inputfile, map):
         ripsub = [{'map': map, 'codec': 'srt'}]

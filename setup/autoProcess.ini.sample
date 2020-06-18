@@ -42,6 +42,15 @@ max-width = 0
 profile = 
 max-level = 0.0
 pix-fmt = 
+filter = 
+force-filter = False
+
+[HDR]
+space = bt2020nc
+transfer = smpte2084
+primaries = bt2020
+filter = 
+force-filter = False
 
 [Audio]
 codec = ac3
@@ -55,6 +64,7 @@ max-channels = 0
 prefer-more-channels = True
 default-more-channels = True
 filter = 
+force-filter = False
 sample-rates = 
 copy-original = False
 aac-adtstoasc = False
@@ -66,6 +76,7 @@ channel-bitrate = 128
 first-stream-only = False
 move-after = False
 filter = 
+force-filter = False
 
 [Subtitle]
 codec = mov_text
@@ -195,3 +206,4 @@ host = localhost
 port = 32400
 refresh = False
 token = 
+

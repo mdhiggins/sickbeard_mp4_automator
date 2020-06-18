@@ -135,6 +135,7 @@ class MediaStreamInfo(object):
         self.field_order = None
         self.metadata = {}
         self.disposition = {}
+        self.color = {}
 
     @property
     def json(self):
@@ -267,6 +268,14 @@ class MediaStreamInfo(object):
                 self.pix_fmt = val.lower()
             elif key == "field_order":
                 self.field_order = val.lower()
+            elif key == "color_range":
+                self.color['range'] = val.lower()
+            elif key == "color_space":
+                self.color['space'] = val.lower()
+            elif key == "color_transfer":
+                self.color['transfer'] = val.lower()
+            elif key == "color_primaries":
+                self.color['primaries'] = val.lower()
 
     def __repr__(self):
         d = ''

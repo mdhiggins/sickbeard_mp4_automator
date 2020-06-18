@@ -120,6 +120,15 @@ class ReadSettings:
             'profile': '',
             'max-level': 0.0,
             'pix-fmt': '',
+            'filter': '',
+            'force-filter': False,
+        },
+        'HDR': {
+            'space': 'bt2020nc',
+            'transfer': 'smpte2084',
+            'primaries': 'bt2020',
+            'filter': '',
+            'force-filter': False,
         },
         'Audio': {
             'codec': 'ac3',
@@ -133,6 +142,7 @@ class ReadSettings:
             'prefer-more-channels': True,
             'default-more-channels': True,
             'filter': '',
+            'force-filter': False,
             'sample-rates': '',
             'copy-original': False,
             'aac-adtstoasc': False,
@@ -144,6 +154,7 @@ class ReadSettings:
             'first-stream-only': False,
             'move-after': False,
             'filter': '',
+            'force-filter': False,
         },
         'Subtitle': {
             'codec': 'mov_text',
@@ -630,11 +641,22 @@ class ReadSettings:
             else:
                 self.log.error("Invalid video-crf-profile length '%s'." % vcrfp_raw)
         self.vcrf_profiles.sort(key=lambda x: x['source_bitrate'], reverse=True)
+        self.vfilter = config.get(section, 'filter')
+        self.vforcefilter = config.getboolean(section, 'force-filter')
 
         self.vwidth = config.getint(section, "max-width")
         self.video_level = config.getfloat(section, "max-level")
         self.vprofile = config.getlist(section, "profile")
         self.pix_fmt = config.getlist(section, "pix-fmt")
+
+        # HDR
+        section = "HDR"
+        self.hdr = {}
+        self.hdr['space'] = config.getlist(section, 'space')
+        self.hdr['transfer'] = config.getlist(section, 'transfer')
+        self.hdr['primaries'] = config.getlist(section, 'primaries')
+        self.hdr['filter'] = config.get(section, 'filter')
+        self.hdr['forcefilter'] = config.getboolean(section, 'force-filter')
 
         # Audio
         section = "Audio"
@@ -647,6 +669,7 @@ class ReadSettings:
         self.prefer_more_channels = config.getboolean(section, "prefer-more-channels")
         self.default_more_channels = config.getboolean(section, "default-more-channels")
         self.afilter = config.get(section, "filter")
+        self.aforcefilter = config.getboolean(section, 'force-filter')
         self.audio_samplerates = [int(x) for x in config.getlist(section, "sample-rates") if x.isdigit()]
         self.audio_copyoriginal = config.getboolean(section, "copy-original")
         self.audio_first_language_stream = config.getboolean(section, "first-stream-of-language")
@@ -661,6 +684,7 @@ class ReadSettings:
         self.ua_first_only = config.getboolean(section, "first-stream-only")
         self.ua_last = config.getboolean(section, "move-after")
         self.ua_filter = config.get(section, "filter")
+        self.ua_forcefilter = config.getboolean(section, 'force-filter')
 
         # Subtitles
         section = "Subtitle"
