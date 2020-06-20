@@ -58,6 +58,7 @@ def processEpisode(dirName, settings, nzbGet=False, logger=None):
     try:
         r = requests.post(url, json=payload, headers=headers)
         rstate = r.json()
+        log.debug(rstate)
         log.info("%sSonarr response: %s." % (infoprefix, rstate['state']))
         return True
     except:
