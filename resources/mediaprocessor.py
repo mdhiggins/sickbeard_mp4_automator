@@ -1264,7 +1264,7 @@ class MediaProcessor:
                 os.rename(inputfile, og)
                 if self.settings.burn_subtitles:
                     try:
-                        if self.raw(os.path.abspath(inputfile)) in options['video'].get('filter', ""):
+                        if self.raw(os.path.abspath(inputfile)) in (options['video'].get('filter') or ""):
                             self.log.debug("Renaming inputfile in burnsubtitles filter if its present [burn-subtitles].")
                             options['video']['filter'] = options['video']['filter'].replace(self.raw(os.path.abspath(inputfile)), self.raw(os.path.abspath(og)))
                     except:
