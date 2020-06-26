@@ -877,6 +877,15 @@ class MediaProcessor:
         # Lookup which hardware acceleration platforms are available in this build of ffmpeg
         hwaccels = self.converter.ffmpeg.hwaccels
 
+        self.log.debug("Selected hwaccel options:")
+        self.log.debug(self.settings.hwaccels)
+        self.log.debug("Selected hwaccel decoder pairs:")
+        self.log.debug(self.settings.hwaccel_decoders)
+        self.log.debug("FFMPEG codecs:")
+        self.log.debug(codecs)
+        self.log.debug("FFMPEG decoders:")
+        self.log.debug(hwaccels)
+
         # Find the first of the specified hardware acceleration platform that is available in this build of ffmpeg.  The order of specified hardware acceleration platforms determines priority.
         for hwaccel in self.settings.hwaccels:
             if hwaccel in hwaccels:
@@ -885,6 +894,7 @@ class MediaProcessor:
 
                 # If there's a decoder for this acceleration platform, also use it
                 decoder = self.converter.ffmpeg.hwaccel_decoder(video_codec, hwaccel)
+                self.log.debug("Decoder: %s." % decoder)
                 if (decoder in codecs[video_codec]['decoders'] and decoder in self.settings.hwaccel_decoders):
                     self.log.info("%s decoder is also supported by this ffmpeg build and will also be used [hwaccel-decoders]." % decoder)
                     opts.extend(['-vcodec', decoder])
