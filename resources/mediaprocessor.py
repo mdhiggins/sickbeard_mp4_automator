@@ -775,7 +775,7 @@ class MediaProcessor:
                 if self.validLanguage(external_sub.subtitle[0].metadata['language'], swl, blocked_subtitle_languages):
                     if external_sub.path not in sources:
                         sources.append(external_sub.path)
-                    
+
                     self.log.info("Creating %s subtitle stream by importing %s-based %s [embed-subs]." % (scodec, "Image" if image_based else "Text", os.path.basename(external_sub.path)))
                     subtitle_settings.append({
                         'source': sources.index(external_sub.path),
@@ -845,6 +845,14 @@ class MediaProcessor:
 
         preopts = []
         postopts = ['-threads', str(self.settings.threads), '-metadata:g', 'encoding_tool=SMA']
+
+        # FFMPEG allows TrueHD experimental
+        if options.get('format') in ['mp4']:
+            for a in options['audio']:
+                if info.streams[a.get('map')].codec == 'truehd' and a.get('codec') == 'copy':
+                    self.log.debug("Adding experimental flag for mp4 with trueHD as a trueHD stream is being copied.")
+                    postopts.extend(['-strict', 'experimental'])
+                    break
 
         if len(options['subtitle']) > 0:
             self.log.debug("Subtitle streams detected, adding fix_sub_duration option to preopts.")

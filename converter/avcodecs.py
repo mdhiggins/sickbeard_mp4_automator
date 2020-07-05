@@ -738,6 +738,25 @@ class EAc3Codec(AudioCodec):
         return super(EAc3Codec, self).parse_options(opt, stream)
 
 
+class TrueHDCodec(AudioCodec):
+    """
+    TrueHD audio codec.
+    """
+    codec_name = 'truehd'
+    ffmpeg_codec_name = 'truehd'
+    truehd_experimental_enable = ['-strict', 'experimental']
+
+    def parse_options(self, opt, stream=0):
+        if 'channels' in opt:
+            c = opt['channels']
+            if c > 8:
+                opt['channels'] = 8
+        return super(TrueHDCodec, self).parse_options(opt, stream)
+
+    def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
+        return self.truehd_experimental_enable
+
+
 class FlacCodec(AudioCodec):
     """
     FLAC audio codec.
@@ -1228,7 +1247,8 @@ class DVDSubAlt(DVDSub):
 
 audio_codec_list = [
     AudioNullCodec, AudioCopyCodec, VorbisCodec, AacCodec, Mp3Codec, Mp2Codec,
-    FdkAacCodec, FAacCodec, EAc3Codec, Ac3Codec, DtsCodec, FlacCodec, OpusCodec, PCMS24LECodec, PCMS16LECodec
+    FdkAacCodec, FAacCodec, EAc3Codec, Ac3Codec, DtsCodec, FlacCodec, OpusCodec, PCMS24LECodec, PCMS16LECodec,
+    TrueHDCodec
 ]
 
 video_codec_list = [
