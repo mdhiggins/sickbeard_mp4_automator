@@ -295,6 +295,15 @@ class Metadata:
                 self.log.info("Local artwork detected, using %s." % path)
                 break
 
+        if not poster:
+            d, f = os.path.split(path)
+            for e in valid_poster_extensions:
+                path = os.path.join(d, "smaposter" + os.extsep + e)
+                if (os.path.exists(path)):
+                    poster = path
+                    self.log.info("Local artwork detected, using %s." % path)
+                    break
+
         # If no local files are found, attempt to download them
         if not poster:
             poster_path = None
