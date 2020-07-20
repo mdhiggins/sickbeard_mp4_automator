@@ -201,19 +201,27 @@ class Converter(object):
 
         os.rename(outfile, infile)
         opts = ['-i', infile, '-c', 'copy']
+
+        info = self.ffmpeg.probe(infile)
+        i = len(info.attachment)
+
         for k in metadata:
             opts.append("-metadata")
             opts.append("%s=%s" % (k, metadata[k]))
         if coverpath:
             opts.append("-attach")
             opts.append(coverpath)
-            opts.append("-metadata:s:t")
             if coverpath.endswith('png'):
+                opts.append("-metadata:s:t:" + str(i))
                 opts.append("mimetype=image/png")
+                opts.append("-metadata:s:t:" + str(i))
+                opts.append("filename=cover.png")
             else:
+                opts.append("-metadata:s:t:" + str(i))
                 opts.append("mimetype=image/jpeg")
+                opts.append("-metadata:s:t:" + str(i))
+                opts.append("filename=cover.jpg")
 
-        info = self.ffmpeg.probe(infile)
         for timecode in self.ffmpeg.convert(outfile, opts):
             yield int((100.0 * timecode) / info.format.duration)
         os.remove(infile)
