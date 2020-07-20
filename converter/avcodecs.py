@@ -261,6 +261,7 @@ class VideoCodec(BaseCodec):
 
     encoder_options = {
         'codec': str,
+        'title': str,
         'bitrate': int,
         'crf': int,
         'maxrate': str,
@@ -436,6 +437,8 @@ class VideoCodec(BaseCodec):
             optlist.extend(['-s', '%dx%d' % (w, h)])
             if ow and oh:
                 optlist.extend(['-aspect', '%d:%d' % (ow, oh)])
+        if 'title' in safe:
+            optlist.extend(['-metadata:s:v', "title=" + str(safe['title'])])
 
         optlist.extend(self._codec_specific_produce_ffmpeg_list(safe))
 

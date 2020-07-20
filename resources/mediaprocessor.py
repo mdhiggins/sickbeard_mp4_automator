@@ -191,6 +191,27 @@ class MediaProcessor:
                 self.log.debug("Setting %s to False for stream %d [sanitize-disposition]." % (dispo, stream.index))
                 stream.disposition[dispo] = False
 
+    def videoStreamTitle(self, width=0, height=0, hdr=False, swidth=0, sheight=0):
+        output = "Video"
+
+        if not width and not height:
+            width = swidth
+            height = sheight
+
+        if width >= 3800 or height >= 2100:
+            output = "4K"
+        elif width >= 1900 or height >= 1060:
+            output = "FHD"
+        elif width >= 1260 or height >= 700:
+            output = "HD"
+        else:
+            output = "SD"
+
+        if hdr:
+            output += " HDR"
+
+        return output
+
     def audioStreamTitle(self, channels, disposition):
         output = "Audio"
         if channels == 1:
@@ -455,7 +476,8 @@ class MediaProcessor:
                     self.log.exception("Error setting VCRF profile information.")
 
         vfilter = self.settings.vfilter or None
-        if self.isHDR(info.video) and self.settings.hdr.get('filter'):
+        vHDR = self.isHDR(info.video)
+        if vHDR and self.settings.hdr.get('filter'):
             self.log.debug("Setting HDR filter [hdr-filter].")
             vfilter = self.settings.hdr.get('filter')
             if self.settings.hdr.get('forcefilter'):
@@ -492,6 +514,7 @@ class MediaProcessor:
             'field_order': vfieldorder,
             'width': vwidth,
             'filter': vfilter,
+            'title': self.videoStreamTitle(width=vwidth, hdr=vHDR, swidth=info.video.video_width, sheight=info.video.video_height),
             'debug': vdebug,
         }
 
