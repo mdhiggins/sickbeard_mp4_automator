@@ -543,7 +543,8 @@ class VideoCopyCodec(BaseCodec):
     codec_name = 'copy'
     encoder_options = {'map': int,
                        'source': str,
-                       'fps': float}
+                       'fps': float,
+                       'title': str}
 
     def parse_options(self, opt, stream=0):
         safe = self.safe_options(opt)
@@ -563,6 +564,8 @@ class VideoCopyCodec(BaseCodec):
             optlist.extend(['-map', s + ':' + str(safe['map'])])
         if 'fps' in safe:
             optlist.extend(['-r:v', str(safe['fps'])])
+        if 'title' in safe:
+            optlist.extend(['-metadata:s:v', "title=" + str(safe['title'])])
         return optlist
 
 
