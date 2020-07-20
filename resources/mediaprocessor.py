@@ -49,7 +49,7 @@ class MediaProcessor:
                         tag = Metadata(mediatype, tvdbid=tvdbid, tmdbid=tmbdid, imdbid=imdbid, season=season, episode=episode, original=original, language=language)
                         if self.settings.tagfile:
                             self.log.info("Tagging %s with TMDB ID %s." % (inputfile, tag.tmdbid))
-                            tag.writeTags(output['output'], self.settings.artwork, self.settings.thumbnail, output['x'], output['y'])
+                            tag.writeTags(output['output'], self.converter, self.settings.artwork, self.settings.thumbnail, output['x'], output['y'], self.converter)
                     except:
                         self.log.exception("Unable to tag file")
 
@@ -57,8 +57,14 @@ class MediaProcessor:
                     if self.settings.relocate_moov:
                         self.QTFS(output['output'])
 
+                    # Permissions
+                    self.setPermissions(output['output'])
+
                     # Copy to additional locations
                     output_files = self.replicate(output['output'])
+
+                    for file in output_files:
+                        self.setPermissions(file)
 
                     # Run any post process scripts
                     if self.settings.postprocess:

@@ -188,6 +188,36 @@ class Converter(object):
 
         return optlist
 
+    def tag(self, infile, metadata={}, coverpath=None):
+        """
+        Tag media file (infile) with metadata dictionary and optional cover art
+        """
+        outfile = infile
+        infile = infile + ".tag"
+        i = 2
+        while os.path.isfile(infile):
+            infile = infile + "." + str(i)
+            i += 1
+
+        os.rename(outfile, infile)
+        opts = ['-i', infile, '-c', 'copy']
+        for k in metadata:
+            opts.append("-metadata")
+            opts.append("%s=%s" % (k, metadata[k]))
+        if coverpath:
+            opts.append("-attach")
+            opts.append(coverpath)
+            opts.append("-metadata:s:t")
+            if coverpath.endswith('png'):
+                opts.append("mimetype=image/png")
+            else:
+                opts.append("mimetype=image/jpeg")
+
+        info = self.ffmpeg.probe(infile)
+        for timecode in self.ffmpeg.convert(outfile, opts):
+            yield int((100.0 * timecode) / info.format.duration)
+        os.remove(infile)
+
     def convert(self, outfile, options, twopass=False, timeout=10, preopts=None, postopts=None):
         """
         Convert media file (infile) according to specified options, and

@@ -138,7 +138,7 @@ class Metadata:
                 tmdbid = find.tv_results[0].get('id')
         return tmdbid
 
-    def writeTags(self, path, artwork=True, thumbnail=False, width=None, height=None):
+    def writeTags(self, path, converter, artwork=True, thumbnail=False, width=None, height=None):
         self.log.info("Tagging file: %s." % path)
         if width and height:
             try:
@@ -149,8 +149,43 @@ class Metadata:
         try:
             video = MP4(path)
         except MP4StreamInfoError:
-            self.log.error('File is not a valid MP4 file and cannot be tagged.')
-            return False
+            self.log.debug('File is not a valid MP4 file and cannot be tagged using mutagen, falling back to FFMPEG limited tagging.')
+            try:
+                metadata = {}
+                if self.mediatype == MediaType.Movie:
+                    metadata['TITLE'] = self.title  # Movie title
+                    metadata["COMMENT"] = self.description  # Long description
+                    metadata["DATE_RELEASE"] = self.date  # Year
+                    metadata["DATE"] = self.date  # Year
+                elif self.mediatype == MediaType.TV:
+                    metadata['TITLE'] = self.title  # Video title
+                    metadata["COMMENT"] = self.description  # Long description
+                    metadata["DATE_RELEASE"] = self.airdate  # Air Date
+                    metadata["DATE"] = self.airdate  # Air Date
+                    metadata["ALBUM"] = self.showname + ", Season " + str(self.season)  # Album as Season
+
+                if self.genre and len(self.genre) > 0:
+                    metadata["GENRE"] = self.genre[0].get('name')
+
+                metadata["ENCODER"] = "SMA"
+
+                coverpath = None
+                if artwork:
+                    coverpath = self.getArtwork(path, thumbnail=thumbnail)
+
+                try:
+                    conv = converter.tag(path, metadata, coverpath)
+                except:
+                    self.log.exception("FFMPEG Tag Error.")
+                    return False
+
+                for timecode in conv:
+                    self.log.debug(timecode)
+                self.log.info("Tags written successfully using FFMPEG fallback method.")
+                return True
+            except:
+                self.log.exception("Unexpected tagging error using FFMPEG fallback method.")
+                return False
 
         try:
             video.delete()
@@ -191,7 +226,7 @@ class Metadata:
             coverpath = self.getArtwork(path, thumbnail=thumbnail)
             if coverpath is not None:
                 cover = open(coverpath, 'rb').read()
-                if path.endswith('png'):
+                if coverpath.endswith('png'):
                     video["covr"] = [MP4Cover(cover, MP4Cover.FORMAT_PNG)]  # png poster
                 else:
                     video["covr"] = [MP4Cover(cover, MP4Cover.FORMAT_JPEG)]  # jpeg poster
@@ -204,7 +239,7 @@ class Metadata:
         try:
             self.log.info("Trying to write tags.")
             video.save()
-            self.log.info("Tags written successfully.")
+            self.log.info("Tags written successfully using mutagen.")
             return True
         except:
             self.log.exception("There was an error writing the tags.")

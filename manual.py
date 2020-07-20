@@ -232,12 +232,14 @@ def processFile(inputfile, tagdata, mp, info=None, relativePath=None):
     if output:
         if tagdata:
             try:
-                tagdata.writeTags(output['output'], settings.artwork, settings.thumbnail, width=output['x'], height=output['y'])
+                tagdata.writeTags(output['output'], mp.converter, settings.artwork, settings.thumbnail, width=output['x'], height=output['y'])
             except:
                 log.exception("There was an error tagging the file")
         if settings.relocate_moov:
             mp.QTFS(output['output'])
         output_files = mp.replicate(output['output'], relativePath=relativePath)
+        for file in output_files:
+            mp.setPermissions(file)
         if settings.postprocess:
             postprocessor = PostProcessor(output_files)
             if tagdata:
