@@ -200,27 +200,20 @@ class Converter(object):
             i += 1
 
         os.rename(outfile, infile)
-        opts = ['-i', infile, '-c', 'copy', '-map', '0']
+        opts = ['-i', infile, '-map', '0:v:0', '-c:v:0', 'copy', '-map', '0:a?', '-c:a', 'copy', '-map', '0:s?', '-c:s', 'copy', '-map', '0:t?', '-c:t', 'copy']
 
         info = self.ffmpeg.probe(infile)
         i = len(info.attachment)
 
-        for k in metadata:
-            opts.append("-metadata")
-            opts.append("%s=%s" % (k, metadata[k]))
         if coverpath:
-            opts.append("-attach")
-            opts.append(coverpath)
+            opts.extend(['-attach', coverpath])
             if coverpath.endswith('png'):
-                opts.append("-metadata:s:t:" + str(i))
-                opts.append("mimetype=image/png")
-                opts.append("-metadata:s:t:" + str(i))
-                opts.append("filename=cover.png")
+                opts.extend(["-metadata:s:t:" + str(i), "mimetype=image/png", "-metadata:s:t:" + str(i), "filename=cover.png"])
             else:
-                opts.append("-metadata:s:t:" + str(i))
-                opts.append("mimetype=image/jpeg")
-                opts.append("-metadata:s:t:" + str(i))
-                opts.append("filename=cover.jpg")
+                opts.extend(["-metadata:s:t:" + str(i), "mimetype=image/jpeg", "-metadata:s:t:" + str(i), "filename=cover.jpg"])
+
+        for k in metadata:
+            opts.extend(["-metadata", "%s=%s" % (k, metadata[k])])
 
         for timecode in self.ffmpeg.convert(outfile, opts):
             yield int((100.0 * timecode) / info.format.duration)
