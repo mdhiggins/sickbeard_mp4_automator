@@ -200,7 +200,7 @@ class Converter(object):
             i += 1
 
         os.rename(outfile, infile)
-        opts = ['-i', infile, '-c', 'copy']
+        opts = ['-i', infile, '-c', 'copy', '-map', '0']
 
         info = self.ffmpeg.probe(infile)
         i = len(info.attachment)
