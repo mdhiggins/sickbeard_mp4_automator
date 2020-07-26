@@ -49,7 +49,7 @@ class MediaProcessor:
                         tag = Metadata(mediatype, tvdbid=tvdbid, tmdbid=tmbdid, imdbid=imdbid, season=season, episode=episode, original=original, language=language)
                         if self.settings.tagfile:
                             self.log.info("Tagging %s with TMDB ID %s." % (inputfile, tag.tmdbid))
-                            tag.writeTags(output['output'], self.converter, self.settings.artwork, self.settings.thumbnail, output['x'], output['y'], self.converter)
+                            tag.writeTags(output['output'], self.converter, self.settings.artwork, self.settings.thumbnail, output['x'], output['y'])
                     except:
                         self.log.exception("Unable to tag file")
 
@@ -506,6 +506,7 @@ class MediaProcessor:
         self.log.debug("Video field order: %s." % vfieldorder)
         self.log.debug("Video width: %s." % vwidth)
         self.log.debug("Video debug %s." % vdebug)
+        self.log.info("Creating %s video stream from source stream %d." % (vcodec, info.video.index))
 
         video_settings = {
             'codec': vcodec,
