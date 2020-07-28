@@ -47,6 +47,7 @@ class MediaProcessor:
                     # Tag with metadata
                     try:
                         tag = Metadata(mediatype, tvdbid=tvdbid, tmdbid=tmbdid, imdbid=imdbid, season=season, episode=episode, original=original, language=language)
+                        tmdbid = tag.tmdbid
                         if self.settings.tagfile:
                             self.log.info("Tagging %s with TMDB ID %s." % (inputfile, tag.tmdbid))
                             tag.writeTags(output['output'], self.converter, self.settings.artwork, self.settings.thumbnail, output['x'], output['y'])
@@ -69,7 +70,7 @@ class MediaProcessor:
                     # Run any post process scripts
                     if self.settings.postprocess:
                         postprocessor = PostProcessor(output_files, self.log)
-                        postprocessor.setEnv(mediatype, tag.tmdbid, season, episode)
+                        postprocessor.setEnv(mediatype, tmdbid, season, episode)
                         postprocessor.run_scripts()
 
                     # Refresh Plex
