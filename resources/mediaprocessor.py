@@ -32,7 +32,7 @@ class MediaProcessor:
         self.settings = settings
         self.converter = Converter(settings.ffmpeg, settings.ffprobe)
 
-    def fullprocess(self, inputfile, mediatype, reportProgress=False, original=None, info=None, tmbdid=None, tvdbid=None, imdbid=None, season=None, episode=None, language=None):
+    def fullprocess(self, inputfile, mediatype, reportProgress=False, original=None, info=None, tmdbid=None, tvdbid=None, imdbid=None, season=None, episode=None, language=None):
         try:
             if not language:
                 language = self.settings.taglanguage
@@ -46,7 +46,7 @@ class MediaProcessor:
                 if output:
                     # Tag with metadata
                     try:
-                        tag = Metadata(mediatype, tvdbid=tvdbid, tmdbid=tmbdid, imdbid=imdbid, season=season, episode=episode, original=original, language=language)
+                        tag = Metadata(mediatype, tvdbid=tvdbid, tmdbid=tmdbid, imdbid=imdbid, season=season, episode=episode, original=original, language=language)
                         tmdbid = tag.tmdbid
                         if self.settings.tagfile:
                             self.log.info("Tagging %s with TMDB ID %s." % (inputfile, tag.tmdbid))
