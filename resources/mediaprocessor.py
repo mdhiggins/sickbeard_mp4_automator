@@ -496,6 +496,10 @@ class MediaProcessor:
             vcodec = self.settings.vcodec[0]
             vdebug = vdebug + ".force-filter"
 
+        vparams = self.settings.codec_params or None
+        if vHDR and self.settings.hdr.get('codec_params'):
+            vparams = self.settings.hdr.get('codec_params')
+
         self.log.debug("Video codec: %s." % vcodec)
         self.log.debug("Video bitrate: %s." % vbitrate)
         self.log.debug("Video CRF: %s." % vcrf)
@@ -507,6 +511,7 @@ class MediaProcessor:
         self.log.debug("Video field order: %s." % vfieldorder)
         self.log.debug("Video width: %s." % vwidth)
         self.log.debug("Video debug %s." % vdebug)
+        self.log.info("Video codec parameters %s." % vparams)
         self.log.info("Creating %s video stream from source stream %d." % (vcodec, info.video.index))
 
         video_settings = {
@@ -522,6 +527,7 @@ class MediaProcessor:
             'field_order': vfieldorder,
             'width': vwidth,
             'filter': vfilter,
+            'params': vparams,
             'title': self.videoStreamTitle(width=vwidth, hdr=vHDR, swidth=info.video.video_width, sheight=info.video.video_height),
             'debug': vdebug,
         }

@@ -38,6 +38,7 @@ codec = h264, x264
 max-bitrate = 0
 crf = -1
 crf-profiles = 
+codec-parameters = 
 max-width = 0
 profile = 
 max-level = 0.0
@@ -49,6 +50,7 @@ force-filter = False
 space = bt2020nc
 transfer = smpte2084
 primaries = bt2020
+codec-parameters = 
 filter = 
 force-filter = False
 

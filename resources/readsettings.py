@@ -116,6 +116,7 @@ class ReadSettings:
             'max-bitrate': 0,
             'crf': -1,
             'crf-profiles': '',
+            'codec-parameters': '',
             'max-width': 0,
             'profile': '',
             'max-level': 0.0,
@@ -127,6 +128,7 @@ class ReadSettings:
             'space': 'bt2020nc',
             'transfer': 'smpte2084',
             'primaries': 'bt2020',
+            'codec-parameters': '',
             'filter': '',
             'force-filter': False,
         },
@@ -641,6 +643,7 @@ class ReadSettings:
             else:
                 self.log.error("Invalid video-crf-profile length '%s'." % vcrfp_raw)
         self.vcrf_profiles.sort(key=lambda x: x['source_bitrate'], reverse=True)
+        self.codec_params = config.get(section, 'codec-parameters')
         self.vfilter = config.get(section, 'filter')
         self.vforcefilter = config.getboolean(section, 'force-filter')
 
@@ -655,6 +658,7 @@ class ReadSettings:
         self.hdr['space'] = config.getlist(section, 'space')
         self.hdr['transfer'] = config.getlist(section, 'transfer')
         self.hdr['primaries'] = config.getlist(section, 'primaries')
+        self.hdr['codec_params'] = config.get(section, 'codec-parameters')
         self.hdr['filter'] = config.get(section, 'filter')
         self.hdr['forcefilter'] = config.getboolean(section, 'force-filter')
 

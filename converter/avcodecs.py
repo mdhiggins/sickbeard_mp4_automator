@@ -865,7 +865,8 @@ class H264Codec(VideoCodec):
         'level': float,  # default: not-set, values range from 3.0 to 4.2
         'tune': str,  # default: not-set, for valid values see above link
         'wscale': int,  # special handlers for the even number requirements of h264
-        'hscale': int  # special handlers for the even number requirements of h264
+        'hscale': int,  # special handlers for the even number requirements of h264
+        'params': str  # x265-params
     })
     scale_filter = 'scale'
 
@@ -892,6 +893,8 @@ class H264Codec(VideoCodec):
             optlist.extend(['-profile:v', safe['profile']])
         if 'level' in safe:
             optlist.extend(['-level', '%0.1f' % safe['level']])
+        if 'params' in safe:
+            optlist.extend(['-x264-params', safe['params']])
         if 'tune' in safe:
             optlist.extend(['-tune', safe['tune']])
         if 'wscale' in safe and 'hscale' in safe:
@@ -997,7 +1000,8 @@ class H265Codec(VideoCodec):
         'level': float,  # default: not-set, values range from 3.0 to 4.2
         'tune': str,  # default: not-set, for valid values see above link
         'wscale': int,  # special handlers for the even number requirements of h265
-        'hscale': int  # special handlers for the even number requirements of h265
+        'hscale': int,  # special handlers for the even number requirements of h265
+        'params': str  # x265-params
     })
     scale_filter = 'scale'
 
@@ -1021,6 +1025,8 @@ class H265Codec(VideoCodec):
             optlist.extend(['-profile:v', safe['profile']])
         if 'level' in safe:
             optlist.extend(['-level', '%0.1f' % safe['level']])
+        if 'params' in safe:
+            optlist.extend(['-x265-params', safe['params']])
         if 'tune' in safe:
             optlist.extend(['-tune', safe['tune']])
         if 'wscale' in safe and 'hscale' in safe:
