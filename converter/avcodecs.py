@@ -420,8 +420,6 @@ class VideoCodec(BaseCodec):
             optlist.extend(['-crf', str(safe['crf'])])
             if 'maxrate' in safe:
                 optlist.extend(['-maxrate:v', str(safe['maxrate'])])
-            elif 'bitrate' in safe:
-                optlist.extend(['-maxrate:v', str(safe['bitrate']) + 'k'])
             if 'bufsize' in safe:
                 optlist.extend(['-bufsize', str(safe['bufsize'])])
         elif 'bitrate' in safe:
