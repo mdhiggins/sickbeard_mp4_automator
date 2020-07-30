@@ -581,7 +581,7 @@ class ReadSettings:
 
         if self.force_convert:
             self.process_same_extensions = True
-            self.log.warning("Force-convert is true, so convert-mp4 is being overridden to true as well")
+            self.log.warning("Force-convert is true, so process-same-extensions is being overridden to true as well")
 
         # Permissions
         section = "Permissions"
