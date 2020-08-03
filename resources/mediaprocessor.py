@@ -1063,7 +1063,7 @@ class MediaProcessor:
 
     def burnSubtitleFilter(self, inputfile, subtitle_streams, swl, valid_external_subs=None):
         if self.settings.burn_subtitles:
-            filtered_subtitle_streams = [x for x in subtitle_streams if self.validLanguage(x.metadata.get('language'), swl) and self.validDisposition(x.metadata.get('language'), x.dispostr, self.settings.ignored_subtitle_dispositions)]
+            filtered_subtitle_streams = [x for x in subtitle_streams if self.validLanguage(x.metadata.get('language'), swl)]
             filtered_subtitle_streams = sorted(filtered_subtitle_streams, key=lambda x: swl.index(x.metadata.get('language')) if x.metadata.get('language') in swl else 999)
             sub_candidates = []
             if len(filtered_subtitle_streams) > 0:
