@@ -149,6 +149,8 @@ class ReadSettings:
             'copy-original': False,
             'aac-adtstoasc': False,
             'ignore-truehd': 'mp4, m4v',
+            'ignored-dispositions': '',
+            'unique-dispositions': False,
         },
         'Universal Audio': {
             'codec': 'aac',
@@ -175,6 +177,8 @@ class ReadSettings:
             'embed-only-internal-subs': False,
             'filename-dispositions': 'forced',
             'ignore-embedded-subs': False,
+            'ignored-dispositions': '',
+            'unique-dispositions': False,
             'attachment-codec': '',
         },
         'Sonarr': {
@@ -680,6 +684,8 @@ class ReadSettings:
         self.allow_language_relax = config.getboolean(section, "allow-language-relax")
         self.aac_adtstoasc = config.getboolean(section, 'aac-adtstoasc')
         self.ignore_truehd = config.getextensions(section, "ignore-truehd")
+        self.ignored_audio_dispositions = config.getlist(section, "ignored-dispositions")
+        self.unique_audio_dispositions = config.getboolean(section, "unique-dispositions")
 
         # Universal Audio
         section = "Universal Audio"
@@ -708,6 +714,8 @@ class ReadSettings:
         self.embedonlyinternalsubs = config.getboolean(section, 'embed-only-internal-subs')
         self.filename_dispositions = config.getlist(section, "filename-dispositions")
         self.ignore_embedded_subs = config.getboolean(section, 'ignore-embedded-subs')
+        self.ignored_subtitle_dispositions = config.getlist(section, "ignored-dispositions")
+        self.unique_subtitle_dispositions = config.getboolean(section, "unique-dispositions")
         self.attachmentcodec = config.getlist(section, 'attachment-codec')
 
         # Sonarr

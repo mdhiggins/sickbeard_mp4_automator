@@ -71,6 +71,8 @@ sample-rates =
 copy-original = False
 aac-adtstoasc = False
 ignore-truehd = mp4, m4v
+ignored-dispositions = 
+unique-dispositions = False
 
 [Universal Audio]
 codec = aac
@@ -97,6 +99,8 @@ embed-image-subs = False
 embed-only-internal-subs = False
 filename-dispositions = forced
 ignore-embedded-subs = False
+ignored-dispositions = 
+unique-dispositions = False
 attachment-codec = 
 
 [Sonarr]

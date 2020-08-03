@@ -538,6 +538,7 @@ class MediaProcessor:
         # Iterate through audio streams
         audio_settings = []
         blocked_audio_languages = []
+        blocked_audio_dispositions = []
         ua = (len(self.settings.ua) > 0)
 
         # Sort incoming streams so that things like first language preferences respect these options
@@ -559,7 +560,7 @@ class MediaProcessor:
 
             # Proceed if no whitelist is set, or if the language is in the whitelist
             uadata = None
-            if self.validLanguage(a.metadata['language'], awl, blocked_audio_languages):
+            if self.validLanguage(a.metadata['language'], awl, blocked_audio_languages) and self.validDisposition(a.metadata['language'], a.dispostr, self.settings.ignored_audio_dispositions, self.settings.unique_audio_dispositions, blocked_audio_dispositions):
                 # Create friendly audio stream if the default audio stream has too many channels
                 if ua and a.audio_channels > 2:
                     if self.settings.ua_bitrate == 0:
@@ -727,6 +728,7 @@ class MediaProcessor:
         # Iterate through subtitle streams
         subtitle_settings = []
         blocked_subtitle_languages = []
+        blocked_subtitle_dispositions = []
         self.log.info("Reading subtitle streams.")
         if not self.settings.ignore_embedded_subs:
             for s in info.subtitle:
@@ -746,7 +748,7 @@ class MediaProcessor:
 
                 if scodec:
                     # Proceed if no whitelist is set, or if the language is in the whitelist
-                    if self.validLanguage(s.metadata['language'], swl, blocked_subtitle_languages):
+                    if self.validLanguage(s.metadata['language'], swl, blocked_subtitle_languages) and self.validDisposition(s.metadata['language'], sdisposition, self.settings.ignored_subtitle_dispositions, self.settings.unique_subtitle_dispositions, blocked_subtitle_dispositions):
                         self.log.info("Creating %s subtitle stream from source stream %d." % (scodec, s.index))
                         subtitle_settings.append({
                             'map': s.index,
@@ -760,7 +762,7 @@ class MediaProcessor:
                         if self.settings.sub_first_language_stream:
                             blocked_subtitle_languages.append(s.metadata['language'])
                 else:
-                    if self.validLanguage(s.metadata['language'], swl, blocked_subtitle_languages):
+                    if self.validLanguage(s.metadata['language'], swl, blocked_subtitle_languages) and self.validDisposition(s.metadata['language'], sdisposition, self.settings.ignored_subtitle_dispositions, self.settings.unique_subtitle_dispositions, blocked_subtitle_dispositions):
                         for codec in (self.settings.scodec_image if image_based else self.settings.scodec):
                             ripsub = [{
                                 'map': s.index,
@@ -809,7 +811,7 @@ class MediaProcessor:
                     self.log.info("Skipping external subtitle file %s, no appropriate codecs found or embed disabled." % os.path.basename(external_sub.path))
                     continue
 
-                if self.validLanguage(external_sub.subtitle[0].metadata['language'], swl, blocked_subtitle_languages):
+                if self.validLanguage(external_sub.subtitle[0].metadata['language'], swl, blocked_subtitle_languages) and self.validDisposition(external_sub.subtitle[0].metadata['language'], sdisposition, self.settings.ignored_subtitle_dispositions, self.settings.unique_subtitle_dispositions, blocked_subtitle_dispositions):
                     if external_sub.path not in sources:
                         sources.append(external_sub.path)
 
@@ -1033,6 +1035,24 @@ class MediaProcessor:
                 return False
         return True
 
+    def validDisposition(self, language, disposition, ignored=[], unique=False, existing=[], append=True):
+        dispodict = self.dispoStringToDict(disposition)
+        truedispositions = [x for x in dispodict if dispodict[x]]
+        for dispo in truedispositions:
+            if dispo in ignored:
+                self.log.debug("Ignoring stream because disposition %s is on the ignore list." % (dispo))
+                return False
+        if unique:
+            search = "%s.%s" % (language, disposition)
+            if search in existing:
+                self.log.debug("Invalid disposition, stream fitting this disposition profile already exists, ignoring.")
+                return False
+            if append:
+                self.log.debug("Valid disposition, adding %s to the ignored list." % (search))
+                existing.append(search)
+            return True
+        return True
+
     def dispoStringToDict(self, dispostr):
         dispo = {}
         if dispostr:
@@ -1043,7 +1063,7 @@ class MediaProcessor:
 
     def burnSubtitleFilter(self, inputfile, subtitle_streams, swl, valid_external_subs=None):
         if self.settings.burn_subtitles:
-            filtered_subtitle_streams = [x for x in subtitle_streams if self.validLanguage(x.metadata.get('language'), swl)]
+            filtered_subtitle_streams = [x for x in subtitle_streams if self.validLanguage(x.metadata.get('language'), swl) and self.validDisposition(x.metadata.get('language'), x.dispostr, self.settings.ignored_subtitle_dispositions)]
             filtered_subtitle_streams = sorted(filtered_subtitle_streams, key=lambda x: swl.index(x.metadata.get('language')) if x.metadata.get('language') in swl else 999)
             sub_candidates = []
             if len(filtered_subtitle_streams) > 0:
