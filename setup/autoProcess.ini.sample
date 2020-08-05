@@ -17,6 +17,7 @@ sort-streams = True
 process-same-extensions = False
 force-convert = False
 post-process = False
+detailed-progress = False
 preopts = 
 postopts = 
 
