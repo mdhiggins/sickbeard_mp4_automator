@@ -215,8 +215,8 @@ class Converter(object):
         for k in metadata:
             opts.extend(["-metadata", "%s=%s" % (k, metadata[k])])
 
-        for timecode in self.ffmpeg.convert(outfile, opts):
-            yield int((100.0 * timecode) / info.format.duration)
+        for timecode, debug in self.ffmpeg.convert(outfile, opts):
+            yield int((100.0 * timecode) / info.format.duration), debug
         os.remove(infile)
 
     def convert(self, outfile, options, twopass=False, timeout=10, preopts=None, postopts=None):
@@ -258,7 +258,7 @@ class Converter(object):
         ...    'video': { 'codec': 'h264' }
         ... })
 
-        >>> for timecode in conv:
+        >>> for timecode, debug in conv:
         ...   pass # can be used to inform the user about the progress
         """
 
@@ -291,19 +291,19 @@ class Converter(object):
 
         if twopass:
             optlist1 = self.parse_options(options, 1)
-            for timecode in self.ffmpeg.convert(outfile, optlist1,
+            for timecode, debug in self.ffmpeg.convert(outfile, optlist1,
                                                 timeout=timeout, preopts=preopts, postopts=postopts):
-                yield int((50.0 * timecode) / info.format.duration)
+                yield int((50.0 * timecode) / info.format.duration), debug
 
             optlist2 = self.parse_options(options, 2)
-            for timecode in self.ffmpeg.convert(outfile, optlist2,
+            for timecode, debug in self.ffmpeg.convert(outfile, optlist2,
                                                 timeout=timeout, preopts=preopts, postopts=postopts):
-                yield int(50.0 + (50.0 * timecode) / info.format.duration)
+                yield int(50.0 + (50.0 * timecode) / info.format.duration), debug
         else:
             optlist = self.parse_options(options, twopass)
-            for timecode in self.ffmpeg.convert(outfile, optlist,
+            for timecode, debug in self.ffmpeg.convert(outfile, optlist,
                                                 timeout=timeout, preopts=preopts, postopts=postopts):
-                yield int((100.0 * timecode) / info.format.duration)
+                yield int((100.0 * timecode) / info.format.duration), debug
 
     def probe(self, fname, posters_as_video=True):
         """

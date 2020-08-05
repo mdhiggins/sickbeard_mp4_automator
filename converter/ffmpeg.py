@@ -588,7 +588,7 @@ class FFMpeg(object):
 
         >>> conv = FFMpeg().convert('test.ogg', '/tmp/output.mp3',
         ...    ['-acodec libmp3lame', '-vn'])
-        >>> for timecode in conv:
+        >>> for timecode, debug in conv:
         ...    pass # can be used to inform the user about conversion progress
 
         """
@@ -603,6 +603,8 @@ class FFMpeg(object):
             raise FFMpegError("Input file doesn't exist: " + infile)
 
         cmds = self.generateCommands(outfile, opts, preopts, postopts)
+
+        yield 0, cmds
 
         if timeout:
             def on_sigalrm(*_):
@@ -633,7 +635,7 @@ class FFMpeg(object):
                 # For small or very fast jobs, ffmpeg may never output a '\r'.  When EOF is reached, yield if we haven't yet.
                 if not yielded:
                     yielded = True
-                    yield 10
+                    yield 10, ""
                 break
 
             try:
@@ -659,7 +661,7 @@ class FFMpeg(object):
                     else:
                         timecode = float(tmp[0])
                     yielded = True
-                    yield timecode
+                    yield timecode, line
 
         if timeout:
             signal.signal(signal.SIGALRM, signal.SIG_DFL)

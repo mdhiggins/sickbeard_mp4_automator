@@ -1241,8 +1241,11 @@ class MediaProcessor:
             try:
                 self.log.info("Ripping %s subtitle from source stream %s into external file." % (options["language"], options['index']))
                 conv = self.converter.convert(outputfile, options, timeout=None)
-                for timecode in conv:
-                    pass
+                _, cmds = next(conv)
+                self.log.debug("Subtitle extraction FFmpeg command:")
+                self.log.debug(" ".join(str(item) for item in cmds))
+                for timecode, debug in conv:
+                    self.log.debug(debug)
 
                 self.log.info("%s created." % outputfile)
                 rips.append(outputfile)
@@ -1295,8 +1298,11 @@ class MediaProcessor:
         postopts = ['-t', '00:00:01']
         try:
             conv = self.converter.convert(None, options, timeout=30, postopts=postopts)
-            for timecode in conv:
-                pass
+            _, cmds = next(conv)
+            self.log.debug("isImageBasedSubtitle FFmpeg command:")
+            self.log.debug(" ".join(str(item) for item in cmds))
+            for timecode, debug in conv:
+                self.log.debug(debug)
         except FFMpegConvertError:
             return True
         return False
@@ -1373,13 +1379,20 @@ class MediaProcessor:
             self.log.exception("Error converting file.")
             return None, inputfile
 
+        _, cmds = next(conv)
+        self.log.info("FFmpeg command:")
+        self.log.info("======================")
+        self.log.info(" ".join(str(item) for item in cmds))
+        self.log.info("======================")
+
         try:
-            for timecode in conv:
+            for timecode, debug in conv:
+                self.log.debug(debug)
                 if reportProgress:
                     if progressOutput:
                         progressOutput(timecode)
                     else:
-                        self.displayProgressBar(timecode)
+                        self.displayProgressBar(timecode, debug)
             if reportProgress:
                 if progressOutput:
                     progressOutput(timecode)
@@ -1423,7 +1436,7 @@ class MediaProcessor:
 
         return finaloutputfile, inputfile
 
-    def displayProgressBar(self, complete, width=20, newline=False):
+    def displayProgressBar(self, complete, debug="", width=20, newline=False):
         try:
             divider = 100 / width
 
@@ -1431,11 +1444,12 @@ class MediaProcessor:
                 complete = 100
 
             sys.stdout.write('\r')
-            sys.stdout.write('[{0}] {1}%'.format('#' * int(round(complete / divider)) + ' ' * int(round(width - (complete / divider))), complete))
+            sys.stdout.write('[{0}] {1}% '.format('#' * int(round(complete / divider)) + ' ' * int(round(width - (complete / divider))), complete))
+            if debug and self.settings.detailedprogress:
+                sys.stdout.write("%s" % debug.strip())
             if newline:
                 sys.stdout.write('\n')
             sys.stdout.flush()
-            self.log.debug(complete)
         except:
             print(complete)
 

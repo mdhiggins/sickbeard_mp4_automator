@@ -178,9 +178,11 @@ class Metadata:
                 except:
                     self.log.exception("FFMPEG Tag Error.")
                     return False
-
-                for timecode in conv:
-                    self.log.debug(timecode)
+                _, cmds = next(conv)
+                self.log.debug("Metadata tagging FFmpeg command:")
+                self.log.debug(" ".join(str(item) for item in cmds))
+                for timecode, debug in conv:
+                    self.log.debug(debug)
                 self.log.info("Tags written successfully using FFMPEG fallback method.")
                 return True
             except:

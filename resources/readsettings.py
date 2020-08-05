@@ -95,6 +95,7 @@ class ReadSettings:
             'process-same-extensions': False,
             'force-convert': False,
             'post-process': False,
+            'detailed-progress': False,
             'preopts': '',
             'postopts': '',
         },
@@ -582,6 +583,7 @@ class ReadSettings:
         self.process_same_extensions = config.getboolean(section, "process-same-extensions")
         self.force_convert = config.getboolean(section, "force-convert")
         self.postprocess = config.getboolean(section, 'post-process')
+        self.detailedprogress = config.getboolean(section, 'detailed-progress')
         self.preopts = config.getlist(section, "preopts")
         self.postopts = config.getlist(section, "postopts")
 
