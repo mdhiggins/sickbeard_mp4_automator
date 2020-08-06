@@ -661,7 +661,9 @@ class FFMpeg(object):
                     else:
                         timecode = float(tmp[0])
                     yielded = True
-                    yield timecode, line
+                    debug = line.strip()
+                    debug = debug if debug.startswith("frame") else ""
+                    yield timecode, debug
 
         if timeout:
             signal.signal(signal.SIGALRM, signal.SIG_DFL)
