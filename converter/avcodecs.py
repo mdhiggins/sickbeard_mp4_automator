@@ -953,6 +953,14 @@ class H264VAAPICodec(H264Codec):
             if safe['height'] % 2 == 0:
                 safe['vaapi_hscale'] = safe['height']
             del(safe['height'])
+        if 'crf' in safe:
+            safe['qp'] = safe['crf']
+            del safe['crf']
+            qp = safe['qp']
+            if qp < 0 or qp > 52:
+                del safe['qp']
+            elif 'bitrate' in safe:
+                del safe['bitrate']
         return safe
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
@@ -966,6 +974,12 @@ class H264VAAPICodec(H264Codec):
             optlist.extend(['-vf', 'hwupload,%s=trunc((oh*a)/2)*2:%s:format=nv12' % (self.scale_filter, safe['vaapi_hscale'])])
         else:
             optlist.extend(['-vf', "format=nv12,hwupload"])
+        if 'qp' in safe:
+            optlist.extend(['-qp', str(safe['qp'])])
+            if 'maxrate' in safe:
+                optlist.extend(['-maxrate:v', str(safe['maxrate'])])
+            if 'bufsize' in safe:
+                optlist.extend(['-bufsize', str(safe['bufsize'])])
 
         return optlist
 
@@ -1062,7 +1076,7 @@ class H265QSVCodecAlt(H265QSVCodec):
 
 class H265VAAPICodec(H265Codec):
     """
-    H.265/AVC VAAPI ideo codec.
+    H.265/AVC VAAPI video codec.
     """
     codec_name = 'h265vaapi'
     ffmpeg_codec_name = 'hevc_vaapi'
@@ -1077,6 +1091,14 @@ class H265VAAPICodec(H265Codec):
             if safe['height'] % 2 == 0:
                 safe['vaapi_hscale'] = safe['height']
             del(safe['height'])
+        if 'crf' in safe:
+            safe['qp'] = safe['crf']
+            del safe['crf']
+            qp = safe['qp']
+            if qp < 0 or qp > 52:
+                del safe['qp']
+            elif 'bitrate' in safe:
+                del safe['bitrate']
         return safe
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
@@ -1090,6 +1112,12 @@ class H265VAAPICodec(H265Codec):
             optlist.extend(['-vf', 'hwupload,%s=trunc((oh*a)/2)*2:%s:format=nv12' % (self.scale_filter, safe['vaapi_hscale'])])
         else:
             optlist.extend(['-vf', "format=nv12,hwupload"])
+        if 'qp' in safe:
+            optlist.extend(['-qp', str(safe['qp'])])
+            if 'maxrate' in safe:
+                optlist.extend(['-maxrate:v', str(safe['maxrate'])])
+            if 'bufsize' in safe:
+                optlist.extend(['-bufsize', str(safe['bufsize'])])
 
         return optlist
 
