@@ -1046,6 +1046,10 @@ class H265Codec(VideoCodec):
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         optlist = []
 
+        if 'level' in safe:
+            if safe['level'] < 1.0 or safe['level'] > 6.2:
+                del safe['level']
+        
         if 'preset' in safe:
             optlist.extend(['-preset', safe['preset']])
         if 'profile' in safe:
@@ -1096,7 +1100,7 @@ class H265VAAPICodec(H265Codec):
     codec_name = 'h265vaapi'
     ffmpeg_codec_name = 'hevc_vaapi'
     scale_filter = 'scale_vaapi'
-    encoder_options = VideoCodec.encoder_options.copy()
+    encoder_options = H265Codec.encoder_options.copy()
     encoder_options.update({
         'device': str,
     })
