@@ -943,7 +943,7 @@ class H264VAAPICodec(H264Codec):
     codec_name = 'h264vaapi'
     ffmpeg_codec_name = 'h264_vaapi'
     scale_filter = 'scale_vaapi'
-    encoder_options = VideoCodec.encoder_options.copy()
+    encoder_options = H264Codec.encoder_options.copy()
     encoder_options.update({
         'device': str,
     })
