@@ -941,12 +941,11 @@ class MediaProcessor:
         for hwaccel in self.settings.hwaccels:
             if hwaccel in hwaccels:
                 self.log.info("%s hwaccel is supported by this ffmpeg build and will be used [hwaccels]." % hwaccel)
-                if 'vaapi' in hwaccel and 'vaapi' in video_codec:
-                    opts.extend(['-init_hw_device', 'vaapi=sma:/dev/dri/renderD128'])
-                    opts.extend(['-hwaccel_output_format', 'vaapi'])
-                    opts.extend(['-hwaccel_device', 'sma'])
-                    device = 'sma'
+                opts.extend(['-init_hw_device', '%s=sma:/dev/dri/renderD128' % hwaccel])
                 opts.extend(['-hwaccel', hwaccel])
+                opts.extend(['-hwaccel_output_format', hwaccel])
+                opts.extend(['-hwaccel_device', 'sma'])
+                device = 'sma'
 
                 # If there's a decoder for this acceleration platform, also use it
                 decoder = self.converter.ffmpeg.hwaccel_decoder(video_codec, hwaccel)
