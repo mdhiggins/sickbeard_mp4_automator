@@ -899,7 +899,7 @@ class MediaProcessor:
 
         if vcodec != 'copy':
             try:
-                preopts.extend(self.setAcceleration(info.video.codec))
+                preopts.extend(self.setAcceleration(info.video.codec), options)
             except:
                 self.log.exception("Error when trying to determine hardware acceleration support.")
 
@@ -916,7 +916,7 @@ class MediaProcessor:
     def validLanguage(self, language, whitelist, blocked=[]):
         return ((len(whitelist) < 1 or language in whitelist) and language not in blocked)
 
-    def setAcceleration(self, video_codec):
+    def setAcceleration(self, video_codec, options):
         opts = []
         # Look up which codecs and which decoders/encoders are available in this build of ffmpeg
         codecs = self.converter.ffmpeg.codecs
@@ -937,6 +937,11 @@ class MediaProcessor:
         for hwaccel in self.settings.hwaccels:
             if hwaccel in hwaccels:
                 self.log.info("%s hwaccel is supported by this ffmpeg build and will be used [hwaccels]." % hwaccel)
+                if hwaccel == 'vaapi':
+                    opts.extend(['-init_hw_device', 'vaapi=sma:/dev/dri/renderD128'])
+                    opts.extend(['-hwaccel_output_format', 'vaapi'])
+                    opts.extend(['-hwaccel_device', 'sma'])
+                    options['video']['device'] = 'sma'
                 opts.extend(['-hwaccel', hwaccel])
 
                 # If there's a decoder for this acceleration platform, also use it
