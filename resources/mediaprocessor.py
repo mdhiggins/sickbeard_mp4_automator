@@ -937,7 +937,7 @@ class MediaProcessor:
         for hwaccel in self.settings.hwaccels:
             if hwaccel in hwaccels:
                 self.log.info("%s hwaccel is supported by this ffmpeg build and will be used [hwaccels]." % hwaccel)
-                if hwaccel == 'vaapi':
+                if 'vaapi' in hwaccel and 'vaapi' in video_codec:
                     opts.extend(['-init_hw_device', 'vaapi=sma:/dev/dri/renderD128'])
                     opts.extend(['-hwaccel_output_format', 'vaapi'])
                     opts.extend(['-hwaccel_device', 'sma'])
