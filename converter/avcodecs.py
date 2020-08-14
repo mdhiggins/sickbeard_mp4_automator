@@ -1175,6 +1175,13 @@ class NVEncH265Codec(H265Codec):
         return optlist
 
 
+class NVEncH265CodecAlt(NVEncH265Codec):
+    """
+    Nvidia H.265/AVC video codec alternate.
+    """
+    codec_name = 'hevc_nvenc'
+
+
 class DivxCodec(VideoCodec):
     """
     DivX video codec.
@@ -1334,8 +1341,8 @@ audio_codec_list = [
 ]
 
 video_codec_list = [
-    VideoNullCodec, VideoCopyCodec, TheoraCodec, H264Codec, H264CodecAlt, H264QSVCodec, H265QSVCodecAlt, H265QSVCodec, H265Codec,
-    DivxCodec, Vp8Codec, H263Codec, FlvCodec, Mpeg1Codec, NVEncH264Codec, NVEncH265Codec,
+    VideoNullCodec, VideoCopyCodec, TheoraCodec, H264Codec, H264CodecAlt, H264QSVCodec, H265QSVCodecAlt, H265QSVCodec, H265Codec, H265CodecAlt,
+    DivxCodec, Vp8Codec, H263Codec, FlvCodec, Mpeg1Codec, NVEncH264Codec, NVEncH265Codec, NVEncH265CodecAlt,
     Mpeg2Codec, H264VAAPICodec, H265VAAPICodec, OMXH264Codec, VideotoolboxEncH264
 ]
 
