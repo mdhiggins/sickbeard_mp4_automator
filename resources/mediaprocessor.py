@@ -901,8 +901,23 @@ class MediaProcessor:
             try:
                 opts, device = self.setAcceleration(info.video.codec)
                 preopts.extend(opts)
-                if device:
-                    options['video']['device'] = device
+                for k in self.settings.hwdevices:
+                    if k in vcodec:
+                        match = self.settings.hwdevices[k]
+                        self.log.debug("Found a matching device %s for encoder %s [hwdevices]." % (match, vcodec))
+                        if not device:
+                            self.log.debug("No device was set by the decoder, setting device to %s for encoder %s [hwdevices]." % (match, vcodec))
+                            preopts.extend(['-init_hw_device', '%s=sma:%s' % (k, match)])
+                            options['video']['device'] = "sma"
+                        elif device == match:
+                            self.log.debug("Device was already set by the decoder, using same device %s for encoder %s [hwdevices]." % (device, vcodec))
+                            options['video']['device'] = "sma"
+                        else:
+                            self.log.debug("Device was already set by the decoder but does not match encoder, using secondary device %s for encoder %s [hwdevices]." % (match, vcodec))
+                            preopts.extend(['-init_hw_device', '%s=sma2:%s' % (k, match)])
+                            options['video']['device'] = "sma2"
+                            options['video']['decode_device'] = "sma"
+                        break
             except:
                 self.log.exception("Error when trying to determine hardware acceleration support.")
 
@@ -940,12 +955,15 @@ class MediaProcessor:
         # Find the first of the specified hardware acceleration platform that is available in this build of ffmpeg.  The order of specified hardware acceleration platforms determines priority.
         for hwaccel in self.settings.hwaccels:
             if hwaccel in hwaccels:
+                device = self.settings.hwdevices.get(hwaccel)
+                if device:
+                    self.log.debug("Setting hwaccel device to %s." % device)
+                    opts.extend(['-init_hw_device', '%s=sma:%s' % (hwaccel, device)])
+                    opts.extend(['-hwaccel_device', 'sma'])
+
                 self.log.info("%s hwaccel is supported by this ffmpeg build and will be used [hwaccels]." % hwaccel)
-                opts.extend(['-init_hw_device', '%s=sma:/dev/dri/renderD128' % hwaccel])
                 opts.extend(['-hwaccel', hwaccel])
                 opts.extend(['-hwaccel_output_format', hwaccel])
-                opts.extend(['-hwaccel_device', 'sma'])
-                device = 'sma'
 
                 # If there's a decoder for this acceleration platform, also use it
                 decoder = self.converter.ffmpeg.hwaccel_decoder(video_codec, hwaccel)
