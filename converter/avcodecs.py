@@ -911,13 +911,28 @@ class H264CodecAlt(H264Codec):
     codec_name = 'x264'
 
 
-class NVEncH264(H264Codec):
+class NVEncH264Codec(H264Codec):
     """
     Nvidia H.264/AVC video codec.
     """
     codec_name = 'h264_nvenc'
     ffmpeg_codec_name = 'h264_nvenc'
     scale_filter = 'scale_npp'
+    encoder_options = H264Codec.encoder_options.copy()
+    encoder_options.update({
+        'decode_device': str,
+        'device': str,
+    })
+
+    def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
+        optlist = super(NVEncH264Codec, self)._codec_specific_produce_ffmpeg_list(safe, stream)
+        if 'device' in safe:
+            optlist.extend(['-filter_hw_device', safe['device']])
+            if 'decode_device' in safe and safe['decode_device'] != safe['device']:
+                optlist.extend(['-vf', 'hwdownload,format=nv12,hwupload'])
+        elif 'decode_device' in safe:
+            optlist.extend(['-vf', 'hwdownload,format=nv12,hwupload'])
+        return optlist
 
 
 class VideotoolboxEncH264(H264Codec):
@@ -1143,6 +1158,21 @@ class NVEncH265Codec(H265Codec):
     codec_name = 'h265_nvenc'
     ffmpeg_codec_name = 'hevc_nvenc'
     scale_filter = 'scale_npp'
+    encoder_options = H265Codec.encoder_options.copy()
+    encoder_options.update({
+        'decode_device': str,
+        'device': str,
+    })
+
+    def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
+        optlist = super(NVEncH265Codec, self)._codec_specific_produce_ffmpeg_list(safe, stream)
+        if 'device' in safe:
+            optlist.extend(['-filter_hw_device', safe['device']])
+            if 'decode_device' in safe and safe['decode_device'] != safe['device']:
+                optlist.extend(['-vf', 'hwdownload,format=nv12,hwupload'])
+        elif 'decode_device' in safe:
+            optlist.extend(['-vf', 'hwdownload,format=nv12,hwupload'])
+        return optlist
 
 
 class DivxCodec(VideoCodec):
@@ -1305,7 +1335,7 @@ audio_codec_list = [
 
 video_codec_list = [
     VideoNullCodec, VideoCopyCodec, TheoraCodec, H264Codec, H264CodecAlt, H264QSVCodec, H265QSVCodecAlt, H265QSVCodec, H265Codec,
-    DivxCodec, Vp8Codec, H263Codec, FlvCodec, Mpeg1Codec, NVEncH264, NVEncH265Codec,
+    DivxCodec, Vp8Codec, H263Codec, FlvCodec, Mpeg1Codec, NVEncH264Codec, NVEncH265Codec,
     Mpeg2Codec, H264VAAPICodec, H265VAAPICodec, OMXH264Codec, VideotoolboxEncH264
 ]
 
