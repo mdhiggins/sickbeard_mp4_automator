@@ -1116,7 +1116,7 @@ class H265VAAPICodec(H265Codec):
         return safe
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
-        optlist = super(H264VAAPICodec, self)._codec_specific_produce_ffmpeg_list(safe, stream)
+        optlist = super(H265VAAPICodec, self)._codec_specific_produce_ffmpeg_list(safe, stream)
         if 'device' in safe:
             optlist.extend(['-filter_hw_device', safe['device']])
             if 'decode_device' in safe and safe['decode_device'] != safe['device']:
