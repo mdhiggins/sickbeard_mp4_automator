@@ -38,7 +38,6 @@ class SMAConfigParser(ConfigParser, object):
         l = self.getlist(section, option, vars, listseparator, [], lower, replace)
         output = default
         for listitem in l:
-            print(listitem)
             split = listitem.split(dictseparator)
             if len(split) > 1:
                 output[split[0]] = split[1]
