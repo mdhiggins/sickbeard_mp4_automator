@@ -581,7 +581,7 @@ class ReadSettings:
         self.threads = config.getint(section, 'threads')
         self.hwaccels = config.getlist(section, 'hwaccels')
         self.hwaccel_decoders = config.getlist(section, "hwaccel-decoders")
-        self.hwdevices = config.getdict(section, "hwdevices", replace=[])
+        self.hwdevices = config.getdict(section, "hwdevices", lower=False, replace=[])
         self.output_dir = config.getdirectory(section, "output-directory")
         self.output_format = config.get(section, "output-format")
         self.output_extension = config.getextension(section, "output-extension")
