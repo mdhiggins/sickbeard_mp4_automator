@@ -1154,7 +1154,7 @@ class H265VAAPICodec(H265Codec):
         elif 'vaapi_hscale' in safe:
             optlist.extend(['-vf', 'format=%s|vaapi,hwupload,%s=trunc((oh*a)/2)*2:%s%s' % (fmt, self.scale_filter, safe['vaapi_hscale'], fmtstr)])
         else:
-            fmt = ",%s%s" % (self.scale_filter, fmt) if fmt else ""
+            fmtstr = ",%s%s" % (self.scale_filter, fmtstr) if fmtstr else ""
             optlist.extend(['-vf', "format=%s|vaapi,hwupload%s" % (fmt, fmtstr)])
         return optlist
 
