@@ -157,6 +157,8 @@ class MediaStreamInfo(object):
             out['pix_fmt'] = self.pix_fmt
             out['profile'] = self.profile
             out['fps'] = self.fps
+            if self.video_width and self.video_height:
+                out['dimensions'] = "%dx%d" % (self.video_width, self.video_height)
             if self.video_level:
                 out['level'] = self.video_level / 10
             out['field_order'] = self.field_order
