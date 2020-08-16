@@ -429,12 +429,11 @@ class MediaProcessor:
         vdebug = "video"
         vcodec = "copy" if info.video.codec in self.settings.vcodec else self.settings.vcodec[0]
 
-        vpix_fmt = None
+        vpix_fmt = self.settings.pix_fmt[0] if len(self.settings.pix_fmt) else None
         if len(self.settings.pix_fmt) > 0 and info.video.pix_fmt not in self.settings.pix_fmt:
             self.log.debug("Overriding video pix_fmt. Codec cannot be copied because pix_fmt is not approved [pix-fmt].")
             vdebug = vdebug + ".pix_fmt"
             vcodec = self.settings.vcodec[0]
-            vpix_fmt = self.settings.pix_fmt[0]
 
         vbitrate_estimate = self.estimateVideoBitrate(info)
         vbitrate = vbitrate_estimate
