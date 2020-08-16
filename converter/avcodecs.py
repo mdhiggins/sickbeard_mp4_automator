@@ -1135,6 +1135,13 @@ class H265VAAPICodec(H265Codec):
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         optlist = super(H265VAAPICodec, self)._codec_specific_produce_ffmpeg_list(safe, stream)
+        if 'qp' in safe:
+            optlist.extend(['-qp', str(safe['qp'])])
+            if 'maxrate' in safe:
+                optlist.extend(['-maxrate:v', str(safe['maxrate'])])
+            if 'bufsize' in safe:
+                optlist.extend(['-bufsize', str(safe['bufsize'])])
+
         if 'device' in safe:
             optlist.extend(['-filter_hw_device', safe['device']])
             if 'decode_device' in safe and safe['decode_device'] != safe['device']:
