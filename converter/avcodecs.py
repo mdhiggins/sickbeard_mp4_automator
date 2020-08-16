@@ -958,6 +958,7 @@ class H264VAAPICodec(H264Codec):
     codec_name = 'h264vaapi'
     ffmpeg_codec_name = 'h264_vaapi'
     scale_filter = 'scale_vaapi'
+    default_fmt = 'nv12'
     encoder_options = H264Codec.encoder_options.copy()
     encoder_options.update({
         'decode_device': str,
@@ -981,10 +982,20 @@ class H264VAAPICodec(H264Codec):
                 del safe['qp']
             elif 'bitrate' in safe:
                 del safe['bitrate']
+        if 'pix_fmt' in safe:
+            safe['vaapi_pix_fmt'] = safe['pix_fmt']
+            del safe['pix_fmt']
         return safe
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         optlist = super(H264VAAPICodec, self)._codec_specific_produce_ffmpeg_list(safe, stream)
+        if 'qp' in safe:
+            optlist.extend(['-qp', str(safe['qp'])])
+            if 'maxrate' in safe:
+                optlist.extend(['-maxrate:v', str(safe['maxrate'])])
+            if 'bufsize' in safe:
+                optlist.extend(['-bufsize', str(safe['bufsize'])])
+
         if 'device' in safe:
             optlist.extend(['-filter_hw_device', safe['device']])
             if 'decode_device' in safe and safe['decode_device'] != safe['device']:
@@ -993,14 +1004,19 @@ class H264VAAPICodec(H264Codec):
             optlist.extend(['-vaapi_device', '/dev/dri/renderD128'])
             if 'decode_device' in safe:
                 optlist.extend(['-vf', 'hwdownload'])
+
+        fmt = safe['vaapi_pix_fmt'] if 'vaapi_pix_fmt' in safe else self.default_fmt
+        fmtstr = ':format=%s' % safe['vaapi_pix_fmt'] if 'vaapi_pix_fmt' in safe else ""
+
         if 'vaapi_wscale' in safe and 'vaapi_hscale' in safe:
-            optlist.extend(['-vf', 'format=nv12|vaapi,hwupload,%s=%s:%s' % (self.scale_filter, safe['vaapi_wscale'], safe['vaapi_hscale'])])
+            optlist.extend(['-vf', 'format=%s|vaapi,hwupload,%s=w=%s:h=%s%s' % (fmt, self.scale_filter, safe['vaapi_wscale'], safe['vaapi_hscale'], fmtstr)])
         elif 'vaapi_wscale' in safe:
-            optlist.extend(['-vf', 'format=nv12|vaapi,hwupload,%s=%s:trunc(ow/a/2)*2' % (self.scale_filter, safe['vaapi_wscale'])])
+            optlist.extend(['-vf', 'format=%s|vaapi,hwupload,%s=w=%s:h=trunc(ow/a/2)*2%s' % (fmt, self.scale_filter, safe['vaapi_wscale'], fmtstr)])
         elif 'vaapi_hscale' in safe:
-            optlist.extend(['-vf', 'format=nv12|vaapi,hwupload,%s=trunc((oh*a)/2)*2:%s' % (self.scale_filter, safe['vaapi_hscale'])])
+            optlist.extend(['-vf', 'format=%s|vaapi,hwupload,%s=w=trunc((oh*a)/2)*2:h=%s%s' % (fmt, self.scale_filter, safe['vaapi_hscale'], fmtstr)])
         else:
-            optlist.extend(['-vf', "format=nv12|vaapi,hwupload"])
+            fmtstr = ",%s=%s" % (self.scale_filter, fmtstr[1:]) if fmtstr else ""
+            optlist.extend(['-vf', "format=%s|vaapi,hwupload%s" % (fmt, fmtstr)])
         return optlist
 
 
