@@ -83,6 +83,12 @@ log = getLogger("NZBGetPostProcess", MP4folder)
 # Determine if conversion will take place
 shouldConvert = (os.environ['NZBPO_SHOULDCONVERT'].lower() in ("yes", "true", "t", "1"))
 
+
+def progressOutput(timecode, debug):
+    log.info(timecode)
+    log.debug(debug)
+
+
 if 'NZBOP_SCRIPTDIR' in os.environ and not os.environ['NZBOP_VERSION'][0:5] < '11.0':
     log.info("Script triggered from NZBGet (11.0 or later).")
 
@@ -189,7 +195,7 @@ if 'NZBOP_SCRIPTDIR' in os.environ and not os.environ['NZBOP_VERSION'][0:5] < '1
                 if info and inputfile not in ignore:
                     log.info("Processing file %s." % inputfile)
                     try:
-                        output = mp.process(inputfile, info=info, reportProgress=True, progressOutput=log.info)
+                        output = mp.process(inputfile, info=info, reportProgress=True, progressOutput=progressOutput)
                         if output and output.get('output'):
                             log.info("Successfully processed %s." % inputfile)
                             ignore.append(output.get('output'))

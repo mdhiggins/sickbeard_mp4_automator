@@ -1415,12 +1415,12 @@ class MediaProcessor:
                 self.log.debug(debug)
                 if reportProgress:
                     if progressOutput:
-                        progressOutput(timecode)
+                        progressOutput(timecode, debug)
                     else:
                         self.displayProgressBar(timecode, debug)
             if reportProgress:
                 if progressOutput:
-                    progressOutput(timecode)
+                    progressOutput(timecode, debug)
                 else:
                     self.displayProgressBar(100, newline=True)
 

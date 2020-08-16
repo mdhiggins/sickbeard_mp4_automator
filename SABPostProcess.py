@@ -25,7 +25,7 @@ if len(sys.argv) < 8:
 # 7 Status of post processing. 0 = OK, 1=failed verification, 2=failed unpack, 3=1+2
 
 
-def progressOutput(timecode):
+def progressOutput(timecode, debug):
     print("%s%" % timecode)
 
 
