@@ -1153,7 +1153,7 @@ class H265VAAPICodec(H265Codec):
                 optlist.extend(['-vf', 'hwdownload'])
 
         fmt = safe['vaapi_pix_fmt'] if 'vaapi_pix_fmt' in safe else self.default_fmt
-        fmtstr = '=format=%s' % safe['vaapi_pix_fmt'] if 'vaapi_pix_fmt' in safe else ""
+        fmtstr = ':format=%s' % safe['vaapi_pix_fmt'] if 'vaapi_pix_fmt' in safe else ""
 
         if 'vaapi_wscale' in safe and 'vaapi_hscale' in safe:
             optlist.extend(['-vf', 'format=%s|vaapi,hwupload,%s=w=%s:h=%s%s' % (fmt, self.scale_filter, safe['vaapi_wscale'], safe['vaapi_hscale'], fmtstr)])
@@ -1162,7 +1162,7 @@ class H265VAAPICodec(H265Codec):
         elif 'vaapi_hscale' in safe:
             optlist.extend(['-vf', 'format=%s|vaapi,hwupload,%s=w=trunc((oh*a)/2)*2:h=%s%s' % (fmt, self.scale_filter, safe['vaapi_hscale'], fmtstr)])
         else:
-            fmtstr = ",%s%s" % (self.scale_filter, fmtstr) if fmtstr else ""
+            fmtstr = ",%s=%s" % (self.scale_filter, fmtstr[1:]) if fmtstr else ""
             optlist.extend(['-vf', "format=%s|vaapi,hwupload%s" % (fmt, fmtstr)])
         return optlist
 
