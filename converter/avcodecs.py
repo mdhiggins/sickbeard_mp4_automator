@@ -1105,6 +1105,7 @@ class H265VAAPICodec(H265Codec):
     codec_name = 'h265vaapi'
     ffmpeg_codec_name = 'hevc_vaapi'
     scale_filter = 'scale_vaapi'
+    default_fmt = 'nv12'
     encoder_options = H265Codec.encoder_options.copy()
     encoder_options.update({
         'decode_device': str,
@@ -1151,15 +1152,15 @@ class H265VAAPICodec(H265Codec):
             if 'decode_device' in safe:
                 optlist.extend(['-vf', 'hwdownload'])
 
-        fmt = safe['vaapi_pix_fmt'] if 'vaapi_pix_fmt' in safe else "nv12"
+        fmt = safe['vaapi_pix_fmt'] if 'vaapi_pix_fmt' in safe else self.default_fmt
         fmtstr = '=format=%s' % safe['vaapi_pix_fmt'] if 'vaapi_pix_fmt' in safe else ""
 
         if 'vaapi_wscale' in safe and 'vaapi_hscale' in safe:
-            optlist.extend(['-vf', 'format=%s|vaapi,hwupload,%s=%s:%s%s' % (fmt, self.scale_filter, safe['vaapi_wscale'], safe['vaapi_hscale'], fmtstr)])
+            optlist.extend(['-vf', 'format=%s|vaapi,hwupload,%s=w=%s:h=%s%s' % (fmt, self.scale_filter, safe['vaapi_wscale'], safe['vaapi_hscale'], fmtstr)])
         elif 'vaapi_wscale' in safe:
-            optlist.extend(['-vf', 'format=%s|vaapi,hwupload,%s=%s:trunc(ow/a/2)*2%s' % (fmt, self.scale_filter, safe['vaapi_wscale'], fmtstr)])
+            optlist.extend(['-vf', 'format=%s|vaapi,hwupload,%s=w=%s:h=trunc(ow/a/2)*2%s' % (fmt, self.scale_filter, safe['vaapi_wscale'], fmtstr)])
         elif 'vaapi_hscale' in safe:
-            optlist.extend(['-vf', 'format=%s|vaapi,hwupload,%s=trunc((oh*a)/2)*2:%s%s' % (fmt, self.scale_filter, safe['vaapi_hscale'], fmtstr)])
+            optlist.extend(['-vf', 'format=%s|vaapi,hwupload,%s=w=trunc((oh*a)/2)*2:h=%s%s' % (fmt, self.scale_filter, safe['vaapi_hscale'], fmtstr)])
         else:
             fmtstr = ",%s%s" % (self.scale_filter, fmtstr) if fmtstr else ""
             optlist.extend(['-vf', "format=%s|vaapi,hwupload%s" % (fmt, fmtstr)])
