@@ -429,12 +429,11 @@ class MediaProcessor:
         vdebug = "video"
         vcodec = "copy" if info.video.codec in self.settings.vcodec else self.settings.vcodec[0]
 
-        vpix_fmt = None
+        vpix_fmt = self.settings.pix_fmt[0] if len(self.settings.pix_fmt) else None
         if len(self.settings.pix_fmt) > 0 and info.video.pix_fmt not in self.settings.pix_fmt:
             self.log.debug("Overriding video pix_fmt. Codec cannot be copied because pix_fmt is not approved [pix-fmt].")
             vdebug = vdebug + ".pix_fmt"
             vcodec = self.settings.vcodec[0]
-            vpix_fmt = self.settings.pix_fmt[0]
 
         vbitrate_estimate = self.estimateVideoBitrate(info)
         vbitrate = vbitrate_estimate
@@ -457,12 +456,11 @@ class MediaProcessor:
             vdebug = vdebug + ".max-level"
             vcodec = self.settings.vcodec[0]
 
-        vprofile = None
+        vprofile = self.settings.vprofile[0] if len(self.settings.vprofile) > 0 else None
         if len(self.settings.vprofile) > 0 and info.video.profile not in self.settings.vprofile:
             self.log.debug("Video profile is not supported. Video stream can no longer be copied [video-profile].")
             vdebug = vdebug + ".profile"
             vcodec = self.settings.vcodec[0]
-            vprofile = self.settings.vprofile[0]
 
         vfieldorder = info.video.field_order
 
@@ -899,7 +897,25 @@ class MediaProcessor:
 
         if vcodec != 'copy':
             try:
-                preopts.extend(self.setAcceleration(info.video.codec))
+                opts, device = self.setAcceleration(info.video.codec)
+                preopts.extend(opts)
+                for k in self.settings.hwdevices:
+                    if k in vcodec:
+                        match = self.settings.hwdevices[k]
+                        self.log.debug("Found a matching device %s for encoder %s [hwdevices]." % (match, vcodec))
+                        if not device:
+                            self.log.debug("No device was set by the decoder, setting device to %s for encoder %s [hwdevices]." % (match, vcodec))
+                            preopts.extend(['-init_hw_device', '%s=sma:%s' % (k, match)])
+                            options['video']['device'] = "sma"
+                        elif device == match:
+                            self.log.debug("Device was already set by the decoder, using same device %s for encoder %s [hwdevices]." % (device, vcodec))
+                            options['video']['device'] = "sma"
+                        else:
+                            self.log.debug("Device was already set by the decoder but does not match encoder, using secondary device %s for encoder %s [hwdevices]." % (match, vcodec))
+                            preopts.extend(['-init_hw_device', '%s=sma2:%s' % (k, match)])
+                            options['video']['device'] = "sma2"
+                            options['video']['decode_device'] = "sma"
+                        break
             except:
                 self.log.exception("Error when trying to determine hardware acceleration support.")
 
@@ -918,6 +934,7 @@ class MediaProcessor:
 
     def setAcceleration(self, video_codec):
         opts = []
+        device = None
         # Look up which codecs and which decoders/encoders are available in this build of ffmpeg
         codecs = self.converter.ffmpeg.codecs
 
@@ -936,8 +953,15 @@ class MediaProcessor:
         # Find the first of the specified hardware acceleration platform that is available in this build of ffmpeg.  The order of specified hardware acceleration platforms determines priority.
         for hwaccel in self.settings.hwaccels:
             if hwaccel in hwaccels:
+                device = self.settings.hwdevices.get(hwaccel)
+                if device:
+                    self.log.debug("Setting hwaccel device to %s." % device)
+                    opts.extend(['-init_hw_device', '%s=sma:%s' % (hwaccel, device)])
+                    opts.extend(['-hwaccel_device', 'sma'])
+
                 self.log.info("%s hwaccel is supported by this ffmpeg build and will be used [hwaccels]." % hwaccel)
                 opts.extend(['-hwaccel', hwaccel])
+                opts.extend(['-hwaccel_output_format', hwaccel])
 
                 # If there's a decoder for this acceleration platform, also use it
                 decoder = self.converter.ffmpeg.hwaccel_decoder(video_codec, hwaccel)
@@ -946,7 +970,7 @@ class MediaProcessor:
                     self.log.info("%s decoder is also supported by this ffmpeg build and will also be used [hwaccel-decoders]." % decoder)
                     opts.extend(['-vcodec', decoder])
                 break
-        return opts
+        return opts, device
 
     def setDefaultAudioStream(self, audio_settings):
         if len(audio_settings) > 0:
@@ -1390,12 +1414,12 @@ class MediaProcessor:
                 self.log.debug(debug)
                 if reportProgress:
                     if progressOutput:
-                        progressOutput(timecode)
+                        progressOutput(timecode, debug)
                     else:
                         self.displayProgressBar(timecode, debug)
             if reportProgress:
                 if progressOutput:
-                    progressOutput(timecode)
+                    progressOutput(timecode, debug)
                 else:
                     self.displayProgressBar(100, newline=True)
 

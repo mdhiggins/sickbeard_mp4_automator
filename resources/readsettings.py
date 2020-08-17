@@ -34,6 +34,15 @@ class SMAConfigParser(ConfigParser, object):
         value = [x.strip() for x in value]
         return value
 
+    def getdict(self, section, option, vars=None, listseparator=",", dictseparator=":", default={}, lower=True, replace=[' ']):
+        l = self.getlist(section, option, vars, listseparator, [], lower, replace)
+        output = default
+        for listitem in l:
+            split = listitem.split(dictseparator)
+            if len(split) > 1:
+                output[split[0]] = split[1]
+        return output
+
     def getpath(self, section, option, vars=None):
         path = self.get(section, option, vars=vars).strip()
         if path == '':
@@ -80,8 +89,9 @@ class ReadSettings:
             'ffmpeg': 'ffmpeg' if os.name != 'nt' else 'ffmpeg.exe',
             'ffprobe': 'ffprobe' if os.name != 'nt' else 'ffprobe.exe',
             'threads': 0,
-            'hwaccels': 'dxva2, cuvid, qsv, d3d11va',
-            'hwaccel-decoders': 'h264_cuvid, mjpeg_cuvid, mpeg1_cuvid, mpeg2_cuvid, mpeg4_cuvid, vc1_cuvid, hevc_qsv, h264_qsv',
+            'hwaccels': 'dxva2, cuvid, qsv, d3d11va, vaapi',
+            'hwaccel-decoders': 'h264_cuvid, mjpeg_cuvid, mpeg1_cuvid, mpeg2_cuvid, mpeg4_cuvid, vc1_cuvid, hevc_qsv, h264_qsv, hevc_vaapi, h264_vaapi',
+            'hwdevices': 'vaapi:/dev/dri/renderD128',
             'output-directory': '',
             'output-format': 'mp4',
             'output-extension': 'mp4',
@@ -570,6 +580,7 @@ class ReadSettings:
         self.threads = config.getint(section, 'threads')
         self.hwaccels = config.getlist(section, 'hwaccels')
         self.hwaccel_decoders = config.getlist(section, "hwaccel-decoders")
+        self.hwdevices = config.getdict(section, "hwdevices", lower=False, replace=[])
         self.output_dir = config.getdirectory(section, "output-directory")
         self.output_format = config.get(section, "output-format")
         self.output_extension = config.getextension(section, "output-extension")
