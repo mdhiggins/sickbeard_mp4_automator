@@ -1,6 +1,7 @@
 import sys
 import os
 import logging
+import time
 
 
 def processEpisode(dirName, settings, nzbGet=False, logger=None):
@@ -54,12 +55,22 @@ def processEpisode(dirName, settings, nzbGet=False, logger=None):
     log.debug("URL '%s' with payload '%s.'" % (url, payload))
 
     log.info("%sRequesting Sonarr to scan directory '%s'." % (infoprefix, dirName))
+    return accessAPI(url, payload, headers, log, requests)
 
+
+def accessAPI(url, payload, headers, log, requests, sleep=5, retry=0, maxretry=3):
     try:
         r = requests.post(url, json=payload, headers=headers)
         rstate = r.json()
         log.debug(rstate)
         log.info("%sSonarr response: %s." % (infoprefix, rstate['state']))
+        if rstate['body']['path'] != payload['path']:
+            if retry > maxretry:
+                log.error("Sonarr returned path %s that does not match the directory that was requested to be scanned %s. Maximum number of retries exceeded (%d)." % (rstate['body']['path'], payload['path'], maxretry))
+                return False
+            log.error("Sonarr returned path %s that does not match the directory that was requested to be scanned %s. Trying again in %d seconds." % (rstate['body']['path'], payload['path'], sleep))
+            time.sleep(sleep)
+            return accessAPI(url, payload, headers, log, requests, retry=(retry + 1))
         return True
     except:
         log.exception("%sUpdate to Sonarr failed, check if Sonarr is running, autoProcess.ini settings and make sure your Sonarr settings are correct (apikey?), or check install of python modules requests." % errorprefix)
