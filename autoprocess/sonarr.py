@@ -4,7 +4,7 @@ import logging
 import time
 
 
-def processEpisode(dirName, settings, nzbGet=False, logger=None):
+def processEpisode(dirName, settings, nzbGet=False, importMode=None, logger=None):
 
     if nzbGet:
         errorprefix = "[ERROR] "
@@ -45,6 +45,8 @@ def processEpisode(dirName, settings, nzbGet=False, logger=None):
     webroot = settings.Sonarr['webroot']
     url = protocol + host + ":" + str(port) + webroot + "/api/command"
     payload = {'name': 'downloadedepisodesscan', 'path': dirName}
+    if importMode:
+        payload["importMode"] = importMode
     headers = {'X-Api-Key': apikey}
 
     log.debug("Sonarr host: %s." % host)

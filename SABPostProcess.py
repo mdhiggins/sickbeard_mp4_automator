@@ -91,7 +91,7 @@ try:
         autoProcessMovie.process(path, settings, nzb, sys.argv[7])
     elif categories[2].startswith(category):
         log.info("Passing %s directory to Sonarr." % path)
-        sonarr.processEpisode(path, settings)
+        sonarr.processEpisode(path, settings, importMode="Move")
     elif categories[3].startswith(category):
         log.info("Passing %s directory to Radarr." % path)
         radarr.processMovie(path, settings)

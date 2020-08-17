@@ -220,7 +220,7 @@ if 'NZBOP_SCRIPTDIR' in os.environ and not os.environ['NZBOP_VERSION'][0:5] < '1
         sys.exit(POSTPROCESS_SUCCESS)
     elif (sonarrcat.startswith(category)):
         #DEBUG#print "Sonarr Processing Activated"
-        success = sonarr.processEpisode(path, settings, True)
+        success = sonarr.processEpisode(path, settings, True, importMode="Move")
         if success:
             sys.exit(POSTPROCESS_SUCCESS)
         else:
