@@ -58,7 +58,7 @@ def processEpisode(dirName, settings, nzbGet=False, logger=None):
     return accessAPI(url, payload, headers, log, requests, nzbGet)
 
 
-def accessAPI(url, payload, headers, log, requests, nzbGet, sleep=5, retry=0, maxretry=3):
+def accessAPI(url, payload, headers, log, requests, nzbGet, sleep=10, retry=0, maxretry=3):
     try:
         if nzbGet:
             errorprefix = "[ERROR] "
