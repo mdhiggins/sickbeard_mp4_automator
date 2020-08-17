@@ -456,12 +456,11 @@ class MediaProcessor:
             vdebug = vdebug + ".max-level"
             vcodec = self.settings.vcodec[0]
 
-        vprofile = None
+        vprofile = self.settings.vprofile[0] if len(self.settings.vprofile) > 0 else None
         if len(self.settings.vprofile) > 0 and info.video.profile not in self.settings.vprofile:
             self.log.debug("Video profile is not supported. Video stream can no longer be copied [video-profile].")
             vdebug = vdebug + ".profile"
             vcodec = self.settings.vcodec[0]
-            vprofile = self.settings.vprofile[0]
 
         vfieldorder = info.video.field_order
 
