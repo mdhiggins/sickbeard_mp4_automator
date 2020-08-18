@@ -92,6 +92,7 @@ class ReadSettings:
             'hwaccels': 'dxva2, cuvid, qsv, d3d11va, vaapi',
             'hwaccel-decoders': 'h264_cuvid, mjpeg_cuvid, mpeg1_cuvid, mpeg2_cuvid, mpeg4_cuvid, vc1_cuvid, hevc_qsv, h264_qsv, hevc_vaapi, h264_vaapi',
             'hwdevices': 'vaapi:/dev/dri/renderD128',
+            'hwaccel-output-format': 'vaapi:vaapi',
             'output-directory': '',
             'output-format': 'mp4',
             'output-extension': 'mp4',
@@ -581,6 +582,7 @@ class ReadSettings:
         self.hwaccels = config.getlist(section, 'hwaccels')
         self.hwaccel_decoders = config.getlist(section, "hwaccel-decoders")
         self.hwdevices = config.getdict(section, "hwdevices", lower=False, replace=[])
+        self.hwoutputfmt = config.getdict(section, "hwaccel-output-format")
         self.output_dir = config.getdirectory(section, "output-directory")
         self.output_format = config.get(section, "output-format")
         self.output_extension = config.getextension(section, "output-extension")
