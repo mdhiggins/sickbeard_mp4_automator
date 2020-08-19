@@ -1060,7 +1060,7 @@ class MediaProcessor:
                 return False
         return True
 
-    def validDisposition(self, language, disposition, ignored=[], unique=False, existing=[], append=True):
+    def validDisposition(self, language, disposition, ignored, unique, existing, append=True):
         dispodict = self.dispoStringToDict(disposition)
         truedispositions = [x for x in dispodict if dispodict[x]]
         for dispo in truedispositions:
