@@ -26,7 +26,7 @@ if len(sys.argv) < 8:
 
 
 def progressOutput(timecode, debug):
-    print("%s%" % timecode)
+    print("%d%%" % timecode)
 
 
 try:
