@@ -55,7 +55,7 @@ defaults = {
         'class': 'handlers.RotatingFileHandler',
         'level': 'INFO',
         'formatter': 'simpleFormatter',
-        'args': "('%(logfilename)s', 10000, 1)",
+        'args': "('%(logfilename)s', 'a', 100000, 3)",
     },
     'formatter_simpleFormatter': {
         'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
