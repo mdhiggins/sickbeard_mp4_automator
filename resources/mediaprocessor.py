@@ -1238,6 +1238,7 @@ class MediaProcessor:
             newoutputfile, _ = self.getOutputFile(input_dir, filename, input_extension, output_directory=None)
             self.log.debug("Output file is in output_dir %s, moving back to original directory %s." % (self.settings.output_dir, outputfile))
             shutil.move(outputfile, newoutputfile)
+            return newoutputfile
         return outputfile
 
     def getSubExtensionFromCodec(self, codec):
