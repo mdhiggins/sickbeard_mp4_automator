@@ -61,6 +61,9 @@ class MediaProcessor:
                     # Permissions
                     self.setPermissions(output['output'])
 
+                    # Reverse Ouput
+                    output['output'] = self.restoreFromOutput(inputfile, output['output'])
+
                     # Copy to additional locations
                     output_files = self.replicate(output['output'])
 
@@ -1229,6 +1232,14 @@ class MediaProcessor:
         except:
             self.log.exception("Unable to set new file permissions.")
 
+    def restoreFromOutput(self, inputfile, outputfile):
+        if self.settings.output_dir and outputfile.startswith(self.settings.output_dir):
+            input_dir, filename, input_extension = self.parseFile(inputfile)
+            newoutputfile, _ = self.getOutputFile(input_dir, filename, input_extension, output_directory=None)
+            self.log.debug("Output file is in output_dir %s, moving back to original directory %s." % (self.settings.output_dir, outputfile))
+            shutil.move(outputfile, newoutputfile)
+        return outputfile
+
     def getSubExtensionFromCodec(self, codec):
         try:
             return subtitle_codec_extensions[codec]
@@ -1283,8 +1294,11 @@ class MediaProcessor:
             self.setPermissions(outputfile)
         return rips
 
-    def getOutputFile(self, input_dir, filename, input_extension, temp_extension=None, number=0):
-        output_dir = self.settings.output_dir or input_dir
+    def getOutputFile(self, input_dir, filename, input_extension, temp_extension=None, ignore_output_dir=False, number=0):
+        if ignore_output_dir:
+            output_dir = input_dir
+        else:
+            output_dir = self.settings.output_dir or input_dir
         output_extension = temp_extension or self.settings.output_extension
 
         self.log.debug("Input directory: %s." % input_dir)
