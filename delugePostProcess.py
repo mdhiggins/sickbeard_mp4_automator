@@ -77,7 +77,7 @@ try:
                 files.append(os.path.join(path, contents['path']))
                 log.debug(os.path.join(path, contents['path']))
 
-    if category and len([x for x in categories if x.startswith(category)]) < 1:
+    if not category or len([x for x in categories if x.startswith(category)]) < 1:
         log.error("No valid category detected.")
         sys.exit(1)
 

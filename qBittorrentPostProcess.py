@@ -43,7 +43,7 @@ try:
 
     single_file = os.path.isfile(content_path)
 
-    if label and len([x for x in categories if x.startswith(label)]) < 1:
+    if not label or len([x for x in categories if x.startswith(label)]) < 1:
         log.error("No valid label detected.")
         sys.exit(1)
 
