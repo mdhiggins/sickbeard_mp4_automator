@@ -75,7 +75,7 @@ try:
     log.debug("Kind: %s." % kind)
     log.debug("Filename: %s." % filename)
 
-    if len([x for x in categories if x.startswith(label)]) < 1:
+    if label and len([x for x in categories if x.startswith(label)]) < 1:
         log.error("No valid label detected.")
         sys.exit(1)
 
