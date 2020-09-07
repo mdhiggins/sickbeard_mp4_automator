@@ -2,7 +2,10 @@
 import os
 import sys
 import json
-import urllib
+try:
+    from urllib.request import urlopen
+except ImportError:
+    from urllib import urlopen
 import struct
 from resources.log import getLogger
 from resources.readsettings import ReadSettings
@@ -41,7 +44,7 @@ try:
 
                 sickbeard_url = protocol + host + ":" + str(port) + webroot + "/api/" + apikey + "/?cmd=show.refresh&tvdbid=" + str(tvdb_id)
 
-                refresh = json.load(urllib.urlopen(sickbeard_url))
+                refresh = json.load(urlopen(sickbeard_url))
                 for item in refresh:
                     log.debug(refresh[item])
             except (IOError, ValueError):
