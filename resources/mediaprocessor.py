@@ -497,7 +497,8 @@ class MediaProcessor:
 
         if self.settings.dynamic_params:
             gparams = self.generateParams(self.converter.framedata(inputfile), vHDR)
-            vparams = vparams + ":" + gparams if vparams and len(vparams) > 0 else gparams
+            if gparams:
+                vparams = vparams + ":" + gparams if vparams and len(vparams) > 0 else gparams
 
         if vHDR and self.settings.hdr.get('pix_fmt'):
             vpix_fmt = self.settings.hdr.get('pix_fmt')[0] if len(self.settings.hdr.get('pix_fmt')) else None
