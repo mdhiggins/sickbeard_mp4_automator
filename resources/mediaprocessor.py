@@ -432,12 +432,6 @@ class MediaProcessor:
         vdebug = "video"
         vcodec = "copy" if info.video.codec in self.settings.vcodec else self.settings.vcodec[0]
 
-        vpix_fmt = self.settings.pix_fmt[0] if len(self.settings.pix_fmt) else None
-        if len(self.settings.pix_fmt) > 0 and info.video.pix_fmt not in self.settings.pix_fmt:
-            self.log.debug("Overriding video pix_fmt. Codec cannot be copied because pix_fmt is not approved [pix-fmt].")
-            vdebug = vdebug + ".pix_fmt"
-            vcodec = self.settings.vcodec[0]
-
         vbitrate_estimate = self.estimateVideoBitrate(info)
         vbitrate = vbitrate_estimate
         if self.settings.vmaxbitrate and vbitrate > self.settings.vmaxbitrate:
@@ -500,6 +494,23 @@ class MediaProcessor:
         vparams = self.settings.codec_params or None
         if vHDR and self.settings.hdr.get('codec_params'):
             vparams = self.settings.hdr.get('codec_params')
+
+        if self.settings.dynamic_params:
+            gparams = self.generateParams(self.converter.framedata(inputfile), vHDR)
+            vparams = vparams + ":" + gparams if vparams and len(vparams) > 0 else gparams
+
+        if vHDR and self.settings.hdr.get('pix_fmt'):
+            vpix_fmt = self.settings.hdr.get('pix_fmt')[0] if len(self.settings.hdr.get('pix_fmt')) else None
+            if len(self.settings.hdr.get('pix_fmt')) > 0 and info.video.pix_fmt not in self.settings.hdr.get('pix_fmt'):
+                self.log.debug("Overriding video pix_fmt. Codec cannot be copied because pix_fmt is not approved [hdr-pix-fmt].")
+                vdebug = vdebug + ".hdr.pix-fmt"
+                vcodec = self.settings.vcodec[0]
+        else:
+            vpix_fmt = self.settings.pix_fmt[0] if len(self.settings.pix_fmt) else None
+            if len(self.settings.pix_fmt) > 0 and info.video.pix_fmt not in self.settings.pix_fmt:
+                self.log.debug("Overriding video pix_fmt. Codec cannot be copied because pix_fmt is not approved [pix-fmt].")
+                vdebug = vdebug + ".pix_fmt"
+                vcodec = self.settings.vcodec[0]
 
         self.log.debug("Video codec: %s." % vcodec)
         self.log.debug("Video bitrate: %s." % vbitrate)
@@ -1317,6 +1328,44 @@ class MediaProcessor:
 
         self.log.debug("Output file: %s." % outputfile)
         return outputfile, output_dir
+
+    def generateParams(self, framedata, hdr):
+        try:
+            params = ""
+            if hdr:
+                params += "hdr-opt=1:"
+            params += "repeat-headers=1:"
+            if 'color_primaries' in framedata:
+                params += "colorprim=" + framedata['color_primaries'] + ":"
+            if 'color_transfer' in framedata:
+                params += "transfer=" + framedata['color_transfer'] + ":"
+            if 'color_space' in framedata:
+                params += "colormatrix=" + framedata['color_space'] + ":"
+            if 'side_data_list' in framedata:
+                for side_data in framedata['side_data_list']:
+                    if side_data.get('side_data_type') == 'Mastering display metadata':
+                        red_x = int(side_data.get('red_x').split('/')[0])
+                        red_y = int(side_data.get('red_y').split('/')[0])
+                        green_x = int(side_data.get('green_x').split('/')[0])
+                        green_y = int(side_data.get('green_y').split('/')[0])
+                        blue_x = int(side_data.get('blue_x').split('/')[0])
+                        blue_y = int(side_data.get('blue_y').split('/')[0])
+                        wp_x = int(side_data.get('white_point_x').split('/')[0])
+                        wp_y = int(side_data.get('white_point_y').split('/')[0])
+                        min_l = int(side_data.get('min_luminance').split('/')[0])
+                        max_l = int(side_data.get('max_luminance').split('/')[0])
+                        params += "master-display=G(%d,%d)B(%d,%d)R(%d,%d)WP(%d,%d)L(%d,%d):" % (red_x, red_y, blue_x, blue_y, green_x, green_y, wp_x, wp_y, min_l, max_l)
+                        pass
+                    elif side_data.get('side_data_type') == 'Content light level metadata':
+                        max_content = side_data.get('max_content')
+                        max_average = side_data.get('max_average')
+                        params += "max-cll=%d,%d:" % (max_content, max_average)
+                        pass
+            self.log.debug(params[:-1])
+            return params[:-1]
+        except:
+            self.log.exception("Error while trying to generate params")
+            return ""
 
     def isHDR(self, videostream):
         if len(self.settings.hdr['space']) < 1 and len(self.settings.hdr['transfer']) < 1 and len(self.settings.hdr['primaries']) < 1:

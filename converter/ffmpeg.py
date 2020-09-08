@@ -7,9 +7,9 @@ import signal
 from subprocess import Popen, PIPE
 import logging
 import locale
+import json
 from converter.avcodecs import BaseCodec
 
-logger = logging.getLogger(__name__)
 
 console_encoding = locale.getdefaultlocale()[1] or 'UTF-8'
 
@@ -505,8 +505,7 @@ class FFMpeg(object):
                 clean_cmds.append(str(cmd))
             cmds = clean_cmds
         except:
-            logger.exception("There was an error making all command line parameters a string")
-        logger.debug('Spawning ffmpeg with command: ' + ' '.join(cmds))
+            raise FFMpegError("There was an error making all command line parameters a string")
         return Popen(cmds, shell=False, stdin=PIPE, stdout=PIPE, stderr=PIPE,
                      close_fds=(os.name != 'nt'), startupinfo=None)
 
@@ -516,8 +515,19 @@ class FFMpeg(object):
         """
         p = self._spawn(cmds)
         stdout_data, stderr = p.communicate()
-        logger.debug('stderr:\n', stderr)
         return stdout_data.decode(console_encoding, errors='ignore')
+
+    def framedata(self, fname):
+        try:
+            stdout_data = self._get_stdout([
+                self.ffprobe_path, '-hide_banner', '-loglevel', 'warning',
+                '-select_streams', 'v', '-print_format', 'json',
+                '-show_frames', '-read_intervals', '%+#1',
+                '-show_entries', 'frame=color_space,color_primaries,color_transfer,side_data_list,pix_fmt',
+                '-i', fname])
+            return json.loads(stdout_data)['frames'][0]
+        except:
+            raise FFMpegError("Unable to obtain FFMPEG framedata")
 
     def probe(self, fname, posters_as_video=True):
         """

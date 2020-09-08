@@ -315,6 +315,14 @@ class Converter(object):
         """
         return self.ffmpeg.probe(fname, posters_as_video)
 
+    def framedata(self, fname):
+        """
+        Examine the framedata of file. See the documentation of
+        converter.FFMpeg.framedata() for details.
+
+        """
+        return self.ffmpeg.framedata(fname)
+
     def thumbnail(self, fname, time, outfile, size=None, quality=FFMpeg.DEFAULT_JPEG_QUALITY):
         """
         Create a thumbnail of the media file. See the documentation of
