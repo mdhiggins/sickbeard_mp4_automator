@@ -53,6 +53,18 @@ def getEpisodeInformation(host, port, webroot, apikey, protocol, episodeid, log)
     return None
 
 
+def renameFile(inputfile, log):
+    filename, fileext = os.path.splitext(inputfile)
+    outputfile = "%s.rnm%s" % (filename, fileext)
+    i = 2
+    while os.path.isfile(outputfile):
+        outputfile = "%s.rnm%d%s" % (filename, i, fileext)
+        i += 1
+    os.rename(inputfile, outputfile)
+    log.debug("Renaming file %s to %s." % (inputfile, outputfile))
+    return outputfile
+
+
 def renameSeries(host, port, webroot, apikey, protocol, seriesid, log):
     headers = {'X-Api-Key': apikey}
     # First trigger rescan
@@ -99,6 +111,11 @@ log.debug("Season: %s episode: %s." % (season, episode))
 log.debug("Sonarr series ID: %s." % seriesid)
 
 try:
+    try:
+        inputfile = renameFile(inputfile, log)
+    except:
+        log.exception("Error renaming inputfile")
+
     success = mp.fullprocess(inputfile, MediaType.TV, tvdbid=tvdb_id, season=season, episode=episode, original=original)
 
     if success:
