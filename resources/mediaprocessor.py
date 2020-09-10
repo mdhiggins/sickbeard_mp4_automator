@@ -491,6 +491,10 @@ class MediaProcessor:
             vcodec = self.settings.vcodec[0]
             vdebug = vdebug + ".force-filter"
 
+        vpreset = self.settings.preset or None
+        if vHDR and self.settings.hdr.get('preset'):
+            vpreset = self.settings.hdr['preset']
+
         vparams = self.settings.codec_params or None
         if vHDR and self.settings.hdr.get('codec_params'):
             vparams = self.settings.hdr.get('codec_params')
@@ -520,6 +524,7 @@ class MediaProcessor:
         self.log.debug("Video bufsize: %s." % vbufsize)
         self.log.debug("Video level: %s." % vlevel)
         self.log.debug("Video profile: %s." % vprofile)
+        self.log.debug("Video preset: %s." % vpreset)
         self.log.debug("Video pix format: %s." % vpix_fmt)
         self.log.debug("Video field order: %s." % vfieldorder)
         self.log.debug("Video width: %s." % vwidth)
@@ -536,6 +541,7 @@ class MediaProcessor:
             'bufsize': vbufsize,
             'level': vlevel,
             'profile': vprofile,
+            'preset': vpreset,
             'pix_fmt': vpix_fmt,
             'field_order': vfieldorder,
             'width': vwidth,
