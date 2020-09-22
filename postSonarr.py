@@ -112,6 +112,8 @@ log.debug("Sonarr series ID: %s." % seriesid)
 
 try:
     if settings.Sonarr.get('rename'):
+        # Prevent asynchronous errors from file name changing
+        mp.settings.waitpostprocess = True
         try:
             inputfile = renameFile(inputfile, log)
         except:

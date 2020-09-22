@@ -101,6 +101,8 @@ log.debug("Radarr Movie ID: %s." % movieid)
 
 try:
     if settings.Radarr.get('rename'):
+        # Prevent asynchronous errors from file name changing
+        mp.settings.waitpostprocess = True
         try:
             inputfile = renameFile(inputfile, log)
         except:
