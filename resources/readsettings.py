@@ -106,6 +106,7 @@ class ReadSettings:
             'process-same-extensions': False,
             'force-convert': False,
             'post-process': False,
+            'wait-post-process': False,
             'detailed-progress': False,
             'preopts': '',
             'postopts': '',
@@ -203,13 +204,15 @@ class ReadSettings:
             'apikey': '',
             'ssl': False,
             'webroot': '',
+            'force-rename': False,
         },
         'Radarr': {
             'host': 'localhost',
             'port': 7878,
             'apikey': '',
             'ssl': False,
-            'webroot': ''
+            'webroot': '',
+            'force-rename': False,
         },
         'Sickbeard': {
             'host': 'localhost',
@@ -600,6 +603,7 @@ class ReadSettings:
         self.process_same_extensions = config.getboolean(section, "process-same-extensions")
         self.force_convert = config.getboolean(section, "force-convert")
         self.postprocess = config.getboolean(section, 'post-process')
+        self.waitpostprocess = config.getboolean(section, 'wait-post-process')
         self.detailedprogress = config.getboolean(section, 'detailed-progress')
         self.preopts = config.getlist(section, "preopts")
         self.postopts = config.getlist(section, "postopts")
@@ -752,6 +756,7 @@ class ReadSettings:
             self.Sonarr['webroot'] = "/" + self.Sonarr['webroot']
         if self.Sonarr['webroot'].endswith("/"):
             self.Sonarr['webroot'] = self.Sonarr['webroot'][:-1]
+        self.Sonarr['rename'] = config.getboolean(section, "force-rename")
 
         # Radarr
         section = "Radarr"
@@ -765,6 +770,7 @@ class ReadSettings:
             self.Radarr['webroot'] = "/" + self.Radarr['webroot']
         if self.Radarr['webroot'].endswith("/"):
             self.Radarr['webroot'] = self.Radarr['webroot'][:-1]
+        self.Radarr['rename'] = config.getboolean(section, "force-rename")
 
         # Sickbeard
         section = "Sickbeard"

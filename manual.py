@@ -241,7 +241,7 @@ def processFile(inputfile, tagdata, mp, info=None, relativePath=None):
         for file in output_files:
             mp.setPermissions(file)
         if settings.postprocess:
-            postprocessor = PostProcessor(output_files)
+            postprocessor = PostProcessor(output_files, wait=settings.waitpostprocess)
             if tagdata:
                 if tagdata.mediatype == MediaType.Movie:
                     postprocessor.setMovie(tagdata.tmdbid)

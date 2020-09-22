@@ -72,7 +72,7 @@ class MediaProcessor:
 
                     # Run any post process scripts
                     if self.settings.postprocess:
-                        postprocessor = PostProcessor(output_files, self.log)
+                        postprocessor = PostProcessor(output_files, self.log, wait=self.settings.waitpostprocess)
                         postprocessor.setEnv(mediatype, tmdbid, season, episode)
                         postprocessor.run_scripts()
 

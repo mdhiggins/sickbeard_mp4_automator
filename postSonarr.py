@@ -111,10 +111,11 @@ log.debug("Season: %s episode: %s." % (season, episode))
 log.debug("Sonarr series ID: %s." % seriesid)
 
 try:
-    try:
-        inputfile = renameFile(inputfile, log)
-    except:
-        log.exception("Error renaming inputfile")
+    if settings.Sonarr.get('rename'):
+        try:
+            inputfile = renameFile(inputfile, log)
+        except:
+            log.exception("Error renaming inputfile")
 
     success = mp.fullprocess(inputfile, MediaType.TV, tvdbid=tvdb_id, season=season, episode=episode, original=original)
 

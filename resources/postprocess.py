@@ -7,13 +7,14 @@ from resources.metadata import MediaType
 
 
 class PostProcessor:
-    def __init__(self, files, logger=None):
+    def __init__(self, files, logger=None, wait=False):
         self.log = logger or logging.getLogger(__name__)
 
         self.log.debug("Output: %s." % files)
 
         self.set_script_environment(files)
         self.scripts = self.gather_scripts()
+        self.wait = wait
 
     def set_script_environment(self, files):
         self.log.debug("Setting script environment.")
@@ -59,6 +60,8 @@ class PostProcessor:
                 stdout, stderr = command.communicate()
                 self.log.debug("Stdout: %s." % stdout)
                 self.log.debug("Stderr: %s." % stderr)
+                if self.wait:
+                    status = command.wait()
             except:
                 self.log.exception("Failed to execute script %s." % script)
 

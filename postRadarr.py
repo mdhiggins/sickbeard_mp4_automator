@@ -100,10 +100,11 @@ log.debug("IMDB ID: %s." % imdbid)
 log.debug("Radarr Movie ID: %s." % movieid)
 
 try:
-    try:
-        inputfile = renameFile(inputfile, log)
-    except:
-        log.exception("Error renaming inputfile")
+    if settings.Radarr.get('rename'):
+        try:
+            inputfile = renameFile(inputfile, log)
+        except:
+            log.exception("Error renaming inputfile")
 
     success = mp.fullprocess(inputfile, MediaType.Movie, original=original, imdbid=imdbid)
 
