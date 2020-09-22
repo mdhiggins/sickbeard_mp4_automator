@@ -5,7 +5,7 @@ threads = 0
 hwaccels = dxva2, cuvid, qsv, d3d11va, vaapi
 hwaccel-decoders = h264_cuvid, mjpeg_cuvid, mpeg1_cuvid, mpeg2_cuvid, mpeg4_cuvid, vc1_cuvid, hevc_qsv, h264_qsv, hevc_vaapi, h264_vaapi
 hwdevices = vaapi:/dev/dri/renderD128
-hwaccel-output-format = 
+hwaccel-output-format = vaapi:vaapi
 output-directory = 
 output-format = mp4
 output-extension = mp4
@@ -19,6 +19,7 @@ sort-streams = True
 process-same-extensions = False
 force-convert = False
 post-process = False
+wait-post-process = False
 detailed-progress = False
 preopts = 
 postopts = 
@@ -41,7 +42,9 @@ codec = h264, x264
 max-bitrate = 0
 crf = -1
 crf-profiles = 
+preset = 
 codec-parameters = 
+dynamic-parameters = False
 max-width = 0
 profile = 
 max-level = 0.0
@@ -50,9 +53,11 @@ filter =
 force-filter = False
 
 [HDR]
+pix-fmt = 
 space = bt2020nc
 transfer = smpte2084
 primaries = bt2020
+preset = 
 codec-parameters = 
 filter = 
 force-filter = False
@@ -112,6 +117,7 @@ port = 8989
 apikey = 
 ssl = False
 webroot = 
+force-rename = False
 
 [Radarr]
 host = localhost
@@ -119,6 +125,7 @@ port = 7878
 apikey = 
 ssl = False
 webroot = 
+force-rename = False
 
 [Sickbeard]
 host = localhost
