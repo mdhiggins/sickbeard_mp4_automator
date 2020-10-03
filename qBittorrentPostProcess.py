@@ -136,13 +136,15 @@ try:
         # name = name[:260-len(suffix)]
         if single_file:
             log.info("Single File Torrent")
-            newpath = os.path.join(root_path, ("%s-%s" % (name, suffix)))
+            root, filename = os.path.split(root_path)
+            filename, extension = os.path.splitext(filename)
+            newpath = os.path.join(root, ("%s-%s" % (filename, suffix)))
         else:
             log.info("Multi File Torrent")
             newpath = os.path.abspath(os.path.join(root_path, '..', ("%s-%s" % (name, suffix))))
 
         if not os.path.exists(newpath):
-            os.mkdir(newpath)
+            os.makedirs(newpath)
             log.debug("Creating temporary directory %s" % newpath)
 
         if single_file:
