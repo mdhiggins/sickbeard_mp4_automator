@@ -136,7 +136,7 @@ try:
         # name = name[:260-len(suffix)]
         if single_file:
             log.info("Single File Torrent")
-            newpath = os.path.join(path, ("%s-%s" % (name, suffix)))
+            newpath = os.path.join(root_path, ("%s-%s" % (name, suffix)))
         else:
             log.info("Multi File Torrent")
             newpath = os.path.abspath(os.path.join(root_path, '..', ("%s-%s" % (name, suffix))))
