@@ -179,7 +179,6 @@ class SubtitleCodec(BaseCodec):
         'map': int,
         'source': int,
         'path': str,
-        'encoding': str,
         'disposition': str,
     }
 
@@ -198,10 +197,6 @@ class SubtitleCodec(BaseCodec):
         else:
             s = str(0)
 
-        if 'encoding' in safe:
-            if not safe['encoding']:
-                del safe['encoding']
-
         if 'disposition' in safe:
             if len(safe['disposition'].strip()) < 1:
                 del safe['disposition']
@@ -209,8 +204,6 @@ class SubtitleCodec(BaseCodec):
         safe = self._codec_specific_parse_options(safe)
 
         optlist = []
-        if 'encoding' in safe:
-            optlist.extend(['-sub_charenc', str(safe['encoding'])])
         optlist.extend(['-c:s:' + stream, self.ffmpeg_codec_name])
         stream = str(stream)
         if 'map' in safe:

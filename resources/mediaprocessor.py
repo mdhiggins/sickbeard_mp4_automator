@@ -773,7 +773,6 @@ class MediaProcessor:
                             'map': s.index,
                             'codec': scodec,
                             'language': s.metadata['language'],
-                            'encoding': self.settings.subencoding,
                             'disposition': sdisposition,
                             'title': self.subtitleStreamTitle(s.disposition),
                             'debug': 'subtitle.embed-subs'
@@ -900,6 +899,9 @@ class MediaProcessor:
             'subtitle': subtitle_settings,
             'attachment': attachments
         }
+
+        if self.settings.subencoding:
+            options['sub-encoding'] = self.settings.subencoding
 
         preopts = []
         postopts = ['-threads', str(self.settings.threads), '-metadata:g', 'encoding_tool=SMA']

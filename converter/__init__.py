@@ -102,7 +102,11 @@ class Converter(object):
 
             for x in y:
                 if not os.path.exists(x):
-                    raise ConverterError('Souce file does not exist')
+                    raise ConverterError('Source file does not exist')
+                if 'sub-encoding' in opt:
+                    sindex = opt['source'].index(x)
+                    if len([x for x in opt.get('subtitle', []) if x.get('source') == sindex]) > 0:
+                        source_options.extend(['-sub_charenc', opt['sub-encoding']])
                 source_options.extend(['-i', x])
 
         # Audio
