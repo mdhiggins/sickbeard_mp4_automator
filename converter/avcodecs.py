@@ -1084,7 +1084,7 @@ class H265Codec(VideoCodec):
         return optlist
 
 
-class H265CodecAlt(VideoCodec):
+class H265CodecAlt(H265Codec):
     """
     H.265/AVC video codec alternate.
     """
