@@ -325,7 +325,10 @@ class Converter(object):
         converter.FFMpeg.framedata() for details.
 
         """
-        return self.ffmpeg.framedata(fname)
+        try:
+            return self.ffmpeg.framedata(fname)
+        except FFMpegError:
+            return None
 
     def thumbnail(self, fname, time, outfile, size=None, quality=FFMpeg.DEFAULT_JPEG_QUALITY):
         """
