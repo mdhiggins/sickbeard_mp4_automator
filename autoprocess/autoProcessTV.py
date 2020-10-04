@@ -47,8 +47,15 @@ class AuthURLOpener(FancyURLopener):
         return FancyURLopener.open(self, url)
 
 
-def processEpisode(dirName, settings, nzbName=None, logger=None):
+def processEpisode(dirName, settings, nzbName=None, logger=None, pathMapping={}):
     log = logger or logging.getLogger(__name__)
+
+    # Path Mapping
+    for k in pathMapping:
+        if dirName.startswith(k):
+            dirName = dirName.replace(k, pathMapping[k], 1)
+            log.info("PathMapping match found, replacing %s with %s, final API directory is %s." % (k, pathMapping[k], dirName))
+            break
 
     host = settings.Sickbeard['host']
     port = settings.Sickbeard['port']

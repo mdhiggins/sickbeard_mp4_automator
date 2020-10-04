@@ -34,6 +34,7 @@ try:
     name = sys.argv[5]
     torrent_hash = sys.argv[6]
     categories = [settings.qBittorrent['cp'], settings.qBittorrent['sb'], settings.qBittorrent['sonarr'], settings.qBittorrent['radarr'], settings.qBittorrent['sr'], settings.qBittorrent['bypass']]
+    path_mapping = settings.qBittorrent['path-mapping']
 
     log.debug("Root Path: %s." % root_path)
     log.debug("Label: %s." % label)
@@ -162,19 +163,19 @@ try:
 
     if categories[0].startswith(label):
         log.info("Passing %s directory to Couch Potato." % path)
-        autoProcessMovie.process(path, settings)
+        autoProcessMovie.process(path, settings, pathMapping=path_mapping)
     elif categories[1].startswith(label):
         log.info("Passing %s directory to Sickbeard." % path)
-        autoProcessTV.processEpisode(path, settings)
+        autoProcessTV.processEpisode(path, settings, pathMapping=path_mapping)
     elif categories[2].startswith(label):
         log.info("Passing %s directory to Sonarr." % path)
-        sonarr.processEpisode(path, settings)
+        sonarr.processEpisode(path, settings, pathMapping=path_mapping)
     elif categories[3].startswith(label):
         log.info("Passing %s directory to Radarr." % path)
-        radarr.processMovie(path, settings)
+        radarr.processMovie(path, settings, pathMapping=path_mapping)
     elif categories[4].startswith(label):
         log.info("Passing %s directory to Sickrage." % path)
-        autoProcessTVSR.processEpisode(path, settings)
+        autoProcessTVSR.processEpisode(path, settings, pathMapping=path_mapping)
     elif categories[5].startswith(label):
         log.info("Bypassing any further processing as per category.")
 

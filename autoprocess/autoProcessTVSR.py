@@ -13,8 +13,15 @@ import logging
 sys.path.insert(1, os.path.abspath(os.path.join(os.path.dirname(__file__), 'lib')))
 
 
-def processEpisode(dir_to_process, settings, org_NZB_name=None, status=None, logger=None):
+def processEpisode(dir_to_process, settings, org_NZB_name=None, status=None, logger=None, pathMapping={}):
     log = logger or logging.getLogger(__name__)
+
+    # Path Mapping
+    for k in pathMapping:
+        if dir_to_process.startswith(k):
+            dir_to_process = dir_to_process.replace(k, pathMapping[k], 1)
+            log.info("PathMapping match found, replacing %s with %s, final API directory is %s." % (k, pathMapping[k], dir_to_process))
+            break
 
     try:
         import requests

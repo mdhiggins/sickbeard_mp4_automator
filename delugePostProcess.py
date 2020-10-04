@@ -26,6 +26,7 @@ try:
     torrent_name = str(sys.argv[2])
     torrent_id = str(sys.argv[1])
     delete_dir = None
+    path_mapping = settings.deluge['path-mapping']
 
     log.debug("Path: %s." % path)
     log.debug("Torrent: %s." % torrent_name)
@@ -148,19 +149,19 @@ try:
 
     if categories[0].startswith(category):
         log.info("Passing %s directory to Sickbeard." % path)
-        autoProcessTV.processEpisode(path, settings)
+        autoProcessTV.processEpisode(path, settings, pathMapping=path_mapping)
     elif categories[1].startswith(category):
         log.info("Passing %s directory to Couch Potato." % path)
-        autoProcessMovie.process(path, settings, torrent_name)
+        autoProcessMovie.process(path, settings, torrent_name, pathMapping=path_mapping)
     elif categories[2].startswith(category):
         log.info("Passing %s directory to Sonarr." % path)
-        sonarr.processEpisode(path, settings)
+        sonarr.processEpisode(path, settings, pathMapping=path_mapping)
     elif categories[3].startswith(category):
         log.info("Passing %s directory to Radarr." % path)
-        radarr.processMovie(path, settings)
+        radarr.processMovie(path, settings, pathMapping=path_mapping)
     elif categories[4].startswith(category):
         log.info("Passing %s directory to Sickrage." % path)
-        autoProcessTVSR.processEpisode(path, settings)
+        autoProcessTVSR.processEpisode(path, settings, pathMapping=path_mapping)
     elif categories[5].startswith(category):
         log.info("Bypassing any further processing as per category.")
 

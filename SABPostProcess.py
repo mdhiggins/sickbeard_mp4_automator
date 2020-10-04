@@ -35,6 +35,7 @@ try:
     category = str(sys.argv[5]).lower().strip()
     path = str(sys.argv[1])
     nzb = str(sys.argv[2])
+    path_mapping = settings.SAB['path-mapping']
 
     log.debug("Path: %s." % path)
     log.debug("Category: %s." % category)
@@ -85,19 +86,19 @@ try:
 
     if categories[0].startswith(category):
         log.info("Passing %s directory to Sickbeard." % path)
-        autoProcessTV.processEpisode(path, settings, nzb)
+        autoProcessTV.processEpisode(path, settings, nzb, pathMapping=path_mapping)
     elif categories[1].startswith(category):
         log.info("Passing %s directory to Couch Potato." % path)
-        autoProcessMovie.process(path, settings, nzb, sys.argv[7])
+        autoProcessMovie.process(path, settings, nzb, sys.argv[7], pathMapping=path_mapping)
     elif categories[2].startswith(category):
         log.info("Passing %s directory to Sonarr." % path)
-        sonarr.processEpisode(path, settings, importMode="Move")
+        sonarr.processEpisode(path, settings, importMode="Move", pathMapping=path_mapping)
     elif categories[3].startswith(category):
         log.info("Passing %s directory to Radarr." % path)
-        radarr.processMovie(path, settings)
+        radarr.processMovie(path, settings, pathMapping=path_mapping)
     elif categories[4].startswith(category):
         log.info("Passing %s directory to Sickrage." % path)
-        autoProcessTVSR.processEpisode(path, settings, nzb)
+        autoProcessTVSR.processEpisode(path, settings, nzb, pathMapping=path_mapping)
     elif categories[5].startswith(category):
         log.info("Bypassing any further processing as per category.")
 except:

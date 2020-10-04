@@ -166,6 +166,7 @@ sonarr-category = sonarr
 radarr-category = radarr
 bypass-category = bypass
 output-directory = 
+path-mapping = 
 
 [Deluge]
 couchpotato-label = couchpotato
@@ -181,6 +182,7 @@ username =
 password = 
 output-directory = 
 remove = False
+path-mapping = 
 
 [qBittorrent]
 couchpotato-label = couchpotato
@@ -198,6 +200,7 @@ ssl = False
 username = 
 password = 
 output-directory = 
+path-mapping = 
 
 [uTorrent]
 couchpotato-label = couchpotato
@@ -216,6 +219,7 @@ port = 8080
 username = 
 password = 
 output-directory = 
+path-mapping = 
 
 [Plex]
 host = localhost

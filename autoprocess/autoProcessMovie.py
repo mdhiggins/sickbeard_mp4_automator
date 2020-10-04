@@ -30,8 +30,15 @@ class AuthURLOpener(FancyURLopener):
         return FancyURLopener.open(self, url)
 
 
-def process(dirName, settings, nzbName=None, status=0, logger=None):
+def process(dirName, settings, nzbName=None, status=0, logger=None, pathMapping={}):
     log = logger or logging.getLogger(__name__)
+
+    # Path Mapping
+    for k in pathMapping:
+        if dirName.startswith(k):
+            dirName = dirName.replace(k, pathMapping[k], 1)
+            log.info("PathMapping match found, replacing %s with %s, final API directory is %s." % (k, pathMapping[k], dirName))
+            break
 
     status = int(status)
 

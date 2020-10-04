@@ -37,6 +37,9 @@
 # Custom output_directory setting
 #OUTPUT_DIR=
 
+# Custom path mapping setting
+#PATH_MAPPING=
+
 ### NZBGET POST-PROCESSING SCRIPT                                          ###
 ##############################################################################
 
@@ -65,6 +68,15 @@ if 'NZBPO_OUTPUT_DIR' in os.environ:
         if not(output_dir.endswith("/")):
             output_dir += "/"
         #DEBUG#print Overriding output directory
+
+path_mapping = {}
+if 'NZBPO_PATH_MAPPING' in os.environ:
+    pathpairs = os.environ['NZBPO_PATH_MAPPING'].split(",")
+    pathpairs = [x.strip() for x in pathpairs]
+    for listitem in pathpairs:
+        split = listitem.split(":")
+        if len(split) > 1:
+            path_mapping[split[0].strip()] = split[1].strip()
 
 sys.path.insert(0, MP4folder)
 try:
@@ -212,29 +224,29 @@ if 'NZBOP_SCRIPTDIR' in os.environ and not os.environ['NZBOP_VERSION'][0:5] < '1
             path = settings.output_dir
     if (sickbeardcat.startswith(category)):
         #DEBUG#print "Sickbeard Processing Activated"
-        autoProcessTV.processEpisode(path, settings, nzb)
+        autoProcessTV.processEpisode(path, settings, nzb, pathMapping=path_mapping)
         sys.exit(POSTPROCESS_SUCCESS)
     elif (couchcat.startswith(category)):
         #DEBUG#print "CouchPotato Processing Activated"
-        autoProcessMovie.process(path, settings, nzb, status)
+        autoProcessMovie.process(path, settings, nzb, status, pathMapping=path_mapping)
         sys.exit(POSTPROCESS_SUCCESS)
     elif (sonarrcat.startswith(category)):
         #DEBUG#print "Sonarr Processing Activated"
-        success = sonarr.processEpisode(path, settings, True, importMode="Move")
+        success = sonarr.processEpisode(path, settings, True, importMode="Move", pathMapping=path_mapping)
         if success:
             sys.exit(POSTPROCESS_SUCCESS)
         else:
             sys.exit(POSTPROCESS_ERROR)
     elif (radarrcat.startswith(category)):
         #DEBUG#print "Radarr Processing Activated"
-        success = radarr.processMovie(path, settings, True)
+        success = radarr.processMovie(path, settings, True, pathMapping=path_mapping)
         if success:
             sys.exit(POSTPROCESS_SUCCESS)
         else:
             sys.exit(POSTPROCESS_ERROR)
     elif (sickragecat.startswith(category)):
         #DEBUG#print "Sickrage Processing Activated"
-        autoProcessTVSR.processEpisode(path, settings, nzb)
+        autoProcessTVSR.processEpisode(path, settings, nzb, pathMapping=path_mapping)
         sys.exit(POSTPROCESS_SUCCESS)
     elif (bypass.startswith(category)):
         #DEBUG#print "Bypass Further Processing"

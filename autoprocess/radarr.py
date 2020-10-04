@@ -3,7 +3,7 @@ import os
 import logging
 
 
-def processMovie(dirName, settings, nzbGet=False, logger=None):
+def processMovie(dirName, settings, nzbGet=False, importMode=None, logger=None, pathMapping={}):
 
     if nzbGet:
         errorprefix = "[ERROR] "
@@ -15,6 +15,13 @@ def processMovie(dirName, settings, nzbGet=False, logger=None):
     log = logger or logging.getLogger(__name__)
 
     log.info("%sRadarr notifier started." % infoprefix)
+
+    # Path Mapping
+    for k in pathMapping:
+        if dirName.startswith(k):
+            dirName = dirName.replace(k, pathMapping[k], 1)
+            log.info("PathMapping match found, replacing %s with %s, final API directory is %s." % (k, pathMapping[k], dirName))
+            break
 
     # Import Requests
     try:
@@ -44,6 +51,8 @@ def processMovie(dirName, settings, nzbGet=False, logger=None):
     webroot = settings.Radarr['webroot']
     url = protocol + host + ":" + str(port) + webroot + "/api/command"
     payload = {'name': 'DownloadedMoviesScan', 'path': dirName}
+    if importMode:
+        payload["importMode"] = importMode
     headers = {'X-Api-Key': apikey}
 
     log.debug("Radarr host: %s." % host)

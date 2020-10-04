@@ -4,7 +4,7 @@ import logging
 import time
 
 
-def processEpisode(dirName, settings, nzbGet=False, importMode=None, logger=None):
+def processEpisode(dirName, settings, nzbGet=False, importMode=None, logger=None, pathMapping={}):
 
     if nzbGet:
         errorprefix = "[ERROR] "
@@ -16,6 +16,13 @@ def processEpisode(dirName, settings, nzbGet=False, importMode=None, logger=None
     log = logger or logging.getLogger(__name__)
 
     log.info("%sSonarr notifier started." % infoprefix)
+
+    # Path Mapping
+    for k in pathMapping:
+        if dirName.startswith(k):
+            dirName = dirName.replace(k, pathMapping[k], 1)
+            log.info("PathMapping match found, replacing %s with %s, final API directory is %s." % (k, pathMapping[k], dirName))
+            break
 
     # Import Requests
     try:

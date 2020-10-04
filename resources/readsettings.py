@@ -253,6 +253,7 @@ class ReadSettings:
             'radarr-category': 'radarr',
             'bypass-category': 'bypass',
             'output-directory': '',
+            'path-mapping': '',
         },
         'Deluge': {
             'couchpotato-label': 'couchpotato',
@@ -268,6 +269,7 @@ class ReadSettings:
             'password': '',
             'output-directory': '',
             'remove': False,
+            'path-mapping': '',
         },
         'qBittorrent': {
             'couchpotato-label': 'couchpotato',
@@ -284,7 +286,8 @@ class ReadSettings:
             'ssl': False,
             'username': '',
             'password': '',
-            'output-directory': ''
+            'output-directory': '',
+            'path-mapping': '',
         },
         'uTorrent': {
             'couchpotato-label': 'couchpotato',
@@ -303,6 +306,7 @@ class ReadSettings:
             'username': '',
             'password': '',
             'output-directory': '',
+            'path-mapping': '',
         },
         'Plex': {
             'host': 'localhost',
@@ -819,6 +823,7 @@ class ReadSettings:
         self.SAB['radarr'] = config.get(section, "Radarr-category").lower()
         self.SAB['bypass'] = config.get(section, "Bypass-category").lower()
         self.SAB['output_dir'] = config.getdirectory(section, "output-directory")
+        self.SAB['path-mapping'] = config.getdict(section, "path-mapping", dictseparator="=", lower=False, replace=[])
 
         # Deluge
         section = "Deluge"
@@ -836,6 +841,7 @@ class ReadSettings:
         self.deluge['pass'] = config.get(section, "password")
         self.deluge['output_dir'] = config.getdirectory(section, "output-directory")
         self.deluge['remove'] = config.getboolean(section, "remove")
+        self.deluge['path-mapping'] = config.getdict(section, "path-mapping", dictseparator="=", lower=False, replace=[])
 
         # qBittorrent
         section = "qBittorrent"
@@ -855,6 +861,7 @@ class ReadSettings:
         self.qBittorrent['ssl'] = config.getboolean(section, "ssl")
         self.qBittorrent['username'] = config.get(section, "username")
         self.qBittorrent['password'] = config.get(section, "password")
+        self.qBittorrent['path-mapping'] = config.getdict(section, "path-mapping", dictseparator="=", lower=False, replace=[])
 
         # Read relevant uTorrent section information
         section = "uTorrent"
@@ -875,6 +882,7 @@ class ReadSettings:
         self.uTorrent['ssl'] = config.getboolean(section, "ssl")
         self.uTorrent['username'] = config.get(section, "username")
         self.uTorrent['password'] = config.get(section, "password")
+        self.uTorrent['path-mapping'] = config.getdict(section, "path-mapping", dictseparator="=", lower=False, replace=[])
 
         # Plex
         section = "Plex"
