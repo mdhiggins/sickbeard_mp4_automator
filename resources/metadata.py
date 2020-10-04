@@ -131,11 +131,13 @@ class Metadata:
                 imdbid = "tt%s" % imdbid if not imdbid.startswith("tt") else imdbid
                 find = tmdb.Find(imdbid)
                 response = find.info(external_source='imdb_id')
-            elif tvdbid:
+                if find and len(find.tv_results) > 0:
+                    tmdbid = find.tv_results[0].get('id')
+            if tvdbid and not tmdbid:
                 find = tmdb.Find(tvdbid)
                 response = find.info(external_source='tvdb_id')
-            if find and len(find.tv_results) > 0:
-                tmdbid = find.tv_results[0].get('id')
+                if find and len(find.tv_results) > 0:
+                    tmdbid = find.tv_results[0].get('id')
         return tmdbid
 
     def writeTags(self, path, converter, artwork=True, thumbnail=False, width=None, height=None):

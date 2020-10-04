@@ -94,6 +94,7 @@ log.debug(os.environ)
 inputfile = os.environ.get('sonarr_episodefile_path')
 original = os.environ.get('sonarr_episodefile_scenename')
 tvdb_id = int(os.environ.get('sonarr_series_tvdbid'))
+imdb_id = int(os.environ.get('sonarr_series_imdbid'))
 season = int(os.environ.get('sonarr_episodefile_seasonnumber'))
 seriesid = os.environ.get('sonarr_series_id')
 
@@ -119,7 +120,7 @@ try:
         except:
             log.exception("Error renaming inputfile")
 
-    success = mp.fullprocess(inputfile, MediaType.TV, tvdbid=tvdb_id, season=season, episode=episode, original=original)
+    success = mp.fullprocess(inputfile, MediaType.TV, tvdbid=tvdb_id, imdbid=imdb_id, season=season, episode=episode, original=original)
 
     if success:
         # Update Sonarr to continue monitored status
