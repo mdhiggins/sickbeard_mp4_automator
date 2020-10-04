@@ -90,6 +90,7 @@ log.debug(os.environ)
 inputfile = os.environ.get('radarr_moviefile_path')
 original = os.environ.get('radarr_moviefile_scenename')
 imdbid = os.environ.get('radarr_movie_imdbid')
+tmdbid = os.environ.get('radarr_movie_tmdbid')
 movieid = os.environ.get('radarr_movie_id')
 
 mp = MediaProcessor(settings)
@@ -97,6 +98,7 @@ mp = MediaProcessor(settings)
 log.debug("Input file: %s." % inputfile)
 log.debug("Original name: %s." % original)
 log.debug("IMDB ID: %s." % imdbid)
+log.debug("TMDB ID: %s." % tmdbid)
 log.debug("Radarr Movie ID: %s." % movieid)
 
 try:
@@ -108,7 +110,7 @@ try:
         except:
             log.exception("Error renaming inputfile")
 
-    success = mp.fullprocess(inputfile, MediaType.Movie, original=original, imdbid=imdbid)
+    success = mp.fullprocess(inputfile, MediaType.Movie, original=original, tmdbid=tmdbid, imdbid=imdbid)
 
     if success:
         # Update Radarr to continue monitored status
