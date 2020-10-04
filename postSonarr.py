@@ -94,7 +94,7 @@ log.debug(os.environ)
 inputfile = os.environ.get('sonarr_episodefile_path')
 original = os.environ.get('sonarr_episodefile_scenename')
 tvdb_id = int(os.environ.get('sonarr_series_tvdbid'))
-imdb_id = int(os.environ.get('sonarr_series_imdbid'))
+imdb_id = os.environ.get('sonarr_series_imdbid')
 season = int(os.environ.get('sonarr_episodefile_seasonnumber'))
 seriesid = os.environ.get('sonarr_series_id')
 
