@@ -22,7 +22,7 @@ class SMAConfigParser(ConfigParser, object):
             return value
 
         if value == '':
-            return default.copy()
+            return list(default)
 
         value = value.split(separator)
 
@@ -36,7 +36,7 @@ class SMAConfigParser(ConfigParser, object):
 
     def getdict(self, section, option, vars=None, listseparator=",", dictseparator=":", default={}, lower=True, replace=[' ']):
         l = self.getlist(section, option, vars, listseparator, [], lower, replace)
-        output = default.copy()
+        output = list(default)
         for listitem in l:
             split = listitem.split(dictseparator)
             if len(split) > 1:
