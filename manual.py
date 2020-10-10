@@ -317,7 +317,7 @@ def main():
     parser.add_argument('-nt', '--notag', action="store_true", help="Overrides and disables tagging when using the automated option")
     parser.add_argument('-np', '--nopost', action="store_true", help="Overrides and disables the execution of additional post processing scripts")
     parser.add_argument('-pr', '--preserverelative', action='store_true', help="Preserves relative directories when processing multiple files using the copy-to or move-to functionality")
-    parser.add_argument('-pse', '--processsameextensions', action='store_true', help="Overrides process-same-extenions setting in autoProcess.ini enabling the reprocessing of files")
+    parser.add_argument('-pse', '--processsameextensions', action='store_true', help="Overrides process-same-extensions setting in autoProcess.ini enabling the reprocessing of files")
     parser.add_argument('-fc', '--forceconvert', action='store_true', help="Overrides force-convert setting in autoProcess.ini and also enables process-same-extenions if true forcing the conversion of files")
     parser.add_argument('-m', '--moveto', help="Override move-to value setting in autoProcess.ini changing the final destination of the file")
     parser.add_argument('-oo', '--optionsonly', action="store_true", help="Display generated conversion options only, do not perform conversion")
