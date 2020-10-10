@@ -36,7 +36,7 @@ class SMAConfigParser(ConfigParser, object):
 
     def getdict(self, section, option, vars=None, listseparator=",", dictseparator=":", default={}, lower=True, replace=[' ']):
         l = self.getlist(section, option, vars, listseparator, [], lower, replace)
-        output = list(default)
+        output = dict(default)
         for listitem in l:
             split = listitem.split(dictseparator)
             if len(split) > 1:
