@@ -266,7 +266,7 @@ optional arguments:
                         multiple files using the copy-to or move-to
                         functionality
   -pse, --processsameextensions   
-                        Overrides process-same-extenions setting in 
+                        Overrides process-same-extensions setting in 
                         autoProcess.ini enabling the reprocessing of files
   -fc, --forceconvert   Overrides force-convert setting in autoProcess.ini and 
                         also enables process-same-extenions if true forcing the conversion of files
