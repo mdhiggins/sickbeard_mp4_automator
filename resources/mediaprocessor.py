@@ -150,7 +150,6 @@ class MediaProcessor:
             self.log.debug("%s created from %s successfully." % (outputfile, inputfile))
 
             if outputfile == inputfile:
-                self.settings.deletesubs = set()
                 if self.settings.output_dir:
                     try:
                         outputfile = os.path.join(self.settings.output_dir, os.path.split(inputfile)[1])
