@@ -3,6 +3,7 @@ import os
 import sys
 import requests
 import time
+import shutil
 from resources.log import getLogger
 from resources.readsettings import ReadSettings
 from resources.metadata import MediaType
@@ -76,6 +77,32 @@ def renameMovie(host, port, webroot, apikey, protocol, movieid, log):
     log.debug(str(rstate))
 
 
+def backupSubs(dir, mp, log, extension=".backup"):
+    files = []
+    output = {}
+    for r, _, f in os.walk(dir):
+        for file in f:
+            files.append(os.path.join(r, file))
+    for filepath in files:
+        info = mp.isValidSubtitleSource(filepath)
+        if info:
+            newpath = filepath + extension
+            shutil.copy2(filepath, newpath)
+            output[newpath] = filepath
+            log.debug("Copying %s to %s." % (filepath, newpath))
+    return output
+
+
+def restoreSubs(subs, log):
+    for k in subs:
+        try:
+            os.rename(k, subs[k])
+            log.debug("Restoring %s to %s." % (k, subs[k]))
+        except:
+            os.remove(k)
+            log.debug("Unable to restore %s, deleting." % (k))
+
+
 log = getLogger("RadarrPostProcess")
 
 log.info("Radarr extra script post processing started.")
@@ -131,6 +158,8 @@ try:
             if apikey != '':
                 headers = {'X-Api-Key': apikey}
 
+                subs = backupSubs(os.path.split(success[0]), mp, log)
+
                 if rescanAndWait(host, port, webroot, apikey, protocol, movieid, log):
                     log.info("Rescan command completed")
 
@@ -147,6 +176,11 @@ try:
                         else:
                             log.error("Rescan command timed out")
                             sys.exit(1)
+
+                    if len(subs) > 0:
+                        log.debug("Restoring %d subs and triggering a final rescan." % (len(subs)))
+                        restoreSubs(subs, log)
+                        rescanAndWait(host, port, webroot, apikey, protocol, movieid, log)
 
                     movieinfo['monitored'] = True
 

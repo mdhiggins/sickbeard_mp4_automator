@@ -82,7 +82,7 @@ class MediaProcessor:
                             plex.refreshPlex(self.settings, mediatype, self.log)
                         except:
                             self.log.exception("Error refreshing Plex.")
-                    return True
+                    return output_files
             else:
                 self.log.info("File %s is not valid" % inputfile)
         except:
