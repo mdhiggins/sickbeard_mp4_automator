@@ -158,7 +158,7 @@ try:
             if apikey != '':
                 headers = {'X-Api-Key': apikey}
 
-                subs = backupSubs(os.path.split(success[0]), mp, log)
+                subs = backupSubs(os.path.split(success[0])[0], mp, log)
 
                 if rescanAndWait(host, port, webroot, apikey, protocol, movieid, log):
                     log.info("Rescan command completed")
