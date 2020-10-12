@@ -175,6 +175,7 @@ try:
                                 log.info("File found after second rescan.")
                         else:
                             log.error("Rescan command timed out")
+                            restoreSubs(subs, log)
                             sys.exit(1)
 
                     if len(subs) > 0:
