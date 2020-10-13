@@ -93,7 +93,7 @@ def backupSubs(dir, mp, log, extension=".backup"):
             newpath = filepath + extension
             shutil.copy2(filepath, newpath)
             output[newpath] = filepath
-            log.debug("Copying %s to %s." % (filepath, newpath))
+            log.info("Copying %s to %s." % (filepath, newpath))
     return output
 
 
@@ -101,10 +101,10 @@ def restoreSubs(subs, log):
     for k in subs:
         try:
             os.rename(k, subs[k])
-            log.debug("Restoring %s to %s." % (k, subs[k]))
+            log.info("Restoring %s to %s." % (k, subs[k]))
         except:
             os.remove(k)
-            log.debug("Unable to restore %s, deleting." % (k))
+            log.exception("Unable to restore %s, deleting." % (k))
 
 
 log = getLogger("SonarrPostProcess")
