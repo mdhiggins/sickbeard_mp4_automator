@@ -1483,6 +1483,8 @@ class MediaProcessor:
         self.log.info("======================")
 
         try:
+            timecode = 0
+            debug = ""
             for timecode, debug in conv:
                 self.log.debug(debug)
                 if reportProgress:
@@ -1492,7 +1494,7 @@ class MediaProcessor:
                         self.displayProgressBar(timecode, debug)
             if reportProgress:
                 if progressOutput:
-                    progressOutput(timecode, debug)
+                    progressOutput(100, debug)
                 else:
                     self.displayProgressBar(100, newline=True)
 
