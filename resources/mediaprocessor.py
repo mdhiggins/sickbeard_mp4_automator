@@ -1254,7 +1254,7 @@ class MediaProcessor:
     def restoreFromOutput(self, inputfile, outputfile):
         if self.settings.output_dir and outputfile.startswith(self.settings.output_dir):
             input_dir, filename, input_extension = self.parseFile(inputfile)
-            newoutputfile, _ = self.getOutputFile(input_dir, filename, input_extension, output_directory=None)
+            newoutputfile, _ = self.getOutputFile(input_dir, filename, input_extension, ignore_output_dir=True)
             self.log.info("Output file is in output_dir %s, moving back to original directory %s." % (self.settings.output_dir, outputfile))
             shutil.move(outputfile, newoutputfile)
             return newoutputfile
