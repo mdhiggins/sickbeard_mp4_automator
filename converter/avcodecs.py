@@ -100,6 +100,7 @@ class AudioCodec(BaseCodec):
             if c < 1 or c > 12:
                 del safe['channels']
 
+        br = None
         if 'bitrate' in safe:
             br = safe['bitrate']
             if br < 8:
@@ -150,6 +151,7 @@ class AudioCodec(BaseCodec):
             optlist.extend(['-filter:a:' + stream, str(safe['filter'])])
         if 'title' in safe:
             optlist.extend(['-metadata:s:a:' + stream, "title=" + str(safe['title'])])
+            optlist.extend(['-metadata:s:a:' + stream, "handler_name=" + str(safe['title'])])
         if 'language' in safe:
             lang = str(safe['language'])
         else:
@@ -212,6 +214,7 @@ class SubtitleCodec(BaseCodec):
             optlist.extend(['-i', str(safe['path'])])
         if 'title' in safe:
             optlist.extend(['-metadata:s:s:' + stream, "title=" + str(safe['title'])])
+            optlist.extend(['-metadata:s:s:' + stream, "handler_name=" + str(safe['title'])])
         if 'language' in safe:
             lang = str(safe['language'])
         else:
@@ -430,6 +433,7 @@ class VideoCodec(BaseCodec):
                 optlist.extend(['-aspect', '%d:%d' % (ow, oh)])
         if 'title' in safe:
             optlist.extend(['-metadata:s:v', "title=" + str(safe['title'])])
+            optlist.extend(['-metadata:s:v', "handler_name=" + str(safe['title'])])
 
         optlist.extend(self._codec_specific_produce_ffmpeg_list(safe))
 
@@ -518,6 +522,7 @@ class AudioCopyCodec(BaseCodec):
             optlist.extend(['-bsf:a:' + stream, str(safe['bsf'])])
         if 'title' in safe:
             optlist.extend(['-metadata:s:a:' + stream, "title=" + str(safe['title'])])
+            optlist.extend(['-metadata:s:a:' + stream, "handler_name=" + str(safe['title'])])
         if 'language' in safe:
             lang = str(safe['language'])
         else:
@@ -557,6 +562,7 @@ class VideoCopyCodec(BaseCodec):
             optlist.extend(['-r:v', str(safe['fps'])])
         if 'title' in safe:
             optlist.extend(['-metadata:s:v', "title=" + str(safe['title'])])
+            optlist.extend(['-metadata:s:v', "handler_name=" + str(safe['title'])])
         return optlist
 
 
@@ -596,6 +602,7 @@ class SubtitleCopyCodec(BaseCodec):
             optlist.extend(['-map', s + ':' + str(safe['map'])])
         if 'title' in safe:
             optlist.extend(['-metadata:s:s:' + stream, "title=" + str(safe['title'])])
+            optlist.extend(['-metadata:s:s:' + stream, "handler_name=" + str(safe['title'])])
         if 'language' in safe:
             lang = str(safe['language'])
         else:
