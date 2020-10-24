@@ -103,11 +103,11 @@ try:
                 log.info("Processing file %s." % inputfile)
                 try:
                     output = mp.process(inputfile, reportProgress=True, info=info)
+                    if not output:
+                        log.error("No output file generated for single torrent download.")
+                        sys.exit(1)
                 except:
                     log.exception("Error converting file %s." % inputfile)
-                if not output:
-                    log.error("No output file generated for single torrent download.")
-                    sys.exit(1)
         else:
             log.debug("Processing multiple files.")
             ignore = []

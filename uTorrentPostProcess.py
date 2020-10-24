@@ -102,6 +102,8 @@ try:
     host = getHost(settings.uTorrent['host'], settings.uTorrent['port'], settings.uTorrent['ssl'])
 
     # Run a uTorrent action before conversion.
+    session = None
+    auth = None
     if web_ui:
         session = requests.Session()
         if session:
@@ -150,11 +152,11 @@ try:
                 log.info("Processing file %s." % inputfile)
                 try:
                     output = mp.process(inputfile, info=info)
+                    if not output:
+                        log.error("No output file generated for single torrent download.")
+                        sys.exit(1)
                 except:
                     log.exception("Error converting file %s." % inputfile)
-                if not output:
-                    log.error("No output file generated for single torrent download.")
-                    sys.exit(1)
             else:
                 log.debug("Ignoring file %s." % inputfile)
         else:
