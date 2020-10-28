@@ -81,19 +81,21 @@ def renameSeries(host, port, webroot, apikey, protocol, seriesid, log):
     log.debug(str(rstate))
 
 
-def backupSubs(dir, mp, log, extension=".backup"):
+def backupSubs(inputpath, mp, log, extension=".backup"):
+    dirname, filename = os.path.split(inputpath)
     files = []
     output = {}
-    for r, _, f in os.walk(dir):
+    for r, _, f in os.walk(dirname):
         for file in f:
             files.append(os.path.join(r, file))
     for filepath in files:
-        info = mp.isValidSubtitleSource(filepath)
-        if info:
-            newpath = filepath + extension
-            shutil.copy2(filepath, newpath)
-            output[newpath] = filepath
-            log.info("Copying %s to %s." % (filepath, newpath))
+        if filepath.startswidth(os.path.splitext(filename)[0]):
+            info = mp.isValidSubtitleSource(filepath)
+            if info:
+                newpath = filepath + extension
+                shutil.copy2(filepath, newpath)
+                output[newpath] = filepath
+                log.info("Copying %s to %s." % (filepath, newpath))
     return output
 
 
@@ -168,7 +170,7 @@ try:
             if apikey != '':
                 headers = {'X-Api-Key': apikey}
 
-                subs = backupSubs(os.path.split(success[0])[0], mp, log)
+                subs = backupSubs(success[0], mp, log)
 
                 if rescanAndWait(host, port, webroot, apikey, protocol, seriesid, log):
                     log.info("Rescan command completed")
