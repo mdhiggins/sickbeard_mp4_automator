@@ -85,7 +85,7 @@ def backupSubs(inputpath, mp, log, extension=".backup"):
         for file in f:
             files.append(os.path.join(r, file))
     for filepath in files:
-        if filepath.startswidth(os.path.splitext(filename)[0]):
+        if filepath.startswith(os.path.splitext(filename)[0]):
             info = mp.isValidSubtitleSource(filepath)
             if info:
                 newpath = filepath + extension
