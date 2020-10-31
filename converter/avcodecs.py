@@ -1214,6 +1214,14 @@ class NVEncH265CodecAlt(NVEncH265Codec):
     codec_name = 'hevc_nvenc'
 
 
+class VideotoolboxEncH265(H265Codec):
+    """
+    Videotoolbox H.265/HEVC video codec.
+    """
+    codec_name = 'h265_videotoolbox'
+    ffmpeg_codec_name = 'hevc_videotoolbox'
+
+
 class DivxCodec(VideoCodec):
     """
     DivX video codec.
@@ -1375,7 +1383,7 @@ audio_codec_list = [
 video_codec_list = [
     VideoNullCodec, VideoCopyCodec, TheoraCodec, H264Codec, H264CodecAlt, H264QSVCodec, H265QSVCodecAlt, H265QSVCodec, H265Codec, H265CodecAlt,
     DivxCodec, Vp8Codec, H263Codec, FlvCodec, Mpeg1Codec, NVEncH264Codec, NVEncH265Codec, NVEncH265CodecAlt,
-    Mpeg2Codec, H264VAAPICodec, H265VAAPICodec, OMXH264Codec, VideotoolboxEncH264
+    Mpeg2Codec, H264VAAPICodec, H265VAAPICodec, OMXH264Codec, VideotoolboxEncH264, VideotoolboxEncH265
 ]
 
 subtitle_codec_list = [
