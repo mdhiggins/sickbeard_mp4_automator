@@ -105,7 +105,7 @@ class Metadata:
             self.showname = self.showdata['name']
             self.genre = self.showdata['genres']
             self.network = self.showdata['networks']
-            self.title = self.episodedata['name']
+            self.title = self.episodedata['name'] or "Episode %d" % (episode)
             self.description = self.episodedata['overview']
             self.airdate = self.episodedata['air_date']
 
