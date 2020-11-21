@@ -9,4 +9,4 @@ subliminal
 python-dateutil
 stevedore
 qtfaststart
-
+pymediainfo

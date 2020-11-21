@@ -21,6 +21,10 @@ try:
     import subliminal
 except:
     pass
+try:
+    from pymediainfo import MediaInfo
+except:
+    MediaInfo = None
 
 
 class MediaProcessor:
@@ -275,6 +279,17 @@ class MediaProcessor:
             if not info.audio or len(info.audio) < 1:
                 self.log.debug("Invalid source, no audio stream detected")
                 return None
+            if MediaInfo:
+                try:
+                    media_info = MediaInfo.parse(inputfile)
+                    for track in media_info.tracks:
+                        if track.title and track.streamorder is not None:
+                            so = int(track.streamorder)
+                            stream = info.streams[so]
+                            stream.metadata['title'] = track.title
+                except:
+                    self.log.exception("Pymediainfo exception")
+                    pass
             return info
         except:
             self.log.exception("isValidSource unexpectedly threw an exception, returning None")
@@ -330,7 +345,7 @@ class MediaProcessor:
             dump["output"] = dump["input"]
             dump["output"]["bypassConvert"] = True
         else:
-            dump["output"], dump["preopts"], dump["postopts"], dump["ripsubopts"], dump["downloadedsubs"] = self.generateOptions(inputfile, original)
+            dump["output"], dump["preopts"], dump["postopts"], dump["ripsubopts"], dump["downloadedsubs"] = self.generateOptions(inputfile, info=info, original=original)
             parsed = self.converter.parse_options(dump["output"])
             input_dir, filename, input_extension = self.parseFile(inputfile)
             outputfile, output_extension = self.getOutputFile(input_dir, filename, input_extension)
@@ -354,7 +369,8 @@ class MediaProcessor:
         output = {}
         input_dir, filename, input_extension = self.parseFile(inputfile)
         output['extension'] = input_extension
-        probe = self.converter.probe(inputfile)
+        probe = self.isValidSource(inputfile)
+        # probe = self.converter.probe(inputfile)
         self.titleDispositionCheck(probe)
         if probe:
             output.update(probe.json)
@@ -386,7 +402,7 @@ class MediaProcessor:
     # Check and see if clues about the disposition are in the title
     def titleDispositionCheck(self, info):
         for stream in info.streams:
-            title = stream.metadata.get('title', '')
+            title = stream.metadata.get('title', '').lower()
             if 'comment' in title:
                 self.log.debug("Found comment in stream title, setting comment disposition to True.")
                 stream.disposition['comment'] = True
