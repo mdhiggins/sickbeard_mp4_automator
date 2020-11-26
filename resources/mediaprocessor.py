@@ -109,16 +109,15 @@ class MediaProcessor:
         info = info or self.isValidSource(inputfile)
 
         if info:
-            if self.canBypassConvert(inputfile, info):
+            try:
+                options, preopts, postopts, ripsubopts, downloaded_subs = self.generateOptions(inputfile, info=info, original=original)
+            except:
+                self.log.exception("Unable to generate options, unexpected exception occurred.")
+                return None
+            if self.canBypassConvert(inputfile, info, options):
                 outputfile = inputfile
                 self.log.info("Bypassing conversion and setting outputfile to inputfile.")
             else:
-                try:
-                    options, preopts, postopts, ripsubopts, downloaded_subs = self.generateOptions(inputfile, info=info, original=original)
-                except:
-                    self.log.exception("Unable to generate options, unexpected exception occurred.")
-                    return None
-
                 if not options:
                     self.log.error("Error converting, inputfile %s had a valid extension but returned no data. Either the file does not exist, was unreadable, or was an incorrect format." % inputfile)
                     return None
@@ -341,11 +340,15 @@ class MediaProcessor:
     def jsonDump(self, inputfile, original=None):
         dump = {}
         dump["input"], info = self.generateSourceDict(inputfile)
-        if self.canBypassConvert(inputfile, info):
+        dump["output"], dump["preopts"], dump["postopts"], dump["ripsubopts"], dump["downloadedsubs"] = self.generateOptions(inputfile, info=info, original=original)
+        if self.canBypassConvert(inputfile, info, dump["output"]):
             dump["output"] = dump["input"]
             dump["output"]["bypassConvert"] = True
+            dump["preopts"] = None
+            dump["postopts"] = None
+            dump["ripsubopts"] = None
+            dump["downloadedsubs"] = None
         else:
-            dump["output"], dump["preopts"], dump["postopts"], dump["ripsubopts"], dump["downloadedsubs"] = self.generateOptions(inputfile, info=info, original=original)
             parsed = self.converter.parse_options(dump["output"])
             input_dir, filename, input_extension = self.parseFile(inputfile)
             outputfile, output_extension = self.getOutputFile(input_dir, filename, input_extension)
@@ -1420,7 +1423,7 @@ class MediaProcessor:
             return True
         return False
 
-    def canBypassConvert(self, inputfile, info):
+    def canBypassConvert(self, inputfile, info, options=None):
         # Process same extensions
         if self.settings.output_extension == self.parseFile(inputfile)[2]:
             if not self.settings.force_convert and not self.settings.process_same_extensions:
@@ -1429,6 +1432,10 @@ class MediaProcessor:
             elif info.format.metadata.get('encoder', '').startswith('sma') and not self.settings.force_convert:
                 self.log.info("Input and output extensions match and the file appears to have already been processed by SMA, enable force-convert to override [force-convert: %s]." % self.settings.force_convert)
                 return True
+            elif self.settings.bypass_copy_all and options and len([x for x in [options['video']] + [x for x in options['audio']] + [x for x in options['subtitle']] if x['codec'] != 'copy']) == 0 and len(options['audio']) == len(info.audio) and len(options['subtitle']) == len(info.subtitle) and not self.settings.force_convert:
+                self.log.info("Input and output extensions match, the file appears to copying all streams, and is not reducing the number of streams, enable force-convert to override [bypass-if-copying-all] [force-convert: %s]." % self.settings.force_convert)
+                return True
+        self.log.debug("canBypassConvert returned False.")
         return False
 
     # Encode a new file based on selected options, built in naming conflict resolution

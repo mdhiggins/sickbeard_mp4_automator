@@ -104,6 +104,7 @@ class ReadSettings:
             'delete-original': True,
             'sort-streams': True,
             'process-same-extensions': False,
+            'bypass-if-copying-all': False,
             'force-convert': False,
             'post-process': False,
             'wait-post-process': False,
@@ -605,6 +606,7 @@ class ReadSettings:
         self.delete = config.getboolean(section, "delete-original")
         self.sort_streams = config.getboolean(section, "sort-streams")
         self.process_same_extensions = config.getboolean(section, "process-same-extensions")
+        self.bypass_copy_all = config.getboolean(section, "bypass-if-copying-all")
         self.force_convert = config.getboolean(section, "force-convert")
         self.postprocess = config.getboolean(section, 'post-process')
         self.waitpostprocess = config.getboolean(section, 'wait-post-process')
