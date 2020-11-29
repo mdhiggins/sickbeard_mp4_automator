@@ -61,6 +61,7 @@ class Metadata:
 
         self.mediatype = mediatype
         self.language = getAlpha2BCode(language, default='en')
+        self.log.debug("Tagging language determined to be %s." % language)
         self.original = original
 
         if self.mediatype == MediaType.Movie:

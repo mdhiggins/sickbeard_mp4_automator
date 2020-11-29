@@ -106,11 +106,11 @@ class SkipFileException(Exception):
     pass
 
 
-def getInfo(fileName=None, silent=False, tag=True, tvdbid=None, tmdbid=None, imdbid=None, season=None, episode=None):
+def getInfo(fileName=None, silent=False, tag=True, tvdbid=None, tmdbid=None, imdbid=None, season=None, episode=None, language=None):
     tagdata = None
     # Try to guess the file is guessing is enabled
     if fileName is not None:
-        tagdata = guessInfo(fileName, tvdbid=tvdbid, tmdbid=tmdbid, imdbid=imdbid, season=season, episode=episode)
+        tagdata = guessInfo(fileName, tvdbid=tvdbid, tmdbid=tmdbid, imdbid=imdbid, season=season, episode=episode, language=language)
 
     if not silent:
         if tagdata:
@@ -124,23 +124,23 @@ def getInfo(fileName=None, silent=False, tag=True, tvdbid=None, tmdbid=None, imd
             tmdbid = getValue("Enter TMDB ID (TV)", True)
             season = getValue("Enter Season Number", True)
             episode = getValue("Enter Episode Number", True)
-            return Metadata(MediaType.TV, tmdbid=tmdbid, season=season, episode=episode, language=settings.taglanguage, logger=log)
+            return Metadata(MediaType.TV, tmdbid=tmdbid, season=season, episode=episode, language=language, logger=log)
         if m_type is MediaTypes.TV_TVDB:
             tvdbid = getValue("Enter TVDB ID (TV)", True)
             season = getValue("Enter Season Number", True)
             episode = getValue("Enter Episode Number", True)
-            return Metadata(MediaType.TV, tvdbid=tvdbid, season=season, episode=episode, language=settings.taglanguage, logger=log)
+            return Metadata(MediaType.TV, tvdbid=tvdbid, season=season, episode=episode, language=language, logger=log)
         if m_type is MediaTypes.TV_IMDB:
             imdbid = getValue("Enter IMDB ID (TV)", True)
             season = getValue("Enter Season Number", True)
             episode = getValue("Enter Episode Number", True)
-            return Metadata(MediaType.TV, imdbid=imdbid, season=season, episode=episode, language=settings.taglanguage, logger=log)
+            return Metadata(MediaType.TV, imdbid=imdbid, season=season, episode=episode, language=language, logger=log)
         elif m_type is MediaTypes.MOVIE_IMDB:
             imdbid = getValue("Enter IMDB ID (Movie)")
-            return Metadata(MediaType.Movie, imdbid=imdbid, language=settings.taglanguage, logger=log)
+            return Metadata(MediaType.Movie, imdbid=imdbid, language=language, logger=log)
         elif m_type is MediaTypes.MOVIE_TMDB:
             tmdbid = getValue("Enter TMDB ID (Movie)", True)
-            return Metadata(MediaType.Movie, tmdbid=tmdbid, language=settings.taglanguage, logger=log)
+            return Metadata(MediaType.Movie, tmdbid=tmdbid, language=language, logger=log)
         elif m_type is MediaTypes.CONVERT:
             return None
         elif m_type is MediaTypes.SKIP:
@@ -152,15 +152,15 @@ def getInfo(fileName=None, silent=False, tag=True, tvdbid=None, tmdbid=None, imd
             return None
 
 
-def guessInfo(fileName, tmdbid=None, tvdbid=None, imdbid=None, season=None, episode=None):
+def guessInfo(fileName, tmdbid=None, tvdbid=None, imdbid=None, season=None, episode=None, language=None):
     if not settings.fullpathguess:
         fileName = os.path.basename(fileName)
     guess = guessit.guessit(fileName)
     try:
         if guess['type'] == 'movie':
-            return movieInfo(guess, tmdbid=tmdbid, imdbid=imdbid)
+            return movieInfo(guess, tmdbid=tmdbid, imdbid=imdbid, language=language)
         elif guess['type'] == 'episode':
-            return tvInfo(guess, tmdbid=tmdbid, tvdbid=tvdbid, imdbid=imdbid, season=season, episode=episode)
+            return tvInfo(guess, tmdbid=tmdbid, tvdbid=tvdbid, imdbid=imdbid, season=season, episode=episode, language=language)
         else:
             return None
     except:
@@ -168,7 +168,7 @@ def guessInfo(fileName, tmdbid=None, tvdbid=None, imdbid=None, season=None, epis
         return None
 
 
-def movieInfo(guessData, tmdbid=None, imdbid=None):
+def movieInfo(guessData, tmdbid=None, imdbid=None, language=None):
     if not tmdbid and not imdbid:
         tmdb.API_KEY = tmdb_api_key
         search = tmdb.Search()
@@ -186,12 +186,12 @@ def movieInfo(guessData, tmdbid=None, imdbid=None):
         tmdbid = result['id']
         log.debug("Guessed filename resulted in TMDB ID %s" % tmdbid)
 
-    metadata = Metadata(MediaType.Movie, tmdbid=tmdbid, imdbid=imdbid, language=settings.taglanguage, logger=log)
+    metadata = Metadata(MediaType.Movie, tmdbid=tmdbid, imdbid=imdbid, language=language, logger=log)
     log.info("Matched movie title as: %s %s (TMDB ID: %s)" % (metadata.title, metadata.date, tmdbid))
     return metadata
 
 
-def tvInfo(guessData, tmdbid=None, tvdbid=None, imdbid=None, season=None, episode=None):
+def tvInfo(guessData, tmdbid=None, tvdbid=None, imdbid=None, season=None, episode=None, language=None):
     season = season or guessData["season"]
     episode = episode or guessData["episode"]
 
@@ -210,26 +210,30 @@ def tvInfo(guessData, tmdbid=None, tvdbid=None, imdbid=None, season=None, episod
         result = search.results[0]
         tmdbid = result['id']
 
-    metadata = Metadata(MediaType.TV, tmdbid=tmdbid, imdbid=imdbid, tvdbid=tvdbid, season=season, episode=episode, language=settings.taglanguage, logger=log)
+    metadata = Metadata(MediaType.TV, tmdbid=tmdbid, imdbid=imdbid, tvdbid=tvdbid, season=season, episode=episode, language=language, logger=log)
     log.info("Matched TV episode as %s (TMDB ID: %d) S%02dE%02d" % (metadata.showname, int(metadata.tmdbid), int(season), int(episode)))
     return metadata
 
 
-def processFile(inputfile, tagdata, mp, info=None, relativePath=None):
+def processFile(inputfile, mp, info=None, relativePath=None, silent=False, tag=True, tmdbid=None, tvdbid=None, imdbid=None, season=None, episode=None):
     # Process
     info = info or mp.isValidSource(inputfile)
     if not info:
         log.debug("Invalid file %s." % inputfile)
         return
-    if not tagdata:
-        log.info("Processing file %s" % inputfile)
-    elif tagdata.mediatype == MediaType.Movie:
-        log.info("Processing %s" % (tagdata.title))
-    elif tagdata.mediatype == MediaType.TV:
-        log.info("Processing %s Season %02d Episode %02d - %s" % (tagdata.showname, int(tagdata.season), int(tagdata.episode), tagdata.title))
 
     output = mp.process(inputfile, True)
     if output:
+        language = settings.taglanguage or mp.getDefaultAudioLanguage(output["options"])
+        tagdata = getInfo(inputfile, silent, tag=tag, tmdbid=tmdbid, tvdbid=tvdbid, imdbid=imdbid, season=season, episode=episode, language=language)
+
+        if not tagdata:
+            log.info("Processing file %s" % inputfile)
+        elif tagdata.mediatype == MediaType.Movie:
+            log.info("Processing %s" % (tagdata.title))
+        elif tagdata.mediatype == MediaType.TV:
+            log.info("Processing %s Season %02d Episode %02d - %s" % (tagdata.showname, int(tagdata.season), int(tagdata.episode), tagdata.title))
+
         if tagdata:
             try:
                 tagdata.writeTags(output['output'], mp.converter, settings.artwork, settings.thumbnail, width=output['x'], height=output['y'])
@@ -266,14 +270,10 @@ def walkDir(dir, silent=False, preserveRelative=False, tmdbid=None, imdbid=None,
             if optionsOnly:
                 displayOptions(filepath)
                 continue
-            if tag:
-                try:
-                    tagdata = getInfo(filepath, silent, tmdbid=tmdbid, tvdbid=tvdbid, imdbid=imdbid)
-                    processFile(filepath, tagdata, mp, info=info, relativePath=relative)
-                except SkipFileException:
-                    log.debug("Skipping file %s." % filepath)
-            else:
-                processFile(filepath, None, mp, info=info, relativePath=relative)
+            try:
+                processFile(filepath, mp, info=info, relativePath=relative, silent=silent, tag=tag, tmdbid=tmdbid, tvdbid=tvdbid, imdbid=imdbid)
+            except SkipFileException:
+                log.debug("Skipping file %s." % filepath)
 
 
 def displayOptions(path):
@@ -391,14 +391,10 @@ def main():
             if (args['optionsonly']):
                 displayOptions(path)
                 return
-            if not settings.tagfile:
-                processFile(path, None, mp, info=info)
-            else:
-                try:
-                    tagdata = getInfo(path, silent=silent, tmdbid=args.get('tmdbid'), tvdbid=args.get('tvdbid'), imdbid=args.get('imdbid'), season=args.get('season'), episode=args.get('episode'))
-                    processFile(path, tagdata, mp, info=info)
-                except SkipFileException:
-                    log.debug("Skipping file %s" % path)
+            try:
+                processFile(path, mp, info=info, silent=silent, tag=settings.tagfile, tmdbid=args.get('tmdbid'), tvdbid=args.get('tvdbid'), imdbid=args.get('imdbid'), season=args.get('season'), episode=args.get('episode'))
+            except SkipFileException:
+                log.debug("Skipping file %s" % path)
 
         else:
             print("File %s is not in a valid format" % (path))

@@ -38,9 +38,6 @@ class MediaProcessor:
 
     def fullprocess(self, inputfile, mediatype, reportProgress=False, original=None, info=None, tmdbid=None, tvdbid=None, imdbid=None, season=None, episode=None, language=None):
         try:
-            if not language:
-                language = self.settings.taglanguage
-
             info = self.isValidSource(inputfile)
             if info:
                 self.log.info("Processing %s." % inputfile)
@@ -48,6 +45,9 @@ class MediaProcessor:
                 output = self.process(inputfile, original=original, info=info)
 
                 if output:
+                    if not language:
+                        language = self.settings.taglanguage or self.getDefaultAudioLanguage(output["options"])
+
                     # Tag with metadata
                     try:
                         tag = Metadata(mediatype, tvdbid=tvdbid, tmdbid=tmdbid, imdbid=imdbid, season=season, episode=episode, original=original, language=language)
@@ -304,6 +304,12 @@ class MediaProcessor:
         except:
             self.log.exception("isValidSubtitleSource unexpectedly threw an exception, returning None")
             return None
+
+    def getDefaultAudioLanguage(self, options):
+        for a in options.get("audio", []):
+            if "+default" in a.get("disposition", "").lower():
+                self.log.debug("Default audio language is %s." % a.get("language"))
+                return a.get("language")
 
     # Get values for width and height to be passed to the tagging classes for proper HD tags
     def getDimensions(self, inputfile):
@@ -1568,7 +1574,10 @@ class MediaProcessor:
             sys.stdout.write('\r')
             sys.stdout.write('[{0}] {1}% '.format('#' * int(round(complete / divider)) + ' ' * int(round(width - (complete / divider))), complete))
             if debug and self.settings.detailedprogress:
-                sys.stdout.write("%s" % debug.strip())
+                if complete == 100:
+                    sys.stdout.write("%s" % debug.strip())
+                else:
+                    sys.stdout.write(" %s" % debug.strip())
             if newline:
                 sys.stdout.write('\n')
             sys.stdout.flush()
