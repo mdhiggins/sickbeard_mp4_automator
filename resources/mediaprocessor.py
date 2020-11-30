@@ -1252,7 +1252,7 @@ class MediaProcessor:
                 # If data about the original release is available, include that in the search to best chance at accurate subtitles
                 if original:
                     og = subliminal.Video.fromname(original)
-                    video.format = og.format
+                    video.source = og.source
                     video.release_group = og.release_group
                     video.resolution = og.resolution
 
