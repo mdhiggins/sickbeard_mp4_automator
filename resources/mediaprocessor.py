@@ -1251,7 +1251,9 @@ class MediaProcessor:
 
                 # If data about the original release is available, include that in the search to best chance at accurate subtitles
                 if original:
+                    self.log.debug("Found original filename, adding data from %s." % original)
                     og = subliminal.Video.fromname(original)
+                    self.log.debug("Source %s, release group %s, resolution %s." % (og.source, og.release_group, og.resolution))
                     video.source = og.source
                     video.release_group = og.release_group
                     video.resolution = og.resolution
