@@ -514,7 +514,7 @@ class MediaProcessor:
             vfilter = self.settings.hdr.get('filter')
             if self.settings.hdr.get('forcefilter'):
                 self.log.debug("Video HDR force filter is enabled. Video stream can no longer be copied [hdr-force-filter].")
-                vdebug = vdebug + ".hdr.force-filter"
+                vdebug = vdebug + ".hdr-force-filter"
                 vcodec = vcodecs[0]
         elif vfilter and self.settings.vforcefilter:
             self.log.debug("Video force filter is enabled. Video stream can no longer be copied [video-force-filter].")
@@ -538,7 +538,7 @@ class MediaProcessor:
             vpix_fmt = self.settings.hdr.get('pix_fmt')[0] if len(self.settings.hdr.get('pix_fmt')) else None
             if len(self.settings.hdr.get('pix_fmt')) > 0 and info.video.pix_fmt not in self.settings.hdr.get('pix_fmt'):
                 self.log.debug("Overriding video pix_fmt. Codec cannot be copied because pix_fmt is not approved [hdr-pix-fmt].")
-                vdebug = vdebug + ".hdr.pix-fmt"
+                vdebug = vdebug + ".hdr-pix-fmt"
                 vcodec = vcodecs[0]
         else:
             vpix_fmt = self.settings.pix_fmt[0] if len(self.settings.pix_fmt) else None
