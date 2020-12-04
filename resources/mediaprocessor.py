@@ -1389,7 +1389,7 @@ class MediaProcessor:
                         wp_y = int(side_data.get('white_point_y').split('/')[0])
                         min_l = int(side_data.get('min_luminance').split('/')[0])
                         max_l = int(side_data.get('max_luminance').split('/')[0])
-                        params += "master-display=G(%d,%d)B(%d,%d)R(%d,%d)WP(%d,%d)L(%d,%d):" % (red_x, red_y, blue_x, blue_y, green_x, green_y, wp_x, wp_y, min_l, max_l)
+                        params += "master-display=G(%d,%d)B(%d,%d)R(%d,%d)WP(%d,%d)L(%d,%d):" % (red_x, red_y, blue_x, blue_y, green_x, green_y, wp_x, wp_y, max_l, min_l)
                         pass
                     elif side_data.get('side_data_type') == 'Content light level metadata':
                         max_content = side_data.get('max_content')
