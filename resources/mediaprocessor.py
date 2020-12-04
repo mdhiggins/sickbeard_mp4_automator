@@ -454,34 +454,40 @@ class MediaProcessor:
         self.log.info("Profile: %s." % info.video.profile)
 
         vdebug = "video"
-        vcodec = "copy" if info.video.codec in self.settings.vcodec else self.settings.vcodec[0]
+        vHDR = self.isHDR(info.video)
+        if vHDR:
+            vdebug = vdebug + ".hdr"
+
+        vcodecs = self.settings.hdr.get('codec', []) if vHDR and len(self.settings.hdr.get('codec', [])) > 0 else self.settings.vcodec
+        self.log.debug("Pool of video codecs is %s." % (vcodecs))
+        vcodec = "copy" if info.video.codec in vcodecs else vcodecs[0]
 
         vbitrate_estimate = self.estimateVideoBitrate(info)
         vbitrate = vbitrate_estimate
         if self.settings.vmaxbitrate and vbitrate > self.settings.vmaxbitrate:
             self.log.debug("Overriding video bitrate. Codec cannot be copied because video bitrate is too high [video-max-bitrate].")
             vdebug = vdebug + ".max-bitrate"
-            vcodec = self.settings.vcodec[0]
+            vcodec = vcodecs[0]
             vbitrate = self.settings.vmaxbitrate
 
         vwidth = None
         if self.settings.vwidth and self.settings.vwidth < info.video.video_width:
             self.log.debug("Video width is over the max width, it will be downsampled. Video stream can no longer be copied [video-max-width].")
             vdebug = vdebug + ".max-width"
-            vcodec = self.settings.vcodec[0]
+            vcodec = vcodecs[0]
             vwidth = self.settings.vwidth
 
         vlevel = self.settings.video_level
         if self.settings.video_level and info.video.video_level and (info.video.video_level / 10 > self.settings.video_level):
             self.log.debug("Video level %0.1f. Codec cannot be copied because video level is too high [video-max-level]." % (info.video.video_level / 10))
             vdebug = vdebug + ".max-level"
-            vcodec = self.settings.vcodec[0]
+            vcodec = vcodecs[0]
 
         vprofile = self.settings.vprofile[0] if len(self.settings.vprofile) > 0 else None
         if len(self.settings.vprofile) > 0 and info.video.profile not in self.settings.vprofile:
             self.log.debug("Video profile is not supported. Video stream can no longer be copied [video-profile].")
             vdebug = vdebug + ".profile"
-            vcodec = self.settings.vcodec[0]
+            vcodec = vcodecs[0]
 
         vfieldorder = info.video.field_order
 
@@ -502,17 +508,17 @@ class MediaProcessor:
                     self.log.exception("Error setting VCRF profile information.")
 
         vfilter = self.settings.vfilter or None
-        vHDR = self.isHDR(info.video)
+
         if vHDR and self.settings.hdr.get('filter'):
             self.log.debug("Setting HDR filter [hdr-filter].")
             vfilter = self.settings.hdr.get('filter')
             if self.settings.hdr.get('forcefilter'):
                 self.log.debug("Video HDR force filter is enabled. Video stream can no longer be copied [hdr-force-filter].")
                 vdebug = vdebug + ".hdr.force-filter"
-                vcodec = self.settings.vcodec[0]
+                vcodec = vcodecs[0]
         elif vfilter and self.settings.vforcefilter:
             self.log.debug("Video force filter is enabled. Video stream can no longer be copied [video-force-filter].")
-            vcodec = self.settings.vcodec[0]
+            vcodec = vcodecs[0]
             vdebug = vdebug + ".force-filter"
 
         vpreset = self.settings.preset or None
@@ -533,13 +539,13 @@ class MediaProcessor:
             if len(self.settings.hdr.get('pix_fmt')) > 0 and info.video.pix_fmt not in self.settings.hdr.get('pix_fmt'):
                 self.log.debug("Overriding video pix_fmt. Codec cannot be copied because pix_fmt is not approved [hdr-pix-fmt].")
                 vdebug = vdebug + ".hdr.pix-fmt"
-                vcodec = self.settings.vcodec[0]
+                vcodec = vcodecs[0]
         else:
             vpix_fmt = self.settings.pix_fmt[0] if len(self.settings.pix_fmt) else None
             if len(self.settings.pix_fmt) > 0 and info.video.pix_fmt not in self.settings.pix_fmt:
                 self.log.debug("Overriding video pix_fmt. Codec cannot be copied because pix_fmt is not approved [pix-fmt].")
                 vdebug = vdebug + ".pix_fmt"
-                vcodec = self.settings.vcodec[0]
+                vcodec = vcodecs[0]
 
         self.log.debug("Video codec: %s." % vcodec)
         self.log.debug("Video bitrate: %s." % vbitrate)
@@ -891,7 +897,7 @@ class MediaProcessor:
             self.log.exception("Encountered an error while trying to determine which subtitle stream for subtitle burn [burn-subtitle].")
         if vfilter:
             self.log.debug("Found valid subtitle stream to burn into video, video cannot be copied [burn-subtitles].")
-            video_settings['codec'] = self.settings.vcodec[0]
+            video_settings['codec'] = vcodecs[0]
             if video_settings.get('filter'):
                 video_settings['filter'] = "%s, %s" % (video_settings['filter'], vfilter)
             else:
@@ -1157,7 +1163,7 @@ class MediaProcessor:
                     burn_sub = sub_candidates[0]
                     relative_index = burn_sub.index - first_index
                     self.log.info("Burning subtitle %d %s into video steram [burn-subtitles]." % (burn_sub.index, burn_sub.metadata['language']))
-                    self.log.debug("Video codec cannot be copied because valid burn subtitle was found, setting to %s [burn-subtitle: %s]." % (self.settings.vcodec[0], self.settings.burn_subtitles))
+                    self.log.debug("Video codec cannot be copied because valid burn subtitle was found [burn-subtitle: %s]." % (self.settings.burn_subtitles))
                     return "subtitles='%s':si=%d" % (self.raw(os.path.abspath(inputfile)), relative_index)
 
             if self.settings.embedsubs:

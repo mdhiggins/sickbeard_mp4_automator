@@ -141,6 +141,7 @@ class ReadSettings:
             'force-filter': False,
         },
         'HDR': {
+            'codec': '',
             'pix-fmt': '',
             'space': 'bt2020nc',
             'transfer': 'smpte2084',
@@ -689,6 +690,7 @@ class ReadSettings:
         # HDR
         section = "HDR"
         self.hdr = {}
+        self.hdr['codec'] = config.getlist(section, 'codec')
         self.hdr['pix_fmt'] = config.getlist(section, "pix-fmt")
         self.hdr['space'] = config.getlist(section, 'space')
         self.hdr['transfer'] = config.getlist(section, 'transfer')
