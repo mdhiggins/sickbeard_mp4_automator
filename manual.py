@@ -224,7 +224,9 @@ def processFile(inputfile, mp, info=None, relativePath=None, silent=False, tag=T
 
     output = mp.process(inputfile, True, original=original)
     if output:
+        log.debug("Tag language is set to %s." % settings.taglanguage)
         language = settings.taglanguage or mp.getDefaultAudioLanguage(output["options"])
+        log.debug("Using language %s for tagging." % language)
         tagdata = getInfo(inputfile, silent, tag=tag, tmdbid=tmdbid, tvdbid=tvdbid, imdbid=imdbid, season=season, episode=episode, language=language, original=original)
 
         if not tagdata:

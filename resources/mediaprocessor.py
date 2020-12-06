@@ -45,9 +45,10 @@ class MediaProcessor:
                 output = self.process(inputfile, original=original, info=info)
 
                 if output:
+                    self.log.debug("Tag language is set to %s." % self.settings.taglanguage)
                     if not language:
                         language = self.settings.taglanguage or self.getDefaultAudioLanguage(output["options"])
-
+                    self.log.debug("Using language %s for tagging." % language)
                     # Tag with metadata
                     try:
                         tag = Metadata(mediatype, tvdbid=tvdbid, tmdbid=tmdbid, imdbid=imdbid, season=season, episode=episode, original=original, language=language)
