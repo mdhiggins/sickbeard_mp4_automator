@@ -107,6 +107,9 @@ class SkipFileException(Exception):
 
 
 def getInfo(fileName=None, silent=False, tag=True, tvdbid=None, tmdbid=None, imdbid=None, season=None, episode=None, language=None, original=None):
+    if not tag:
+        return None
+
     tagdata = None
     # Try to guess the file is guessing is enabled
     if fileName is not None:
@@ -224,9 +227,8 @@ def processFile(inputfile, mp, info=None, relativePath=None, silent=False, tag=T
 
     output = mp.process(inputfile, True, original=original)
     if output:
-        log.debug("Tag language is set to %s." % settings.taglanguage)
-        language = settings.taglanguage or mp.getDefaultAudioLanguage(output["options"])
-        log.debug("Using language %s for tagging." % language)
+        language = settings.taglanguage or mp.getDefaultAudioLanguage(output["options"]) or None
+        log.debug("Tag language settig is %s, using language %s for tagging." % (settings.taglanguage or None, language))
         tagdata = getInfo(inputfile, silent, tag=tag, tmdbid=tmdbid, tvdbid=tvdbid, imdbid=imdbid, season=season, episode=episode, language=language, original=original)
 
         if not tagdata:
