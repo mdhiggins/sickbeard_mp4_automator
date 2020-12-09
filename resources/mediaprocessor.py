@@ -1370,6 +1370,12 @@ class MediaProcessor:
         self.log.debug("Output file: %s." % outputfile)
         return outputfile, output_dir
 
+    def parseAndNormalize(self, inputstring, denominator, splitter="/"):
+        n, d = [float(x) for x in inputstring.split(splitter)]
+        if d == denominator:
+            return n
+        return int(round((n / d) * denominator))
+
     def generateParams(self, framedata, hdr):
         try:
             params = ""
@@ -1385,17 +1391,17 @@ class MediaProcessor:
             if 'side_data_list' in framedata:
                 for side_data in framedata['side_data_list']:
                     if side_data.get('side_data_type') == 'Mastering display metadata':
-                        red_x = int(side_data.get('red_x').split('/')[0])
-                        red_y = int(side_data.get('red_y').split('/')[0])
-                        green_x = int(side_data.get('green_x').split('/')[0])
-                        green_y = int(side_data.get('green_y').split('/')[0])
-                        blue_x = int(side_data.get('blue_x').split('/')[0])
-                        blue_y = int(side_data.get('blue_y').split('/')[0])
-                        wp_x = int(side_data.get('white_point_x').split('/')[0])
-                        wp_y = int(side_data.get('white_point_y').split('/')[0])
-                        min_l = int(side_data.get('min_luminance').split('/')[0])
-                        max_l = int(side_data.get('max_luminance').split('/')[0])
-                        params += "master-display=G(%d,%d)B(%d,%d)R(%d,%d)WP(%d,%d)L(%d,%d):" % (red_x, red_y, blue_x, blue_y, green_x, green_y, wp_x, wp_y, max_l, min_l)
+                        red_x = self.parseAndNormalize(side_data.get('red_x'), 50000)
+                        red_y = self.parseAndNormalize(side_data.get('red_y'), 50000)
+                        green_x = self.parseAndNormalize(side_data.get('green_x'), 50000)
+                        green_y = self.parseAndNormalize(side_data.get('green_y'), 50000)
+                        blue_x = self.parseAndNormalize(side_data.get('blue_x'), 50000)
+                        blue_y = self.parseAndNormalize(side_data.get('blue_y'), 50000)
+                        wp_x = self.parseAndNormalize(side_data.get('white_point_x'), 50000)
+                        wp_y = self.parseAndNormalize(side_data.get('white_point_y'), 50000)
+                        min_l = self.parseAndNormalize(side_data.get('min_luminance'), 10000)
+                        max_l = self.parseAndNormalize(side_data.get('max_luminance'), 10000)
+                        params += "master-display=G(%d,%d)B(%d,%d)R(%d,%d)WP(%d,%d)L(%d,%d):" % (green_x, green_y, blue_x, blue_y, red_x, red_y, wp_x, wp_y, max_l, min_l)
                         pass
                     elif side_data.get('side_data_type') == 'Content light level metadata':
                         max_content = side_data.get('max_content')
