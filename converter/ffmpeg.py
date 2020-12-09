@@ -524,6 +524,7 @@ class FFMpeg(object):
                 '-select_streams', 'v', '-print_format', 'json',
                 '-show_frames', '-read_intervals', '%+#1',
                 '-show_entries', 'frame=color_space,color_primaries,color_transfer,side_data_list,pix_fmt',
+                '-probesize', '50M', '-analyzeduration', '100M',
                 '-i', fname])
             return json.loads(stdout_data)['frames'][0]
         except:
