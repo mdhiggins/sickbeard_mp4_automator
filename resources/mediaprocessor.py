@@ -284,7 +284,7 @@ class MediaProcessor:
                 return None
             if validation:
                 try:
-                    if not validation(self, info):
+                    if not validation(self, info, inputfile):
                         self.log.debug("Failed custom validation check, file is not valid.")
                         return None
                 except:
