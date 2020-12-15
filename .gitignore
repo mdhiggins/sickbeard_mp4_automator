@@ -7,6 +7,7 @@ update.py
 *.sh
 *.bat
 *.backup
+config/custom.py
 
 #################
 ## Eclipse

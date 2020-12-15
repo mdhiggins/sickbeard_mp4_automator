@@ -25,6 +25,10 @@ try:
     from pymediainfo import MediaInfo
 except:
     MediaInfo = None
+try:
+    from config.custom import validation
+except:
+    validation = None
 
 
 class MediaProcessor:
@@ -273,11 +277,18 @@ class MediaProcessor:
                 self.log.debug("Invalid source, no data returned.")
                 return None
             if not info.video:
-                self.log.debug("Invalid source, no video stream detected")
+                self.log.debug("Invalid source, no video stream detected.")
                 return None
             if not info.audio or len(info.audio) < 1:
-                self.log.debug("Invalid source, no audio stream detected")
+                self.log.debug("Invalid source, no audio stream detected.")
                 return None
+            if validation:
+                try:
+                    if not validation(self, info):
+                        self.log.debug("Failed custom validation check, file is not valid.")
+                        return None
+                except:
+                    self.log.exception("Custom validation check error.")
             if MediaInfo:
                 try:
                     media_info = MediaInfo.parse(inputfile)
@@ -287,11 +298,11 @@ class MediaProcessor:
                             stream = info.streams[so]
                             stream.metadata['title'] = track.title
                 except:
-                    self.log.exception("Pymediainfo exception")
+                    self.log.exception("Pymediainfo exception.")
                     pass
             return info
         except:
-            self.log.exception("isValidSource unexpectedly threw an exception, returning None")
+            self.log.exception("isValidSource unexpectedly threw an exception, returning None.")
             return None
 
     def isValidSubtitleSource(self, inputfile):
@@ -302,7 +313,7 @@ class MediaProcessor:
                     return None
             return info
         except:
-            self.log.exception("isValidSubtitleSource unexpectedly threw an exception, returning None")
+            self.log.exception("isValidSubtitleSource unexpectedly threw an exception, returning None.")
             return None
 
     def getDefaultAudioLanguage(self, options):
@@ -530,7 +541,7 @@ class MediaProcessor:
             vparams = self.settings.hdr.get('codec_params')
 
         if self.settings.dynamic_params:
-            gparams = self.generateParams(self.converter.framedata(inputfile), vHDR)
+            gparams = self.generateParams(info.video.framedata, vHDR)
             if gparams:
                 vparams = vparams + ":" + gparams if vparams and len(vparams) > 0 else gparams
 
@@ -1375,6 +1386,16 @@ class MediaProcessor:
         if d == denominator:
             return n
         return int(round((n / d) * denominator))
+
+    def hasValidFrameData(self, framedata):
+        try:
+            if 'side_data_list' in framedata:
+                types = [x['side_data_type'] for x in framedata['side_data_list'] if 'side_data_type' in x]
+                if 'Mastering display metadata' in types and 'Content light level metadata' in types:
+                    return True
+            return False
+        except:
+            return False
 
     def generateParams(self, framedata, hdr):
         try:

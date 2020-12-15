@@ -1,0 +1,7 @@
+def validation(mp, info):
+    mp.log.info("Initiating custom validation method.")
+    if mp.isHDR(info.video):
+        hasValidFrameData = mp.hasValidFrameData(info.video.framedata)
+        mp.log.info("ValidFrameData is %s" % hasValidFrameData)
+        return hasValidFrameData
+    return True

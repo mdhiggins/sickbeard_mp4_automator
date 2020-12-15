@@ -136,6 +136,7 @@ class MediaStreamInfo(object):
         self.metadata = {}
         self.disposition = {}
         self.color = {}
+        self.framedata = {}
 
     @property
     def json(self):
@@ -157,6 +158,7 @@ class MediaStreamInfo(object):
             out['pix_fmt'] = self.pix_fmt
             out['profile'] = self.profile
             out['fps'] = self.fps
+            out['framedata'] = self.framedata
             if self.video_width and self.video_height:
                 out['dimensions'] = "%dx%d" % (self.video_width, self.video_height)
             if self.video_level:
@@ -321,6 +323,7 @@ class MediaInfo(object):
         self.format = MediaFormatInfo()
         self.posters_as_video = posters_as_video
         self.streams = []
+        self.framedata = []
         self.path = None
 
     @property
@@ -567,6 +570,11 @@ class FFMpeg(object):
 
         if not info.format.format and len(info.streams) == 0:
             return None
+
+        try:
+            info.video.framedata = self.framedata(fname)
+        except:
+            pass
 
         return info
 
