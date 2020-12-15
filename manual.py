@@ -225,7 +225,7 @@ def processFile(inputfile, mp, info=None, relativePath=None, silent=False, tag=T
         log.debug("Invalid file %s." % inputfile)
         return
 
-    output = mp.process(inputfile, True, original=original)
+    output = mp.process(inputfile, True, info=info, original=original)
     if output:
         language = settings.taglanguage or mp.getDefaultAudioLanguage(output["options"]) or None
         log.debug("Tag language settig is %s, using language %s for tagging." % (settings.taglanguage or None, language))
