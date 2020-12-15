@@ -1,4 +1,5 @@
 def validation(mp, info, path):
+    # Custom function that skips HDR files that are missing proper HDR metadata / framedata
     mp.log.info("Initiating custom validation method.")
     if mp.isHDR(info.video):
         hasValidFrameData = mp.hasValidFrameData(info.video.framedata)
