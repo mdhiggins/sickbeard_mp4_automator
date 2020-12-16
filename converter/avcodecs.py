@@ -1107,7 +1107,6 @@ class H265QSVCodec(H265Codec):
     codec_name = 'h265qsv'
     ffmpeg_codec_name = 'hevc_qsv'
     scale_filter = 'scale_qsv'
-    codec_params = 'qsv_params'
 
 
 class H265QSVCodecAlt(H265QSVCodec):
@@ -1115,6 +1114,14 @@ class H265QSVCodecAlt(H265QSVCodec):
     HEVC video codec alternate.
     """
     codec_name = 'hevcqsv'
+
+
+class H265QSVCodecPatched(H265QSVCodec):
+    """
+    HEVC video codec alternate.
+    """
+    codec_name = 'hevcqsvpatched'
+    codec_params = 'qsv_params'
 
 
 class H265VAAPICodec(H265Codec):
@@ -1384,7 +1391,8 @@ audio_codec_list = [
 ]
 
 video_codec_list = [
-    VideoNullCodec, VideoCopyCodec, TheoraCodec, H264Codec, H264CodecAlt, H264QSVCodec, H265QSVCodecAlt, H265QSVCodec, H265Codec, H265CodecAlt,
+    VideoNullCodec, VideoCopyCodec, TheoraCodec, H264Codec, H264CodecAlt, H264QSVCodec, 
+    H265QSVCodecAlt, H265QSVCodec, H265Codec, H265CodecAlt, H265QSVCodecPatched,
     DivxCodec, Vp8Codec, H263Codec, FlvCodec, Mpeg1Codec, NVEncH264Codec, NVEncH265Codec, NVEncH265CodecAlt,
     Mpeg2Codec, H264VAAPICodec, H265VAAPICodec, OMXH264Codec, VideotoolboxEncH264, VideotoolboxEncH265
 ]
