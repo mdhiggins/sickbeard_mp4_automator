@@ -855,6 +855,7 @@ class H264Codec(VideoCodec):
     """
     codec_name = 'h264'
     ffmpeg_codec_name = 'libx264'
+    codec_params = 'x264-params'
     encoder_options = VideoCodec.encoder_options.copy()
     encoder_options.update({
         'preset': str,  # common presets are ultrafast, superfast, veryfast,
@@ -864,7 +865,7 @@ class H264Codec(VideoCodec):
         'tune': str,  # default: not-set, for valid values see above link
         'wscale': int,  # special handlers for the even number requirements of h264
         'hscale': int,  # special handlers for the even number requirements of h264
-        'params': str  # x265-params
+        'params': str  # x264-params
     })
     scale_filter = 'scale'
 
@@ -892,7 +893,7 @@ class H264Codec(VideoCodec):
         if 'level' in safe:
             optlist.extend(['-level', '%0.1f' % safe['level']])
         if 'params' in safe:
-            optlist.extend(['-x264-params', safe['params']])
+            optlist.extend(['-%s' % self.codec_params, safe['params']])
         if 'tune' in safe:
             optlist.extend(['-tune', safe['tune']])
         if 'wscale' in safe and 'hscale' in safe:
@@ -1040,6 +1041,7 @@ class H265Codec(VideoCodec):
     """
     codec_name = 'h265'
     ffmpeg_codec_name = 'libx265'
+    codec_params = 'x265-params'
     encoder_options = VideoCodec.encoder_options.copy()
     encoder_options.update({
         'preset': str,  # common presets are ultrafast, superfast, veryfast,
@@ -1078,7 +1080,7 @@ class H265Codec(VideoCodec):
         if 'level' in safe:
             optlist.extend(['-level', '%0.1f' % safe['level']])
         if 'params' in safe:
-            optlist.extend(['-x265-params', safe['params']])
+            optlist.extend(['-%s' % self.codec_params, safe['params']])
         if 'tune' in safe:
             optlist.extend(['-tune', safe['tune']])
         if 'wscale' in safe and 'hscale' in safe:
@@ -1105,6 +1107,7 @@ class H265QSVCodec(H265Codec):
     codec_name = 'h265qsv'
     ffmpeg_codec_name = 'hevc_qsv'
     scale_filter = 'scale_qsv'
+    codec_params = 'qsv_params'
 
 
 class H265QSVCodecAlt(H265QSVCodec):
