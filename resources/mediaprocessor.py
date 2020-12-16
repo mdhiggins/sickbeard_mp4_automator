@@ -53,6 +53,7 @@ class MediaProcessor:
                         language = self.settings.taglanguage or self.getDefaultAudioLanguage(output["options"]) or None
                     self.log.debug("Tag language settig is %s, using language %s for tagging." % (self.settings.taglanguage or None, language))
                     # Tag with metadata
+                    tagfailed = False
                     try:
                         tag = Metadata(mediatype, tvdbid=tvdbid, tmdbid=tmdbid, imdbid=imdbid, season=season, episode=episode, original=original, language=language)
                         tmdbid = tag.tmdbid
@@ -61,9 +62,10 @@ class MediaProcessor:
                             tag.writeTags(output['output'], self.converter, self.settings.artwork, self.settings.thumbnail, output['x'], output['y'])
                     except:
                         self.log.exception("Unable to tag file")
+                        tagfailed = True
 
                     # QTFS
-                    if self.settings.relocate_moov:
+                    if self.settings.relocate_moov and not tagfailed:
                         self.QTFS(output['output'])
 
                     # Permissions

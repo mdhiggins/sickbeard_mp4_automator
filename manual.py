@@ -238,12 +238,14 @@ def processFile(inputfile, mp, info=None, relativePath=None, silent=False, tag=T
         elif tagdata.mediatype == MediaType.TV:
             log.info("Processing %s Season %02d Episode %02d - %s" % (tagdata.showname, int(tagdata.season), int(tagdata.episode), tagdata.title))
 
+        tagfailed = False
         if tagdata:
             try:
                 tagdata.writeTags(output['output'], mp.converter, settings.artwork, settings.thumbnail, width=output['x'], height=output['y'])
             except:
                 log.exception("There was an error tagging the file")
-        if settings.relocate_moov:
+                tagfailed = True
+        if settings.relocate_moov and not tagfailed:
             mp.QTFS(output['output'])
         output_files = mp.replicate(output['output'], relativePath=relativePath)
         for file in output_files:
