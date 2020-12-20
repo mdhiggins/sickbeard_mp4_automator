@@ -1123,6 +1123,12 @@ class H265QSVCodecPatched(H265QSVCodec):
     codec_name = 'hevcqsvpatched'
     codec_params = 'qsv_params'
 
+    def _codec_specific_parse_options(self, safe, stream=0):
+        if 'params' in safe:
+            safe['params'] = safe['params'].replace("hdr-opt=1:", "")
+            safe['params'] = safe['params'].replace("repeat-headers=1:", "")
+        return safe
+
 
 class H265VAAPICodec(H265Codec):
     """
