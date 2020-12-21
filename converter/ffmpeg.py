@@ -524,7 +524,7 @@ class FFMpeg(object):
         try:
             stdout_data = self._get_stdout([
                 self.ffprobe_path, '-hide_banner', '-loglevel', 'warning',
-                '-select_streams', 'v', '-print_format', 'json',
+                '-select_streams', 'v:0', '-print_format', 'json',
                 '-show_frames', '-read_intervals', '%+#1',
                 '-show_entries', 'frame=color_space,color_primaries,color_transfer,side_data_list,pix_fmt',
                 '-probesize', '50M', '-analyzeduration', '100M',
