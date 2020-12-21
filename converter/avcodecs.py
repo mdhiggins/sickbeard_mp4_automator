@@ -1163,6 +1163,10 @@ class H265QSVCodecAlt(H265QSVCodec):
 class H265QSVCodecPatched(H265QSVCodec):
     """
     HEVC QSV alternate designed to work with patched FFMPEG that supports HDR metadata.
+    Patch
+        https://patchwork.ffmpeg.org/project/ffmpeg/patch/20201202131826.10558-1-omondifredrick@gmail.com/
+    Github issue
+        https://github.com/mdhiggins/sickbeard_mp4_automator/issues/1366
     """
     codec_name = 'hevcqsvpatched'
     codec_params = 'qsv_params'
