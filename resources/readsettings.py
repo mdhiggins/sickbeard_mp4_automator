@@ -89,7 +89,7 @@ class ReadSettings:
             'ffmpeg': 'ffmpeg' if os.name != 'nt' else 'ffmpeg.exe',
             'ffprobe': 'ffprobe' if os.name != 'nt' else 'ffprobe.exe',
             'threads': 0,
-            'hwaccels': 'dxva2, cuvid, qsv, d3d11va, vaapi',
+            'hwaccels': '',
             'hwaccel-decoders': 'h264_cuvid, mjpeg_cuvid, mpeg1_cuvid, mpeg2_cuvid, mpeg4_cuvid, vc1_cuvid, hevc_qsv, h264_qsv, hevc_vaapi, h264_vaapi',
             'hwdevices': 'vaapi:/dev/dri/renderD128',
             'hwaccel-output-format': 'vaapi:vaapi',
