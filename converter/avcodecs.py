@@ -45,6 +45,10 @@ class BaseCodec(object):
                 dispo += '-' + d
         return dispo
 
+    def safe_framedata(self, opts):
+        safe = ""
+        return safe
+
     def safe_options(self, opts):
         safe = {}
 
@@ -1051,7 +1055,8 @@ class H265Codec(VideoCodec):
         'tune': str,  # default: not-set, for valid values see above link
         'wscale': int,  # special handlers for the even number requirements of h265
         'hscale': int,  # special handlers for the even number requirements of h265
-        'params': str  # x265-params
+        'params': str,  # x265-params
+        'framedata': dict  # dynamic params for framedata
     })
     scale_filter = 'scale'
 
@@ -1066,6 +1071,38 @@ class H265Codec(VideoCodec):
             del(safe['height'])
         return safe
 
+    def safe_framedata(self, opts):
+        params = ""
+        if 'hdr' in opts and opts['hdr']:
+            params += "hdr-opt=1:"
+        if 'repeat-headers' in opts and opts['repeat-headers']:
+            params += "repeat-headers=1:"
+        if 'color_primaries' in opts:
+            params += "colorprim=" + opts['color_primaries'] + ":"
+        if 'color_transfer' in opts:
+            params += "transfer=" + opts['color_transfer'] + ":"
+        if 'color_space' in opts:
+            params += "colormatrix=" + opts['color_space'] + ":"
+        if 'side_data_list' in opts:
+            for side_data in opts['side_data_list']:
+                if side_data.get('side_data_type') == 'Mastering display metadata':
+                    red_x = side_data['red_x']
+                    red_y = side_data['red_y']
+                    green_x = side_data['green_x']
+                    green_y = side_data['green_y']
+                    blue_x = side_data['blue_x']
+                    blue_y = side_data['blue_y']
+                    wp_x = side_data['white_point_x']
+                    wp_y = side_data['white_point_y']
+                    min_l = side_data['min_luminance']
+                    max_l = side_data['max_luminance']
+                    params += "master-display=G(%d,%d)B(%d,%d)R(%d,%d)WP(%d,%d)L(%d,%d):" % (green_x, green_y, blue_x, blue_y, red_x, red_y, wp_x, wp_y, max_l, min_l)
+                elif side_data.get('side_data_type') == 'Content light level metadata':
+                    max_content = side_data['max_content']
+                    max_average = side_data['max_average']
+                    params += "max-cll=%d,%d:" % (max_content, max_average)
+        return params[:-1]
+
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         optlist = []
 
@@ -1079,8 +1116,18 @@ class H265Codec(VideoCodec):
             optlist.extend(['-profile:v', safe['profile']])
         if 'level' in safe:
             optlist.extend(['-level', '%0.1f' % safe['level']])
+        params = ""
         if 'params' in safe:
-            optlist.extend(['-%s' % self.codec_params, safe['params']])
+            params = safe['params']
+        if 'framedata' in safe:
+            print("framedata is in safe")
+            print(safe['framedata'])
+            if params:
+                params = params + ":"
+            params = params + self.safe_framedata(safe['framedata'])
+            print(params)
+        if params:
+            optlist.extend(['-%s' % self.codec_params, params])
         if 'tune' in safe:
             optlist.extend(['-tune', safe['tune']])
         if 'wscale' in safe and 'hscale' in safe:
@@ -1118,16 +1165,41 @@ class H265QSVCodecAlt(H265QSVCodec):
 
 class H265QSVCodecPatched(H265QSVCodec):
     """
-    HEVC video codec alternate.
+    HEVC QSV alternate designed to work with patched FFMPEG that supports HDR metadata.
     """
     codec_name = 'hevcqsvpatched'
     codec_params = 'qsv_params'
 
-    def _codec_specific_parse_options(self, safe, stream=0):
-        if 'params' in safe:
-            safe['params'] = safe['params'].replace("hdr-opt=1:", "")
-            safe['params'] = safe['params'].replace("repeat-headers=1:", "")
-        return safe
+    def safe_framedata(self, opts):
+        params = ""
+        if 'color_primaries' in opts:
+            params += "colorprim=" + opts['color_primaries'] + ":"
+        if 'color_transfer' in opts:
+            params += "transfer=" + opts['color_transfer'] + ":"
+        if 'color_space' in opts:
+            params += "colormatrix=" + opts['color_space'] + ":"
+        if 'side_data_list' in opts:
+            for side_data in opts['side_data_list']:
+                if side_data.get('side_data_type') == 'Mastering display metadata':
+                    red_x = side_data['red_x']
+                    red_y = side_data['red_y']
+                    green_x = side_data['green_x']
+                    green_y = side_data['green_y']
+                    blue_x = side_data['blue_x']
+                    blue_y = side_data['blue_y']
+                    wp_x = side_data['white_point_x']
+                    wp_y = side_data['white_point_y']
+                    min_l = side_data['min_luminance']
+                    max_l = side_data['max_luminance']
+                    params += "master-display=G(%d,%d)B(%d,%d)R(%d,%d)WP(%d,%d)L(%d,%d):" % (green_x, green_y, blue_x, blue_y, red_x, red_y, wp_x, wp_y, max_l, min_l)
+                elif side_data.get('side_data_type') == 'Content light level metadata':
+                    max_content = side_data['max_content']
+                    max_content = 1000 if max_content > 1000 else max_content
+                    max_average = side_data['max_average']
+                    max_average = 400 if max_average < 400 else max_average
+                    max_content = max_average if max_content < max_average else max_content
+                    params += "max-cll=%d,%d:" % (max_content, max_average)
+        return params[:-1]
 
 
 class H265VAAPICodec(H265Codec):

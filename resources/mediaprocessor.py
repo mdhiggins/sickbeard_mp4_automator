@@ -542,10 +542,7 @@ class MediaProcessor:
         if vHDR and self.settings.hdr.get('codec_params'):
             vparams = self.settings.hdr.get('codec_params')
 
-        if self.settings.dynamic_params:
-            gparams = self.generateParams(info.video.framedata, vHDR)
-            if gparams:
-                vparams = vparams + ":" + gparams if vparams and len(vparams) > 0 else gparams
+        vframedata = self.normalizeFramedata(info.video.framedata, vHDR) if self.settings.dynamic_params else None
 
         if vHDR and self.settings.hdr.get('pix_fmt'):
             vpix_fmt = self.settings.hdr.get('pix_fmt')[0] if len(self.settings.hdr.get('pix_fmt')) else None
@@ -590,6 +587,7 @@ class MediaProcessor:
             'width': vwidth,
             'filter': vfilter,
             'params': vparams,
+            'framedata': vframedata,
             'title': self.videoStreamTitle(width=vwidth, hdr=vHDR, swidth=info.video.video_width, sheight=info.video.video_height),
             'debug': vdebug,
         }
@@ -1399,43 +1397,28 @@ class MediaProcessor:
         except:
             return False
 
-    def generateParams(self, framedata, hdr):
+    def normalizeFramedata(self, framedata, hdr):
         try:
-            params = ""
             if hdr:
-                params += "hdr-opt=1:"
-            params += "repeat-headers=1:"
-            if 'color_primaries' in framedata:
-                params += "colorprim=" + framedata['color_primaries'] + ":"
-            if 'color_transfer' in framedata:
-                params += "transfer=" + framedata['color_transfer'] + ":"
-            if 'color_space' in framedata:
-                params += "colormatrix=" + framedata['color_space'] + ":"
+                framedata['hdr'] = True
+                framedata['repeat-headers'] = True
             if 'side_data_list' in framedata:
                 for side_data in framedata['side_data_list']:
                     if side_data.get('side_data_type') == 'Mastering display metadata':
-                        red_x = self.parseAndNormalize(side_data.get('red_x'), 50000)
-                        red_y = self.parseAndNormalize(side_data.get('red_y'), 50000)
-                        green_x = self.parseAndNormalize(side_data.get('green_x'), 50000)
-                        green_y = self.parseAndNormalize(side_data.get('green_y'), 50000)
-                        blue_x = self.parseAndNormalize(side_data.get('blue_x'), 50000)
-                        blue_y = self.parseAndNormalize(side_data.get('blue_y'), 50000)
-                        wp_x = self.parseAndNormalize(side_data.get('white_point_x'), 50000)
-                        wp_y = self.parseAndNormalize(side_data.get('white_point_y'), 50000)
-                        min_l = self.parseAndNormalize(side_data.get('min_luminance'), 10000)
-                        max_l = self.parseAndNormalize(side_data.get('max_luminance'), 10000)
-                        params += "master-display=G(%d,%d)B(%d,%d)R(%d,%d)WP(%d,%d)L(%d,%d):" % (green_x, green_y, blue_x, blue_y, red_x, red_y, wp_x, wp_y, max_l, min_l)
-                        pass
-                    elif side_data.get('side_data_type') == 'Content light level metadata':
-                        max_content = side_data.get('max_content')
-                        max_average = side_data.get('max_average')
-                        params += "max-cll=%d,%d:" % (max_content, max_average)
-                        pass
-            self.log.debug(params[:-1])
-            return params[:-1]
+                        side_data['red_x'] = self.parseAndNormalize(side_data.get('red_x'), 50000)
+                        side_data['red_y'] = self.parseAndNormalize(side_data.get('red_y'), 50000)
+                        side_data['green_x'] = self.parseAndNormalize(side_data.get('green_x'), 50000)
+                        side_data['green_y'] = self.parseAndNormalize(side_data.get('green_y'), 50000)
+                        side_data['blue_x'] = self.parseAndNormalize(side_data.get('blue_x'), 50000)
+                        side_data['blue_y'] = self.parseAndNormalize(side_data.get('blue_y'), 50000)
+                        side_data['white_point_x'] = self.parseAndNormalize(side_data.get('white_point_x'), 50000)
+                        side_data['white_point_y'] = self.parseAndNormalize(side_data.get('white_point_y'), 50000)
+                        side_data['min_luminance'] = self.parseAndNormalize(side_data.get('min_luminance'), 10000)
+                        side_data['max_luminance'] = self.parseAndNormalize(side_data.get('max_luminance'), 10000)
+                        break
+            return framedata
         except:
-            self.log.exception("Error while trying to generate params")
-            return ""
+            return framedata
 
     def isHDR(self, videostream):
         if len(self.settings.hdr['space']) < 1 and len(self.settings.hdr['transfer']) < 1 and len(self.settings.hdr['primaries']) < 1:
