@@ -78,6 +78,7 @@ Radarr Setup
     - `On Rename` - No
     - `Path` - Full path to your python executable
     - `Arguments` - Full path to `postRadarr.py`
+    - For Radarr V3 you'll need to make a .sh or .bat file to combine your path to python and script
 
 Sickbeard Setup
 --------------
