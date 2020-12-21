@@ -1120,12 +1120,9 @@ class H265Codec(VideoCodec):
         if 'params' in safe:
             params = safe['params']
         if 'framedata' in safe:
-            print("framedata is in safe")
-            print(safe['framedata'])
             if params:
                 params = params + ":"
             params = params + self.safe_framedata(safe['framedata'])
-            print(params)
         if params:
             optlist.extend(['-%s' % self.codec_params, params])
         if 'tune' in safe:
