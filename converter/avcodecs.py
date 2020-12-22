@@ -1191,7 +1191,9 @@ class H265QSVCodecPatched(H265QSVCodec):
                     wp_x = side_data['white_point_x']
                     wp_y = side_data['white_point_y']
                     min_l = side_data['min_luminance']
+                    min_l = 50 if min_l < 50 else min_l
                     max_l = side_data['max_luminance']
+                    max_l = 10000000 if max_l > 10000000 else max_l
                     params += "master-display=G(%d,%d)B(%d,%d)R(%d,%d)WP(%d,%d)L(%d,%d):" % (green_x, green_y, blue_x, blue_y, red_x, red_y, wp_x, wp_y, min_l, max_l)
                 elif side_data.get('side_data_type') == 'Content light level metadata':
                     max_content = side_data['max_content']
