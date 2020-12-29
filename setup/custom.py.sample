@@ -1,3 +1,9 @@
+'''
+All of these functions are optional, you can define a single function or all of them depending on your use case
+Samples of the 3 included functions are provided as a reference
+'''
+
+
 def validation(mp, info, path):
     # Custom function that skips HDR files that are missing proper HDR metadata / framedata
     mp.log.info("Initiating custom validation method.")
@@ -7,10 +13,12 @@ def validation(mp, info, path):
         return hasValidFrameData
     return True
 
+
 def blockVideoCopy(mp, stream, path):
     # Custom function that performs additional check to see if video should not copy
     mp.log.info("Initiating custom video copy check method.")
     return False
+
 
 def blockAudioCopy(mp, stream, path):
     # Custom function that skips HDR files that are missing proper HDR metadata / framedata
