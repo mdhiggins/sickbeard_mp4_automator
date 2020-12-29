@@ -6,3 +6,13 @@ def validation(mp, info, path):
         mp.log.info("ValidFrameData is %s" % hasValidFrameData)
         return hasValidFrameData
     return True
+
+def blockVideoCopy(mp, stream, path):
+    # Custom function that performs additional check to see if video should not copy
+    mp.log.info("Initiating custom video copy check method.")
+    return False
+
+def blockAudioCopy(mp, stream, path):
+    # Custom function that skips HDR files that are missing proper HDR metadata / framedata
+    mp.log.info("Initiating custom audio copy check method.")
+    return False

@@ -25,10 +25,20 @@ try:
     from pymediainfo import MediaInfo
 except:
     MediaInfo = None
+
+# Custom Functions
 try:
     from config.custom import validation
 except:
     validation = None
+try:
+    from config.custom import blockVideoCopy
+except:
+    blockVideoCopy = None
+try:
+    from config.custom import blockAudioCopy
+except:
+    blockAudioCopy = None
 
 
 class MediaProcessor:
@@ -475,6 +485,15 @@ class MediaProcessor:
         self.log.debug("Pool of video codecs is %s." % (vcodecs))
         vcodec = "copy" if info.video.codec in vcodecs else vcodecs[0]
 
+        # Custom
+        try:
+            if blockVideoCopy and blockVideoCopy(self, info.video, inputfile):
+                self.log.exception("Custom video stream copy check is preventing copying the stream.")
+                vdebug = vdebug + ".custom"
+                vcodec = vcodecs[0]
+        except:
+            self.log.exception("Custom video stream copy check error.")
+
         vbitrate_estimate = self.estimateVideoBitrate(info)
         vbitrate = vbitrate_estimate
         if self.settings.vmaxbitrate and vbitrate > self.settings.vmaxbitrate:
@@ -674,6 +693,15 @@ class MediaProcessor:
                     abitrate = (a.audio_channels * self.default_channel_bitrate) if (a.audio_channels * self.settings.ua_bitrate) > (a.audio_channels * self.default_channel_bitrate) else (a.audio_channels * self.settings.ua_bitrate)
                     adebug = "universal-audio"
 
+                    # Custom
+                    try:
+                        if blockAudioCopy and blockAudioCopy(self, a, inputfile):
+                            self.log.exception("Custom audio stream copy check is preventing copying the stream.")
+                            adebug = adebug + ".custom"
+                            acodec = self.settings.ua[0]
+                    except:
+                        self.log.exception("Custom audio stream copy check error.")
+
                     # UA Filters
                     afilter = self.settings.ua_filter or None
                     if afilter and self.settings.ua_forcefilter:
@@ -700,6 +728,15 @@ class MediaProcessor:
                     else:
                         audio_channels = a.audio_channels
                         abitrate = a.audio_channels * self.settings.abitrate
+
+                    # Custom
+                    try:
+                        if blockAudioCopy and blockAudioCopy(self, a, inputfile):
+                            self.log.exception("Custom audio stream copy check is preventing copying the stream.")
+                            adebug = adebug + ".custom"
+                            acodec = self.settings.acodec[0]
+                    except:
+                        self.log.exception("Custom audio stream copy check error.")
 
                     # Filters
                     afilter = self.settings.afilter or None
