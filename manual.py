@@ -61,43 +61,55 @@ class MediaTypes(enum.Enum):
 
 
 def mediatype():
-    print("Select media type:")
-    for mt in MediaTypes:
-        print(str(mt))
-    result = raw_input("#: ")
     try:
-        return MediaTypes(int(result))
-    except:
+        print("Select media type:")
+        for mt in MediaTypes:
+            print(str(mt))
+        result = raw_input("#: ")
+        try:
+            return MediaTypes(int(result))
+        except:
+            print("Invalid selection")
+            return mediatype()
+    except EOFError:
         print("Invalid selection")
         return mediatype()
 
 
 def getValue(prompt, num=False):
-    print(prompt + ":")
-    value = raw_input("#: ").strip(' \"')
-    # Remove escape characters in non-windows environments
-    if os.name != 'nt':
-        value = value.replace('\\', '')
     try:
-        value = value.decode(sys.stdout.encoding)
-    except:
-        pass
-    if num is True and value.isdigit() is False:
+        print(prompt + ":")
+        value = raw_input("#: ").strip(' \"')
+        # Remove escape characters in non-windows environments
+        if os.name != 'nt':
+            value = value.replace('\\', '')
+        try:
+            value = value.decode(sys.stdout.encoding)
+        except:
+            pass
+        if num is True and value.isdigit() is False:
+            print("Must be a numerical value")
+            return getValue(prompt, num)
+        else:
+            return value
+    except EOFError:
         print("Must be a numerical value")
         return getValue(prompt, num)
-    else:
-        return value
 
 
 def getYesNo():
     yes = ['y', 'yes', 'true', '1']
     no = ['n', 'no', 'false', '0']
-    data = raw_input("# [y/n]: ")
-    if data.lower() in yes:
-        return True
-    elif data.lower() in no:
-        return False
-    else:
+    try:
+        data = raw_input("# [y/n]: ")
+        if data.lower() in yes:
+            return True
+        elif data.lower() in no:
+            return False
+        else:
+            print("Invalid selection")
+            return getYesNo()
+    except EOFError:
         print("Invalid selection")
         return getYesNo()
 
