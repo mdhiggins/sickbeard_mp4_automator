@@ -383,7 +383,7 @@ class MediaProcessor:
             outputfile, output_extension = self.getOutputFile(input_dir, filename, input_extension)
             cmds = self.converter.ffmpeg.generateCommands(outputfile, parsed, dump["preopts"], dump["postopts"])
             dump["ffmpeg_commands"] = []
-            dump["ffmpeg_commands"].append(" ".join(str(item) for item in cmds))
+            dump["ffmpeg_commands"].append(" ".join("\"%s\"" % item if " " in item and "\"" not in item else item for item in cmds))
             for suboptions in dump["ripsubopts"]:
                 subparsed = self.converter.parse_options(suboptions)
                 extension = self.getSubExtensionFromCodec(suboptions['format'])
@@ -394,7 +394,7 @@ class MediaProcessor:
                 self.log.debug("Cleaning up downloaded sub %s which was only used to simulate options." % (sub))
                 self.removeFile(sub)
 
-        return json.dumps(dump, sort_keys=False, indent=4)
+        return json.dumps(dump, sort_keys=False, indent=4).replace("\\\\", "\\").replace("\\\"", "\"")
 
     # Generate a dict of data about a source file
     def generateSourceDict(self, inputfile):
@@ -1565,7 +1565,7 @@ class MediaProcessor:
         _, cmds = next(conv)
         self.log.info("FFmpeg command:")
         self.log.info("======================")
-        self.log.info(" ".join(str(item) for item in cmds))
+        self.log.info(" ".join("\"%s\"" % item if " " in item and "\"" not in item else item for item in cmds))
         self.log.info("======================")
 
         try:
