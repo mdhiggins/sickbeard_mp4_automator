@@ -136,6 +136,10 @@ class AudioCodec(BaseCodec):
             if len(safe['disposition'].strip()) < 1:
                 del safe['disposition']
 
+        if 'title' in safe:
+            if len(safe['title']) < 1:
+                del safe['title']
+
         safe = self._codec_specific_parse_options(safe)
         optlist = []
         optlist.extend(['-c:a:' + stream, self.ffmpeg_codec_name])
@@ -206,6 +210,10 @@ class SubtitleCodec(BaseCodec):
         if 'disposition' in safe:
             if len(safe['disposition'].strip()) < 1:
                 del safe['disposition']
+
+        if 'title' in safe:
+            if len(safe['title']) < 1:
+                del safe['title']
 
         safe = self._codec_specific_parse_options(safe)
 
@@ -400,6 +408,10 @@ class VideoCodec(BaseCodec):
         if w and h:
             safe['aspect'] = '%d:%d' % (w, h)
 
+        if 'title' in safe:
+            if len(safe['title']) < 1:
+                del safe['title']
+
         safe = self._codec_specific_parse_options(safe)
 
         w = safe.get('width', None)
@@ -513,6 +525,10 @@ class AudioCopyCodec(BaseCodec):
             if len(l) > 3:
                 del safe['language']
 
+        if 'title' in safe:
+            if len(safe['title']) < 1:
+                del safe['title']
+
         stream = str(stream)
         optlist = []
         optlist.extend(['-c:a:' + stream, 'copy'])
@@ -556,6 +572,10 @@ class VideoCopyCodec(BaseCodec):
             if f < 1:
                 del safe['fps']
 
+        if 'title' in safe:
+            if len(safe['title']) < 1:
+                del safe['title']
+
         if 'source' in safe:
             s = str(safe['source'])
         else:
@@ -594,6 +614,10 @@ class SubtitleCopyCodec(BaseCodec):
             l = safe['language']
             if len(l) > 3:
                 del safe['language']
+
+        if 'title' in safe:
+            if len(safe['title']) < 1:
+                del safe['title']
 
         stream = str(stream)
         optlist = []

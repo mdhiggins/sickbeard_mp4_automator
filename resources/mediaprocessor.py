@@ -257,8 +257,7 @@ class MediaProcessor:
             output += " (Visual Impaired)"
         if disposition.get("dub"):
             output += " (Dub)"
-
-        return output
+        return output.strip() if output else None
 
     def subtitleStreamTitle(self, disposition):
         output = ""
@@ -272,7 +271,7 @@ class MediaProcessor:
             output += "Visual Impaired "
         if disposition.get("dub"):
             output += "Dub "
-        return output.strip()
+        return output.strip() if output else None
 
     # Determine if a file can be read by FFPROBE
     def isValidSource(self, inputfile):
