@@ -226,7 +226,9 @@ class MediaProcessor:
             width = swidth
             height = sheight
 
-        if width >= 3800 or height >= 2100:
+        if width >= 7600 or height >= 4300:
+            output = "8K"
+        elif width >= 3800 or height >= 2100:
             output = "4K"
         elif width >= 1900 or height >= 1060:
             output = "FHD"
