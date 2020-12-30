@@ -237,8 +237,7 @@ class MediaProcessor:
 
         if hdr:
             output += " HDR"
-
-        return output
+        return output.strip() if output else None
 
     def audioStreamTitle(self, channels, disposition):
         output = "Audio"
