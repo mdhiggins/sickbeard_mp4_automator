@@ -859,24 +859,28 @@ class MediaProcessor:
                             blocked_subtitle_languages.append(s.metadata['language'])
                 else:
                     if self.validLanguage(s.metadata['language'], swl, blocked_subtitle_languages) and self.validDisposition(s.metadata['language'], sdisposition, self.settings.ignored_subtitle_dispositions, self.settings.unique_subtitle_dispositions, blocked_subtitle_dispositions):
-                        for codec in (self.settings.scodec_image if image_based else self.settings.scodec):
+                        if image_based and not self.settings.embedimgsubs and self.settings.scodec_image and len(self.settings.scodec_image) > 0:
+                            scodec = 'copy' if s.codec in self.settings.scodec_image else self.settings.scodec_image[0]
+                        elif not image_based and not self.settings.embedsubs and self.settings.scodec and len(self.settings.scodec) > 0:
+                            scodec = 'copy' if s.codec in self.settings.scodec else self.settings.scodec[0]
+                        if scodec:
                             ripsub = [{
                                 'map': s.index,
-                                'codec': codec,
+                                'codec': scodec,
                                 'language': s.metadata['language'],
                                 'debug': "subtitle"
                             }]
                             options = {
                                 'source': [inputfile],
-                                'format': codec,
                                 'subtitle': ripsub,
+                                'format': s.codec if scodec == 'copy' else scodec,
                                 'disposition': s.dispostr,
                                 'language': s.metadata['language'],
                                 'index': s.index
                             }
                             ripsubopts.append(options)
-                        if self.settings.sub_first_language_stream:
-                            blocked_subtitle_languages.append(s.metadata['language'])
+                            if self.settings.sub_first_language_stream:
+                                blocked_subtitle_languages.append(s.metadata['language'])
 
         # Attempt to download subtitles if they are missing using subliminal
         downloaded_subs = []
