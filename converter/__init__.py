@@ -76,16 +76,11 @@ class Converter(object):
         if not isinstance(opt, dict):
             raise ConverterError('Invalid output specification')
 
-        if 'format' not in opt:
-            raise ConverterError('Format not specified')
-
-        f = opt['format']
-        if f not in self.formats:
-            raise ConverterError('Requested unknown format: ' + str(f))
-
-        format_options = self.formats[f]().parse_options(opt)
-        if format_options is None:
-            raise ConverterError('Unknown container format error')
+        try:
+            f = opt['format']
+            format_options = self.formats[f]().parse_options(opt)
+        except:
+            format_options = []
 
         if 'source' not in opt or len(opt['source']) < 1:
             raise ConverterError('No source file provided')
