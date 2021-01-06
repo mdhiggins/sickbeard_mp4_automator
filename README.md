@@ -39,8 +39,8 @@ Default Settings
 Docker
 --------------
 Two official Docker containers are maintained for Radarr and Sonarr with SMA included. These are meant to work with **completed download handling** enabled. See the respective Docker Hub pages for details
-- https://hub.docker.com/repository/docker/mdhiggins/sonarr-sma
-- https://hub.docker.com/repository/docker/mdhiggins/radarr-sma
+- https://hub.docker.com/r/mdhiggins/sonarr-sma
+- https://hub.docker.com/r/mdhiggins/radarr-sma
 
 General Configuration
 --------------
