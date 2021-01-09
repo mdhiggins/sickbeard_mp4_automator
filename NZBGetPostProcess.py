@@ -236,14 +236,14 @@ if 'NZBOP_SCRIPTDIR' in os.environ and not os.environ['NZBOP_VERSION'][0:5] < '1
         if success:
             sys.exit(POSTPROCESS_SUCCESS)
         else:
-            sys.exit(POSTPROCESS_ERROR)
+            sys.exit(POSTPROCESS_NONE)
     elif (radarrcat.startswith(category)):
         #DEBUG#print "Radarr Processing Activated"
         success = radarr.processMovie(path, settings, True, pathMapping=path_mapping)
         if success:
             sys.exit(POSTPROCESS_SUCCESS)
         else:
-            sys.exit(POSTPROCESS_ERROR)
+            sys.exit(POSTPROCESS_NONE)
     elif (sickragecat.startswith(category)):
         #DEBUG#print "Sickrage Processing Activated"
         autoProcessTVSR.processEpisode(path, settings, nzb, pathMapping=path_mapping)
