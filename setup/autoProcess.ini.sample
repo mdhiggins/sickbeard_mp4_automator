@@ -2,18 +2,18 @@
 ffmpeg = ffmpeg.exe
 ffprobe = ffprobe.exe
 threads = 0
-hwaccels = 
+hwaccels =
 hwaccel-decoders = h264_cuvid, mjpeg_cuvid, mpeg1_cuvid, mpeg2_cuvid, mpeg4_cuvid, vc1_cuvid, hevc_qsv, h264_qsv, hevc_vaapi, h264_vaapi
 hwdevices = vaapi:/dev/dri/renderD128
 hwaccel-output-format = vaapi:vaapi
-output-directory = 
+output-directory =
 output-format = mp4
 output-extension = mp4
-temp-extension = 
+temp-extension =
 minimum-size = 0
 ignored-extensions = nfo, ds_store
-copy-to = 
-move-to = 
+copy-to =
+move-to =
 delete-original = True
 sort-streams = True
 process-same-extensions = False
@@ -22,8 +22,8 @@ force-convert = False
 post-process = False
 wait-post-process = False
 detailed-progress = False
-preopts = 
-postopts = 
+preopts =
+postopts =
 
 [Permissions]
 chmod = 0644
@@ -36,39 +36,39 @@ full-path-guess = True
 tag = True
 tag-language = eng
 download-artwork = poster
-sanitize-disposition = 
+sanitize-disposition =
 
 [Video]
 codec = h264, x264
 max-bitrate = 0
-bt-ratio = 0
+bt-ratio = 
 crf = -1
-crf-profiles = 
-preset = 
-codec-parameters = 
+crf-profiles =
+preset =
+codec-parameters =
 dynamic-parameters = False
 max-width = 0
-profile = 
+profile =
 max-level = 0.0
-pix-fmt = 
-filter = 
+pix-fmt =
+filter =
 force-filter = False
 
 [HDR]
-codec = 
-pix-fmt = 
+codec =
+pix-fmt =
 space = bt2020nc
 transfer = smpte2084
 primaries = bt2020
-preset = 
-codec-parameters = 
-filter = 
+preset =
+codec-parameters =
+filter =
 force-filter = False
 
 [Audio]
 codec = ac3
-languages = 
-default-language = 
+languages =
+default-language =
 first-stream-of-language = False
 allow-language-relax = True
 channel-bitrate = 128
@@ -76,13 +76,13 @@ max-bitrate = 0
 max-channels = 0
 prefer-more-channels = True
 default-more-channels = True
-filter = 
+filter =
 force-filter = False
-sample-rates = 
+sample-rates =
 copy-original = False
 aac-adtstoasc = False
 ignore-truehd = mp4, m4v
-ignored-dispositions = 
+ignored-dispositions =
 unique-dispositions = False
 
 [Universal Audio]
@@ -90,75 +90,75 @@ codec = aac
 channel-bitrate = 128
 first-stream-only = False
 move-after = False
-filter = 
+filter =
 force-filter = False
 
 [Subtitle]
 codec = mov_text
-codec-image-based = 
-languages = 
-default-language = 
+codec-image-based =
+languages =
+default-language =
 first-stream-of-language = False
-encoding = 
+encoding =
 burn-subtitles = False
-burn-dispositions = 
+burn-dispositions =
 download-subs = False
 download-hearing-impaired-subs = False
-download-providers = 
+download-providers =
 embed-subs = True
 embed-image-subs = False
 embed-only-internal-subs = False
 filename-dispositions = forced
 ignore-embedded-subs = False
-ignored-dispositions = 
+ignored-dispositions =
 unique-dispositions = False
-attachment-codec = 
+attachment-codec =
 
 [Sonarr]
 host = localhost
 port = 8989
-apikey = 
+apikey =
 ssl = False
-webroot = 
+webroot =
 force-rename = False
 
 [Radarr]
 host = localhost
 port = 7878
-apikey = 
+apikey =
 ssl = False
-webroot = 
+webroot =
 force-rename = False
 
 [Sickbeard]
 host = localhost
 port = 8081
 ssl = False
-apikey = 
-webroot = 
-username = 
-password = 
+apikey =
+webroot =
+username =
+password =
 
 [Sickrage]
 host = localhost
 port = 8081
 ssl = False
-apikey = 
-webroot = 
-username = 
-password = 
+apikey =
+webroot =
+username =
+password =
 
 [CouchPotato]
 host = localhost
 port = 5050
-username = 
-password = 
-apikey = 
+username =
+password =
+apikey =
 delay = 65
 method = renamer
 delete-failed = False
 ssl = False
-webroot = 
+webroot =
 
 [SABNZBD]
 convert = True
@@ -168,8 +168,8 @@ couchpotato-category = couchpotato
 sonarr-category = sonarr
 radarr-category = radarr
 bypass-category = bypass
-output-directory = 
-path-mapping = 
+output-directory =
+path-mapping =
 
 [Deluge]
 couchpotato-label = couchpotato
@@ -181,11 +181,11 @@ bypass-label = bypass
 convert = True
 host = localhost
 port = 58846
-username = 
-password = 
-output-directory = 
+username =
+password =
+output-directory =
 remove = False
-path-mapping = 
+path-mapping =
 
 [qBittorrent]
 couchpotato-label = couchpotato
@@ -195,15 +195,15 @@ sonarr-label = sonarr
 radarr-label = radarr
 bypass-label = bypass
 convert = True
-action-before = 
-action-after = 
+action-before =
+action-after =
 host = localhost
 port = 8080
 ssl = False
-username = 
-password = 
-output-directory = 
-path-mapping = 
+username =
+password =
+output-directory =
+path-mapping =
 
 [uTorrent]
 couchpotato-label = couchpotato
@@ -214,19 +214,18 @@ radarr-label = radarr
 bypass-label = bypass
 convert = True
 webui = False
-action-before = 
-action-after = 
+action-before =
+action-after =
 host = localhost
 ssl = False
 port = 8080
-username = 
-password = 
-output-directory = 
-path-mapping = 
+username =
+password =
+output-directory =
+path-mapping =
 
 [Plex]
 host = localhost
 port = 32400
 refresh = False
-token = 
-
+token =
