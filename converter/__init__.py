@@ -165,6 +165,7 @@ class Converter(object):
                     raise ConverterError('Unknown attachment codec error')
 
         if 'video' in opt:
+
             x = opt['video']
             if not isinstance(x, dict) or 'codec' not in x:
                 raise ConverterError('Invalid video codec specification')

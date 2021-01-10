@@ -483,8 +483,11 @@ class MediaProcessor:
 
         vcodecs = self.settings.hdr.get('codec', []) if vHDR and len(self.settings.hdr.get('codec', [])) > 0 else self.settings.vcodec
         self.log.debug("Pool of video codecs is %s." % (vcodecs))
-        vcodec = "copy" if info.video.codec in vcodecs else vcodecs[0]
+        vcodec = "copy" if info.video.codec in vcodecs else vcodecs[0]        
+        vbt_ratio = self.settings.vbt_ratio
+        self.log.debug("BT ratio is %s." % (vbt_ratio))
 
+        #if self.settings.vbt_ratio
         # Custom
         try:
             if blockVideoCopy and blockVideoCopy(self, info.video, inputfile):
@@ -595,6 +598,7 @@ class MediaProcessor:
             'codec': vcodec,
             'map': info.video.index,
             'bitrate': vbitrate,
+            'bt-ratio': vbt_ratio,
             'crf': vcrf,
             'maxrate': vmaxrate,
             'bufsize': vbufsize,

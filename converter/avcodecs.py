@@ -49,9 +49,21 @@ class BaseCodec(object):
         safe = ""
         return safe
 
+    # will overwrite bitrate if bt-ratio is set.
+    def check_ratio_video_bitrate(self, opts):
+
+        if 'bt-ratio' in opts:
+            if opts['bt-ratio'] > 0:
+                bitrate_ratio = opts['bt-ratio']
+                bitrate = opts['bitrate']
+                opts['bitrate'] = (bitrate * bitrate_ratio)
+
+        return opts
+
     def safe_options(self, opts):
         safe = {}
 
+        opts = self.check_ratio_video_bitrate(opts)
         # Only copy options that are expected and of correct type
         # (and do typecasting on them)
         for k, v in opts.items():
@@ -62,6 +74,7 @@ class BaseCodec(object):
                 except:
                     pass
         return safe
+
 
 
 class AudioCodec(BaseCodec):
@@ -269,7 +282,7 @@ class VideoCodec(BaseCodec):
     is calculated to preserve the aspect ratio.
 
     Supported video codecs are: null (no video), copy (copy directly
-    from the source), Theora, H.264/AVC, DivX, VP8, H.263, Flv,
+    from the source), Theora, H.265/HEVC, H.264/AVC, DivX, VP8, H.263, Flv,
     MPEG-1, MPEG-2.
     """
 
@@ -354,6 +367,7 @@ class VideoCodec(BaseCodec):
         super(VideoCodec, self).parse_options(opt)
 
         safe = self.safe_options(opt)
+#hi hi {'codec': 'h265', 'map': 0, 'bitrate': 9061, 'crf': -1, 'level': 0.0, 'field_order': 'unknown', 'title': 'FHD', 'src_width': 1920, 'src_height': 1080}
 
         if 'fps' in safe:
             f = safe['fps']
@@ -1516,7 +1530,7 @@ audio_codec_list = [
 ]
 
 video_codec_list = [
-    VideoNullCodec, VideoCopyCodec, TheoraCodec, H264Codec, H264CodecAlt, H264QSVCodec, 
+    VideoNullCodec, VideoCopyCodec, TheoraCodec, H264Codec, H264CodecAlt, H264QSVCodec,
     H265QSVCodecAlt, H265QSVCodec, H265Codec, H265CodecAlt, H265QSVCodecPatched,
     DivxCodec, Vp8Codec, H263Codec, FlvCodec, Mpeg1Codec, NVEncH264Codec, NVEncH265Codec, NVEncH265CodecAlt,
     Mpeg2Codec, H264VAAPICodec, H265VAAPICodec, OMXH264Codec, VideotoolboxEncH264, VideotoolboxEncH265

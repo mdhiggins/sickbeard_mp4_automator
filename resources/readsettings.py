@@ -127,6 +127,7 @@ class ReadSettings:
         },
         'Video': {
             'codec': 'h264, x264',
+            'bt-ratio': "",
             'max-bitrate': 0,
             'crf': -1,
             'crf-profiles': '',
@@ -656,9 +657,9 @@ class ReadSettings:
         # Video
         section = "Video"
         self.vcodec = config.getlist(section, "codec")
+        self.vbt_ratio = config.getfloat(section, "bt-ratio")
         self.vmaxbitrate = config.getint(section, "max-bitrate")
         self.vcrf = config.getint(section, "crf")
-
         self.vcrf_profiles = []
         vcrf_profiles = config.getlist(section, "crf-profiles")
         for vcrfp_raw in vcrf_profiles:
