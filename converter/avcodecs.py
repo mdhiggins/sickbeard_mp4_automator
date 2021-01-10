@@ -367,7 +367,6 @@ class VideoCodec(BaseCodec):
         super(VideoCodec, self).parse_options(opt)
 
         safe = self.safe_options(opt)
-#hi hi {'codec': 'h265', 'map': 0, 'bitrate': 9061, 'crf': -1, 'level': 0.0, 'field_order': 'unknown', 'title': 'FHD', 'src_width': 1920, 'src_height': 1080}
 
         if 'fps' in safe:
             f = safe['fps']
@@ -1530,7 +1529,7 @@ audio_codec_list = [
 ]
 
 video_codec_list = [
-    VideoNullCodec, VideoCopyCodec, TheoraCodec, H264Codec, H264CodecAlt, H264QSVCodec,
+    VideoNullCodec, VideoCopyCodec, TheoraCodec, H264Codec, H264CodecAlt, H264QSVCodec, 
     H265QSVCodecAlt, H265QSVCodec, H265Codec, H265CodecAlt, H265QSVCodecPatched,
     DivxCodec, Vp8Codec, H263Codec, FlvCodec, Mpeg1Codec, NVEncH264Codec, NVEncH265Codec, NVEncH265CodecAlt,
     Mpeg2Codec, H264VAAPICodec, H265VAAPICodec, OMXH264Codec, VideotoolboxEncH264, VideotoolboxEncH265
