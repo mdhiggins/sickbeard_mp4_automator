@@ -34,12 +34,18 @@ class SMAConfigParser(ConfigParser, object):
         value = [x.strip() for x in value]
         return value
 
-    def getdict(self, section, option, vars=None, listseparator=",", dictseparator=":", default={}, lower=True, replace=[' ']):
+    def getdict(self, section, option, vars=None, listseparator=",", dictseparator=":", default={}, lower=True, replace=[' '], valueModifier=None):
         l = self.getlist(section, option, vars, listseparator, [], lower, replace)
         output = dict(default)
         for listitem in l:
             split = listitem.split(dictseparator)
             if len(split) > 1:
+                if valueModifier:
+                    try:
+                        split[1] = valueModifier(split[1])
+                    except:
+                        self.log.exception("Invalid value for getdict")
+                        continue
                 output[split[0]] = split[1]
         return output
 
@@ -128,6 +134,7 @@ class ReadSettings:
         'Video': {
             'codec': 'h264, x264',
             'max-bitrate': 0,
+            'bitrate-ratio': '',
             'crf': -1,
             'crf-profiles': '',
             'preset': '',
@@ -657,6 +664,7 @@ class ReadSettings:
         section = "Video"
         self.vcodec = config.getlist(section, "codec")
         self.vmaxbitrate = config.getint(section, "max-bitrate")
+        self.vbitrateratio = config.getdict(section, "bitrate-ratio", lower=True, valueModifier=float)
         self.vcrf = config.getint(section, "crf")
 
         self.vcrf_profiles = []

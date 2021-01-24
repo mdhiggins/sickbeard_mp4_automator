@@ -41,6 +41,7 @@ sanitize-disposition =
 [Video]
 codec = h264, x264
 max-bitrate = 0
+bitrate-ratio = 
 crf = -1
 crf-profiles = 
 preset = 

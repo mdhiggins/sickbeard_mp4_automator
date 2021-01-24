@@ -495,7 +495,9 @@ class MediaProcessor:
             self.log.exception("Custom video stream copy check error.")
 
         vbitrate_estimate = self.estimateVideoBitrate(info)
-        vbitrate = vbitrate_estimate
+        vbitrate_ratio = self.settings.vbitrateratio.get(info.video.codec, 1.0)
+        vbitrate = vbitrate_estimate * vbitrate_ratio
+        self.log.debug("Using video bitrate ratio of %f, which results in %f changing to %f." % (vbitrate_ratio, vbitrate_estimate, vbitrate))
         if self.settings.vmaxbitrate and vbitrate > self.settings.vmaxbitrate:
             self.log.debug("Overriding video bitrate. Codec cannot be copied because video bitrate is too high [video-max-bitrate].")
             vdebug = vdebug + ".max-bitrate"
