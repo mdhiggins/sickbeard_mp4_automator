@@ -115,6 +115,7 @@ class ReadSettings:
             'post-process': False,
             'wait-post-process': False,
             'detailed-progress': False,
+            'opts-separator': ',',
             'preopts': '',
             'postopts': '',
         },
@@ -619,8 +620,9 @@ class ReadSettings:
         self.postprocess = config.getboolean(section, 'post-process')
         self.waitpostprocess = config.getboolean(section, 'wait-post-process')
         self.detailedprogress = config.getboolean(section, 'detailed-progress')
-        self.preopts = config.getlist(section, "preopts")
-        self.postopts = config.getlist(section, "postopts")
+        self.opts_sep = config.get(section, "opts-separator")
+        self.preopts = config.getlist(section, "preopts", separator=self.opts_sep)
+        self.postopts = config.getlist(section, "postopts", separator=self.opts_sep)
 
         if self.force_convert:
             self.process_same_extensions = True
