@@ -158,6 +158,7 @@ class ReadSettings:
             'codec-parameters': '',
             'filter': '',
             'force-filter': False,
+            'profile': '',
         },
         'Audio': {
             'codec': 'ac3',
@@ -709,6 +710,7 @@ class ReadSettings:
         self.hdr['codec_params'] = config.get(section, 'codec-parameters')
         self.hdr['filter'] = config.get(section, 'filter')
         self.hdr['forcefilter'] = config.getboolean(section, 'force-filter')
+        self.hdr['profile'] = config.getlist(section, "profile")
 
         # Audio
         section = "Audio"

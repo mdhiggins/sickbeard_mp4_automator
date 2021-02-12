@@ -517,11 +517,24 @@ class MediaProcessor:
             vdebug = vdebug + ".max-level"
             vcodec = vcodecs[0]
 
-        vprofile = self.settings.vprofile[0] if len(self.settings.vprofile) > 0 else None
-        if len(self.settings.vprofile) > 0 and info.video.profile not in self.settings.vprofile:
-            self.log.debug("Video profile is not supported. Video stream can no longer be copied [video-profile].")
-            vdebug = vdebug + ".profile"
-            vcodec = vcodecs[0]
+        vprofile = None
+        if vHDR and len(self.settings.hdr.get('profile')) > 0:
+            if info.video.profile in self.settings.hdr.get('profile'):
+                vprofile = info.video.profile
+            else:
+                vprofile = self.settings.hdr.get('profile')[0]
+                self.log.debug("Overriding video profile. Codec cannot be copied because profile is not approved [hdr-profile].")
+                vdebug = vdebug + ".hdr-profile-fmt"
+                vcodec = vcodecs[0]
+        else:
+            if len(self.settings.vprofile) > 0:
+                if info.video.profile in self.settings.vprofile:
+                    vprofile = info.video.profile
+                else:
+                    vprofile = self.settings.vprofile[0] if len(self.settings.vprofile) > 0 else None
+                    self.log.debug("Video profile is not supported. Video stream can no longer be copied [video-profile].")
+                    vdebug = vdebug + ".profile"
+                    vcodec = vcodecs[0]
 
         vfieldorder = info.video.field_order
 
@@ -541,23 +554,18 @@ class MediaProcessor:
                 except:
                     self.log.exception("Error setting VCRF profile information.")
 
-        vfilter = self.settings.vfilter or None
-
-        if vHDR and self.settings.hdr.get('filter'):
-            self.log.debug("Setting HDR filter [hdr-filter].")
-            vfilter = self.settings.hdr.get('filter')
-            if self.settings.hdr.get('forcefilter'):
-                self.log.debug("Video HDR force filter is enabled. Video stream can no longer be copied [hdr-force-filter].")
-                vdebug = vdebug + ".hdr-force-filter"
-                vcodec = vcodecs[0]
-        elif vfilter and self.settings.vforcefilter:
+        vfilter = self.settings.hdr.get('filter') or None if vHDR else self.settings.vfilter or None
+        if vHDR and self.settings.hdr.get('filter') and self.settings.hdr.get('forcefilter'):
+            self.log.debug("Video HDR force filter is enabled. Video stream can no longer be copied [hdr-force-filter].")
+            vdebug = vdebug + ".hdr-force-filter"
+            vcodec = vcodecs[0]
+        elif not vHDR and vfilter and self.settings.vforcefilter:
             self.log.debug("Video force filter is enabled. Video stream can no longer be copied [video-force-filter].")
+            vfilter = self.settings.vfilter
             vcodec = vcodecs[0]
             vdebug = vdebug + ".force-filter"
 
-        vpreset = self.settings.preset or None
-        if vHDR and self.settings.hdr.get('preset'):
-            vpreset = self.settings.hdr['preset']
+        vpreset = self.settings.hdr.get('preset') or None if vHDR else self.settings.preset or None
 
         vparams = self.settings.codec_params or None
         if vHDR and self.settings.hdr.get('codec_params'):
@@ -565,15 +573,20 @@ class MediaProcessor:
 
         vframedata = self.normalizeFramedata(info.video.framedata, vHDR) if self.settings.dynamic_params else None
 
-        if vHDR and self.settings.hdr.get('pix_fmt'):
-            vpix_fmt = self.settings.hdr.get('pix_fmt')[0] if len(self.settings.hdr.get('pix_fmt')) else None
-            if len(self.settings.hdr.get('pix_fmt')) > 0 and info.video.pix_fmt not in self.settings.hdr.get('pix_fmt'):
+        vpix_fmt = None
+        if vHDR and len(self.settings.hdr.get('pix_fmt')) > 0:
+            if info.video.pix_fmt in self.settings.hdr.get('pix_fmt'):
+                vpix_fmt = info.video.pix_fmt
+            else:
+                vpix_fmt = self.settings.hdr.get('pix_fmt')[0]
                 self.log.debug("Overriding video pix_fmt. Codec cannot be copied because pix_fmt is not approved [hdr-pix-fmt].")
                 vdebug = vdebug + ".hdr-pix-fmt"
                 vcodec = vcodecs[0]
-        else:
-            vpix_fmt = self.settings.pix_fmt[0] if len(self.settings.pix_fmt) else None
-            if len(self.settings.pix_fmt) > 0 and info.video.pix_fmt not in self.settings.pix_fmt:
+        elif not vHDR and len(self.settings.pix_fmt):
+            if info.video.pix_fmt in self.settings.pix_fmt:
+                vpix_fmt = info.video.pix_fmt
+            else:
+                vpix_fmt = self.settings.pix_fmt[0] if len(self.settings.pix_fmt) else None
                 self.log.debug("Overriding video pix_fmt. Codec cannot be copied because pix_fmt is not approved [pix-fmt].")
                 vdebug = vdebug + ".pix_fmt"
                 vcodec = vcodecs[0]
