@@ -86,6 +86,9 @@ ignore-truehd = mp4, m4v
 ignored-dispositions = 
 unique-dispositions = False
 
+[Audio.ChannelFilters]
+6-2 = pan=stereo|FL=0.5*FC+0.707*FL+0.707*BL+0.5*LFE|FR=0.5*FC+0.707*FR+0.707*BR+0.5*LFE
+
 [Universal Audio]
 codec = aac
 channel-bitrate = 128

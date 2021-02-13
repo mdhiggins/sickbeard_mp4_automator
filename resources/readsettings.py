@@ -188,6 +188,9 @@ class ReadSettings:
             'filter': '',
             'force-filter': False,
         },
+        'Audio.ChannelFilters': {
+            '6-2': 'pan=stereo|FL=0.5*FC+0.707*FL+0.707*BL+0.5*LFE|FR=0.5*FC+0.707*FR+0.707*BR+0.5*LFE',
+        },
         'Subtitle': {
             'codec': 'mov_text',
             'codec-image-based': '',
@@ -732,6 +735,18 @@ class ReadSettings:
         self.ignore_truehd = config.getextensions(section, "ignore-truehd")
         self.ignored_audio_dispositions = config.getlist(section, "ignored-dispositions")
         self.unique_audio_dispositions = config.getboolean(section, "unique-dispositions")
+
+        section = "Audio.ChannelFilters"
+        self.afilterchannels = {}
+        if config.has_section(section):
+            for key in config[section]:
+                try:
+                    channels = key.split("-")
+                    channels = [int(x) for x in channels]
+                    self.afilterchannels[channels[0]] = {channels[1]: config.get(section, key)}
+                except:
+                    self.log.exception("Unable to parse Audio.ChannelFilters option, skipping.")
+                    continue
 
         # Universal Audio
         section = "Universal Audio"

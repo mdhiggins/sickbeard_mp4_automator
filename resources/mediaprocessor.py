@@ -61,7 +61,6 @@ class MediaProcessor:
                 if output:
                     if not language:
                         language = self.settings.taglanguage or self.getDefaultAudioLanguage(output["options"]) or None
-                    self.log.debug("Tag language settig is %s, using language %s for tagging." % (self.settings.taglanguage or None, language))
                     self.log.debug("Tag language setting is %s, using language %s for tagging." % (self.settings.taglanguage or None, language))
                     # Tag with metadata
                     tagfailed = False
@@ -665,6 +664,12 @@ class MediaProcessor:
                     ua_disposition = a.dispostr
                     ua_filter = self.settings.ua_filter or None
 
+                    # Custom channel based filters
+                    ua_afilterchannel = self.settings.afilterchannels.get(a.audio_channels, {}).get(2)
+                    if ua_afilterchannel:
+                        ua_filter = "%s,%s" % (ua_filter, ua_afilterchannel) if ua_filter else ua_afilterchannel
+                        self.log.debug("Found an audio filter for converting from %d channels to %d channels. Applying filter %s to UA." % ((a.audio_channels, 2, ua_afilterchannel)))
+
                     # Bitrate calculations/overrides
                     if self.settings.ua_bitrate == 0:
                         self.log.debug("Attempting to set universal audio stream bitrate based on source stream bitrate.")
@@ -760,6 +765,12 @@ class MediaProcessor:
                         self.log.debug("Unable to copy codec because an audio filter is set [audio-force-filter].")
                         acodec = self.settings.acodec[0]
                         adebug = adebug + ".audio-force-filter"
+
+                    # Custom channel based filters
+                    afilterchannel = self.settings.afilterchannels.get(a.audio_channels, {}).get(audio_channels)
+                    if afilterchannel:
+                        afilter = "%s,%s" % (afilter, afilterchannel) if afilter else afilterchannel
+                        self.log.debug("Found an audio filter for converting from %d channels to %d channels. Applying filter %s." % (a.audio_channels, audio_channels, afilterchannel))
 
                     # Sample rates
                     if len(self.settings.audio_samplerates) > 0 and a.audio_samplerate not in self.settings.audio_samplerates:
