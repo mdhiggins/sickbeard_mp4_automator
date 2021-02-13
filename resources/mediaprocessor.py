@@ -62,6 +62,7 @@ class MediaProcessor:
                     if not language:
                         language = self.settings.taglanguage or self.getDefaultAudioLanguage(output["options"]) or None
                     self.log.debug("Tag language settig is %s, using language %s for tagging." % (self.settings.taglanguage or None, language))
+                    self.log.debug("Tag language setting is %s, using language %s for tagging." % (self.settings.taglanguage or None, language))
                     # Tag with metadata
                     tagfailed = False
                     try:
