@@ -38,7 +38,7 @@ class SMAConfigParser(ConfigParser, object):
         l = self.getlist(section, option, vars, listseparator, [], lower, replace)
         output = dict(default)
         for listitem in l:
-            split = listitem.split(dictseparator)
+            split = listitem.split(dictseparator, 1)
             if len(split) > 1:
                 if valueModifier:
                     try:
@@ -200,9 +200,6 @@ class ReadSettings:
             'encoding': '',
             'burn-subtitles': False,
             'burn-dispositions': '',
-            'download-subs': False,
-            'download-hearing-impaired-subs': False,
-            'download-providers': '',
             'embed-subs': True,
             'embed-image-subs': False,
             'embed-only-internal-subs': False,
@@ -211,6 +208,15 @@ class ReadSettings:
             'ignored-dispositions': '',
             'unique-dispositions': False,
             'attachment-codec': '',
+        },
+        'Subtitle.Subliminal': {
+            'download-subs': False,
+            'download-hearing-impaired-subs': False,
+            'providers': '',
+        },
+        'Subtitle.Subliminal.Auth': {
+            'opensubtitles': '',
+            'tvsubtitles': '',
         },
         'Sonarr': {
             'host': 'localhost',
@@ -508,6 +514,14 @@ class ReadSettings:
         }
     }
 
+    migration2 = {
+        "Subtitle.Subliminal": {
+            "download-subs": "Subtitle",
+            "download-hearing-impaired-subs": "Subtitle",
+            "providers": "Subtitle.download-providers",
+        }
+    }
+
     def __init__(self, configFile=None, logger=None):
         self.log = logger or logging.getLogger(__name__)
 
@@ -741,11 +755,11 @@ class ReadSettings:
         if config.has_section(section):
             for key in config[section]:
                 try:
-                    channels = key.split("-")
+                    channels = key.split("-", 1)
                     channels = [int(x) for x in channels]
                     self.afilterchannels[channels[0]] = {channels[1]: config.get(section, key)}
                 except:
-                    self.log.exception("Unable to parse Audio.ChannelFilters option, skipping.")
+                    self.log.exception("Unable to parse %s %s, skipping." % (section, key))
                     continue
 
         # Universal Audio
@@ -767,9 +781,6 @@ class ReadSettings:
         self.subencoding = config.get(section, 'encoding')
         self.burn_subtitles = config.getboolean(section, "burn-subtitles")
         self.burn_dispositions = config.getlist(section, "burn-dispositions")
-        self.downloadsubs = config.getboolean(section, "download-subs")
-        self.hearing_impaired = config.getboolean(section, 'download-hearing-impaired-subs')
-        self.subproviders = config.getlist(section, 'download-providers')
         self.embedsubs = config.getboolean(section, 'embed-subs')
         self.embedimgsubs = config.getboolean(section, 'embed-image-subs')
         self.embedonlyinternalsubs = config.getboolean(section, 'embed-only-internal-subs')
@@ -778,6 +789,30 @@ class ReadSettings:
         self.ignored_subtitle_dispositions = config.getlist(section, "ignored-dispositions")
         self.unique_subtitle_dispositions = config.getboolean(section, "unique-dispositions")
         self.attachmentcodec = config.getlist(section, 'attachment-codec')
+
+        # Sublmininal
+        section = "Subtitle.Subliminal"
+        self.downloadsubs = config.getboolean(section, "download-subs")
+        self.hearing_impaired = config.getboolean(section, 'download-hearing-impaired-subs')
+        self.subproviders = config.getlist(section, 'providers')
+
+        # Subliminal Auth Information
+        section = "Subtitle.Subliminal.Auth"
+        self.subproviders_auth = {}
+        if config.has_section(section):
+            for key in config[section]:
+                try:
+                    rawcredentials = config.get(section, key)
+                    credentials = rawcredentials.split(":", 1)
+                    if len(credentials) < 2:
+                        if rawcredentials:
+                            self.log.error("Unable to parse %s %s, skipping." % (section, key))
+                        continue
+                    credentials = [x.strip() for x in credentials]
+                    self.subproviders_auth[key.strip()] = {credentials[0]: credentials[1]}
+                except:
+                    self.log.exception("Unable to parse %s %s, skipping." % (section, key))
+                    continue
 
         # Sonarr
         section = "Sonarr"
@@ -955,7 +990,7 @@ class ReadSettings:
             for section in config.sections():
                 for (key, val) in config.items(section, raw=True):
                     try:
-                        newsection, newkey = self.migration[section][key].split(".")
+                        newsection, newkey = self.migration[section][key].split(".", 1)
                     except:
                         self.log.error("%s.%s >> No destination" % (section, key))
                         continue
@@ -968,7 +1003,7 @@ class ReadSettings:
                         try:
                             ssl = ('https' in val)
                             val = val.replace("https://", "").replace("http://", "").replace("/", "")
-                            val, port = val.split(':')
+                            val, port = val.split(':', 1)
                             new[newsection]['port'] = int(port)
                             new[newsection]['ssl'] = ssl
                             self.log.info("%s.%s >> %s.%s | %s (%s)" % (section, key, newsection, "port", port, type(port).__name__))
@@ -1010,4 +1045,36 @@ class ReadSettings:
                         newconfig.set(s, k, str(new[s][k]))
             self.writeConfig(newconfig, configFile)
             return newconfig
+        else:
+            write = False
+            for k in self.migration2:
+                s = self.migration2[k]
+                for sk in s:
+                    try:
+                        skval = s[sk]
+                        if skval:
+                            skval = skval.split(".", 1)
+                        if len(skval) > 1:
+                            if config.has_section(skval[0]) and config.has_option(skval[0], skval[1]):
+                                old = config.get(skval[0], skval[1])
+                                self.log.info("Found old value %s for %s.%s, migrating to new location %s.%s" % (old, skval[0], skval[1], k, sk))
+                                if not config.has_section(k):
+                                    config.add_section(k)
+                                config[k][sk] = old
+                                del config[skval[0]][skval[1]]
+                                write = True
+                        else:
+                            if config.has_section(skval[0]) and config.has_option(skval[0], sk):
+                                old = config.get(skval[0], sk)
+                                self.log.info("Found old value %s for %s.%s, migrating to new location %s.%s" % (old, skval[0], sk, k, sk))
+                                if not config.has_section(k):
+                                    config.add_section(k)
+                                config[k][sk] = old
+                                del config[skval[0]][sk]
+                                write = True
+                    except:
+                        self.log.exception("Error migrating configuration.")
+                        continue
+            if write:
+                self.writeConfig(config, configFile)
         return config

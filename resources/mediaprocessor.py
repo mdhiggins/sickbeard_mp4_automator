@@ -1343,7 +1343,7 @@ class MediaProcessor:
                     video.release_group = og.release_group
                     video.resolution = og.resolution
 
-                subtitles = subliminal.download_best_subtitles([video], languages, hearing_impaired=self.settings.hearing_impaired, providers=self.settings.subproviders)
+                subtitles = subliminal.download_best_subtitles([video], languages, hearing_impaired=self.settings.hearing_impaired, providers=self.settings.subproviders, provider_configs=self.settings.subproviders_auth)
                 saves = subliminal.save_subtitles(video, subtitles[video])
                 paths = [subliminal.subtitle.get_subtitle_path(video.name, x.language) for x in saves]
                 for path in paths:

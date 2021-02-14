@@ -6,7 +6,7 @@ logging.ini
 update.py
 *.sh
 *.bat
-*.backup
+*.backup*
 config/custom.py
 
 #################
