@@ -1076,7 +1076,16 @@ class H264QSVCodec(H264Codec):
     scale_filter = 'scale_qsv'
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
-        optlist = super(H264QSVCodec, self)._codec_specific_produce_ffmpeg_list(safe, stream)
+        optlist = []
+        if 'level' in safe:
+            if safe['level'] < 1.0 or safe['level'] > 6.2:
+                del safe['level']
+
+        if 'level' in safe:
+            optlist.extend(['-level', '%0.0f' % (safe['level'] * 10)])
+            del safe['level']
+
+        optlist.extend(super(H264QSVCodec, self)._codec_specific_produce_ffmpeg_list(safe, stream))
         optlist.extend(['-look_ahead', '0'])
         return optlist
 
