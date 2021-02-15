@@ -158,8 +158,8 @@ class AudioCodec(BaseCodec):
         if 'filter' in safe:
             optlist.extend(['-filter:a:' + stream, str(safe['filter'])])
         if 'title' in safe:
-            optlist.extend(['-metadata:s:a:' + stream, "title=\"" + str(safe['title']) + "\""])
-            optlist.extend(['-metadata:s:a:' + stream, "handler_name=\"" + str(safe['title']) + "\""])
+            optlist.extend(['-metadata:s:a:' + stream, "title=" + str(safe['title'])])
+            optlist.extend(['-metadata:s:a:' + stream, "handler_name=" + str(safe['title'])])
         else:
             optlist.extend(['-metadata:s:a:' + stream, "title="])
             optlist.extend(['-metadata:s:a:' + stream, "handler_name="])
@@ -228,8 +228,8 @@ class SubtitleCodec(BaseCodec):
         if 'path' in safe:
             optlist.extend(['-i', str(safe['path'])])
         if 'title' in safe:
-            optlist.extend(['-metadata:s:s:' + stream, "title=\"" + str(safe['title']) + "\""])
-            optlist.extend(['-metadata:s:s:' + stream, "handler_name=\"" + str(safe['title']) + "\""])
+            optlist.extend(['-metadata:s:s:' + stream, "title=" + str(safe['title'])])
+            optlist.extend(['-metadata:s:s:' + stream, "handler_name=" + str(safe['title'])])
         else:
             optlist.extend(['-metadata:s:s:' + stream, "title="])
             optlist.extend(['-metadata:s:s:' + stream, "handler_name="])
@@ -454,8 +454,8 @@ class VideoCodec(BaseCodec):
             if ow and oh:
                 optlist.extend(['-aspect', '%d:%d' % (ow, oh)])
         if 'title' in safe:
-            optlist.extend(['-metadata:s:v', "title=\"" + str(safe['title']) + "\""])
-            optlist.extend(['-metadata:s:v', "handler_name=\"" + str(safe['title']) + "\""])
+            optlist.extend(['-metadata:s:v', "title=" + str(safe['title'])])
+            optlist.extend(['-metadata:s:v', "handler_name=" + str(safe['title'])])
         else:
             optlist.extend(['-metadata:s:v', "title="])
             optlist.extend(['-metadata:s:v', "handler_name="])
@@ -550,8 +550,8 @@ class AudioCopyCodec(BaseCodec):
         if 'bsf' in safe:
             optlist.extend(['-bsf:a:' + stream, str(safe['bsf'])])
         if 'title' in safe:
-            optlist.extend(['-metadata:s:a:' + stream, "title=\"" + str(safe['title']) + "\""])
-            optlist.extend(['-metadata:s:a:' + stream, "handler_name=\"" + str(safe['title']) + "\""])
+            optlist.extend(['-metadata:s:a:' + stream, "title=" + str(safe['title'])])
+            optlist.extend(['-metadata:s:a:' + stream, "handler_name=" + str(safe['title'])])
         else:
             optlist.extend(['-metadata:s:a:' + stream, "title="])
             optlist.extend(['-metadata:s:a:' + stream, "handler_name="])
@@ -597,8 +597,8 @@ class VideoCopyCodec(BaseCodec):
         if 'fps' in safe:
             optlist.extend(['-r:v', str(safe['fps'])])
         if 'title' in safe:
-            optlist.extend(['-metadata:s:v', "title=\"" + str(safe['title']) + "\""])
-            optlist.extend(['-metadata:s:v', "handler_name=\"" + str(safe['title']) + "\""])
+            optlist.extend(['-metadata:s:v', "title=" + str(safe['title'])])
+            optlist.extend(['-metadata:s:v', "handler_name=" + str(safe['title'])])
         else:
             optlist.extend(['-metadata:s:v', "title="])
             optlist.extend(['-metadata:s:v', "handler_name="])
@@ -644,8 +644,8 @@ class SubtitleCopyCodec(BaseCodec):
         if 'map' in safe:
             optlist.extend(['-map', s + ':' + str(safe['map'])])
         if 'title' in safe:
-            optlist.extend(['-metadata:s:s:' + stream, "title=\"" + str(safe['title']) + "\""])
-            optlist.extend(['-metadata:s:s:' + stream, "handler_name=\"" + str(safe['title']) + "\""])
+            optlist.extend(['-metadata:s:s:' + stream, "title=" + str(safe['title'])])
+            optlist.extend(['-metadata:s:s:' + stream, "handler_name=" + str(safe['title'])])
         else:
             optlist.extend(['-metadata:s:s:' + stream, "title="])
             optlist.extend(['-metadata:s:s:' + stream, "handler_name="])
