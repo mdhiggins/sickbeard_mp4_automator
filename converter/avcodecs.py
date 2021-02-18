@@ -902,6 +902,7 @@ class H264Codec(VideoCodec):
     codec_name = 'h264'
     ffmpeg_codec_name = 'libx264'
     codec_params = 'x264-params'
+    levels = [1, 1.1, 1.2, 1.3, 2, 2.1, 2.2, 3, 3.1, 3.2, 4, 4.1, 4.2, 5, 5.1, 5.2, 6, 6.1, 6.2]
     encoder_options = VideoCodec.encoder_options.copy()
     encoder_options.update({
         'preset': str,  # common presets are ultrafast, superfast, veryfast,
@@ -929,8 +930,11 @@ class H264Codec(VideoCodec):
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         optlist = []
         if 'level' in safe:
-            if safe['level'] < 3.0 or safe['level'] > 4.2:
-                del safe['level']
+            if safe['level'] not in self.levels:
+                try:
+                    safe['level'] = [x for x in self.levels if x < safe['level']][-1]
+                except:
+                    del safe['level']
 
         if 'preset' in safe:
             optlist.extend(['-preset', safe['preset']])
@@ -1078,8 +1082,11 @@ class H264QSVCodec(H264Codec):
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         optlist = []
         if 'level' in safe:
-            if safe['level'] < 1.0 or safe['level'] > 6.2:
-                del safe['level']
+            if safe['level'] not in self.levels:
+                try:
+                    safe['level'] = [x for x in self.levels if x < safe['level']][-1]
+                except:
+                    del safe['level']
 
         if 'level' in safe:
             optlist.extend(['-level', '%0.0f' % (safe['level'] * 10)])
@@ -1097,6 +1104,7 @@ class H265Codec(VideoCodec):
     codec_name = 'h265'
     ffmpeg_codec_name = 'libx265'
     codec_params = 'x265-params'
+    levels = [1, 2, 2.1, 3, 3.1, 4, 4.1, 5, 5.1, 5.2, 6, 6.1, 6.2]  # 8.5 excluded
     encoder_options = VideoCodec.encoder_options.copy()
     encoder_options.update({
         'preset': str,  # common presets are ultrafast, superfast, veryfast,
@@ -1158,8 +1166,11 @@ class H265Codec(VideoCodec):
         optlist = []
 
         if 'level' in safe:
-            if safe['level'] < 1.0 or safe['level'] > 6.2:
-                del safe['level']
+            if safe['level'] not in self.levels:
+                try:
+                    safe['level'] = [x for x in self.levels if x < safe['level']][-1]
+                except:
+                    del safe['level']
 
         if 'preset' in safe:
             optlist.extend(['-preset', safe['preset']])
@@ -1206,8 +1217,11 @@ class H265QSVCodec(H265Codec):
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         optlist = []
         if 'level' in safe:
-            if safe['level'] < 1.0 or safe['level'] > 6.2:
-                del safe['level']
+            if safe['level'] not in self.levels:
+                try:
+                    safe['level'] = [x for x in self.levels if x < safe['level']][-1]
+                except:
+                    del safe['level']
 
         if 'level' in safe:
             optlist.extend(['-level', '%0.0f' % (safe['level'] * 10)])
