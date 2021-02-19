@@ -512,8 +512,8 @@ class MediaProcessor:
             vwidth = self.settings.vwidth
 
         vlevel = self.settings.video_level
-        if self.settings.video_level and info.video.video_level and (info.video.video_level / 10 > self.settings.video_level):
-            self.log.debug("Video level %0.1f. Codec cannot be copied because video level is too high [video-max-level]." % (info.video.video_level / 10))
+        if self.settings.video_level and info.video.video_level and (info.video.video_level > self.settings.video_level):
+            self.log.debug("Video level %0.1f. Codec cannot be copied because video level is too high [video-max-level]." % (info.video.video_level))
             vdebug = vdebug + ".max-level"
             vcodec = vcodecs[0]
 

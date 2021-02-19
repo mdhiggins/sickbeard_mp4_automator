@@ -8,7 +8,7 @@ from subprocess import Popen, PIPE
 import logging
 import locale
 import json
-from converter.avcodecs import BaseCodec
+from converter.avcodecs import BaseCodec, video_codec_list
 
 
 console_encoding = locale.getdefaultlocale()[1] or 'UTF-8'
@@ -162,7 +162,7 @@ class MediaStreamInfo(object):
             if self.video_width and self.video_height:
                 out['dimensions'] = "%dx%d" % (self.video_width, self.video_height)
             if self.video_level:
-                out['level'] = self.video_level / 10
+                out['level'] = self.video_level
             out['field_order'] = self.field_order
         elif self.type == 'subtitle':
             out['disposition'] = self.dispostr
@@ -268,6 +268,11 @@ class MediaStreamInfo(object):
                     self.fps = self.parse_float(val)
             elif key == 'level':
                 self.video_level = self.parse_float(val)
+                try:
+                    codec_class = next(x for x in video_codec_list if x.ffprobe_codec_name == self.codec)
+                    self.video_level = codec_class.codec_specific_level_conversion(self.video_level)
+                except:
+                    pass
             elif key == 'pix_fmt':
                 self.pix_fmt = val.lower()
             elif key == "field_order":

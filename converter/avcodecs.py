@@ -26,6 +26,7 @@ class BaseCodec(object):
     encoder_options = {}
     codec_name = None
     ffmpeg_codec_name = None
+    ffprobe_codec_name = None
 
     def parse_options(self, opt):
         if 'codec' not in opt or opt['codec'] != self.codec_name:
@@ -691,6 +692,7 @@ class VorbisCodec(AudioCodec):
     """
     codec_name = 'vorbis'
     ffmpeg_codec_name = 'libvorbis'
+    ffprobe_codec_name = "vorbis"
     encoder_options = AudioCodec.encoder_options.copy()
     encoder_options.update({
         'quality': int,  # audio quality. Range is 0-10(highest quality)
@@ -711,6 +713,7 @@ class AacCodec(AudioCodec):
     """
     codec_name = 'aac'
     ffmpeg_codec_name = 'aac'
+    ffprobe_codec_name = 'aac'
     aac_experimental_enable = ['-strict', 'experimental']
 
     def parse_options(self, opt, stream=0):
@@ -730,6 +733,7 @@ class FdkAacCodec(AudioCodec):
     """
     codec_name = 'libfdk_aac'
     ffmpeg_codec_name = 'libfdk_aac'
+    ffprobe_codec_name = 'aac'
 
     def parse_options(self, opt, stream=0):
         if 'channels' in opt:
@@ -745,6 +749,7 @@ class FAacCodec(AudioCodec):
     """
     codec_name = 'libfaac'
     ffmpeg_codec_name = 'libfaac'
+    ffprobe_codec_name = 'aac'
 
     def parse_options(self, opt, stream=0):
         if 'channels' in opt:
@@ -760,6 +765,7 @@ class Ac3Codec(AudioCodec):
     """
     codec_name = 'ac3'
     ffmpeg_codec_name = 'ac3'
+    ffprobe_codec_name = 'ac3'
 
     def parse_options(self, opt, stream=0):
         if 'channels' in opt:
@@ -775,6 +781,7 @@ class EAc3Codec(AudioCodec):
     """
     codec_name = 'eac3'
     ffmpeg_codec_name = 'eac3'
+    ffprobe_codec_name = 'eac3'
 
     def parse_options(self, opt, stream=0):
         if 'channels' in opt:
@@ -794,6 +801,7 @@ class TrueHDCodec(AudioCodec):
     """
     codec_name = 'truehd'
     ffmpeg_codec_name = 'truehd'
+    ffprobe_codec_name = 'truehd'
     truehd_experimental_enable = ['-strict', 'experimental']
 
     def parse_options(self, opt, stream=0):
@@ -813,6 +821,7 @@ class FlacCodec(AudioCodec):
     """
     codec_name = 'flac'
     ffmpeg_codec_name = 'flac'
+    ffprobe_codec_name = 'flac'
     flac_experimental_enable = ['-strict', 'experimental']
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
@@ -825,6 +834,7 @@ class DtsCodec(AudioCodec):
     """
     codec_name = 'dts'
     ffmpeg_codec_name = 'dts'
+    ffprobe_codec_name = 'dts'
     dts_experimental_enable = ['-strict', 'experimental']
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
@@ -837,6 +847,7 @@ class Mp3Codec(AudioCodec):
     """
     codec_name = 'mp3'
     ffmpeg_codec_name = 'libmp3lame'
+    ffprobe_codec_name = 'mp3'
 
 
 class Mp2Codec(AudioCodec):
@@ -845,6 +856,7 @@ class Mp2Codec(AudioCodec):
     """
     codec_name = 'mp2'
     ffmpeg_codec_name = 'mp2'
+    ffprobe_codec_name = 'mp2'
 
 
 class OpusCodec(AudioCodec):
@@ -853,6 +865,7 @@ class OpusCodec(AudioCodec):
     """
     codec_name = 'opus'
     ffmpeg_codec_name = 'libopus'
+    ffprobe_codec_name = 'opus'
     opus_experimental_enable = ['-strict', 'experimental']
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
@@ -865,6 +878,7 @@ class PCMS24LECodec(AudioCodec):
     """
     codec_name = 'pcm_s24le'
     ffmpeg_codec_name = 'pcm_s24le'
+    ffprobe_codec_name = 'pcm_s24le'
 
 
 class PCMS16LECodec(AudioCodec):
@@ -873,6 +887,7 @@ class PCMS16LECodec(AudioCodec):
     """
     codec_name = 'pcm_s16le'
     ffmpeg_codec_name = 'pcm_s16le'
+    ffprobe_codec_name = 'pcm_s16le'
 
 
 # Video Codecs
@@ -882,6 +897,7 @@ class TheoraCodec(VideoCodec):
     """
     codec_name = 'theora'
     ffmpeg_codec_name = 'libtheora'
+    ffprobe_codec_name = 'theora'
     encoder_options = VideoCodec.encoder_options.copy()
     encoder_options.update({
         'quality': int,  # audio quality. Range is 0-10(highest quality)
@@ -901,6 +917,7 @@ class H264Codec(VideoCodec):
     """
     codec_name = 'h264'
     ffmpeg_codec_name = 'libx264'
+    ffprobe_codec_name = 'h264'
     codec_params = 'x264-params'
     levels = [1, 1.1, 1.2, 1.3, 2, 2.1, 2.2, 3, 3.1, 3.2, 4, 4.1, 4.2, 5, 5.1, 5.2, 6, 6.1, 6.2]
     encoder_options = VideoCodec.encoder_options.copy()
@@ -915,6 +932,10 @@ class H264Codec(VideoCodec):
         'params': str  # x264-params
     })
     scale_filter = 'scale'
+
+    @staticmethod
+    def codec_specific_level_conversion(ffprobe_level):
+        return ffprobe_level / 10.0
 
     def _codec_specific_parse_options(self, safe, stream=0):
         if 'width' in safe and safe['width']:
@@ -1103,6 +1124,7 @@ class H265Codec(VideoCodec):
     """
     codec_name = 'h265'
     ffmpeg_codec_name = 'libx265'
+    ffprobe_codec_name = 'hevc'
     codec_params = 'x265-params'
     levels = [1, 2, 2.1, 3, 3.1, 4, 4.1, 5, 5.1, 5.2, 6, 6.1, 6.2]  # 8.5 excluded
     encoder_options = VideoCodec.encoder_options.copy()
@@ -1118,6 +1140,10 @@ class H265Codec(VideoCodec):
         'framedata': dict  # dynamic params for framedata
     })
     scale_filter = 'scale'
+
+    @staticmethod
+    def codec_specific_level_conversion(ffprobe_level):
+        return ffprobe_level / 30.0
 
     def _codec_specific_parse_options(self, safe, stream=0):
         if 'width' in safe and safe['width']:
@@ -1399,6 +1425,7 @@ class DivxCodec(VideoCodec):
     """
     codec_name = 'divx'
     ffmpeg_codec_name = 'mpeg4'
+    ffprobe_codec_name = 'mpeg4'
 
 
 class Vp8Codec(VideoCodec):
@@ -1407,6 +1434,31 @@ class Vp8Codec(VideoCodec):
     """
     codec_name = 'vp8'
     ffmpeg_codec_name = 'libvpx'
+    ffprobe_codec_name = 'vp8'
+
+
+class Vp9Codec(VideoCodec):
+    """
+    Google VP9 video codec.
+    """
+    codec_name = 'vp9'
+    ffmpeg_codec_name = 'libvpx-vp9'
+    ffprobe_codec_name = 'vp9'
+
+
+class Vp9QSVCodec(Vp9Codec):
+    """
+    Google VP9 QSV video codec.
+    """
+    codec_name = 'vp9qsv'
+    ffmpeg_codec_name = 'vp9_qsv'
+
+
+class Vp9QSVAltCodec(Vp9QSVCodec):
+    """
+    Google VP9 QSV video codec alt.
+    """
+    codec_name = 'vp9_qsv'
 
 
 class H263Codec(VideoCodec):
@@ -1415,6 +1467,7 @@ class H263Codec(VideoCodec):
     """
     codec_name = 'h263'
     ffmpeg_codec_name = 'h263'
+    ffprobe_codec_name = 'h263'
 
 
 class FlvCodec(VideoCodec):
@@ -1423,6 +1476,7 @@ class FlvCodec(VideoCodec):
     """
     codec_name = 'flv'
     ffmpeg_codec_name = 'flv'
+    ffprobe_codec_name = 'flv1'
 
 
 class MpegCodec(VideoCodec):
@@ -1456,6 +1510,7 @@ class Mpeg1Codec(MpegCodec):
     """
     codec_name = 'mpeg1'
     ffmpeg_codec_name = 'mpeg1video'
+    ffprobe_codec_name = 'mpeg1video'
 
 
 class Mpeg2Codec(MpegCodec):
@@ -1464,6 +1519,7 @@ class Mpeg2Codec(MpegCodec):
     """
     codec_name = 'mpeg2'
     ffmpeg_codec_name = 'mpeg2video'
+    ffprobe_codec_name = 'mpeg2video'
 
 
 # Subtitle Codecs
@@ -1473,6 +1529,7 @@ class MOVTextCodec(SubtitleCodec):
     """
     codec_name = 'mov_text'
     ffmpeg_codec_name = 'mov_text'
+    ffprobe_codec_name = 'mov_text'
 
 
 class SrtCodec(SubtitleCodec):
@@ -1481,6 +1538,7 @@ class SrtCodec(SubtitleCodec):
     """
     codec_name = 'srt'
     ffmpeg_codec_name = 'srt'
+    ffprobe_codec_name = 'srt'
 
 
 class WebVTTCodec(SubtitleCodec):
@@ -1489,6 +1547,7 @@ class WebVTTCodec(SubtitleCodec):
     """
     codec_name = 'webvtt'
     ffmpeg_codec_name = 'webvtt'
+    ffprobe_codec_name = 'webvtt'
 
 
 class PGSCodec(SubtitleCodec):
@@ -1497,6 +1556,7 @@ class PGSCodec(SubtitleCodec):
     """
     codec_name = 'pgs'
     ffmpeg_codec_name = 'copy'  # Does not have an encoder
+    ffprobe_codec_name = 'hdmv_pgs_subtitle'
 
 
 class PGSCodecAlt(PGSCodec):
@@ -1512,6 +1572,7 @@ class SSACodec(SubtitleCodec):
     """
     codec_name = 'ass'
     ffmpeg_codec_name = 'ass'
+    ffprobe_codec_name = 'ass'
 
 
 class SubRip(SubtitleCodec):
@@ -1520,6 +1581,7 @@ class SubRip(SubtitleCodec):
     """
     codec_name = 'subrip'
     ffmpeg_codec_name = 'subrip'
+    ffprobe_codec_name = 'subrip'
 
 
 class DVBSub(SubtitleCodec):
@@ -1528,6 +1590,7 @@ class DVBSub(SubtitleCodec):
     """
     codec_name = 'dvbsub'
     ffmpeg_codec_name = 'dvbsub'
+    ffprobe_codec_name = 'dvb_subtitle'
 
 
 class DVDSub(SubtitleCodec):
@@ -1536,6 +1599,7 @@ class DVDSub(SubtitleCodec):
     """
     codec_name = 'dvdsub'
     ffmpeg_codec_name = 'dvdsub'
+    ffprobe_codec_name = 'dvd_subtitle'
 
 
 class DVDSubAlt(DVDSub):
@@ -1552,10 +1616,17 @@ audio_codec_list = [
 ]
 
 video_codec_list = [
-    VideoNullCodec, VideoCopyCodec, TheoraCodec, H264Codec, H264CodecAlt, H264QSVCodec, 
-    H265QSVCodecAlt, H265QSVCodec, H265Codec, H265CodecAlt, H265QSVCodecPatched,
-    DivxCodec, Vp8Codec, H263Codec, FlvCodec, Mpeg1Codec, NVEncH264Codec, NVEncH265Codec, NVEncH265CodecAlt,
-    Mpeg2Codec, H264VAAPICodec, H265VAAPICodec, OMXH264Codec, VideotoolboxEncH264, VideotoolboxEncH265
+    VideoNullCodec, VideoCopyCodec,
+    TheoraCodec,
+    H263Codec,
+    H264Codec, H264CodecAlt, H264QSVCodec, H264VAAPICodec, OMXH264Codec, VideotoolboxEncH264, NVEncH264Codec,
+    H265Codec, H265QSVCodecAlt, H265QSVCodec, H265CodecAlt, H265QSVCodecPatched, H265VAAPICodec, VideotoolboxEncH265, NVEncH265Codec, NVEncH265CodecAlt,
+    DivxCodec,
+    Vp8Codec,
+    Vp9Codec, Vp9QSVCodec, Vp9QSVAltCodec,
+    FlvCodec,
+    Mpeg1Codec,
+    Mpeg2Codec
 ]
 
 subtitle_codec_list = [
