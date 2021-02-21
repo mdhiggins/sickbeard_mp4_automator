@@ -13,7 +13,7 @@ from resources.mediaprocessor import MediaProcessor
 def rescanAndWait(host, port, webroot, apikey, protocol, seriesid, log, retries=6, delay=10):
     headers = {'X-Api-Key': apikey}
     # First trigger rescan
-    payload = {'name': 'RescanSeries', 'seriesId': int(seriesid)}
+    payload = {'name': 'RescanSeries', 'seriesId': seriesid}
     url = protocol + host + ":" + str(port) + webroot + "/api/command"
     r = requests.post(url, json=payload, headers=headers)
     rstate = r.json()
@@ -27,7 +27,7 @@ def rescanAndWait(host, port, webroot, apikey, protocol, seriesid, log, retries=
 
     # Then wait for it to finish
     url = protocol + host + ":" + str(port) + webroot + "/api/command/" + str(rstate['id'])
-    log.info("Requesting episode information from Sonarr for series ID %s." % seriesid)
+    log.info("Requesting episode information from Sonarr for series ID %d." % seriesid)
     r = requests.get(url, headers=headers)
     command = r.json()
     attempts = 0
@@ -44,8 +44,8 @@ def rescanAndWait(host, port, webroot, apikey, protocol, seriesid, log, retries=
 
 def getEpisodeInformation(host, port, webroot, apikey, protocol, episodeid, log):
     headers = {'X-Api-Key': apikey}
-    url = protocol + host + ":" + str(port) + webroot + "/api/episode?seriesId=" + seriesid
-    log.info("Requesting updated episode information from Sonarr for series ID %s." % seriesid)
+    url = protocol + host + ":" + str(port) + webroot + "/api/episode?seriesId=" + str(seriesid)
+    log.info("Requesting updated episode information from Sonarr for series ID %d." % seriesid)
     r = requests.get(url, headers=headers)
     payload = r.json()
     log.debug(str(payload))
@@ -71,7 +71,7 @@ def renameFile(inputfile, log):
 def renameSeries(host, port, webroot, apikey, protocol, seriesid, log):
     headers = {'X-Api-Key': apikey}
     # First trigger rescan
-    payload = {'name': 'RenameSeries', 'seriesIds': [int(seriesid)]}
+    payload = {'name': 'RenameSeries', 'seriesIds': [seriesid]}
     url = protocol + host + ":" + str(port) + webroot + "/api/command"
     r = requests.post(url, json=payload, headers=headers)
     rstate = r.json()
@@ -128,7 +128,7 @@ original = os.environ.get('sonarr_episodefile_scenename')
 tvdb_id = int(os.environ.get('sonarr_series_tvdbid'))
 imdb_id = os.environ.get('sonarr_series_imdbid')
 season = int(os.environ.get('sonarr_episodefile_seasonnumber'))
-seriesid = os.environ.get('sonarr_series_id')
+seriesid = int(os.environ.get('sonarr_series_id'))
 
 try:
     episode = int(os.environ.get('sonarr_episodefile_episodenumbers'))
@@ -141,7 +141,7 @@ log.debug("Input file: %s." % inputfile)
 log.debug("Original name: %s." % original)
 log.debug("TVDB ID: %s." % tvdb_id)
 log.debug("Season: %s episode: %s." % (season, episode))
-log.debug("Sonarr series ID: %s." % seriesid)
+log.debug("Sonarr series ID: %d." % seriesid)
 
 try:
     if settings.Sonarr.get('rename'):

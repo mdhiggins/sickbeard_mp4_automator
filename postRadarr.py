@@ -13,7 +13,7 @@ from resources.mediaprocessor import MediaProcessor
 def rescanAndWait(host, port, webroot, apikey, protocol, movieid, log, retries=6, delay=10):
     headers = {'X-Api-Key': apikey}
     # First trigger rescan
-    payload = {'name': 'RescanMovie', 'movieId': int(movieid)}
+    payload = {'name': 'RescanMovie', 'movieId': movieid}
     url = protocol + host + ":" + str(port) + webroot + "/api/command"
     r = requests.post(url, json=payload, headers=headers)
     rstate = r.json()
@@ -44,8 +44,8 @@ def rescanAndWait(host, port, webroot, apikey, protocol, movieid, log, retries=6
 
 def getMovieInformation(host, port, webroot, apikey, protocol, movieid, log):
     headers = {'X-Api-Key': apikey}
-    url = protocol + host + ":" + str(port) + webroot + "/api/movie/" + movieid
-    log.info("Requesting updated information from Radarr for movie ID %s." % movieid)
+    url = protocol + host + ":" + str(port) + webroot + "/api/movie/" + str(movieid)
+    log.info("Requesting updated information from Radarr for movie ID %d." % movieid)
     r = requests.get(url, headers=headers)
     payload = r.json()
     log.debug(str(payload))
@@ -67,7 +67,7 @@ def renameFile(inputfile, log):
 def renameMovie(host, port, webroot, apikey, protocol, movieid, log):
     headers = {'X-Api-Key': apikey}
     # First trigger rescan
-    payload = {'name': 'RenameMovie', 'movieIds': [int(movieid)]}
+    payload = {'name': 'RenameMovie', 'movieIds': [movieid]}
     url = protocol + host + ":" + str(port) + webroot + "/api/command"
     r = requests.post(url, json=payload, headers=headers)
     rstate = r.json()
@@ -123,7 +123,7 @@ inputfile = os.environ.get('radarr_moviefile_path')
 original = os.environ.get('radarr_moviefile_scenename')
 imdbid = os.environ.get('radarr_movie_imdbid')
 tmdbid = os.environ.get('radarr_movie_tmdbid')
-movieid = os.environ.get('radarr_movie_id')
+movieid = int(os.environ.get('radarr_movie_id'))
 
 mp = MediaProcessor(settings)
 
@@ -131,7 +131,7 @@ log.debug("Input file: %s." % inputfile)
 log.debug("Original name: %s." % original)
 log.debug("IMDB ID: %s." % imdbid)
 log.debug("TMDB ID: %s." % tmdbid)
-log.debug("Radarr Movie ID: %s." % movieid)
+log.debug("Radarr Movie ID: %d." % movieid)
 
 try:
     if settings.Radarr.get('rename'):
