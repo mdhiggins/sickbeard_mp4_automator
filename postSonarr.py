@@ -13,7 +13,7 @@ from resources.mediaprocessor import MediaProcessor
 def rescanAndWait(host, port, webroot, apikey, protocol, seriesid, log, retries=6, delay=10):
     headers = {'X-Api-Key': apikey}
     # First trigger rescan
-    payload = {'name': 'RescanSeries', 'seriesId': seriesid}
+    payload = {'name': 'RescanSeries', 'seriesId': int(seriesid)}
     url = protocol + host + ":" + str(port) + webroot + "/api/command"
     r = requests.post(url, json=payload, headers=headers)
     rstate = r.json()
@@ -71,7 +71,7 @@ def renameFile(inputfile, log):
 def renameSeries(host, port, webroot, apikey, protocol, seriesid, log):
     headers = {'X-Api-Key': apikey}
     # First trigger rescan
-    payload = {'name': 'RenameSeries', 'seriesIds': [seriesid]}
+    payload = {'name': 'RenameSeries', 'seriesIds': [int(seriesid)]}
     url = protocol + host + ":" + str(port) + webroot + "/api/command"
     r = requests.post(url, json=payload, headers=headers)
     rstate = r.json()
