@@ -1,5 +1,4 @@
 requests
-pyOpenSSL
 idna
 requests-cache
 babelfish
