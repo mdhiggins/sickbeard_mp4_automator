@@ -21,6 +21,7 @@ def rescanAndWait(host, port, webroot, apikey, protocol, movieid, log, retries=6
         rstate = rstate[0]
     except:
         pass
+    log.debug(str(payload))
     log.debug(str(rstate))
     log.info("Radarr response Rescan command: ID %d %s." % (rstate['id'], rstate['state']))
 
@@ -47,6 +48,7 @@ def getMovieInformation(host, port, webroot, apikey, protocol, movieid, log):
     log.info("Requesting updated information from Radarr for movie ID %s." % movieid)
     r = requests.get(url, headers=headers)
     payload = r.json()
+    log.debug(str(payload))
     return payload
 
 
@@ -73,6 +75,7 @@ def renameMovie(host, port, webroot, apikey, protocol, movieid, log):
         rstate = rstate[0]
     except:
         pass
+    log.debug(str(payload))
     log.debug(str(rstate))
     log.info("Radarr response Rename command: ID %d %s." % (rstate['id'], rstate['state']))
 

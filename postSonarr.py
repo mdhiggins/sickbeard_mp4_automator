@@ -21,6 +21,7 @@ def rescanAndWait(host, port, webroot, apikey, protocol, seriesid, log, retries=
         rstate = rstate[0]
     except:
         pass
+    log.debug(str(payload))
     log.debug(str(rstate))
     log.info("Sonarr response RescanSeries command: ID %d %s." % (rstate['id'], rstate['state']))
 
@@ -47,6 +48,7 @@ def getEpisodeInformation(host, port, webroot, apikey, protocol, episodeid, log)
     log.info("Requesting updated episode information from Sonarr for series ID %s." % seriesid)
     r = requests.get(url, headers=headers)
     payload = r.json()
+    log.debug(str(payload))
     sonarrepinfo = None
     for ep in payload:
         if int(ep['episodeNumber']) == episode and int(ep['seasonNumber']) == season:
@@ -77,6 +79,7 @@ def renameSeries(host, port, webroot, apikey, protocol, seriesid, log):
         rstate = rstate[0]
     except:
         pass
+    log.debug(str(payload))
     log.debug(str(rstate))
     log.info("Sonarr response RenameSeries command: ID %d %s." % (rstate['id'], rstate['state']))
 
