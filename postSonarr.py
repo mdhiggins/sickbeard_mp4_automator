@@ -21,8 +21,8 @@ def rescanAndWait(host, port, webroot, apikey, protocol, seriesid, log, retries=
         rstate = rstate[0]
     except:
         pass
-    log.info("Sonarr response RescanSeries command: ID %d %s." % (rstate['id'], rstate['state']))
     log.debug(str(rstate))
+    log.info("Sonarr response RescanSeries command: ID %d %s." % (rstate['id'], rstate['state']))
 
     # Then wait for it to finish
     url = protocol + host + ":" + str(port) + webroot + "/api/command/" + str(rstate['id'])
@@ -36,8 +36,8 @@ def rescanAndWait(host, port, webroot, apikey, protocol, seriesid, log, retries=
         r = requests.get(url, headers=headers)
         command = r.json()
         attempts += 1
-    log.info("Final state: %s." % (command['state']))
     log.debug(str(command))
+    log.info("Final state: %s." % (command['state']))
     return command['state'].lower() in ['complete', 'completed']
 
 
@@ -77,8 +77,8 @@ def renameSeries(host, port, webroot, apikey, protocol, seriesid, log):
         rstate = rstate[0]
     except:
         pass
-    log.info("Sonarr response RenameSeries command: ID %d %s." % (rstate['id'], rstate['state']))
     log.debug(str(rstate))
+    log.info("Sonarr response RenameSeries command: ID %d %s." % (rstate['id'], rstate['state']))
 
 
 def backupSubs(inputpath, mp, log, extension=".backup"):
