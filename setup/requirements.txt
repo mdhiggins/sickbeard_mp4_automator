@@ -1,5 +1,4 @@
 requests
-requests[security]
 requests-cache
 babelfish
 tmdbsimple
