@@ -114,10 +114,10 @@ def getLogger(name=None, custompath=None):
 
     logpath = configpath
     if not os.path.isdir(logpath):
-        os.mkdir(logpath)
+        os.makedirs(logpath)
 
     if not os.path.isdir(configpath):
-        os.mkdir(configpath)
+        os.makedirs(configpath)
 
     configfile = os.path.abspath(os.path.join(configpath, 'logging.ini')).replace("\\", "\\\\")
     checkLoggingConfig(configfile)

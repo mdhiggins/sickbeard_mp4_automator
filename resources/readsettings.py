@@ -960,7 +960,7 @@ class ReadSettings:
 
     def writeConfig(self, config, cfgfile):
         if not os.path.isdir(os.path.dirname(cfgfile)):
-            os.mkdir(os.path.dirname(cfgfile))
+            os.makedirs(os.path.dirname(cfgfile))
         try:
             fp = open(cfgfile, "w")
             config.write(fp)

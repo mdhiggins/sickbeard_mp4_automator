@@ -1722,8 +1722,8 @@ class MediaProcessor:
             for d in self.settings.copyto:
                 if (relativePath):
                     d = os.path.join(d, relativePath)
-                    if not os.path.exists(d):
-                        os.makedirs(d)
+                if not os.path.exists(d):
+                    os.makedirs(d)
                 try:
                     shutil.copy(inputfile, d)
                     self.log.info("%s copied to %s." % (inputfile, d))

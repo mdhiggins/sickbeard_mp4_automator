@@ -2,6 +2,7 @@
 
 import os
 import sys
+import re
 from autoprocess import autoProcessTV, autoProcessMovie, autoProcessTVSR, sonarr, radarr
 from resources.readsettings import ReadSettings
 from resources.mediaprocessor import MediaProcessor
@@ -97,9 +98,9 @@ try:
             settings.delete = False
             if not settings.output_dir:
                 suffix = "convert"
-                settings.output_dir = os.path.join(path, ("%s-%s" % (torrent_name, suffix)))
+                settings.output_dir = os.path.join(path, ("%s-%s" % (re.sub(r'[^\w\-_\. ]', '_', torrent_name), suffix)))
             else:
-                settings.output_dir = os.path.join(settings.output_dir, torrent_name)
+                settings.output_dir = os.path.join(settings.output_dir, re.sub(r'[^\w\-_\. ]', '_', torrent_name))
             if not os.path.exists(settings.output_dir):
                 try:
                     os.makedirs(settings.output_dir)
@@ -133,10 +134,10 @@ try:
             path = settings.output_dir
         else:
             suffix = "copy"
-            newpath = os.path.join(path, ("%s-%s" % (torrent_name, suffix)))
+            newpath = os.path.join(path, ("%s-%s" % (re.sub(r'[^\w\-_\. ]', '_', torrent_name), suffix)))
             if not os.path.exists(newpath):
                 try:
-                    os.mkdir(newpath)
+                    os.makedirs(newpath)
                 except:
                     log.exception("Unable to make copy directory %s." % newpath)
             for inputfile in files:
