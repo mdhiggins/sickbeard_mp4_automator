@@ -202,7 +202,7 @@ def movieInfo(guessData, tmdbid=None, imdbid=None, language=None, original=None)
         log.debug("Guessed filename resulted in TMDB ID %s" % tmdbid)
 
     metadata = Metadata(MediaType.Movie, tmdbid=tmdbid, imdbid=imdbid, language=language, logger=log, original=original)
-    log.info("Matched movie title as: %s %s (TMDB ID: %s)" % (metadata.title, metadata.date, tmdbid))
+    log.info("Matched movie title as: %s %s (TMDB ID: %s)" % (metadata.title, metadata.date, metadata.tmdbid))
     return metadata
 
 
