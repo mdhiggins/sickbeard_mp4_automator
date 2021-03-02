@@ -62,7 +62,7 @@ class Converter(object):
             return next((x.codec_name for x in attachment_codec_list if x.ffmpeg_codec_name == ffmpeg_codec_name), None)
         return None
 
-    def parse_options(self, opt, twopass=None):
+    def parse_options(self, opt, twopass=None, strip_metadata=False):
         """
         Parse format/codec options and prepare raw ffmpeg option list.
         """
@@ -177,8 +177,10 @@ class Converter(object):
             if video_options is None:
                 raise ConverterError('Unknown video codec error')
 
+        metadata_options = ["-map_metadata", "-1"] if strip_metadata else []
+
         # aggregate all options
-        optlist = source_options + video_options + audio_options + subtitle_options + attachment_options + format_options
+        optlist = source_options + metadata_options + video_options + audio_options + subtitle_options + attachment_options + format_options
 
         if twopass == 1:
             optlist.extend(['-pass', '1'])
@@ -199,7 +201,7 @@ class Converter(object):
             i += 1
 
         os.rename(outfile, infile)
-        opts = ['-i', infile, '-map', '0:v:0', '-c:v:0', 'copy', '-map', '0:a?', '-c:a', 'copy', '-map', '0:s?', '-c:s', 'copy', '-map', '0:t?', '-c:t', 'copy']
+        opts = ['-i', infile, '-map', '0:v?', '-c:v', 'copy', '-map', '0:a?', '-c:a', 'copy', '-map', '0:s?', '-c:s', 'copy', '-map', '0:t?', '-c:t', 'copy']
 
         info = self.ffmpeg.probe(infile)
         i = len(info.attachment)
@@ -218,7 +220,7 @@ class Converter(object):
             yield int((100.0 * timecode) / info.format.duration), debug
         os.remove(infile)
 
-    def convert(self, outfile, options, twopass=False, timeout=10, preopts=None, postopts=None):
+    def convert(self, outfile, options, twopass=False, timeout=10, preopts=None, postopts=None, strip_metadata=False):
         """
         Convert media file (infile) according to specified options, and
         save it to outfile. For two-pass encoding, specify the pass (1 or 2)
@@ -289,19 +291,28 @@ class Converter(object):
             raise ConverterError('Zero-length media')
 
         if twopass:
-            optlist1 = self.parse_options(options, 1)
-            for timecode, debug in self.ffmpeg.convert(outfile, optlist1,
-                                                timeout=timeout, preopts=preopts, postopts=postopts):
+            optlist1 = self.parse_options(options, 1, strip_metadata=strip_metadata)
+            for timecode, debug in self.ffmpeg.convert(outfile,
+                                                       optlist1,
+                                                       timeout=timeout,
+                                                       preopts=preopts,
+                                                       postopts=postopts):
                 yield int((50.0 * timecode) / info.format.duration), debug
 
-            optlist2 = self.parse_options(options, 2)
-            for timecode, debug in self.ffmpeg.convert(outfile, optlist2,
-                                                timeout=timeout, preopts=preopts, postopts=postopts):
+            optlist2 = self.parse_options(options, 2, strip_metadata=strip_metadata)
+            for timecode, debug in self.ffmpeg.convert(outfile,
+                                                       optlist2,
+                                                       timeout=timeout,
+                                                       preopts=preopts,
+                                                       postopts=postopts):
                 yield int(50.0 + (50.0 * timecode) / info.format.duration), debug
         else:
-            optlist = self.parse_options(options, twopass)
-            for timecode, debug in self.ffmpeg.convert(outfile, optlist,
-                                                timeout=timeout, preopts=preopts, postopts=postopts):
+            optlist = self.parse_options(options, twopass, strip_metadata=strip_metadata)
+            for timecode, debug in self.ffmpeg.convert(outfile,
+                                                       optlist,
+                                                       timeout=timeout,
+                                                       preopts=preopts,
+                                                       postopts=postopts):
                 yield int((100.0 * timecode) / info.format.duration), debug
 
     def probe(self, fname, posters_as_video=True):

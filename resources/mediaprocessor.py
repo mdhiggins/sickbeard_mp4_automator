@@ -1588,7 +1588,7 @@ class MediaProcessor:
             i += 1
 
         try:
-            conv = self.converter.convert(outputfile, options, timeout=None, preopts=preopts, postopts=postopts)
+            conv = self.converter.convert(outputfile, options, timeout=None, preopts=preopts, postopts=postopts, strip_metadata=self.settings.strip_metadata)
         except:
             self.log.exception("Error converting file.")
             return None, inputfile

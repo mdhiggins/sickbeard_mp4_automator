@@ -131,6 +131,7 @@ class ReadSettings:
             'tag-language': 'eng',
             'download-artwork': 'poster',
             'sanitize-disposition': '',
+            'strip-metadata': False,
         },
         'Video': {
             'codec': 'h264, x264',
@@ -679,6 +680,7 @@ class ReadSettings:
                 self.artwork = True
                 self.log.error("Invalid download-artwork value, defaulting to 'poster'.")
         self.sanitize_disposition = config.getlist(section, "sanitize-disposition")
+        self.strip_metadata = config.getboolean(section, "strip-metadata")
 
         # Video
         section = "Video"
