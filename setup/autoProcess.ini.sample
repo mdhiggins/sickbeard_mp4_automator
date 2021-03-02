@@ -22,6 +22,7 @@ force-convert = False
 post-process = False
 wait-post-process = False
 detailed-progress = False
+opts-separator = ,
 preopts = 
 postopts = 
 
@@ -37,6 +38,7 @@ tag = True
 tag-language = eng
 download-artwork = poster
 sanitize-disposition = 
+strip-metadata = False
 
 [Video]
 codec = h264, x264
@@ -86,9 +88,6 @@ ignore-truehd = mp4, m4v
 ignored-dispositions = 
 unique-dispositions = False
 
-[Audio.ChannelFilters]
-6-2 = pan=stereo|FL=0.5*FC+0.707*FL+0.707*BL+0.5*LFE|FR=0.5*FC+0.707*FR+0.707*BR+0.5*LFE
-
 [Universal Audio]
 codec = aac
 channel-bitrate = 128
@@ -96,6 +95,9 @@ first-stream-only = False
 move-after = False
 filter = 
 force-filter = False
+
+[Audio.ChannelFilters]
+6-2 = pan=stereo|FL=0.5*FC+0.707*FL+0.707*BL+0.5*LFE|FR=0.5*FC+0.707*FR+0.707*BR+0.5*LFE
 
 [Subtitle]
 codec = mov_text
@@ -106,9 +108,6 @@ first-stream-of-language = False
 encoding = 
 burn-subtitles = False
 burn-dispositions = 
-download-subs = False
-download-hearing-impaired-subs = False
-download-providers = 
 embed-subs = True
 embed-image-subs = False
 embed-only-internal-subs = False
@@ -117,6 +116,15 @@ ignore-embedded-subs = False
 ignored-dispositions = 
 unique-dispositions = False
 attachment-codec = 
+
+[Subtitle.Subliminal]
+download-subs = False
+download-hearing-impaired-subs = False
+providers = 
+
+[Subtitle.Subliminal.Auth]
+opensubtitles = 
+tvsubtitles = 
 
 [Sonarr]
 host = localhost
