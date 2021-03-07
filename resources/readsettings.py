@@ -226,6 +226,7 @@ class ReadSettings:
             'ssl': False,
             'webroot': '',
             'force-rename': False,
+            'rescan': True,
         },
         'Radarr': {
             'host': 'localhost',
@@ -234,6 +235,7 @@ class ReadSettings:
             'ssl': False,
             'webroot': '',
             'force-rename': False,
+            'rescan': True,
         },
         'Sickbeard': {
             'host': 'localhost',
@@ -829,6 +831,7 @@ class ReadSettings:
         if self.Sonarr['webroot'].endswith("/"):
             self.Sonarr['webroot'] = self.Sonarr['webroot'][:-1]
         self.Sonarr['rename'] = config.getboolean(section, "force-rename")
+        self.Sonarr['rescan'] = config.getboolean(section, "rescan")
 
         # Radarr
         section = "Radarr"
@@ -843,6 +846,7 @@ class ReadSettings:
         if self.Radarr['webroot'].endswith("/"):
             self.Radarr['webroot'] = self.Radarr['webroot'][:-1]
         self.Radarr['rename'] = config.getboolean(section, "force-rename")
+        self.Radarr['rescan'] = config.getboolean(section, "rescan")
 
         # Sickbeard
         section = "Sickbeard"

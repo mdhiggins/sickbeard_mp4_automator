@@ -144,7 +144,9 @@ try:
 
     success = mp.fullprocess(inputfile, MediaType.Movie, original=original, tmdbid=tmdbid, imdbid=imdbid)
 
-    if success:
+    if success and not settings.Sonarr['rescan']:
+        log.info("File processed successfully and rescan API update disabled")
+    elif success:
         # Update Radarr to continue monitored status
         try:
             host = settings.Radarr['host']

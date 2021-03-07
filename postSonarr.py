@@ -154,7 +154,9 @@ try:
 
     success = mp.fullprocess(inputfile, MediaType.TV, tvdbid=tvdb_id, imdbid=imdb_id, season=season, episode=episode, original=original)
 
-    if success:
+    if success and not settings.Sonarr['rescan']:
+        log.info("File processed successfully and rescan API update disabled")
+    elif success:
         # Update Sonarr to continue monitored status
         try:
             host = settings.Sonarr['host']
