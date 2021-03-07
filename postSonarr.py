@@ -10,6 +10,25 @@ from resources.metadata import MediaType
 from resources.mediaprocessor import MediaProcessor
 
 
+def downloadedEpisodesScanInProgress(host, port, webroot, apikey, protocol, episodefile_sourcefolder, log):
+    headers = {'X-Api-Key': apikey}
+    url = protocol + host + ":" + str(port) + webroot + "/api/command"
+    log.debug("Requesting list of commands in process")
+    r = requests.get(url, headers=headers)
+    commands = r.json()
+    log.debug(commands)
+    log.debug(episodefile_sourcefolder)
+    for c in commands:
+        if c.get('name') == "DownloadedEpisodesScan":
+            try:
+                if c['body']['path'] == episodefile_sourcefolder:
+                    log.debug("Found a matching path scan in progress %s" % (episodefile_sourcefolder))
+                    return True
+            except:
+                pass
+    return False
+
+
 def rescanAndWait(host, port, webroot, apikey, protocol, seriesid, log, retries=6, delay=10):
     headers = {'X-Api-Key': apikey}
     # First trigger rescan
@@ -27,7 +46,7 @@ def rescanAndWait(host, port, webroot, apikey, protocol, seriesid, log, retries=
 
     # Then wait for it to finish
     url = protocol + host + ":" + str(port) + webroot + "/api/command/" + str(rstate['id'])
-    log.info("Requesting episode information from Sonarr for series ID %d." % seriesid)
+    log.info("Requesting command status from Sonarr for command ID %d." % rstate['id'])
     r = requests.get(url, headers=headers)
     command = r.json()
     attempts = 0
@@ -129,6 +148,7 @@ tvdb_id = int(os.environ.get('sonarr_series_tvdbid'))
 imdb_id = os.environ.get('sonarr_series_imdbid')
 season = int(os.environ.get('sonarr_episodefile_seasonnumber'))
 seriesid = int(os.environ.get('sonarr_series_id'))
+episodefile_sourcefolder = os.environ.get('sonarr_episodefile_sourcefolder')
 
 try:
     episode = int(os.environ.get('sonarr_episodefile_episodenumbers'))
@@ -177,7 +197,11 @@ try:
 
                 subs = backupSubs(success[0], mp, log)
 
-                if rescanAndWait(host, port, webroot, apikey, protocol, seriesid, log):
+                if downloadedEpisodesScanInProgress(host, port, webroot, apikey, protocol, episodefile_sourcefolder, log):
+                    log.info("DownloadedEpisodesScan command is in process for this episode, cannot wait for rescan but will queue")
+                    rescanAndWait(host, port, webroot, apikey, protocol, seriesid, log, retries=0)
+                    renameSeries(host, port, webroot, apikey, protocol, seriesid, log)
+                elif rescanAndWait(host, port, webroot, apikey, protocol, seriesid, log):
                     log.info("Rescan command completed")
 
                     sonarrepinfo = getEpisodeInformation(host, port, webroot, apikey, protocol, seriesid, log)
