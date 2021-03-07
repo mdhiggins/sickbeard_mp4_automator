@@ -21,7 +21,7 @@ def downloadedEpisodesScanInProgress(host, port, webroot, apikey, protocol, epis
     for c in commands:
         if c.get('name') == "DownloadedEpisodesScan":
             try:
-                if c['body']['path'] == episodefile_sourcefolder:
+                if c['body']['path'] == episodefile_sourcefolder and c['state'] == 'started':
                     log.debug("Found a matching path scan in progress %s" % (episodefile_sourcefolder))
                     return True
             except:

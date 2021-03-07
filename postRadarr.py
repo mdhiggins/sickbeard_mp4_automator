@@ -21,7 +21,7 @@ def downloadedMoviesScanInProgress(host, port, webroot, apikey, protocol, movief
     for c in commands:
         if c.get('name') == "DownloadedMoviesScan":
             try:
-                if c['body']['path'] == moviefile_sourcefolder:
+                if c['body']['path'] == moviefile_sourcefolder and c['state'] == 'started':
                     log.debug("Found a matching path scan in progress %s" % (moviefile_sourcefolder))
                     return True
             except:
