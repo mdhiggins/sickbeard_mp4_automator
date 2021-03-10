@@ -163,6 +163,8 @@ class Converter(object):
                 attachment_options.extend(self.attachment_codecs[c]().parse_options(x, y.index(x)))
                 if attachment_options is None:
                     raise ConverterError('Unknown attachment codec error')
+            if len(attachment_options) > 0:
+                attachment_options.extend(['-map_metadata:s:t', '0:s:t'])
 
         if 'video' in opt:
             x = opt['video']
