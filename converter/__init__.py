@@ -156,6 +156,12 @@ class Converter(object):
                 if not isinstance(x, dict) or 'codec' not in x:
                     raise ConverterError('Invalid attachment codec specification')
 
+                if 'filename' not in x:
+                    raise ConverterError("Attachment codec requires a filename")
+
+                if 'mimetype' not in x:
+                    raise ConverterError("Attachment codec requires a mimetype")
+
                 c = x['codec']
                 if c not in self.attachment_codecs:
                     raise ConverterError('Requested unknown attachment codec ' + str(c))
@@ -163,8 +169,6 @@ class Converter(object):
                 attachment_options.extend(self.attachment_codecs[c]().parse_options(x, y.index(x)))
                 if attachment_options is None:
                     raise ConverterError('Unknown attachment codec error')
-            if len(attachment_options) > 0:
-                attachment_options.extend(['-map_metadata:s:t', '0:s:t'])
 
         if 'video' in opt:
             x = opt['video']

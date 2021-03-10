@@ -167,6 +167,9 @@ class MediaStreamInfo(object):
         elif self.type == 'subtitle':
             out['disposition'] = self.dispostr
             out['language'] = language
+        elif self.type == 'attachment':
+            out['filename'] = self.metadata.get('filename')
+            out['mimetype'] = self.metadata.get('mimetype')
         return out
 
     @property

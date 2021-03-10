@@ -992,10 +992,12 @@ class MediaProcessor:
         # Attachments
         attachments = []
         for f in info.attachment:
-            if f.codec in self.settings.attachmentcodec:
+            if f.codec in self.settings.attachmentcodec and 'mimetype' in f.metadata and 'filename' in f.metadata:
                 attachment = {
                     'map': f.index,
-                    'codec': 'copy'
+                    'codec': 'copy',
+                    'filename': f.metadata['filename'],
+                    'mimetype': f.metadata['mimetype']
                 }
                 attachments.append(attachment)
 

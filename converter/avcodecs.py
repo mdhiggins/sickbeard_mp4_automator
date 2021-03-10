@@ -666,7 +666,9 @@ class AttachmentCopyCodec(BaseCodec):
     """
     codec_name = 'copy'
     encoder_options = {'map': int,
-                       'source': str}
+                       'source': str,
+                       'filename': str,
+                       'mimetype': str}
 
     optlist = []
 
@@ -676,6 +678,10 @@ class AttachmentCopyCodec(BaseCodec):
         stream = str(stream)
         optlist = []
         optlist.extend(['-c:t:' + stream, 'copy'])
+        if 'filename' in safe:
+            optlist.extend(['-metadata:s:t:' + stream, "filename=" + str(safe['filename'])])
+        if 'mimetype' in safe:
+            optlist.extend(['-metadata:s:t:' + stream, "mimetype=" + str(safe['mimetype'])])
         if 'source' in safe:
             s = str(safe['source'])
         else:
