@@ -813,7 +813,7 @@ class ReadSettings:
                             self.log.error("Unable to parse %s %s, skipping." % (section, key))
                         continue
                     credentials = [x.strip() for x in credentials]
-                    self.subproviders_auth[key.strip()] = {credentials[0]: credentials[1]}
+                    self.subproviders_auth[key.strip()] = {'username': credentials[0], 'password': credentials[1]}
                 except:
                     self.log.exception("Unable to parse %s %s, skipping." % (section, key))
                     continue
