@@ -54,8 +54,7 @@ Sonarr Setup
 --------------
 1. Set your [Sonarr settings](https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/autoProcess-Settings#sonarr) in autoProcess.ini
 2. Browse to the Settings>Download Client tab and enable advanced settings [Show].
-3. Set the Drone Factory Interval' to 0 to disable it, and disable 'Completed Download Handling' in Sonarr settings. The script will trigger a specific path re-scan, allowing the conversion to be completed before Sonarr starts moving stuff around. This step is optional if you do not desire any processing between the downloading by whichever downloader you choose (NZB or Torrent), but is required if you wish to convert the file before it is handed back to Sonarr. **You must use either a download script or enabled Completed Download Handling. If neither are used the file will never be passed back**
-4. Setup the postSonarr.py script via Settings > Connect > Connections > + (Add)
+3. Setup the postSonarr.py script via Settings > Connect > Connections > + (Add)
     - `name` - postSonarr
     - `On Grab` - No
     - `On Download` - Yes
@@ -64,13 +63,13 @@ Sonarr Setup
     - `Path` - Full path to your python executable
     - `Arguments` - Full path to `postSonarr.py`
     - For Sonarr V3 you'll need to make a .sh or .bat file to combine your path to python and script
+4. **OPTIONAL** If you desire to convert the file before it is handed back to Sonarr, disable 'Completed Download Handling' in Sonarr settings and configure your download client to use its included script (scroll down to your relevant download client in the readme). The script will trigger a specific path re-scan, allowing the conversion to be completed before Sonarr starts moving stuff around. **You must use either a download script or enabled Completed Download Handling. If neither are used the file will never be passed back**
 
 Radarr Setup
 --------------
 1. Set your [Radarr settings](https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/autoProcess-Settings#radarr) in autoProcess.ini
 2. Browse to the Settings>Download Client tab and enable advanced settings [Show].
-3. Set the Drone Factory Interval' to 0 to disable it, and disable 'Completed Download Handling' in Radarr settings. The script will trigger a specific path re-scan, allowing the conversion to be completed before Radarr starts moving stuff around. This step is optional if you do not desire any processing between the downloading by whichever downloader you choose (NZB or Torrent), but is required if you wish to convert the file before it is handed back to Radarr. **You must use either a download script or enabled Completed Download Handling. If neither are used the file will never be passed back**
-4. Setup the postRadarr.py script via Settings > Connect > Connections > + (Add)
+3. Setup the postRadarr.py script via Settings > Connect > Connections > + (Add)
     - `name` - postRadarr
     - `On Grab` - No
     - `On Download` - Yes
@@ -79,6 +78,7 @@ Radarr Setup
     - `Path` - Full path to your python executable
     - `Arguments` - Full path to `postRadarr.py`
     - For Radarr V3 you'll need to make a .sh or .bat file to combine your path to python and script
+4. **OPTIONAL** If you desire to convert the file before it is handed back to Radarr, disable 'Completed Download Handling' in Radarr settings and configure your download client to use its included script (scroll down to your relevant download client in the readme). The script will trigger a specific path re-scan, allowing the conversion to be completed before Radarr starts moving stuff around. **You must use either a download script or enabled Completed Download Handling. If neither are used the file will never be passed back**
 
 Sickbeard Setup
 --------------
@@ -137,6 +137,8 @@ NZBGet Setup
 4. When assigning categories in NZBGet and your chosen media manager, ensure they match the label settings specified here so that file will be passed back to the appropriate location.
     - In the relevant category set `PostScript` to NZBGetPostProcess.py to ensure SMA is called.
 
+*Not required if using Completed Download Handling with Sonarr/Radarr*
+
 SABNZBD Setup
 --------------
 1. Set your [SABNZBD settings](https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/autoProcess-Settings#sabnzbd) in autoProcess.ini
@@ -152,6 +154,8 @@ SABNZBD Setup
     - Select the SABPostProcess.py script
     - Save EACH category
 4. Verify that whatever media manager you are using is assigning the label to match the label settings specified here so that file will be passed back to the appropriate location
+
+*Not required if using Completed Download Handling with Sonarr/Radarr*
 
 Deluge Daemon Setup
 --------------
@@ -173,6 +177,8 @@ Deluge Daemon Setup
 5. Set your [Deluge settings](https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/autoProcess-Settings#deluge) in autoProcess.ini
 6. Verify that whatever downloader you are using is assigning the label to match the label settings specified here so that file will be passed back to the appropriate location
 
+*Not required if using Completed Download Handling with Sonarr/Radarr*
+
 uTorrent Setup
 --------------
 1. Launch uTorrent
@@ -182,6 +188,8 @@ uTorrent Setup
 3. Set your [uTorrent settings](https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/autoProcess-Settings#utorrent) in autoProcess.ini
 4. Verify that whatever media manager you are using is assigning the label to match the label settings specified here so that file will be passed back to the appropriate location
 
+*Not required if using Completed Download Handling with Sonarr/Radarr*
+
 qBittorrent Setup
 --------------
 1. Launch qBittorrent
@@ -190,6 +198,8 @@ qBittorrent Setup
     - Point to `qBittorrentPostProcess.py` with command line parameters: `"%L" "%T" "%R" "%F" "%N" "%I"` in that exact order.
 3. Set your [qBittorrent settings](https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/autoProcess-Settings#qbittorrent) in autoProcess.ini
 4. Verify that whatever media manager you are using is assigning the label to match the label settings specified here so that file will be passed back to the appropriate location
+
+*Not required if using Completed Download Handling with Sonarr/Radarr*
 
 Plex Notification
 --------------
