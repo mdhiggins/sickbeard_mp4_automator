@@ -10,10 +10,60 @@ from resources.metadata import MediaType
 from resources.mediaprocessor import MediaProcessor
 
 
-def downloadedMoviesScanInProgress(host, port, webroot, apikey, protocol, moviefile_sourcefolder, log):
-    headers = {'X-Api-Key': apikey}
-    url = protocol + host + ":" + str(port) + webroot + "/api/command"
-    log.debug("Requesting list of commands in process")
+# Radarr API functions
+def rescanAndWait(baseURL, headers, movieid, log, retries=6, delay=10):
+    url = baseURL + "/api/v3/command"
+    log.debug("Queueing rescan command to Radarr via %s." % url)
+
+    # First trigger rescan
+    payload = {'name': 'RescanMovie', 'movieId': movieid}
+    log.debug(str(payload))
+
+    r = requests.post(url, json=payload, headers=headers)
+    rstate = r.json()
+    try:
+        rstate = rstate[0]
+    except:
+        pass
+    log.debug(str(rstate))
+    log.debug("Radarr response from RescanMovie command: ID %d %s." % (rstate['id'], rstate['status']))
+
+    # Then wait for it to finish
+    url = baseURL + "/api/v3/command/" + str(rstate['id'])
+    log.debug("Requesting command status from Sonarr via %s." % url)
+    r = requests.get(url, headers=headers)
+    command = r.json()
+
+    attempts = 0
+    while command['status'].lower() not in ['complete', 'completed'] and attempts < retries:
+        log.debug("Status: %s." % (command['status']))
+        time.sleep(delay)
+        r = requests.get(url, headers=headers)
+        command = r.json()
+        attempts += 1
+    log.debug(str(command))
+    log.debug("Final status: %s." % (command['status']))
+    return command['status'].lower() in ['complete', 'completed']
+
+
+def renameRequest(baseURL, headers, movieid, log):
+    url = baseURL + "/api/command"
+    log.debug("Queueing rename command to Radarr via %s." % url)
+
+    payload = {'name': 'RenameMovie', 'movieIds': [movieid]}
+    log.debug(str(payload))
+    r = requests.post(url, json=payload, headers=headers)
+    rstate = r.json()
+    try:
+        rstate = rstate[0]
+    except:
+        pass
+    return rstate
+
+
+def downloadedMoviesScanInProgress(baseURL, headers, moviefile_sourcefolder, log):
+    url = baseURL + "/api/v3/command"
+    log.debug("Requesting commands in process from Radarr via %s." % url)
     r = requests.get(url, headers=headers)
     commands = r.json()
     log.debug(commands)
@@ -21,54 +71,53 @@ def downloadedMoviesScanInProgress(host, port, webroot, apikey, protocol, movief
     for c in commands:
         if c.get('name') == "DownloadedMoviesScan":
             try:
-                if c['body']['path'] == moviefile_sourcefolder and c['state'] == 'started':
-                    log.debug("Found a matching path scan in progress %s" % (moviefile_sourcefolder))
+                if c['body']['path'] == moviefile_sourcefolder and c['status'] == 'started':
+                    log.debug("Found a matching path scan in progress %s." % (moviefile_sourcefolder))
                     return True
             except:
                 pass
+    log.debug("No commands in progress for %s." % (moviefile_sourcefolder))
     return False
 
 
-def rescanAndWait(host, port, webroot, apikey, protocol, movieid, log, retries=6, delay=10):
-    headers = {'X-Api-Key': apikey}
-    # First trigger rescan
-    payload = {'name': 'RescanMovie', 'movieId': movieid}
-    url = protocol + host + ":" + str(port) + webroot + "/api/command"
-    r = requests.post(url, json=payload, headers=headers)
-    rstate = r.json()
-    try:
-        rstate = rstate[0]
-    except:
-        pass
-    log.debug(str(payload))
-    log.debug(str(rstate))
-    log.info("Radarr response Rescan command: ID %d %s." % (rstate['id'], rstate['state']))
-
-    # Then wait for it to finish
-    url = protocol + host + ":" + str(port) + webroot + "/api/command/" + str(rstate['id'])
-    log.info("Requesting command status from Sonarr for command ID %d." % rstate['id'])
-    r = requests.get(url, headers=headers)
-    command = r.json()
-    attempts = 0
-    while command['state'].lower() not in ['complete', 'completed'] and attempts < retries:
-        log.debug("State: %s." % (command['state']))
-        time.sleep(delay)
-        r = requests.get(url, headers=headers)
-        command = r.json()
-        attempts += 1
-    log.debug(str(command))
-    log.info("Final state: %s." % (command['state']))
-    return command['state'].lower() in ['complete', 'completed']
-
-
-def getMovieInformation(host, port, webroot, apikey, protocol, movieid, log):
-    headers = {'X-Api-Key': apikey}
-    url = protocol + host + ":" + str(port) + webroot + "/api/movie/" + str(movieid)
-    log.info("Requesting updated information from Radarr for movie ID %d." % movieid)
+def getMovie(baseURL, headers, movieid, log):
+    url = baseURL + "/api/v3/movie/" + str(movieid)
+    log.debug("Requesting movie from Radarr via %s." % url)
     r = requests.get(url, headers=headers)
     payload = r.json()
-    log.debug(str(payload))
     return payload
+
+
+def updateMovie(baseURL, headers, new, movieid, log):
+    url = baseURL + "/api/v3/movie/" + str(movieid)
+    log.debug("Requesting movie update to Radarr via %s." % url)
+    r = requests.put(url, json=new, headers=headers)
+    payload = r.json()
+    return payload
+
+
+def getMovieFile(baseURL, headers, moviefileid, log):
+    url = baseURL + "/api/v3/moviefile/" + str(moviefileid)
+    log.debug("Requesting moviefile from Radarr for moviefile via %s." % url)
+    r = requests.get(url, headers=headers)
+    payload = r.json()
+    return payload
+
+
+def updateMovieFile(baseURL, headers, new, moviefileid, log):
+    url = baseURL + "/api/v3/moviefile/" + str(moviefileid)
+    log.debug("Requesting moviefile update to Radarr via %s." % url)
+    r = requests.put(url, json=new, headers=headers)
+    payload = r.json()
+    return payload
+
+
+# Rename functions
+def restoreSceneName(inputfile, scenename):
+    if scenename:
+        directory = os.path.dirname(inputfile)
+        extension = os.path.splitext(inputfile)[1]
+        os.rename(inputfile, os.path.join(directory, "%s%s" % (scenename, extension)))
 
 
 def renameFile(inputfile, log):
@@ -81,22 +130,6 @@ def renameFile(inputfile, log):
     os.rename(inputfile, outputfile)
     log.debug("Renaming file %s to %s." % (inputfile, outputfile))
     return outputfile
-
-
-def renameMovie(host, port, webroot, apikey, protocol, movieid, log):
-    headers = {'X-Api-Key': apikey}
-    # First trigger rescan
-    payload = {'name': 'RenameMovie', 'movieIds': [movieid]}
-    url = protocol + host + ":" + str(port) + webroot + "/api/command"
-    r = requests.post(url, json=payload, headers=headers)
-    rstate = r.json()
-    try:
-        rstate = rstate[0]
-    except:
-        pass
-    log.debug(str(payload))
-    log.debug(str(rstate))
-    log.info("Radarr response Rename command: ID %d %s." % (rstate['id'], rstate['state']))
 
 
 def backupSubs(inputpath, mp, log, extension=".backup"):
@@ -138,12 +171,19 @@ settings = ReadSettings()
 
 log.debug(os.environ)
 
-inputfile = os.environ.get('radarr_moviefile_path')
-original = os.environ.get('radarr_moviefile_scenename')
-imdbid = os.environ.get('radarr_movie_imdbid')
-tmdbid = os.environ.get('radarr_movie_tmdbid')
-movieid = int(os.environ.get('radarr_movie_id'))
-moviefile_sourcefolder = os.environ.get('radarr_moviefile_sourcefolder')
+try:
+    inputfile = os.environ.get('radarr_moviefile_path')
+    original = os.environ.get('radarr_moviefile_scenename')
+    imdbid = os.environ.get('radarr_movie_imdbid')
+    tmdbid = os.environ.get('radarr_movie_tmdbid')
+    movieid = int(os.environ.get('radarr_movie_id'))
+    moviefileid = int(os.environ.get('radarr_moviefile_id'))
+    scenename = os.environ.get('radarr_moviefile_scenename')
+    releasegroup = os.environ.get('radarr_moviefile_releasegroup')
+    moviefile_sourcefolder = os.environ.get('radarr_moviefile_sourcefolder')
+except:
+    log.exception("Error reading environment variables")
+    sys.exit(1)
 
 mp = MediaProcessor(settings)
 
@@ -160,12 +200,12 @@ try:
         try:
             inputfile = renameFile(inputfile, log)
         except:
-            log.exception("Error renaming inputfile")
+            log.exception("Error renaming inputfile.")
 
     success = mp.fullprocess(inputfile, MediaType.Movie, original=original, tmdbid=tmdbid, imdbid=imdbid)
 
     if success and not settings.Radarr['rescan']:
-        log.info("File processed successfully and rescan API update disabled")
+        log.info("File processed successfully and rescan API update disabled.")
     elif success:
         # Update Radarr to continue monitored status
         try:
@@ -175,62 +215,75 @@ try:
             apikey = settings.Radarr['apikey']
             ssl = settings.Radarr['ssl']
             protocol = "https://" if ssl else "http://"
+            baseURL = protocol + host + ":" + str(port) + webroot
 
-            log.debug("Radarr host: %s." % host)
-            log.debug("Radarr port: %s." % port)
-            log.debug("Radarr webroot: %s." % webroot)
+            log.debug("Radarr baseURL: %s." % baseURL)
             log.debug("Radarr apikey: %s." % apikey)
-            log.debug("Radarr protocol: %s." % protocol)
 
             if apikey != '':
                 headers = {'X-Api-Key': apikey}
 
                 subs = backupSubs(success[0], mp, log)
 
-                if downloadedMoviesScanInProgress(host, port, webroot, apikey, protocol, moviefile_sourcefolder, log):
-                    log.info("DownloadedMoviesScan command is in process for this movie, cannot wait for rescan but will queue")
-                    rescanAndWait(host, port, webroot, apikey, protocol, movieid, log, retries=0)
-                    renameMovie(host, port, webroot, apikey, protocol, movieid, log)
-                elif rescanAndWait(host, port, webroot, apikey, protocol, movieid, log):
-                    log.info("Rescan command completed")
+                if downloadedMoviesScanInProgress(baseURL, headers, moviefile_sourcefolder, log):
+                    log.info("DownloadedMoviesScan command is in process for this movie, cannot wait for rescan but will queue.")
+                    rescanAndWait(baseURL, headers, movieid, log, retries=0)
+                    renameRequest(baseURL, headers, movieid, log)
+                elif rescanAndWait(baseURL, headers, movieid, log):
+                    log.info("Rescan command completed successfully.")
 
-                    movieinfo = getMovieInformation(host, port, webroot, apikey, protocol, movieid, log)
+                    movieinfo = getMovie(baseURL, headers, movieid, log)
+                    if not movieinfo:
+                        log.error("No valid movie information found, aborting.")
+                        sys.exit(1)
+
                     if not movieinfo.get('hasFile'):
                         log.warning("Rescanned movie does not have a file, attempting second rescan.")
-                        if rescanAndWait(host, port, webroot, apikey, protocol, movieid, log):
-                            movieinfo = getMovieInformation(host, port, webroot, apikey, protocol, movieid, log)
+                        if rescanAndWait(baseURL, headers, movieid, log):
+                            movieinfo = getMovie(baseURL, headers, movieid, log)
                             if not movieinfo.get('hasFile'):
                                 log.warning("Rescanned movie still does not have a file, will not set to monitored to prevent endless loop.")
                                 sys.exit(1)
                             else:
                                 log.info("File found after second rescan.")
                         else:
-                            log.error("Rescan command timed out")
+                            log.error("Rescan command timed out.")
                             restoreSubs(subs, log)
                             sys.exit(1)
 
                     if len(subs) > 0:
                         log.debug("Restoring %d subs and triggering a final rescan." % (len(subs)))
                         restoreSubs(subs, log)
-                        rescanAndWait(host, port, webroot, apikey, protocol, movieid, log)
-
-                    movieinfo['monitored'] = True
+                        rescanAndWait(baseURL, headers, movieid, log)
 
                     # Then set that movie to monitored
-                    log.debug("Sending PUT request with following payload:")
-                    log.debug(str(movieinfo))  # debug
+                    try:
+                        movieinfo['monitored'] = True
+                        movieinfo = updateMovie(baseURL, headers, movieinfo, movieid, log)
+                        log.debug(str(movieinfo))
+                        log.info("Radarr monitoring information updated for movie %s." % movieinfo['title'])
+                    except:
+                        log.exception("Failed to restore monitored status to movie.")
 
-                    url = protocol + host + ":" + str(port) + webroot + "/api/movie/" + str(movieid)
-                    r = requests.put(url, json=movieinfo, headers=headers)
-                    success = r.json()
+                    if scenename or releasegroup:
+                        log.debug("Trying to restore scene information.")
+                        try:
+                            mf = getMovieFile(baseURL, headers, movieinfo['movieFile']['id'], log)
+                            mf['sceneName'] = scenename
+                            mf['releaseGroup'] = releasegroup
+                            mf = updateMovieFile(baseURL, headers, mf, movieinfo['movieFile']['id'], log)
+                            log.debug("Restored releaseGroup to %s." % mf.get('releaseGroup'))
+                        except:
+                            log.exception("Unable to restore scene information.")
 
-                    log.debug("PUT request returned:")
-                    log.debug(str(success))
-                    log.info("Radarr monitoring information updated for movie %s." % success['title'])
-
-                    renameMovie(host, port, webroot, apikey, protocol, movieid, log)
+                    # Now a final rename step to ensure all release / codec information is accurate
+                    try:
+                        rename = renameRequest(baseURL, headers, movieid, log)
+                        log.info("Radarr response Rename command: ID %d %s." % (rename['id'], rename['status']))
+                    except:
+                        log.exception("Failed to trigger Radarr rename.")
                 else:
-                    log.error("Rescan command timed out")
+                    log.error("Rescan command timed out.")
                     sys.exit(1)
             else:
                 log.error("Your Radarr API Key is blank. Update autoProcess.ini to enable status updates.")
@@ -240,5 +293,5 @@ try:
         log.info("Processing returned False.")
         sys.exit(1)
 except:
-    log.exception("Error processing file")
+    log.exception("Error processing file.")
     sys.exit(1)
