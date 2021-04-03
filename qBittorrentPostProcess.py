@@ -83,9 +83,9 @@ try:
         if not settings.output_dir:
             # If the user hasn't set an output directory, go up one from the root path and create a directory there as [name]-convert
             suffix = "convert"
-            settings.output_dir = os.path.abspath(os.path.join(root_path, '..', ("%s-%s" % (re.sub(r'[^\w\-_\. ]', '_', name), suffix))))
+            settings.output_dir = os.path.abspath(os.path.join(root_path, '..', ("%s-%s" % (re.sub(settings.regex, '_', name), suffix))))
         else:
-            settings.output_dir = os.path.join(settings.output_dir, re.sub(r'[^\w\-_\. ]', '_', name))
+            settings.output_dir = os.path.join(settings.output_dir, re.sub(settings.regex, '_', name))
         if not os.path.exists(settings.output_dir):
             try:
                 os.makedirs(settings.output_dir)
@@ -139,10 +139,10 @@ try:
             log.info("Single File Torrent")
             root, filename = os.path.split(root_path)
             filename, extension = os.path.splitext(filename)
-            newpath = os.path.join(root, ("%s-%s" % (re.sub(r'[^\w\-_\. ]', '_', filename), suffix)))
+            newpath = os.path.join(root, ("%s-%s" % (re.sub(settings.regex, '_', filename), suffix)))
         else:
             log.info("Multi File Torrent")
-            newpath = os.path.abspath(os.path.join(root_path, '..', ("%s-%s" % (re.sub(r'[^\w\-_\. ]', '_', name), suffix))))
+            newpath = os.path.abspath(os.path.join(root_path, '..', ("%s-%s" % (re.sub(settings.regex, '_', name), suffix))))
 
         if not os.path.exists(newpath):
             os.makedirs(newpath)

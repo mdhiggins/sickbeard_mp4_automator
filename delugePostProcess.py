@@ -98,9 +98,9 @@ try:
             settings.delete = False
             if not settings.output_dir:
                 suffix = "convert"
-                settings.output_dir = os.path.join(path, ("%s-%s" % (re.sub(r'[^\w\-_\. ]', '_', torrent_name), suffix)))
+                settings.output_dir = os.path.join(path, ("%s-%s" % (re.sub(settings.regex, '_', torrent_name), suffix)))
             else:
-                settings.output_dir = os.path.join(settings.output_dir, re.sub(r'[^\w\-_\. ]', '_', torrent_name))
+                settings.output_dir = os.path.join(settings.output_dir, re.sub(settings.regex, '_', torrent_name))
             if not os.path.exists(settings.output_dir):
                 try:
                     os.makedirs(settings.output_dir)
@@ -134,7 +134,7 @@ try:
             path = settings.output_dir
         else:
             suffix = "copy"
-            newpath = os.path.join(path, ("%s-%s" % (re.sub(r'[^\w\-_\. ]', '_', torrent_name), suffix)))
+            newpath = os.path.join(path, ("%s-%s" % (re.sub(settings.regex, '_', torrent_name), suffix)))
             if not os.path.exists(newpath):
                 try:
                     os.makedirs(newpath)

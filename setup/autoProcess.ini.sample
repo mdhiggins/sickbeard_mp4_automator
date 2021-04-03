@@ -25,6 +25,7 @@ detailed-progress = False
 opts-separator = ,
 preopts = 
 postopts = 
+regex-directory-replace = [^\w\-_\. ]
 
 [Permissions]
 chmod = 0644

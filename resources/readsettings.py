@@ -118,6 +118,7 @@ class ReadSettings:
             'opts-separator': ',',
             'preopts': '',
             'postopts': '',
+            'regex-directory-replace': r'[^\w\-_\. ]',
         },
         'Permissions': {
             'chmod': '0644',
@@ -644,6 +645,7 @@ class ReadSettings:
         self.opts_sep = config.get(section, "opts-separator")
         self.preopts = config.getlist(section, "preopts", separator=self.opts_sep)
         self.postopts = config.getlist(section, "postopts", separator=self.opts_sep)
+        self.regex = config.get(section, 'regex-directory-replace', raw=True)
 
         if self.force_convert:
             self.process_same_extensions = True

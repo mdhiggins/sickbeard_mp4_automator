@@ -126,17 +126,17 @@ try:
             suffix = "convert"
             if kind == 'single':
                 log.info("Single File Torrent")
-                settings.output_dir = os.path.join(path, ("%s-%s" % (re.sub(r'[^\w\-_\. ]', '_', name), suffix)))
+                settings.output_dir = os.path.join(path, ("%s-%s" % (re.sub(settings.regex, '_', name), suffix)))
             else:
                 log.info("Multi File Torrent")
-                settings.output_dir = os.path.abspath(os.path.join(path, '..', ("%s-%s" % (re.sub(r'[^\w\-_\. ]', '_', name), suffix))))
+                settings.output_dir = os.path.abspath(os.path.join(path, '..', ("%s-%s" % (re.sub(settings.regex, '_', name), suffix))))
             if not os.path.exists(settings.output_dir):
                 try:
                     os.makedirs(settings.output_dir)
                 except:
                     log.exception("Error creating output directory.")
         else:
-            settings.output_dir = re.sub(r'[^\w\-_\. ]', '_', os.path.abspath(os.path.join(settings.output_dir, re.sub(r'[^\w\-_\. ]', '_', name))))
+            settings.output_dir = re.sub(settings.regex, '_', os.path.abspath(os.path.join(settings.output_dir, re.sub(settings.regex, '_', name))))
             if not os.path.exists(settings.output_dir):
                 try:
                     os.makedirs(settings.output_dir)
@@ -189,10 +189,10 @@ try:
         # name = name[:260-len(suffix)]
         if kind == 'single':
             log.info("Single File Torrent")
-            newpath = os.path.join(path, ("%s-%s" % (re.sub(r'[^\w\-_\. ]', '_', name), suffix)))
+            newpath = os.path.join(path, ("%s-%s" % (re.sub(settings.regex, '_', name), suffix)))
         else:
             log.info("Multi File Torrent")
-            newpath = os.path.abspath(os.path.join(path, '..', ("%s-%s" % (re.sub(r'[^\w\-_\. ]', '_', name), suffix))))
+            newpath = os.path.abspath(os.path.join(path, '..', ("%s-%s" % (re.sub(settings.regex, '_', name), suffix))))
         if not os.path.exists(newpath):
             try:
                 os.makedirs(newpath)
