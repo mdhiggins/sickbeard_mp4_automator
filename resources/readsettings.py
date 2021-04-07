@@ -228,6 +228,7 @@ class ReadSettings:
             'webroot': '',
             'force-rename': False,
             'rescan': True,
+            'block-reprocess': False,
         },
         'Radarr': {
             'host': 'localhost',
@@ -237,6 +238,7 @@ class ReadSettings:
             'webroot': '',
             'force-rename': False,
             'rescan': True,
+            'block-reprocess': False,
         },
         'Sickbeard': {
             'host': 'localhost',
@@ -834,6 +836,7 @@ class ReadSettings:
             self.Sonarr['webroot'] = self.Sonarr['webroot'][:-1]
         self.Sonarr['rename'] = config.getboolean(section, "force-rename")
         self.Sonarr['rescan'] = config.getboolean(section, "rescan")
+        self.Sonarr['blockreprocess'] = config.getboolean(section, "block-reprocess")
 
         # Radarr
         section = "Radarr"
@@ -849,6 +852,7 @@ class ReadSettings:
             self.Radarr['webroot'] = self.Radarr['webroot'][:-1]
         self.Radarr['rename'] = config.getboolean(section, "force-rename")
         self.Radarr['rescan'] = config.getboolean(section, "rescan")
+        self.Radarr['blockreprocess'] = config.getboolean(section, "block-reprocess")
 
         # Sickbeard
         section = "Sickbeard"

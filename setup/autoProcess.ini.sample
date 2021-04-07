@@ -135,6 +135,7 @@ ssl = False
 webroot = 
 force-rename = False
 rescan = True
+block-reprocess = False
 
 [Radarr]
 host = localhost
@@ -144,6 +145,7 @@ ssl = False
 webroot = 
 force-rename = False
 rescan = True
+block-reprocess = False
 
 [Sickbeard]
 host = localhost

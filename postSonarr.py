@@ -191,6 +191,10 @@ except:
 
 mp = MediaProcessor(settings)
 
+if settings.Sonarr.get('blockreprocess'):
+    log.debug("Block reprocess enabled for Sonarr")
+    settings.process_same_extensions = False
+
 log.debug("Input file: %s." % inputfile)
 log.debug("Original name: %s." % original)
 log.debug("TVDB ID: %s." % tvdb_id)

@@ -187,6 +187,10 @@ except:
 
 mp = MediaProcessor(settings)
 
+if settings.Radarr.get('blockreprocess'):
+    log.debug("Block reprocess enabled for Radarr")
+    settings.process_same_extensions = False
+
 log.debug("Input file: %s." % inputfile)
 log.debug("Original name: %s." % original)
 log.debug("IMDB ID: %s." % imdbid)
