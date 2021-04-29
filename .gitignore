@@ -8,6 +8,7 @@ update.py
 *.sh
 *.bat
 *.backup*
+*.venv.py
 config/custom.py
 
 #################
