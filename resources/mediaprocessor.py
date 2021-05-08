@@ -241,7 +241,10 @@ class MediaProcessor:
             output += " HDR"
         return output.strip() if output else None
 
-    def audioStreamTitle(self, channels, disposition):
+    def audioStreamTitle(self, channels, disposition, title=None):
+        if self.settings.keep_titles and title:
+            return title
+
         output = "Audio"
         if channels == 1:
             output = "Mono"
@@ -260,7 +263,10 @@ class MediaProcessor:
             output += " (Dub)"
         return output.strip() if output else None
 
-    def subtitleStreamTitle(self, disposition):
+    def subtitleStreamTitle(self, disposition, title=None):
+        if self.settings.keep_titles and title:
+            return title
+
         output = ""
         if disposition.get("forced"):
             output += "Forced "
@@ -695,7 +701,7 @@ class MediaProcessor:
                         'filter': ua_filter,
                         'language': a.metadata['language'],
                         'disposition': ua_disposition,
-                        'title': self.audioStreamTitle(2, a.disposition),
+                        'title': self.audioStreamTitle(2, a.disposition, a.metadata.get('title')),
                         'debug': 'universal-audio'
                     }
                     if not self.settings.ua_last:
@@ -817,7 +823,7 @@ class MediaProcessor:
                     'language': a.metadata['language'],
                     'disposition': adisposition,
                     'bsf': absf,
-                    'title': self.audioStreamTitle(audio_channels, a.disposition),
+                    'title': self.audioStreamTitle(audio_channels, a.disposition, a.metadata.get('title')),
                     'debug': adebug
                 })
 
@@ -834,7 +840,7 @@ class MediaProcessor:
                         'channels': a.audio_channels,
                         'language': a.metadata['language'],
                         'disposition': adisposition,
-                        'title': self.audioStreamTitle(a.audio_channels, a.disposition),
+                        'title': self.audioStreamTitle(a.audio_channels, a.disposition, a.metadata.get('title')),
                         'debug': 'audio-copy-original'
                     })
 
@@ -879,7 +885,7 @@ class MediaProcessor:
                             'codec': scodec,
                             'language': s.metadata['language'],
                             'disposition': sdisposition,
-                            'title': self.subtitleStreamTitle(s.disposition),
+                            'title': self.subtitleStreamTitle(s.disposition, s.metadata.get('title')),
                             'debug': 'subtitle.embed-subs'
                         })
                         if self.settings.sub_first_language_stream:
