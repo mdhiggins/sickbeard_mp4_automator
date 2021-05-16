@@ -275,7 +275,6 @@ try:
                     except:
                         log.exception("Failed to restore monitored status to episode.")
 
-                    '''
                     if scenename or releasegroup:
                         log.debug("Trying to restore scene information.")
                         try:
@@ -283,10 +282,12 @@ try:
                             mf['sceneName'] = scenename
                             mf['releaseGroup'] = releasegroup
                             mf = updateEpisodeFile(baseURL, headers, mf, sonarrepinfo['episodeFile']['id'], log)
-                            log.debug("Restored releaseGroup to %s." % mf.get('releaseGroup'))
+                            if scenename:
+                                log.debug("Restored sceneName to %s." % mf.get('sceneName'))
+                            if releasegroup:
+                                log.debug("Restored releaseGroup to %s." % mf.get('releaseGroup'))
                         except:
                             log.exception("Unable to restore scene information.")
-                    '''
 
                     # Now a final rename step to ensure all release / codec information is accurate
                     try:

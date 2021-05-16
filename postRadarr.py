@@ -276,7 +276,10 @@ try:
                             mf['sceneName'] = scenename
                             mf['releaseGroup'] = releasegroup
                             mf = updateMovieFile(baseURL, headers, mf, movieinfo['movieFile']['id'], log)
-                            log.debug("Restored releaseGroup to %s." % mf.get('releaseGroup'))
+                            if scenename:
+                                log.debug("Restored sceneName to %s." % mf.get('sceneName'))
+                            if releasegroup:
+                                log.debug("Restored releaseGroup to %s." % mf.get('releaseGroup'))
                         except:
                             log.exception("Unable to restore scene information.")
 
