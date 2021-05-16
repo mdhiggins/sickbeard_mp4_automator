@@ -2,7 +2,6 @@ requests
 idna
 requests-cache
 babelfish
-wheel
 tmdbsimple
 mutagen
 guessit
