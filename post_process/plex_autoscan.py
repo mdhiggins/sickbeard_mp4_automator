@@ -6,7 +6,7 @@ import requests
 
 def main():
     print("plex_autoscan Post-processing Script")
-    url = "http://localhost:3689/apikey"
+    url = "http://plex:32400/library/sections/2/refresh?X-Plex-Token="
 
     files = json.loads(os.environ.get('SMA_FILES'))
     if not (files):
