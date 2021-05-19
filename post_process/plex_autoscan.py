@@ -6,7 +6,7 @@ import requests
 
 def main():
     print("plex_autoscan Post-processing Script")
-    url = "http://plex:32400/library/sections/2/refresh?X-Plex-Token=SkTvJni8e9PmrA3TQywZ&path="
+    url = "http://localhost:3689/apikey"
 
     files = json.loads(os.environ.get('SMA_FILES'))
     if not (files):
@@ -17,8 +17,7 @@ def main():
         dirname = os.path.dirname(filename)
         payload = {'eventType': 'Manual', 'filepath': dirname}
     try:
-        print("Sending request to: " + url + dirname)
-        requests.get(url+dirname)
+        requests.post(url, json=payload)
     except Exception as e:
         print("Error - Request failed")
         print(e)
