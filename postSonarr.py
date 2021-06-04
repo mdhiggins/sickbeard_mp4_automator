@@ -278,10 +278,10 @@ try:
                     if scenename or releasegroup:
                         log.debug("Trying to restore scene information.")
                         try:
-                            mf = getEpisodeFile(baseURL, headers, sonarrepinfo['episodeFile']['id'], log)
+                            mf = getEpisodeFile(baseURL, headers, sonarrepinfo['episodeFileId'], log)
                             mf['sceneName'] = scenename
                             mf['releaseGroup'] = releasegroup
-                            mf = updateEpisodeFile(baseURL, headers, mf, sonarrepinfo['episodeFile']['id'], log)
+                            mf = updateEpisodeFile(baseURL, headers, mf, sonarrepinfo['episodeFileId'], log)
                             if scenename:
                                 log.debug("Restored sceneName to %s." % mf.get('sceneName'))
                             if releasegroup:
