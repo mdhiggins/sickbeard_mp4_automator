@@ -4,6 +4,9 @@ subtitle_codec_extensions = {'srt': 'srt',
                              'webvtt': 'vtt',
                              'ass': 'ass',
                              'pgs': 'sup',
-                             'hdmv_pgs_subtitle': 'sup'}
+                             'hdmv_pgs_subtitle': 'sup',
+                             'dvdsub': 'mks',
+                             'dvb_subtitle': 'mks',
+                             'dvd_subtitle': 'mks'}
 bad_post_files = ['resources', '.DS_Store']
 bad_post_extensions = ['.txt', '.log', '.pyc']
