@@ -49,7 +49,7 @@ def processMovie(dirName, settings, nzbGet=False, importMode=None, logger=None, 
         protocol = "http://"
 
     webroot = settings.Radarr['webroot']
-    url = protocol + host + ":" + str(port) + webroot + "/api/command"
+    url = protocol + host + ":" + str(port) + webroot + "/api/v3/command"
     payload = {'name': 'DownloadedMoviesScan', 'path': dirName}
     if importMode:
         payload["importMode"] = importMode

@@ -50,7 +50,7 @@ def processEpisode(dirName, settings, nzbGet=False, importMode=None, logger=None
         protocol = "http://"
 
     webroot = settings.Sonarr['webroot']
-    url = protocol + host + ":" + str(port) + webroot + "/api/command"
+    url = protocol + host + ":" + str(port) + webroot + "/api/v3/command"
     payload = {'name': 'downloadedepisodesscan', 'path': dirName}
     if importMode:
         payload["importMode"] = importMode
