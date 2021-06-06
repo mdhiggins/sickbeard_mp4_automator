@@ -124,8 +124,24 @@ class SsaFormat(BaseFormat):
     ffmpeg_format_name = 'ass'
 
 
+class DVDSubFormat(BaseFormat):
+    """
+    MKS subtitle format
+    """
+    format_name = 'dvd_subtitle'
+    ffmpeg_format_name = 'matroska'
+
+
+class DVBSubFormat(BaseFormat):
+    """
+    MKS subtitle format
+    """
+    format_name = 'dvb_subtitle'
+    ffmpeg_format_name = 'matroska'
+
+
 format_list = [
     OggFormat, AviFormat, MkvFormat, WebmFormat, FlvFormat,
     MovFormat, Mp4Format, MpegFormat, Mp3Format, SrtFormat,
-    WebVTTFormat, SsaFormat, PGSFormat
+    WebVTTFormat, SsaFormat, PGSFormat, DVDSubFormat, DVBSubFormat
 ]
