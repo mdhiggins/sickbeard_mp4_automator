@@ -48,7 +48,21 @@ try:
                 for item in refresh:
                     log.debug(refresh[item])
             except (IOError, ValueError):
-                log.exception("Couldn't refresh Sickbeard, check your autoProcess.ini settings.")
+                try:
+                    log.debug("Sickbeard refresh failed, trying to fall back to Sickrage settings if available")
+                    protocol = "https://" if settings.Sickrage['ssl'] else "http://"
+                    host = settings.Sickrage['host']  # Server Address
+                    port = settings.Sickrage['port']  # Server Port
+                    apikey = settings.Sickrage['apikey']  # Sickbeard API key
+                    webroot = settings.Sickrage['webroot']  # Sickbeard webroot
+
+                    sickbeard_url = protocol + host + ":" + str(port) + webroot + "/api/" + apikey + "/?cmd=show.refresh&tvdbid=" + str(tvdb_id)
+
+                    refresh = json.load(urlopen(sickbeard_url))
+                    for item in refresh:
+                        log.debug(refresh[item])
+                except (IOError, ValueError):
+                    log.exception("Couldn't refresh Sickbeard/Sickrage, check your autoProcess.ini settings.")
     else:
         log.error("Not enough command line arguments present %s." % len(sys.argv))
         sys.exit(1)
