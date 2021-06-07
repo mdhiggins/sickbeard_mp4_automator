@@ -68,7 +68,7 @@ def processMovie(dirName, settings, nzbGet=False, importMode=None, logger=None, 
         r = requests.post(url, json=payload, headers=headers)
         rstate = r.json()
         log.debug(rstate)
-        log.info("%sRadarr response: %s." % (infoprefix, rstate['state']))
+        log.info("%sRadarr response: %s." % (infoprefix, rstate['status']))
         return True
     except:
         log.exception("%sUpdate to Radarr failed, check if Radarr is running, autoProcess.ini settings and make sure your Radarr settings are correct (apikey?), or check install of python modules requests." % errorprefix)
