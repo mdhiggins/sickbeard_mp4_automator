@@ -98,16 +98,16 @@ def updateEpisode(baseURL, headers, new, episodeid, log):
 
 
 def getEpisodeFile(baseURL, headers, episodefileid, log):
-    url = baseURL + "/api/v3/moviefile/" + str(episodefileid)
-    log.debug("Requesting moviefile from Sonarr for moviefile via %s." % url)
+    url = baseURL + "/api/v3/episodefile/" + str(episodefileid)
+    log.debug("Requesting episodefile from Sonarr for episodefile via %s." % url)
     r = requests.get(url, headers=headers)
     payload = r.json()
     return payload
 
 
 def updateEpisodeFile(baseURL, headers, new, episodefileid, log):
-    url = baseURL + "/api/v3/moviefile/" + str(episodefileid)
-    log.debug("Requesting moviefile update to Sonarr via %s." % url)
+    url = baseURL + "/api/v3/episodefile/" + str(episodefileid)
+    log.debug("Requesting episodefile update to Sonarr via %s." % url)
     r = requests.put(url, json=new, headers=headers)
     payload = r.json()
     return payload
