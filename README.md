@@ -57,9 +57,12 @@ Sonarr Setup
 3. Setup the postSonarr.py script via Settings > Connect > Connections > + (Add)
     - `name` - postSonarr
     - `On Grab` - No
-    - `On Download` - Yes
+    - `On Download` \ `On Import` - Yes
     - `On Upgrade` - Yes
     - `On Rename` - No
+    - `On Movie Delete` - No
+    - `On Movie File Delete` - No
+    - `On Health Issue` - No
     - `Path` - Full path to your python executable
     - `Arguments` - Full path to `postSonarr.py`
     - For Sonarr V3 you'll need to make a .sh or .bat file to combine your path to python and script
@@ -72,9 +75,12 @@ Radarr Setup
 3. Setup the postRadarr.py script via Settings > Connect > Connections > + (Add)
     - `name` - postRadarr
     - `On Grab` - No
-    - `On Download` - Yes
+    - `On Download` / `On Import` - Yes
     - `On Upgrade` - Yes
     - `On Rename` - No
+    - `On Movie Delete` - No
+    - `On Movie File Delete` - No
+    - `On Health Issue` - No
     - `Path` - Full path to your python executable
     - `Arguments` - Full path to `postRadarr.py`
     - For Radarr V3 you'll need to make a .sh or .bat file to combine your path to python and script
