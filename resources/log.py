@@ -128,7 +128,6 @@ def getLogger(name=None, custompath=None):
     fileConfig(configfile, defaults={'logfilename': logfile})
 
     logger = logging.getLogger(name)
-    logger.handlers
     rotatingFileHandlers = [x for x in logger.handlers if isinstance(x, BaseRotatingHandler)]
     for rh in rotatingFileHandlers:
         rh.rotator = rotator
