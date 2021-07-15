@@ -1611,7 +1611,6 @@ class MediaProcessor:
             timecode = 0
             debug = ""
             for timecode, debug in conv:
-                self.log.debug(debug)
                 if reportProgress:
                     if progressOutput:
                         progressOutput(timecode, debug)

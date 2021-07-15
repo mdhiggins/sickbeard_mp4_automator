@@ -1,7 +1,9 @@
 import logging
 import os
 import sys
+import shutil
 from logging.config import fileConfig
+from logging.handlers import BaseRotatingHandler
 try:
     from configparser import RawConfigParser
 except ImportError:
@@ -125,4 +127,22 @@ def getLogger(name=None, custompath=None):
     logfile = os.path.abspath(os.path.join(logpath, 'sma.log')).replace("\\", "\\\\")
     fileConfig(configfile, defaults={'logfilename': logfile})
 
+    logger = logging.getLogger(name)
+    logger.handlers
+    rotatingFileHandlers = [x for x in logger.handlers if isinstance(x, BaseRotatingHandler)]
+    for rh in rotatingFileHandlers:
+        rh.rotator = rotator
+
     return logging.getLogger(name)
+
+
+def rotator(source, dest):
+    if os.path.exists(source):
+        try:
+            os.rename(source, dest)
+        except:
+            try:
+                shutil.copyfile(source, dest)
+                open(source, 'w').close()
+            except Exception as e:
+                print("Error rotating logfiles: %s." % (e))
