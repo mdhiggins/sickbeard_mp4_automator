@@ -58,7 +58,7 @@ class SMAConfigParser(ConfigParser, object):
     def getdirectory(self, section, option, vars=None):
         directory = self.getpath(section, option, vars)
         try:
-            os.path.makedirs(directory)
+            os.makedirs(directory)
         except:
             pass
         return directory
@@ -69,7 +69,7 @@ class SMAConfigParser(ConfigParser, object):
         for d in directories:
             if not os.path.isdir(d):
                 try:
-                    os.path.makedirs(d)
+                    os.makedirs(d)
                 except:
                     pass
         return directories
