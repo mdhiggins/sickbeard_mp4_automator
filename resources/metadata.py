@@ -84,7 +84,7 @@ class Metadata:
             self.tagline = self.moviedata['tagline']
             self.description = self.moviedata['overview']
             self.date = self.moviedata['release_date']
-            self.imdbid = self.externalids.get('imdb_id') or None
+            self.imdbid = self.externalids.get('imdb_id') or imdbid
         elif self.mediatype == MediaType.TV:
             self.season = int(season)
             self.episode = int(episode)
@@ -112,8 +112,8 @@ class Metadata:
             self.title = self.episodedata['name'] or "Episode %d" % (episode)
             self.description = self.episodedata['overview']
             self.airdate = self.episodedata['air_date']
-            self.imdbid = self.externalids.get('imdb_id') or None
-            self.tvdbid = self.externalids.get('tvdb_id') or None
+            self.imdbid = self.externalids.get('imdb_id') or imdbid
+            self.tvdbid = self.externalids.get('tvdb_id') or tvdbid
 
     def resolveTmdbID(self, mediatype, tmdbid=None, tvdbid=None, imdbid=None):
         find = None
