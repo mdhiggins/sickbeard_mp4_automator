@@ -48,6 +48,7 @@ class Metadata:
         tmdb.API_KEY = tmdb_api_key
         self.log = logger or logging.getLogger(__name__)
 
+        self.log.debug("Input IDs:")
         self.log.debug("TMDBID: %s" % tmdbid)
         self.log.debug("IMDBID: %s" % imdbid)
         self.log.debug("TVDBID: %s" % tvdbid)
@@ -67,6 +68,7 @@ class Metadata:
         if self.mediatype == MediaType.Movie:
             query = tmdb.Movies(self.tmdbid)
             self.moviedata = query.info(language=self.language)
+            self.externalids = query.external_ids(language=self.language)
             self.credit = query.credits()
             try:
                 releases = query.release_dates()
@@ -82,6 +84,7 @@ class Metadata:
             self.tagline = self.moviedata['tagline']
             self.description = self.moviedata['overview']
             self.date = self.moviedata['release_date']
+            self.imdbid = self.externalids.get('imdb_id') or None
         elif self.mediatype == MediaType.TV:
             self.season = int(season)
             self.episode = int(episode)
@@ -94,7 +97,7 @@ class Metadata:
             self.seasondata = seasonquery.info(language=self.language)
             self.episodedata = episodequery.info(language=self.language)
             self.credit = episodequery.credits()
-
+            self.externalids = seriesquery.external_ids(language=self.language)
             try:
                 content_ratings = seriesquery.content_ratings()
                 rating = next(x for x in content_ratings['results'] if x['iso_3166_1'] == 'US')['rating']
@@ -109,6 +112,8 @@ class Metadata:
             self.title = self.episodedata['name'] or "Episode %d" % (episode)
             self.description = self.episodedata['overview']
             self.airdate = self.episodedata['air_date']
+            self.imdbid = self.externalids.get('imdb_id') or None
+            self.tvdbid = self.externalids.get('tvdb_id') or None
 
     def resolveTmdbID(self, mediatype, tmdbid=None, tvdbid=None, imdbid=None):
         find = None
