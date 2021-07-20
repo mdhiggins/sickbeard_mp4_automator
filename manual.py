@@ -125,13 +125,13 @@ def getInfo(fileName=None, silent=False, tag=True, tvdbid=None, tmdbid=None, imd
     tagdata = None
     # Try to guess the file is guessing is enabled
     if fileName is not None:
-        tagdata = guessInfo(fileName, tvdbid=tvdbid, tmdbid=tmdbid, imdbid=imdbid, season=season, episode=episode, language=language, original=original)
+        tagdata,guess = guessInfo(fileName, tvdbid=tvdbid, tmdbid=tmdbid, imdbid=imdbid, season=season, episode=episode, language=language, original=original)
 
-    if not silent:
+    if not silent==3:# level 3 not ask
         if tagdata:
             print("Proceed using guessed identification from filename?")
-            if getYesNo():
-                return tagdata
+            if silent==2 or getYesNo():# level 2 ask only if not found
+                return tagdata,guess
         else:
             print("Unable to determine identity based on filename, must enter manually")
         m_type = mediatype()
@@ -139,48 +139,49 @@ def getInfo(fileName=None, silent=False, tag=True, tvdbid=None, tmdbid=None, imd
             tmdbid = getValue("Enter TMDB ID (TV)", True)
             season = getValue("Enter Season Number", True)
             episode = getValue("Enter Episode Number", True)
-            return Metadata(MediaType.TV, tmdbid=tmdbid, season=season, episode=episode, language=language, logger=log, original=original)
+            return Metadata(MediaType.TV, tmdbid=tmdbid, season=season, episode=episode, language=language, logger=log, original=original),None
         if m_type is MediaTypes.TV_TVDB:
             tvdbid = getValue("Enter TVDB ID (TV)", True)
             season = getValue("Enter Season Number", True)
             episode = getValue("Enter Episode Number", True)
-            return Metadata(MediaType.TV, tvdbid=tvdbid, season=season, episode=episode, language=language, logger=log, original=original)
+            return Metadata(MediaType.TV, tvdbid=tvdbid, season=season, episode=episode, language=language, logger=log, original=original),None
         if m_type is MediaTypes.TV_IMDB:
             imdbid = getValue("Enter IMDB ID (TV)", True)
             season = getValue("Enter Season Number", True)
             episode = getValue("Enter Episode Number", True)
-            return Metadata(MediaType.TV, imdbid=imdbid, season=season, episode=episode, language=language, logger=log, original=original)
+            return Metadata(MediaType.TV, imdbid=imdbid, season=season, episode=episode, language=language, logger=log, original=original),None
         elif m_type is MediaTypes.MOVIE_IMDB:
             imdbid = getValue("Enter IMDB ID (Movie)")
-            return Metadata(MediaType.Movie, imdbid=imdbid, language=language, logger=log, original=original)
+            return Metadata(MediaType.Movie, imdbid=imdbid, language=language, logger=log, original=original),None
         elif m_type is MediaTypes.MOVIE_TMDB:
             tmdbid = getValue("Enter TMDB ID (Movie)", True)
-            return Metadata(MediaType.Movie, tmdbid=tmdbid, language=language, logger=log, original=original)
+            return Metadata(MediaType.Movie, tmdbid=tmdbid, language=language, logger=log, original=original),None
         elif m_type is MediaTypes.CONVERT:
-            return None
+            return None,(None if not tagdata else guess)
         elif m_type is MediaTypes.SKIP:
             raise SkipFileException
     else:
-        if tagdata and tag:
-            return tagdata
+        if tagdata:
+            return tagdata,guess
         else:
-            return None
+            return None,None
 
 
 def guessInfo(fileName, tmdbid=None, tvdbid=None, imdbid=None, season=None, episode=None, language=None, original=None):
     if not settings.fullpathguess:
         fileName = os.path.basename(fileName)
+    #guess = guessit.guessit(original or fileName,options=({'type': 'movie'} if settings.category=='movies' else {'type': 'episode'} if settings.category=='tvshows' else None))
     guess = guessit.guessit(original or fileName)
     try:
         if guess['type'] == 'movie':
-            return movieInfo(guess, tmdbid=tmdbid, imdbid=imdbid, language=language, original=original)
+            return movieInfo(guess, tmdbid=tmdbid, imdbid=imdbid, language=language, original=original),guess
         elif guess['type'] == 'episode':
-            return tvInfo(guess, tmdbid=tmdbid, tvdbid=tvdbid, imdbid=imdbid, season=season, episode=episode, language=language, original=original)
+            return tvInfo(guess, tmdbid=tmdbid, tvdbid=tvdbid, imdbid=imdbid, season=season, episode=episode, language=language, original=original),guess
         else:
-            return None
+            return None,None
     except:
         log.exception("Unable to guess movie information")
-        return None
+        return None,None
 
 
 def movieInfo(guessData, tmdbid=None, imdbid=None, language=None, original=None):
@@ -236,20 +237,22 @@ def processFile(inputfile, mp, info=None, relativePath=None, silent=False, tag=T
     if not info:
         log.debug("Invalid file %s." % inputfile)
         return
+    language = settings.taglanguage #or mp.getDefaultAudioLanguage(output["options"]) or None # TODO this end up at wrong place
+    log.debug("Tag language setting is %s, using language %s for tagging." % (settings.taglanguage or None, language))
+    tagdata,guess = getInfo(inputfile, silent, tag=tag, tmdbid=tmdbid, tvdbid=tvdbid, imdbid=imdbid, season=season, episode=episode, language=language, original=original)
 
-    output = mp.process(inputfile, True, info=info, original=original)
+    if not tagdata:
+        log.info("Processing file %s" % inputfile)
+    elif tagdata.mediatype == MediaType.Movie:
+        log.info("Processing %s" % (tagdata.title))
+    elif tagdata.mediatype == MediaType.TV:
+        log.info("Processing %s Season %02d Episode %02d - %s" % (tagdata.showname, int(tagdata.season), int(tagdata.episode), tagdata.title))
+    if not guess and tagdata:## Per add#create new guess from tagdata to subliminal download subtitles
+        tmpfilename= tagdata.title + " " + ("(" + tagdata.date[0:4] + ")" if tagdata.date else "") if tagdata.mediatype == MediaType.Movie else "%s S%02dE%02d - %s %s" %(tagdata.showname, int(tagdata.season), int(tagdata.episode), tagdata.title,"(" + tagdata.airdate[0:4] + ")" if tagdata.airdate else "") if tagdata.mediatype == MediaType.TV else None
+        guess = guessit.guessit(tmpfilename)
+
+    output = mp.process(inputfile, True, info=info, original=original,guess=guess)
     if output:
-        language = settings.taglanguage or mp.getDefaultAudioLanguage(output["options"]) or None
-        log.debug("Tag language setting is %s, using language %s for tagging." % (settings.taglanguage or None, language))
-        tagdata = getInfo(inputfile, silent, tag=tag, tmdbid=tmdbid, tvdbid=tvdbid, imdbid=imdbid, season=season, episode=episode, language=language, original=original)
-
-        if not tagdata:
-            log.info("Processing file %s" % inputfile)
-        elif tagdata.mediatype == MediaType.Movie:
-            log.info("Processing %s" % (tagdata.title))
-        elif tagdata.mediatype == MediaType.TV:
-            log.info("Processing %s Season %02d Episode %02d - %s" % (tagdata.showname, int(tagdata.season), int(tagdata.episode), tagdata.title))
-
         tagfailed = False
         if tagdata:
             try:
@@ -323,7 +326,7 @@ def main():
     parser = argparse.ArgumentParser(description="Manual conversion and tagging script for sickbeard_mp4_automator")
     parser.add_argument('-i', '--input', help='The source that will be converted. May be a file or a directory')
     parser.add_argument('-c', '--config', help='Specify an alternate configuration file location')
-    parser.add_argument('-a', '--auto', action="store_true", help="Enable auto mode, the script will not prompt you for any further input, good for batch files. It will guess the metadata using guessit")
+    parser.add_argument('-a', '--auto', help="Level ask for tagging if no arg=always ask,2=ask if not found,3=auto the script will not prompt you for any further input, good for batch files. It will guess the metadata using guessit")
     parser.add_argument('-s', '--season', help="Specifiy the season number")
     parser.add_argument('-e', '--episode', help="Specify the episode number")
     parser.add_argument('-tvdb', '--tvdbid', help="Specify the TVDB ID for media")
