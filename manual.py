@@ -119,8 +119,8 @@ class SkipFileException(Exception):
 
 
 def getInfo(fileName=None, silent=False, tag=True, tvdbid=None, tmdbid=None, imdbid=None, season=None, episode=None, language=None, original=None):
-    if not tag:
-        return None
+    if not tag and not settings.downloadsubs:
+        return None,None
 
     tagdata = None
     # Try to guess the file is guessing is enabled
