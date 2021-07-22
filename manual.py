@@ -127,10 +127,10 @@ def getInfo(fileName=None, silent=False, tag=True, tvdbid=None, tmdbid=None, imd
     if fileName is not None:
         tagdata,guess = guessInfo(fileName, tvdbid=tvdbid, tmdbid=tmdbid, imdbid=imdbid, season=season, episode=episode, language=language, original=original)
 
-    if not silent==3:# level 3 not ask
+    if silent!='3' and silent!='True':# level 3 not ask added True for not break old scripts
         if tagdata:
             print("Proceed using guessed identification from filename?")
-            if silent==2 or getYesNo():# level 2 ask only if not found
+            if silent=='2' or getYesNo():# level 2 ask only if not found
                 return tagdata,guess
         else:
             print("Unable to determine identity based on filename, must enter manually")
