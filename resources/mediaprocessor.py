@@ -9,7 +9,7 @@ import re
 from converter import Converter, FFMpegConvertError, ConverterError
 from converter.avcodecs import BaseCodec
 from resources.extensions import subtitle_codec_extensions
-from resources.metadata import Metadata
+from resources.metadata import Metadata, MediaType
 from resources.postprocess import PostProcessor
 from resources.lang import getAlpha3TCode
 from autoprocess import plex
@@ -50,13 +50,13 @@ class MediaProcessor:
         self.settings = settings
         self.converter = Converter(settings.ffmpeg, settings.ffprobe)
 
-    def fullprocess(self, inputfile, mediatype, reportProgress=False, original=None, info=None, tmdbid=None, tvdbid=None, imdbid=None, season=None, episode=None, language=None):
+    def fullprocess(self, inputfile, mediatype, reportProgress=False, original=None, info=None, tmdbid=None, tvdbid=None, imdbid=None, season=None, episode=None, language=None, tagdata=None):
         try:
             info = self.isValidSource(inputfile)
             if info:
                 self.log.info("Processing %s." % inputfile)
 
-                output = self.process(inputfile, original=original, info=info)
+                output = self.process(inputfile, original=original, info=info, tagdata=tagdata)
 
                 if output:
                     if not language:
@@ -110,7 +110,7 @@ class MediaProcessor:
         return False
 
     # Process a file from start to finish, with checking to make sure formats are compatible with selected settings
-    def process(self, inputfile, reportProgress=False, original=None, info=None, progressOutput=None):
+    def process(self, inputfile, reportProgress=False, original=None, info=None, progressOutput=None, tagdata=None):
         self.log.debug("Process started.")
 
         delete = self.settings.delete
@@ -126,7 +126,7 @@ class MediaProcessor:
 
         if info:
             try:
-                options, preopts, postopts, ripsubopts, downloaded_subs = self.generateOptions(inputfile, info=info, original=original)
+                options, preopts, postopts, ripsubopts, downloaded_subs = self.generateOptions(inputfile, info=info, original=original, tagdata=tagdata)
             except:
                 self.log.exception("Unable to generate options, unexpected exception occurred.")
                 return None
@@ -455,7 +455,7 @@ class MediaProcessor:
                 stream.disposition['forced'] = True
 
     # Generate a dict of options to be passed to FFMPEG based on selected settings and the source file parameters and streams
-    def generateOptions(self, inputfile, info=None, original=None):
+    def generateOptions(self, inputfile, info=None, original=None, tagdata=None):
         # Get path information from the input file
         sources = [inputfile]
         ripsubopts = []
@@ -918,7 +918,7 @@ class MediaProcessor:
         # Attempt to download subtitles if they are missing using subliminal
         downloaded_subs = []
         try:
-            downloaded_subs = self.downloadSubtitles(inputfile, info.subtitle, swl, original)
+            downloaded_subs = self.downloadSubtitles(inputfile, info.subtitle, swl, original, tagdata)
         except:
             self.log.exception("Unable to download subitltes [download-subs].")
 
@@ -1309,7 +1309,7 @@ class MediaProcessor:
 
         return valid_external_subs
 
-    def downloadSubtitles(self, inputfile, existing_subtitle_streams, swl, original=None):
+    def downloadSubtitles(self, inputfile, existing_subtitle_streams, swl, original=None, tagdata=None):
         if self.settings.downloadsubs:
             languages = set()
             for alpha3 in swl:
@@ -1342,14 +1342,35 @@ class MediaProcessor:
                 else:
                     video.subtitle_languages = set([Language(x.metadata['language']) for x in existing_subtitle_streams])
 
+                if tagdata:
+                    self.log.debug("Refining subliminal search using included metadata")
+                    tagdate = tagdata.date
+                    try:
+                        tagdate = tagdata.date[:4]
+                    except:
+                        pass
+                    video.year = tagdate or video.year
+                    video.imdb_id = tagdata.imdbid or video.imdb_id
+                    if tagdata.mediatype == MediaType.Movie and isinstance(video, subliminal.Movie):
+                        subliminal.refine(video, title=tagdata.title, year=tagdate, imdb_id=tagdata.imdbid)
+                        video.title = tagdata.title or video.title
+                    elif tagdata.mediatype == MediaType.TV and isinstance(video, subliminal.Episode):
+                        subliminal.refine(video, series=tagdata.showname, year=tagdate, series_imdb_id=tagdata.imdbid, series_tvdb_id=tagdata.tvdb.id, title=tagdata.title)
+                        video.series_tvdb_id = tagdata.tvdbid or video.series_tvdb_id
+                        video.series_imdb_id = tagdata.imdbid or video.series_imdb_id
+                        video.season = tagdata.season or video.season
+                        video.episodes = [tagdata.episode] or video.episodes
+                        video.series = tagdata.showname or video.series
+                        video.title = tagdata.title or video.title
+
                 # If data about the original release is available, include that in the search to best chance at accurate subtitles
                 if original:
                     self.log.debug("Found original filename, adding data from %s." % original)
                     og = subliminal.Video.fromname(original)
                     self.log.debug("Source %s, release group %s, resolution %s." % (og.source, og.release_group, og.resolution))
-                    video.source = og.source
-                    video.release_group = og.release_group
-                    video.resolution = og.resolution
+                    video.source = og.source or video.source
+                    video.release_group = og.release_group or video.release_group
+                    video.resolution = og.resolution or video.resolution
 
                 subtitles = subliminal.download_best_subtitles([video], languages, hearing_impaired=self.settings.hearing_impaired, providers=self.settings.subproviders, provider_configs=self.settings.subproviders_auth)
                 saves = subliminal.save_subtitles(video, subtitles[video])

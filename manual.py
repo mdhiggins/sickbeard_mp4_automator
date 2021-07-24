@@ -237,19 +237,23 @@ def processFile(inputfile, mp, info=None, relativePath=None, silent=False, tag=T
         log.debug("Invalid file %s." % inputfile)
         return
 
-    output = mp.process(inputfile, True, info=info, original=original)
+    language = settings.taglanguage or None
+    tagdata = getInfo(inputfile, silent, tag=tag, tmdbid=tmdbid, tvdbid=tvdbid, imdbid=imdbid, season=season, episode=episode, language=language, original=original)
+
+    if not tagdata:
+        log.info("Processing file %s" % inputfile)
+    elif tagdata.mediatype == MediaType.Movie:
+        log.info("Processing %s" % (tagdata.title))
+    elif tagdata.mediatype == MediaType.TV:
+        log.info("Processing %s Season %02d Episode %02d - %s" % (tagdata.showname, int(tagdata.season), int(tagdata.episode), tagdata.title))
+
+    output = mp.process(inputfile, True, info=info, original=original, tagdata=tagdata)
     if output:
-        language = settings.taglanguage or mp.getDefaultAudioLanguage(output["options"]) or None
+        if not language:
+            language = mp.getDefaultAudioLanguage(output["options"]) or None
+            if language:
+                tagdata = Metadata(tagdata.mediatype, tmdbid=tagdata.tmdbid, imdbid=tagdata.imdbid, tvdbid=tagdata.tvdbid, season=season, episode=episode, original=original, language=language, logger=log)
         log.debug("Tag language setting is %s, using language %s for tagging." % (settings.taglanguage or None, language))
-        tagdata = getInfo(inputfile, silent, tag=tag, tmdbid=tmdbid, tvdbid=tvdbid, imdbid=imdbid, season=season, episode=episode, language=language, original=original)
-
-        if not tagdata:
-            log.info("Processing file %s" % inputfile)
-        elif tagdata.mediatype == MediaType.Movie:
-            log.info("Processing %s" % (tagdata.title))
-        elif tagdata.mediatype == MediaType.TV:
-            log.info("Processing %s Season %02d Episode %02d - %s" % (tagdata.showname, int(tagdata.season), int(tagdata.episode), tagdata.title))
-
         tagfailed = False
         if tagdata:
             try:
