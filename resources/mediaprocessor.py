@@ -9,10 +9,11 @@ import re
 from converter import Converter, FFMpegConvertError, ConverterError
 from converter.avcodecs import BaseCodec
 from resources.extensions import subtitle_codec_extensions
-from resources.metadata import Metadata
+from resources.metadata import Metadata, MediaType
 from resources.postprocess import PostProcessor
 from resources.lang import getAlpha3TCode
 from autoprocess import plex
+import guessit## Per add#
 try:
     from babelfish import Language
 except:
@@ -50,13 +51,13 @@ class MediaProcessor:
         self.settings = settings
         self.converter = Converter(settings.ffmpeg, settings.ffprobe)
 
-    def fullprocess(self, inputfile, mediatype, reportProgress=False, original=None, info=None, tmdbid=None, tvdbid=None, imdbid=None, season=None, episode=None, language=None):
+    def fullprocess(self, inputfile, mediatype, reportProgress=False, original=None, info=None, tmdbid=None, tvdbid=None, imdbid=None, season=None, episode=None, language=None, tagdata=None):
         try:
             info = self.isValidSource(inputfile)
             if info:
                 self.log.info("Processing %s." % inputfile)
 
-                output = self.process(inputfile, original=original, info=info)
+                output = self.process(inputfile, original=original, info=info, tagdata=tagdata)
 
                 if output:
                     if not language:
@@ -110,7 +111,7 @@ class MediaProcessor:
         return False
 
     # Process a file from start to finish, with checking to make sure formats are compatible with selected settings
-    def process(self, inputfile, reportProgress=False, original=None, info=None, progressOutput=None,guess=None):
+    def process(self, inputfile, reportProgress=False, original=None, info=None, progressOutput=None, tagdata=None):
         self.log.debug("Process started.")
 
         delete = self.settings.delete
@@ -126,7 +127,7 @@ class MediaProcessor:
 
         if info:
             try:
-                options, preopts, postopts, ripsubopts, downloaded_subs = self.generateOptions(inputfile, info=info, original=original,guess=guess)
+                options, preopts, postopts, ripsubopts, downloaded_subs = self.generateOptions(inputfile, info=info, original=original, tagdata=tagdata)
             except:
                 self.log.exception("Unable to generate options, unexpected exception occurred.")
                 return None
@@ -455,7 +456,7 @@ class MediaProcessor:
                 stream.disposition['forced'] = True
 
     # Generate a dict of options to be passed to FFMPEG based on selected settings and the source file parameters and streams
-    def generateOptions(self, inputfile, info=None, original=None,guess=None):
+    def generateOptions(self, inputfile, info=None, original=None, tagdata=None):
         # Get path information from the input file
         sources = [inputfile]
         ripsubopts = []
@@ -918,7 +919,7 @@ class MediaProcessor:
         # Attempt to download subtitles if they are missing using subliminal
         downloaded_subs = []
         try:
-            downloaded_subs = self.downloadSubtitles(inputfile, info.subtitle, swl, original,guess=guess)
+            downloaded_subs = self.downloadSubtitles(inputfile, info.subtitle, swl, original, tagdata)
         except:
             self.log.exception("Unable to download subitltes [download-subs].")
 
@@ -1309,7 +1310,7 @@ class MediaProcessor:
 
         return valid_external_subs
 
-    def downloadSubtitles(self, inputfile, existing_subtitle_streams, swl, original=None,guess=None):
+    def downloadSubtitles(self, inputfile, existing_subtitle_streams, swl, original=None, tagdata=None):
         if self.settings.downloadsubs:
             languages = set()
             for alpha3 in swl:
@@ -1336,40 +1337,60 @@ class MediaProcessor:
                 pass
 
             try:
-             try:## Per add# subliminal raise exception if not find tv episode, must also try original
-              if not guess:
-                video = subliminal.scan_video(os.path.abspath(inputfile))
-              else:
-                video = subliminal.Video.fromguess(os.path.abspath(inputfile),guess)
-                video.size = os.path.getsize(os.path.abspath(inputfile))
-             except Exception as ex:
-                self.log.info("Subliminal fail: %s" %(ex))
-                video=None
-             finally:
-                if not video and not (original and not guess):return []
+                try:## Per add# subliminal raise exception if not find tv episode, must also try original
+                      if tagdata:
+                         guess = guessit.guessit(os.path.abspath(inputfile),options=({'type': 'movie'} if tagdata.mediatype == MediaType.Movie else {'type': 'episode'} if tagdata.mediatype == MediaType.TV else None))
+                         video = subliminal.Video.fromguess(os.path.abspath(inputfile),guess)
+                         video.size = os.path.getsize(os.path.abspath(inputfile))
+                      else:
+                         video = subliminal.scan_video(os.path.abspath(inputfile))
+                except Exception as ex:
+                        video=None;self.log.exception("Subliminal scan fail: %s" %(ex))
                 # If data about the original release is available, include that in the search to best chance at accurate subtitles
-                if original and not guess:## Per add# and not guess. Guess is made with original
-                  try:## Per add# try subliminal can raise exception.if have video from above must continue
+                if original:
+                    try:## Per add# try subliminal can raise exception.if have video from above must continue
+                        self.log.debug("Found original filename, adding data from %s." % original)
+                        og = subliminal.Video.fromname(original)
+                        if not video:
+                           video=og## Per add# if no video from above use this
+                           video.name=os.path.abspath(inputfile)
+                           video.size = os.path.getsize(os.path.abspath(inputfile))
+                    except Exception as ex:
+                          self.log.exception("Subliminal original filename fail: %s" %(ex))
+                    self.log.info("original data= " + "Title %s, Year %s, Source %s, release group %s, resolution %s." % (og.title, og.year, og.source, og.release_group, og.resolution))## Per add#og.title, og.year,
+                    video.source = og.source or video.source
+                    video.release_group = og.release_group or video.release_group
+                    video.resolution = og.resolution or video.resolution
+                if tagdata:
+                    self.log.debug("Refining subliminal search using included metadata")
+                    tagdate = tagdata.date
+                    try:
+                        tagdate = tagdata.date[:4]
+                    except:
+                        pass
+                    video.year = tagdate or video.year
+                    video.imdb_id = tagdata.imdbid or video.imdb_id
+                    if tagdata.mediatype == MediaType.Movie and isinstance(video, subliminal.Movie):
+                        subliminal.refine(video, title=tagdata.title, year=tagdate, imdb_id=tagdata.imdbid)
+                        video.title = tagdata.title or video.title
+                    elif tagdata.mediatype == MediaType.TV and isinstance(video, subliminal.Episode):
+                        subliminal.refine(video, series=tagdata.showname, year=tagdate, series_imdb_id=tagdata.imdbid, series_tvdb_id=tagdata.tvdb.id, title=tagdata.title)
+                        video.series_tvdb_id = tagdata.tvdbid or video.series_tvdb_id
+                        video.series_imdb_id = tagdata.imdbid or video.series_imdb_id
+                        video.season = tagdata.season or video.season
+                        video.episodes = [tagdata.episode] or video.episodes
+                        video.series = tagdata.showname or video.series
+                        video.title = tagdata.title or video.title
+
+                # If data about the original release is available, include that in the search to best chance at accurate subtitles
+                if original:
                     self.log.debug("Found original filename, adding data from %s." % original)
                     og = subliminal.Video.fromname(original)
-                    if not video:
-                       video=og## Per add# if no video from above use this
-                       video.name=os.path.abspath(inputfile)
-                       video.size = os.path.getsize(os.path.abspath(inputfile))
-                  except Exception as ex:
-                      self.log.info("Subliminal original filename fail: %s" %(ex))
-                      if not video:return []
-                  else:
-                    self.log.debug("Title %s, Year %s, Source %s, release group %s, resolution %s." % (og.title, og.year, og.source, og.release_group, og.resolution))
-                    video.title = og.title
-                    video.year = og.year
-                    video.source = og.source
-                    video.release_group = og.release_group
-                    video.resolution = og.resolution
-                if self.settings.ignore_embedded_subs:
-                    video.subtitle_languages = set()
-                else:
-                    video.subtitle_languages = set([Language(x.metadata['language']) for x in existing_subtitle_streams])
+                    self.log.debug("Source %s, release group %s, resolution %s." % (og.source, og.release_group, og.resolution))
+                    video.source = og.source or video.source
+                    video.release_group = og.release_group or video.release_group
+                    video.resolution = og.resolution or video.resolution
+
                 subtitles = subliminal.download_best_subtitles([video], languages, hearing_impaired=self.settings.hearing_impaired, providers=self.settings.subproviders, provider_configs=self.settings.subproviders_auth)
                 saves = subliminal.save_subtitles(video, subtitles[video])
                 paths = [subliminal.subtitle.get_subtitle_path(video.name, x.language) for x in saves]
