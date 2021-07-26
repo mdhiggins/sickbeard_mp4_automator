@@ -1354,12 +1354,31 @@ class MediaProcessor:
                 pass
 
             try:
-                options = None
-                if tagdata and tagdata.mediatype == MediaType.TV:
-                    options = {'type': 'episode'}
-                elif tagdata and tagdata.mediatype == MediaType.Movie:
-                    options = {'type': 'movie'}
-                video = MediaProcessor.custom_scan_video(os.path.abspath(inputfile), options)
+                try:# subliminal raise exception if not find tv episode, must also try original
+                    options = None
+                    if tagdata and tagdata.mediatype == MediaType.TV:
+                        options = {'type': 'episode'}
+                    elif tagdata and tagdata.mediatype == MediaType.Movie:
+                        options = {'type': 'movie'}
+                    video = MediaProcessor.custom_scan_video(os.path.abspath(inputfile), options)
+                except:
+                    video=None;self.log.exception("Subliminal scan fail")
+                # If data about the original release is available, include that in the search to best chance at accurate subtitles
+                if original:
+                    try:# subliminal can raise exception.if have video from above must continue
+                        self.log.debug("Found original filename, adding data from %s." % original)
+                        og = subliminal.Video.fromname(original)
+                        if not video:
+                           video=og# if no video from above use this
+                           video.name=os.path.abspath(inputfile)
+                           video.size = os.path.getsize(os.path.abspath(inputfile))
+                    except:
+                        self.log.exception("Subliminal original filename fail")
+                    else:
+                        self.log.debug("Source %s, release group %s, resolution %s." % (og.source, og.release_group, og.resolution))
+                        video.source = og.source or video.source
+                        video.release_group = og.release_group or video.release_group
+                        video.resolution = og.resolution or video.resolution
 
                 if self.settings.ignore_embedded_subs:
                     video.subtitle_languages = set()
@@ -1386,15 +1405,6 @@ class MediaProcessor:
                         video.episodes = [tagdata.episode] or video.episodes
                         video.series = tagdata.showname or video.series
                         video.title = tagdata.title or video.title
-
-                # If data about the original release is available, include that in the search to best chance at accurate subtitles
-                if original:
-                    self.log.debug("Found original filename, adding data from %s." % original)
-                    og = subliminal.Video.fromname(original)
-                    self.log.debug("Source %s, release group %s, resolution %s." % (og.source, og.release_group, og.resolution))
-                    video.source = og.source or video.source
-                    video.release_group = og.release_group or video.release_group
-                    video.resolution = og.resolution or video.resolution
 
                 subtitles = subliminal.download_best_subtitles([video], languages, hearing_impaired=self.settings.hearing_impaired, providers=self.settings.subproviders, provider_configs=self.settings.subproviders_auth)
                 saves = subliminal.save_subtitles(video, subtitles[video])

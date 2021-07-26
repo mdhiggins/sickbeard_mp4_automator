@@ -127,10 +127,10 @@ def getInfo(fileName=None, silent=False, tag=True, tvdbid=None, tmdbid=None, imd
     if fileName is not None:
         tagdata = guessInfo(fileName, tvdbid=tvdbid, tmdbid=tmdbid, imdbid=imdbid, season=season, episode=episode, language=language, original=original)
 
-    if not silent:
+    if not silent=='True':
         if tagdata:
             print("Proceed using guessed identification from filename?")
-            if getYesNo():
+            if silent=='nofound' or getYesNo():# nofound ask only if not found
                 return tagdata
         else:
             print("Unable to determine identity based on filename, must enter manually")
@@ -327,7 +327,7 @@ def main():
     parser = argparse.ArgumentParser(description="Manual conversion and tagging script for sickbeard_mp4_automator")
     parser.add_argument('-i', '--input', help='The source that will be converted. May be a file or a directory')
     parser.add_argument('-c', '--config', help='Specify an alternate configuration file location')
-    parser.add_argument('-a', '--auto', action="store_true", help="Enable auto mode, the script will not prompt you for any further input, good for batch files. It will guess the metadata using guessit")
+    parser.add_argument('-a', '--auto', help="Level ask for tagging default is always ask,nofound=ask if not found,True=auto the script will not prompt you for any further input, good for batch files. It will guess the metadata using guessit")
     parser.add_argument('-s', '--season', help="Specifiy the season number")
     parser.add_argument('-e', '--episode', help="Specify the episode number")
     parser.add_argument('-tvdb', '--tvdbid', help="Specify the TVDB ID for media")
