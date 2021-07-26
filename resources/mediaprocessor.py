@@ -13,13 +13,13 @@ from resources.metadata import Metadata, MediaType
 from resources.postprocess import PostProcessor
 from resources.lang import getAlpha3TCode
 from autoprocess import plex
-import guessit## Per add#
 try:
     from babelfish import Language
 except:
     pass
 try:
     import subliminal
+    from guessit import guessit
 except:
     pass
 try:
@@ -1310,6 +1310,23 @@ class MediaProcessor:
 
         return valid_external_subs
 
+    @staticmethod
+    def custom_scan_video(path, guessit_options=None):
+        # check for non-existing path
+        if not os.path.exists(path):
+            raise ValueError('Path does not exist')
+
+        # check video extension
+        if not path.lower().endswith(subliminal.VIDEO_EXTENSIONS):
+            raise ValueError('%r is not a valid video extension' % os.path.splitext(path)[1])
+
+        video = subliminal.Video.fromguess(path, guessit(path, guessit_options))
+
+        # size
+        video.size = os.path.getsize(path)
+
+        return video
+
     def downloadSubtitles(self, inputfile, existing_subtitle_streams, swl, original=None, tagdata=None):
         if self.settings.downloadsubs:
             languages = set()
@@ -1337,30 +1354,37 @@ class MediaProcessor:
                 pass
 
             try:
-                try:## Per add# subliminal raise exception if not find tv episode, must also try original
-                      if tagdata:
-                         guess = guessit.guessit(os.path.abspath(inputfile),options=({'type': 'movie'} if tagdata.mediatype == MediaType.Movie else {'type': 'episode'} if tagdata.mediatype == MediaType.TV else None))
-                         video = subliminal.Video.fromguess(os.path.abspath(inputfile),guess)
-                         video.size = os.path.getsize(os.path.abspath(inputfile))
-                      else:
-                         video = subliminal.scan_video(os.path.abspath(inputfile))
-                except Exception as ex:
-                        video=None;self.log.exception("Subliminal scan fail: %s" %(ex))
+                try:# subliminal raise exception if not find tv episode, must also try original
+                    options = None
+                    if tagdata and tagdata.mediatype == MediaType.TV:
+                        options = {'type': 'episode'}
+                    elif tagdata and tagdata.mediatype == MediaType.Movie:
+                        options = {'type': 'movie'}
+                    video = MediaProcessor.custom_scan_video(os.path.abspath(inputfile), options)
+                except:
+                    video=None;self.log.exception("Subliminal scan fail")
                 # If data about the original release is available, include that in the search to best chance at accurate subtitles
                 if original:
-                    try:## Per add# try subliminal can raise exception.if have video from above must continue
+                    try:# subliminal can raise exception.if have video from above must continue
                         self.log.debug("Found original filename, adding data from %s." % original)
                         og = subliminal.Video.fromname(original)
                         if not video:
-                           video=og## Per add# if no video from above use this
+                           video=og# if no video from above use this
                            video.name=os.path.abspath(inputfile)
                            video.size = os.path.getsize(os.path.abspath(inputfile))
-                    except Exception as ex:
-                          self.log.exception("Subliminal original filename fail: %s" %(ex))
-                    self.log.info("original data= " + "Title %s, Year %s, Source %s, release group %s, resolution %s." % (og.title, og.year, og.source, og.release_group, og.resolution))## Per add#og.title, og.year,
-                    video.source = og.source or video.source
-                    video.release_group = og.release_group or video.release_group
-                    video.resolution = og.resolution or video.resolution
+                    except:
+                        self.log.exception("Subliminal original filename fail")
+                    else:
+                        self.log.debug("Source %s, release group %s, resolution %s." % (og.source, og.release_group, og.resolution))
+                        video.source = og.source or video.source
+                        video.release_group = og.release_group or video.release_group
+                        video.resolution = og.resolution or video.resolution
+
+                if self.settings.ignore_embedded_subs:
+                    video.subtitle_languages = set()
+                else:
+                    video.subtitle_languages = set([Language(x.metadata['language']) for x in existing_subtitle_streams])
+
                 if tagdata:
                     self.log.debug("Refining subliminal search using included metadata")
                     tagdate = tagdata.date
@@ -1381,15 +1405,6 @@ class MediaProcessor:
                         video.episodes = [tagdata.episode] or video.episodes
                         video.series = tagdata.showname or video.series
                         video.title = tagdata.title or video.title
-
-                # If data about the original release is available, include that in the search to best chance at accurate subtitles
-                if original:
-                    self.log.debug("Found original filename, adding data from %s." % original)
-                    og = subliminal.Video.fromname(original)
-                    self.log.debug("Source %s, release group %s, resolution %s." % (og.source, og.release_group, og.resolution))
-                    video.source = og.source or video.source
-                    video.release_group = og.release_group or video.release_group
-                    video.resolution = og.resolution or video.resolution
 
                 subtitles = subliminal.download_best_subtitles([video], languages, hearing_impaired=self.settings.hearing_impaired, providers=self.settings.subproviders, provider_configs=self.settings.subproviders_auth)
                 saves = subliminal.save_subtitles(video, subtitles[video])
