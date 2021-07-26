@@ -19,6 +19,7 @@ except:
     pass
 try:
     import subliminal
+    from guessit import guessit
 except:
     pass
 try:
@@ -1309,6 +1310,23 @@ class MediaProcessor:
 
         return valid_external_subs
 
+    @staticmethod
+    def custom_scan_video(path, guessit_options=None):
+        # check for non-existing path
+        if not os.path.exists(path):
+            raise ValueError('Path does not exist')
+
+        # check video extension
+        if not path.lower().endswith(subliminal.VIDEO_EXTENSIONS):
+            raise ValueError('%r is not a valid video extension' % os.path.splitext(path)[1])
+
+        video = subliminal.Video.fromguess(path, guessit(path, guessit_options))
+
+        # size
+        video.size = os.path.getsize(path)
+
+        return video
+
     def downloadSubtitles(self, inputfile, existing_subtitle_streams, swl, original=None, tagdata=None):
         if self.settings.downloadsubs:
             languages = set()
@@ -1336,7 +1354,13 @@ class MediaProcessor:
                 pass
 
             try:
-                video = subliminal.scan_video(os.path.abspath(inputfile))
+                options = None
+                if tagdata and tagdata.mediatype == MediaType.TV:
+                    options = {'type': 'episode'}
+                elif tagdata and tagdata.mediatype == MediaType.Movie:
+                    options = {'type': 'movie'}
+                video = MediaProcessor.custom_scan_video(os.path.abspath(inputfile), options)
+
                 if self.settings.ignore_embedded_subs:
                     video.subtitle_languages = set()
                 else:
