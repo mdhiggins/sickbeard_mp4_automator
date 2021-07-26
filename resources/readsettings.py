@@ -722,7 +722,7 @@ class ReadSettings:
         self.vforcefilter = config.getboolean(section, 'force-filter')
         self.vwidth = config.getint(section, "max-width")
         self.video_level = config.getfloat(section, "max-level")
-        self.vprofile = config.getlist(section, "profile", replace=[])
+        self.vprofile = config.getlist(section, "profile")
         self.pix_fmt = config.getlist(section, "pix-fmt")
 
         # HDR
