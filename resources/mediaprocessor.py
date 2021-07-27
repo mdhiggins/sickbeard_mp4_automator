@@ -706,9 +706,6 @@ class MediaProcessor:
                         'title': self.audioStreamTitle(2, a.disposition, a.metadata.get('title')),
                         'debug': 'universal-audio'
                     }
-                    if not self.settings.ua_last:
-                        self.log.info("Creating %s audio stream source audio stream %d [universal-audio]." % (uadata.get('codec'), a.index))
-                        audio_settings.append(uadata)
 
                 adebug = "audio"
                 # If the universal audio option is enabled and the source audio channel is only stereo, the additional universal stream will be skipped and a single channel will be made regardless of codec preference to avoid multiple stereo channels
@@ -815,6 +812,7 @@ class MediaProcessor:
                 absf = 'aac_adtstoasc' if acodec == 'copy' and a.codec == 'aac' and self.settings.aac_adtstoasc else None
 
                 self.log.info("Creating %s audio stream from source stream %d." % (acodec, a.index))
+                aposition = len(audio_settings)
                 audio_settings.append({
                     'map': a.index,
                     'codec': acodec,
@@ -830,15 +828,17 @@ class MediaProcessor:
                     'debug': adebug
                 })
 
-                # Add the universal audio stream last instead
-                if self.settings.ua_last and uadata:
+                # Add the universal audio stream
+                if uadata:
                     self.log.info("Creating %s audio stream from source audio stream %d [universal-audio]." % (uadata.get('codec'), a.index))
-                    audio_settings.append(uadata)
+                    uaposition = len(audio_settings) if self.settings.ua_last else aposition
+                    audio_settings.insert(uaposition, uadata)
+                    aposition = aposition if self.settings.ua_last else (aposition + 1)
 
                 if self.settings.audio_copyoriginal and acodec != 'copy' and not (a.codec == 'truehd' and self.settings.output_extension in self.settings.ignore_truehd):
                     self.log.info("Copying audio stream from source stream %d format %s [audio-copy-original]." % (a.index, a.codec))
-                    position = len(audio_settings) - 1 if self.settings.audio_copyoriginal_before else len(audio_settings)
-                    audio_settings.insert(position, {
+                    aposition = aposition if self.settings.audio_copyoriginal_before else (aposition + 1)
+                    audio_settings.insert(aposition, {
                         'map': a.index,
                         'codec': 'copy',
                         'channels': a.audio_channels,
