@@ -88,6 +88,7 @@ class AudioCodec(BaseCodec):
         'channels': int,
         'bitrate': int,
         'samplerate': int,
+        'sample_fmt': str,
         'source': int,
         'path': str,
         'filter': str,
@@ -156,6 +157,8 @@ class AudioCodec(BaseCodec):
             optlist.extend(['-metadata:s:a:' + stream, 'BPS-eng=' + str(br * 1000)])
         if 'samplerate' in safe:
             optlist.extend(['-ar:a:' + stream, str(safe['samplerate'])])
+        if 'sample_fmt' in safe:
+            optlist.extend(['-sample_fmt:a:' + stream, str(safe['sample_fmt'])])
         if 'filter' in safe:
             optlist.extend(['-filter:a:' + stream, str(safe['filter'])])
         if 'title' in safe:
