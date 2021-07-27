@@ -179,6 +179,7 @@ class ReadSettings:
             'sample-rates': '',
             'sample-format': '',
             'copy-original': False,
+            'copy-original-before': False,
             'aac-adtstoasc': False,
             'ignore-truehd': 'mp4, m4v',
             'ignored-dispositions': '',
@@ -755,6 +756,7 @@ class ReadSettings:
         self.audio_samplerates = [int(x) for x in config.getlist(section, "sample-rates") if x.isdigit()]
         self.audio_sampleformat = config.get(section, 'sample-format')
         self.audio_copyoriginal = config.getboolean(section, "copy-original")
+        self.audio_copyoriginal_before = config.getboolean(section, "copy-original-before")
         self.audio_first_language_stream = config.getboolean(section, "first-stream-of-language")
         self.allow_language_relax = config.getboolean(section, "allow-language-relax")
         self.aac_adtstoasc = config.getboolean(section, 'aac-adtstoasc')

@@ -837,7 +837,8 @@ class MediaProcessor:
 
                 if self.settings.audio_copyoriginal and acodec != 'copy' and not (a.codec == 'truehd' and self.settings.output_extension in self.settings.ignore_truehd):
                     self.log.info("Copying audio stream from source stream %d format %s [audio-copy-original]." % (a.index, a.codec))
-                    audio_settings.append({
+                    position = len(audio_settings) - 1 if self.settings.audio_copyoriginal_before else len(audio_settings)
+                    audio_settings.insert(position, {
                         'map': a.index,
                         'codec': 'copy',
                         'channels': a.audio_channels,
