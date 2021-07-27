@@ -645,7 +645,7 @@ class MediaProcessor:
         # Sort incoming streams so that things like first language preferences respect these options
         audio_streams = info.audio
         try:
-            self.sortStreams(audio_streams, awl)
+            self.sortStreams(audio_streams, awl, self.settings.acodec)
         except:
             self.log.exception("Error sorting source audio streams [sort-streams].")
 
@@ -1117,7 +1117,7 @@ class MediaProcessor:
     def setDefaultAudioStream(self, audio_settings):
         if len(audio_settings) > 0:
             audio_streams = sorted(audio_settings, key=lambda x: x.get('channels', 1), reverse=self.settings.default_more_channels)
-            audio_streams = sorted(audio_streams, key=lambda x: '+comment' in (x.get('disposition') or ''))
+            audio_streams.sort(key=lambda x: '+comment' in (x.get('disposition') or ''))
             preferred_language_audio_streams = [x for x in audio_streams if x.get('language') == self.settings.adl] if self.settings.adl else audio_streams
             default_stream = audio_streams[0]
             default_streams = [x for x in audio_streams if '+default' in (x.get('disposition') or '')]
@@ -1181,15 +1181,19 @@ class MediaProcessor:
         else:
             self.log.debug("Subtitle output is empty or no default subtitle language is set, will not pass over subtitle output to set a default stream.")
 
-    def sortStreams(self, streams, languages):
+    def sortStreams(self, streams, languages, codecs=None):
         if self.settings.sort_streams:
             self.log.debug("Reordering streams to be in accordance with approved languages and channels [sort-streams, prefer-more-channels].")
             if len(streams) > 0:
                 if isinstance(streams[0], dict):
+                    if codecs:
+                        streams.sort(key=lambda x: languages.index(x.get('codec')) if x.get('codec') in codecs else 999)
                     streams.sort(key=lambda x: x.get('channels', 999), reverse=self.settings.prefer_more_channels)
                     if languages:
                         streams.sort(key=lambda x: languages.index(x.get('language')) if x.get('language') in languages else 999)
                 else:
+                    if codecs:
+                        streams.sort(key=lambda x: codecs.index(x.codec) if x.codec in codecs else 999)
                     streams.sort(key=lambda x: x.audio_channels, reverse=self.settings.prefer_more_channels)
                     if languages:
                         streams.sort(key=lambda x: languages.index(x.metadata.get('language')) if x.metadata.get('language') in languages else 999)
