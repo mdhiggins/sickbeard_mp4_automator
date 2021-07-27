@@ -1315,7 +1315,7 @@ class MediaProcessor:
         return valid_external_subs
 
     @staticmethod
-    def custom_scan_video(path, guessit_options=None):
+    def custom_scan_video(path, tagdata=None):
         # check for non-existing path
         if not os.path.exists(path):
             raise ValueError('Path does not exist')
@@ -1324,7 +1324,22 @@ class MediaProcessor:
         if not path.lower().endswith(subliminal.VIDEO_EXTENSIONS):
             raise ValueError('%r is not a valid video extension' % os.path.splitext(path)[1])
 
-        video = subliminal.Video.fromguess(path, guessit(path, guessit_options))
+        options = None
+        if tagdata and tagdata.mediatype == MediaType.TV:
+            options = {'type': 'episode'}
+        elif tagdata and tagdata.mediatype == MediaType.Movie:
+            options = {'type': 'movie'}
+
+        guess = guessit(path, options)
+
+        if tagdata and tagdata.mediatype == MediaType.TV:
+            guess['episode'] = tagdata.episode
+            guess['title'] = tagdata.title
+            guess['season'] = tagdata.season
+        elif tagdata and tagdata.mediatype == MediaType.Movie:
+            guess['title'] = tagdata.title
+
+        video = subliminal.Video.fromguess(path, guess)
 
         # size
         video.size = os.path.getsize(path)
@@ -1359,11 +1374,7 @@ class MediaProcessor:
 
             try:
                 options = None
-                if tagdata and tagdata.mediatype == MediaType.TV:
-                    options = {'type': 'episode'}
-                elif tagdata and tagdata.mediatype == MediaType.Movie:
-                    options = {'type': 'movie'}
-                video = MediaProcessor.custom_scan_video(os.path.abspath(inputfile), options)
+                video = MediaProcessor.custom_scan_video(os.path.abspath(inputfile), tagdata)
 
                 if self.settings.ignore_embedded_subs:
                     video.subtitle_languages = set()
@@ -1383,7 +1394,7 @@ class MediaProcessor:
                         subliminal.refine(video, title=tagdata.title, year=tagdate, imdb_id=tagdata.imdbid)
                         video.title = tagdata.title or video.title
                     elif tagdata.mediatype == MediaType.TV and isinstance(video, subliminal.Episode):
-                        subliminal.refine(video, series=tagdata.showname, year=tagdate, series_imdb_id=tagdata.imdbid, series_tvdb_id=tagdata.tvdb.id, title=tagdata.title)
+                        subliminal.refine(video, series=tagdata.showname, year=tagdate, series_imdb_id=tagdata.imdbid, series_tvdb_id=tagdata.tvdbid, title=tagdata.title)
                         video.series_tvdb_id = tagdata.tvdbid or video.series_tvdb_id
                         video.series_imdb_id = tagdata.imdbid or video.series_imdb_id
                         video.season = tagdata.season or video.season
