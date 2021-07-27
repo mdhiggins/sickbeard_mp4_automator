@@ -232,7 +232,7 @@ class MediaStreamInfo(object):
         elif key == 'DISPOSITION:attached_pic':
             self.attached_pic = self.parse_int(val)
         elif key == 'profile':
-            self.profile = val.lower()
+            self.profile = val.lower().replace(" ", "")
         elif key == 'DISPOSITION:forced':
             self.forced = self.parse_bool(self.parse_int(val))
         elif key == 'DISPOSITION:default':
