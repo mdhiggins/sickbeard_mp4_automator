@@ -645,7 +645,7 @@ class MediaProcessor:
         # Sort incoming streams so that things like first language preferences respect these options
         audio_streams = info.audio
         try:
-            self.sortStreams(audio_streams, awl, self.settings.acodec)
+            self.sortStreams(audio_streams, awl)
         except:
             self.log.exception("Error sorting source audio streams [sort-streams].")
 
