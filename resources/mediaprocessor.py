@@ -699,15 +699,13 @@ class MediaProcessor:
                         'channels': 2,
                         'bitrate': ua_bitrate,
                         'samplerate': self.settings.audio_samplerates[0] if len(self.settings.audio_samplerates) > 0 else None,
+                        'sampleformat': self.settings.audio_sampleformat,
                         'filter': ua_filter,
                         'language': a.metadata['language'],
                         'disposition': ua_disposition,
                         'title': self.audioStreamTitle(2, a.disposition, a.metadata.get('title')),
                         'debug': 'universal-audio'
                     }
-                    if not self.settings.ua_last:
-                        self.log.info("Creating %s audio stream source audio stream %d [universal-audio]." % (uadata.get('codec'), a.index))
-                        audio_settings.append(uadata)
 
                 adebug = "audio"
                 # If the universal audio option is enabled and the source audio channel is only stereo, the additional universal stream will be skipped and a single channel will be made regardless of codec preference to avoid multiple stereo channels
@@ -814,6 +812,7 @@ class MediaProcessor:
                 absf = 'aac_adtstoasc' if acodec == 'copy' and a.codec == 'aac' and self.settings.aac_adtstoasc else None
 
                 self.log.info("Creating %s audio stream from source stream %d." % (acodec, a.index))
+                aposition = len(audio_settings)
                 audio_settings.append({
                     'map': a.index,
                     'codec': acodec,
@@ -821,6 +820,7 @@ class MediaProcessor:
                     'bitrate': abitrate,
                     'filter': afilter,
                     'samplerate': asample,
+                    'sampleformat': self.settings.audio_sampleformat,
                     'language': a.metadata['language'],
                     'disposition': adisposition,
                     'bsf': absf,
@@ -828,14 +828,17 @@ class MediaProcessor:
                     'debug': adebug
                 })
 
-                # Add the universal audio stream last instead
-                if self.settings.ua_last and uadata:
+                # Add the universal audio stream
+                if uadata:
                     self.log.info("Creating %s audio stream from source audio stream %d [universal-audio]." % (uadata.get('codec'), a.index))
-                    audio_settings.append(uadata)
+                    uaposition = len(audio_settings) if self.settings.ua_last else aposition
+                    audio_settings.insert(uaposition, uadata)
+                    aposition = aposition if self.settings.ua_last else (aposition + 1)
 
                 if self.settings.audio_copyoriginal and acodec != 'copy' and not (a.codec == 'truehd' and self.settings.output_extension in self.settings.ignore_truehd):
                     self.log.info("Copying audio stream from source stream %d format %s [audio-copy-original]." % (a.index, a.codec))
-                    audio_settings.append({
+                    aposition = aposition if self.settings.audio_copyoriginal_before else (aposition + 1)
+                    audio_settings.insert(aposition, {
                         'map': a.index,
                         'codec': 'copy',
                         'channels': a.audio_channels,
@@ -1117,7 +1120,7 @@ class MediaProcessor:
     def setDefaultAudioStream(self, audio_settings):
         if len(audio_settings) > 0:
             audio_streams = sorted(audio_settings, key=lambda x: x.get('channels', 1), reverse=self.settings.default_more_channels)
-            audio_streams = sorted(audio_streams, key=lambda x: '+comment' in (x.get('disposition') or ''))
+            audio_streams.sort(key=lambda x: '+comment' in (x.get('disposition') or ''))
             preferred_language_audio_streams = [x for x in audio_streams if x.get('language') == self.settings.adl] if self.settings.adl else audio_streams
             default_stream = audio_streams[0]
             default_streams = [x for x in audio_streams if '+default' in (x.get('disposition') or '')]
@@ -1181,15 +1184,19 @@ class MediaProcessor:
         else:
             self.log.debug("Subtitle output is empty or no default subtitle language is set, will not pass over subtitle output to set a default stream.")
 
-    def sortStreams(self, streams, languages):
+    def sortStreams(self, streams, languages, codecs=None):
         if self.settings.sort_streams:
             self.log.debug("Reordering streams to be in accordance with approved languages and channels [sort-streams, prefer-more-channels].")
             if len(streams) > 0:
                 if isinstance(streams[0], dict):
+                    if codecs:
+                        streams.sort(key=lambda x: languages.index(x.get('codec')) if x.get('codec') in codecs else 999)
                     streams.sort(key=lambda x: x.get('channels', 999), reverse=self.settings.prefer_more_channels)
                     if languages:
                         streams.sort(key=lambda x: languages.index(x.get('language')) if x.get('language') in languages else 999)
                 else:
+                    if codecs:
+                        streams.sort(key=lambda x: codecs.index(x.codec) if x.codec in codecs else 999)
                     streams.sort(key=lambda x: x.audio_channels, reverse=self.settings.prefer_more_channels)
                     if languages:
                         streams.sort(key=lambda x: languages.index(x.metadata.get('language')) if x.metadata.get('language') in languages else 999)
@@ -1311,23 +1318,35 @@ class MediaProcessor:
         return valid_external_subs
 
     @staticmethod
-    def custom_scan_video(path, guessit_options=None,tagdata=None):
+    def custom_scan_video(path, tagdata=None):
         # check for non-existing path
-        if not os.path.exists(path):
-            raise ValueError('Path does not exist')
+        #if not os.path.exists(path):
+            #raise ValueError('Path does not exist')
 
         # check video extension
         if not path.lower().endswith(subliminal.VIDEO_EXTENSIONS):
             raise ValueError('%r is not a valid video extension' % os.path.splitext(path)[1])
-        try:
-            video = subliminal.Video.fromguess(path, guessit(path, guessit_options))
-        except:
-            if guessit_options=={'type': 'episode'}:
-                print("Exception guessit: Tvshow with crappy filename will try to fill in correct values with refine")
-                tmpfilename="%s S%02dE%02d - %s %s" %(tagdata.showname, int(tagdata.season), int(tagdata.episode), tagdata.title,"(" + tagdata.airdate[:4] + ")")
-                video = subliminal.Video.fromguess(path, guessit(tmpfilename, guessit_options))
+
+        options = None
+        if tagdata and tagdata.mediatype == MediaType.TV:
+            options = {'type': 'episode'}
+        elif tagdata and tagdata.mediatype == MediaType.Movie:
+            options = {'type': 'movie'}
+
+        guess = guessit(path, options)
+
+        if tagdata and tagdata.mediatype == MediaType.TV:
+            guess['episode'] = tagdata.episode
+            guess['title'] = tagdata.title
+            guess['season'] = tagdata.season
+        elif tagdata and tagdata.mediatype == MediaType.Movie:
+            guess['title'] = tagdata.title
+
+        video = subliminal.Video.fromguess(path, guess)
+
         # size
-        video.size = os.path.getsize(path)
+        if os.path.exists(path):
+            video.size = os.path.getsize(path)
 
         return video
 
@@ -1359,11 +1378,7 @@ class MediaProcessor:
 
             try:
                 options = None
-                if tagdata and tagdata.mediatype == MediaType.TV:
-                    options = {'type': 'episode'}
-                elif tagdata and tagdata.mediatype == MediaType.Movie:
-                    options = {'type': 'movie'}
-                video = MediaProcessor.custom_scan_video(os.path.abspath(inputfile), options,tagdata)
+                video = MediaProcessor.custom_scan_video(os.path.abspath(inputfile), tagdata)
 
                 if self.settings.ignore_embedded_subs:
                     video.subtitle_languages = set()
@@ -1372,9 +1387,9 @@ class MediaProcessor:
 
                 if tagdata:
                     self.log.debug("Refining subliminal search using included metadata")
-                    tagdate = tagdata.date if hasattr(tagdata, 'date') else tagdata.airdate
+                    tagdate = tagdata.date
                     try:
-                        tagdate = tagdate[:4]
+                        tagdate = tagdata.date[:4]
                     except:
                         pass
                     video.year = tagdate or video.year
@@ -1392,16 +1407,14 @@ class MediaProcessor:
                         video.title = tagdata.title or video.title
 
                 # If data about the original release is available, include that in the search to best chance at accurate subtitles
-                try:
-                    if original:
-                        self.log.debug("Found original filename, adding data from %s." % original)
-                        og = subliminal.Video.fromname(original)
-                        self.log.debug("Source %s, release group %s, resolution %s." % (og.source, og.release_group, og.resolution))
-                        video.source = og.source or video.source
-                        video.release_group = og.release_group or video.release_group
-                        video.resolution = og.resolution or video.resolution
-                except:
-                    self.log.debug("Adding data from original filename failed %s." % original)
+                if original:
+                    self.log.debug("Found original filename, adding data from %s." % original)
+                    og = MediaProcessor.custom_scan_video(original+'.mp4', tagdata)
+                    self.log.debug("Source %s, release group %s, resolution %s." % (og.source, og.release_group, og.resolution))
+                    video.source = og.source or video.source
+                    video.release_group = og.release_group or video.release_group
+                    video.resolution = og.resolution or video.resolution
+
                 subtitles = subliminal.download_best_subtitles([video], languages, hearing_impaired=self.settings.hearing_impaired, providers=self.settings.subproviders, provider_configs=self.settings.subproviders_auth)
                 saves = subliminal.save_subtitles(video, subtitles[video])
                 paths = [subliminal.subtitle.get_subtitle_path(video.name, x.language) for x in saves]

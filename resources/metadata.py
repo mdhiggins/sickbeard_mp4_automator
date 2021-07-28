@@ -114,7 +114,7 @@ class Metadata:
             self.network = self.showdata['networks']
             self.title = self.episodedata['name'] or "Episode %d" % (episode)
             self.description = self.episodedata['overview']
-            self.airdate = self.episodedata['air_date']
+            self.date = self.episodedata['air_date']
             self.imdbid = self.externalids.get('imdb_id') or imdbid
             self.tvdbid = self.externalids.get('tvdb_id') or tvdbid
 
@@ -171,8 +171,8 @@ class Metadata:
                 elif self.mediatype == MediaType.TV:
                     metadata['TITLE'] = self.title  # Video title
                     metadata["COMMENT"] = self.description  # Long description
-                    metadata["DATE_RELEASE"] = self.airdate  # Air Date
-                    metadata["DATE"] = self.airdate  # Air Date
+                    metadata["DATE_RELEASE"] = self.date  # Air Date
+                    metadata["DATE"] = self.date  # Air Date
                     metadata["ALBUM"] = self.showname + ", Season " + str(self.season)  # Album as Season
 
                 if self.genre and len(self.genre) > 0:
@@ -219,7 +219,7 @@ class Metadata:
             video["ldes"] = self.description  # Long description
             network = [x['name'] for x in self.network]
             video["tvnn"] = network  # Network
-            video["\xa9day"] = self.airdate  # Airdate
+            video["\xa9day"] = self.date  # Air Date
             video["tvsn"] = [self.season]  # Season number
             video["disk"] = [(self.season, 0)]  # Season number as disk
             video["\xa9alb"] = self.showname + ", Season " + str(self.season)  # iTunes Album as Season
