@@ -1320,8 +1320,8 @@ class MediaProcessor:
     @staticmethod
     def custom_scan_video(path, tagdata=None):
         # check for non-existing path
-        #if not os.path.exists(path):
-            #raise ValueError('Path does not exist')
+        if not os.path.exists(path):
+            raise ValueError('Path does not exist')
 
         # check video extension
         if not path.lower().endswith(subliminal.VIDEO_EXTENSIONS):
@@ -1345,8 +1345,7 @@ class MediaProcessor:
         video = subliminal.Video.fromguess(path, guess)
 
         # size
-        if os.path.exists(path):
-            video.size = os.path.getsize(path)
+        video.size = os.path.getsize(path)
 
         return video
 
@@ -1408,12 +1407,16 @@ class MediaProcessor:
 
                 # If data about the original release is available, include that in the search to best chance at accurate subtitles
                 if original:
-                    self.log.debug("Found original filename, adding data from %s." % original)
-                    og = MediaProcessor.custom_scan_video(original+'.mp4', tagdata)
-                    self.log.debug("Source %s, release group %s, resolution %s." % (og.source, og.release_group, og.resolution))
-                    video.source = og.source or video.source
-                    video.release_group = og.release_group or video.release_group
-                    video.resolution = og.resolution or video.resolution
+                    try:
+                        self.log.debug("Found original filename, adding data from %s." % original)
+                        og = guessit(original)
+                        self.log.debug("Source %s, release group %s, resolution %s, streaming service %s." % (og.get('source'), og.get('release_group'), og.get('screen_size'), og.get('streaming_service')))
+                        video.source = og.get('source') or video.source
+                        video.release_group = og.get('release_group') or video.release_group
+                        video.resolution = og.get('screen_size') or video.resolution
+                        video.streaming_service = og.get('streaming_service') or video.streaming_service
+                    except:
+                        self.log.exception("Error importing original file data for subliminal, will attempt to proceed.")
 
                 subtitles = subliminal.download_best_subtitles([video], languages, hearing_impaired=self.settings.hearing_impaired, providers=self.settings.subproviders, provider_configs=self.settings.subproviders_auth)
                 saves = subliminal.save_subtitles(video, subtitles[video])
