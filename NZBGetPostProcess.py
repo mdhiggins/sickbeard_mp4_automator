@@ -80,7 +80,7 @@ try:
     from resources.readsettings import ReadSettings
     from resources.mediaprocessor import MediaProcessor
     from resources.log import getLogger
-    from autoprocess import autoProcessMovie, autoProcessTV, autoProcessTVSR, sonarr, radarr
+    from autoprocess import autoProcessTV, autoProcessTVSR, sonarr, radarr
 except ImportError:
     print("[ERROR] Wrong path to sickbeard_mp4_automator: " + os.environ['NZBPO_MP4_FOLDER'])
     print("[ERROR] %s" % traceback.print_exc())
