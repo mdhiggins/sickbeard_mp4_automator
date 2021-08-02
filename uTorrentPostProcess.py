@@ -2,7 +2,7 @@ import os
 import re
 import sys
 import shutil
-from autoprocess import autoProcessTV, autoProcessMovie, autoProcessTVSR, sonarr, radarr
+from autoprocess import autoProcessTV, autoProcessTVSR, sonarr, radarr
 from resources.log import getLogger
 from resources.readsettings import ReadSettings
 from resources.mediaprocessor import MediaProcessor
@@ -60,7 +60,7 @@ try:
     label = sys.argv[1].lower().strip()
     kind = sys.argv[4].lower().strip()
     filename = sys.argv[5].strip()
-    categories = [settings.uTorrent['cp'], settings.uTorrent['sb'], settings.uTorrent['sonarr'], settings.uTorrent['radarr'], settings.uTorrent['sr'], settings.uTorrent['bypass']]
+    categories = [settings.uTorrent['sb'], settings.uTorrent['sonarr'], settings.uTorrent['radarr'], settings.uTorrent['sr'], settings.uTorrent['bypass']]
     torrent_hash = sys.argv[6]
     try:
         name = sys.argv[7]
@@ -212,22 +212,19 @@ try:
         path = newpath
         delete_dir = newpath
 
-    if categories[0].startswith(label):
-        log.info("Passing %s directory to Couch Potato." % path)
-        autoProcessMovie.process(path, settings, pathMapping=path_mapping)
-    elif categories[1].startswith(label):
+    if settings.uTorrent['sb'].startswith(label):
         log.info("Passing %s directory to Sickbeard." % path)
         autoProcessTV.processEpisode(path, settings, pathMapping=path_mapping)
-    elif categories[2].startswith(label):
+    elif settings.uTorrent['sonarr'].startswith(label):
         log.info("Passing %s directory to Sonarr." % path)
         sonarr.processEpisode(path, settings, pathMapping=path_mapping)
-    elif categories[3].startswith(label):
+    elif settings.uTorrent['radarr'].startswith(label):
         log.info("Passing %s directory to Radarr." % path)
         radarr.processMovie(path, settings, pathMapping=path_mapping)
-    elif categories[4].startswith(label):
+    elif settings.uTorrent['sr'].startswith(label):
         log.info("Passing %s directory to Sickrage." % path)
         autoProcessTVSR.processEpisode(path, settings, pathMapping=path_mapping)
-    elif categories[5].startswith(label):
+    elif settings.uTorrent['bypass'].startswith(label):
         log.info("Bypassing any further processing as per category.")
 
     # Run a uTorrent action after conversion.

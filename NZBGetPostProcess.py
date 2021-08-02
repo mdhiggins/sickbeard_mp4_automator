@@ -16,9 +16,6 @@
 # Convert file before passing to destination (True, False)
 #SHOULDCONVERT=False
 
-# Category for Couchpotato
-#CP_CAT=Couchpotato
-
 # Category for Sonarr
 #SONARR_CAT=Sonarr
 
@@ -109,14 +106,13 @@ if 'NZBOP_SCRIPTDIR' in os.environ and not os.environ['NZBOP_VERSION'][0:5] < '1
     category = os.environ['NZBPP_CATEGORY'].lower().strip()  # NZB Category to determine destination
     #DEBUG#print "Category is %s." % category
 
-    couchcat = os.environ['NZBPO_CP_CAT'].lower().strip()
     sonarrcat = os.environ['NZBPO_SONARR_CAT'].lower().strip()
     radarrcat = os.environ['NZBPO_RADARR_CAT'].lower().strip()
     sickbeardcat = os.environ['NZBPO_SICKBEARD_CAT'].lower().strip()
     sickragecat = os.environ['NZBPO_SICKRAGE_CAT'].lower().strip()
     bypass = os.environ['NZBPO_BYPASS_CAT'].lower().strip()
 
-    categories = [sickbeardcat, couchcat, sonarrcat, radarrcat, sickragecat, bypass]
+    categories = [sickbeardcat, sonarrcat, radarrcat, sickragecat, bypass]
 
     log.debug("Path: %s" % path)
     log.debug("NZB: %s" % nzb)
@@ -225,10 +221,6 @@ if 'NZBOP_SCRIPTDIR' in os.environ and not os.environ['NZBOP_VERSION'][0:5] < '1
     if (sickbeardcat.startswith(category)):
         #DEBUG#print "Sickbeard Processing Activated"
         autoProcessTV.processEpisode(path, settings, nzb, pathMapping=path_mapping)
-        sys.exit(POSTPROCESS_SUCCESS)
-    elif (couchcat.startswith(category)):
-        #DEBUG#print "CouchPotato Processing Activated"
-        autoProcessMovie.process(path, settings, nzb, status, pathMapping=path_mapping)
         sys.exit(POSTPROCESS_SUCCESS)
     elif (sonarrcat.startswith(category)):
         #DEBUG#print "Sonarr Processing Activated"

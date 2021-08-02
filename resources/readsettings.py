@@ -261,23 +261,10 @@ class ReadSettings:
             'username': '',
             'password': '',
         },
-        'CouchPotato': {
-            'host': 'localhost',
-            'port': 5050,
-            'username': '',
-            'password': '',
-            'apikey': '',
-            'delay': 65,
-            'method': 'renamer',
-            'delete-failed': False,
-            'ssl': False,
-            'webroot': '',
-        },
         'SABNZBD': {
             'convert': True,
             'sickbeard-category': 'sickbeard',
             'sickrage-category': 'sickrage',
-            'couchpotato-category': 'couchpotato',
             'sonarr-category': 'sonarr',
             'radarr-category': 'radarr',
             'bypass-category': 'bypass',
@@ -285,7 +272,6 @@ class ReadSettings:
             'path-mapping': '',
         },
         'Deluge': {
-            'couchpotato-label': 'couchpotato',
             'sickbeard-label': 'sickbeard',
             'sickrage-label': 'sickrage',
             'sonarr-label': 'sonarr',
@@ -301,7 +287,6 @@ class ReadSettings:
             'path-mapping': '',
         },
         'qBittorrent': {
-            'couchpotato-label': 'couchpotato',
             'sickbeard-label': 'sickbeard',
             'sickrage-label': 'sickrage',
             'sonarr-label': 'sonarr',
@@ -319,7 +304,6 @@ class ReadSettings:
             'path-mapping': '',
         },
         'uTorrent': {
-            'couchpotato-label': 'couchpotato',
             'sickbeard-label': 'sickbeard',
             'sickrage-label': 'sickrage',
             'sonarr-label': 'sonarr',
@@ -419,18 +403,6 @@ class ReadSettings:
             'username': 'Sickbeard.username',
             'password': 'Sickbeard.password'
         },
-        'CouchPotato': {
-            'host': 'CouchPotato.host',
-            'port': 'CouchPotato.port',
-            'username': 'CouchPotato.username',
-            'password': 'CouchPotato.password',
-            'apikey': 'CouchPotato.apikey',
-            'delay': 'CouchPotato.delay',
-            'method': 'CouchPotato.method',
-            'delete_failed': 'CouchPotato.delete-failed',
-            'ssl': 'CouchPotato.ssl',
-            'web_root': 'CouchPotato.webroot',
-        },
         'Sonarr': {
             'host': 'Sonarr.host',
             'port': 'Sonarr.port',
@@ -446,7 +418,6 @@ class ReadSettings:
             'web_root': 'Radarr.webroot',
         },
         'uTorrent': {
-            'couchpotato-label': 'uTorrent.couchpotato-label',
             'sickbeard-label': 'uTorrent.sickbeard-label',
             'sickrage-label': 'uTorrent.sickrage-label',
             'sonarr-label': 'uTorrent.sonarr-label',
@@ -465,7 +436,6 @@ class ReadSettings:
             'convert': 'SABNZBD.convert',
             'sickbeard-category': 'SABNZBD.sickbeard-category',
             'sickrage-category': 'SABNZBD.sickrage-category',
-            'couchpotato-category': 'SABNZBD.couchpotato-category',
             'sonarr-category': 'SABNZBD.sonarr-category',
             'radarr-category': 'SABNZBD.radarr-category',
             'bypass-category': 'SABNZBD.bypass-category',
@@ -481,7 +451,6 @@ class ReadSettings:
             'password': 'Sickrage.password',
         },
         "Deluge": {
-            'couchpotato-label': 'Deluge.couchpotato-label',
             'sickbeard-label': 'Deluge.sickbeard-label',
             'sickrage-label': 'Deluge.sickrage-label',
             'sonarr-label': 'Deluge.sonarr-label',
@@ -496,7 +465,6 @@ class ReadSettings:
             'remove': 'Deluge.remove',
         },
         "qBittorrent": {
-            'couchpotato-label': 'qBittorrent.couchpotato-label',
             'sickbeard-label': 'qBittorrent.sickbeard-label',
             'sickrage-label': 'qBittorrent.sickrage-label',
             'sonarr-label': 'qBittorrent.sonarr-label',
@@ -882,25 +850,10 @@ class ReadSettings:
         self.Sickrage['user'] = config.get(section, "username")
         self.Sickrage['pass'] = config.get(section, "password")
 
-        # Read relevant CouchPotato section information
-        section = "CouchPotato"
-        self.CP = {}
-        self.CP['host'] = config.get(section, "host")
-        self.CP['port'] = config.getint(section, "port")
-        self.CP['username'] = config.get(section, "username")
-        self.CP['password'] = config.get(section, "password")
-        self.CP['apikey'] = config.get(section, "apikey")
-        self.CP['delay'] = config.getfloat(section, "delay")
-        self.CP['method'] = config.get(section, "method")
-        self.CP['webroot'] = config.get(section, "webroot")
-        self.CP['delete_failed'] = config.getboolean(section, "delete-failed")
-        self.CP['ssl'] = config.getboolean(section, 'ssl')
-
         # SAB
         section = "SABNZBD"
         self.SAB = {}
         self.SAB['convert'] = config.getboolean(section, "convert")
-        self.SAB['cp'] = config.get(section, "Couchpotato-category").lower()
         self.SAB['sb'] = config.get(section, "Sickbeard-category").lower()
         self.SAB['sr'] = config.get(section, "Sickrage-category").lower()
         self.SAB['sonarr'] = config.get(section, "Sonarr-category").lower()
@@ -912,7 +865,6 @@ class ReadSettings:
         # Deluge
         section = "Deluge"
         self.deluge = {}
-        self.deluge['cp'] = config.get(section, "couchpotato-label").lower()
         self.deluge['sb'] = config.get(section, "sickbeard-label").lower()
         self.deluge['sr'] = config.get(section, "sickrage-label").lower()
         self.deluge['sonarr'] = config.get(section, "sonarr-label").lower()
@@ -930,7 +882,6 @@ class ReadSettings:
         # qBittorrent
         section = "qBittorrent"
         self.qBittorrent = {}
-        self.qBittorrent['cp'] = config.get(section, "couchpotato-label").lower()
         self.qBittorrent['sb'] = config.get(section, "sickbeard-label").lower()
         self.qBittorrent['sr'] = config.get(section, "sickrage-label").lower()
         self.qBittorrent['sonarr'] = config.get(section, "sonarr-label").lower()
@@ -950,7 +901,6 @@ class ReadSettings:
         # Read relevant uTorrent section information
         section = "uTorrent"
         self.uTorrent = {}
-        self.uTorrent['cp'] = config.get(section, "couchpotato-label").lower()
         self.uTorrent['sb'] = config.get(section, "sickbeard-label").lower()
         self.uTorrent['sr'] = config.get(section, "sickrage-label").lower()
         self.uTorrent['sonarr'] = config.get(section, "sonarr-label").lower()

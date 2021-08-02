@@ -3,7 +3,7 @@
 import os
 import sys
 import re
-from autoprocess import autoProcessTV, autoProcessMovie, autoProcessTVSR, sonarr, radarr
+from autoprocess import autoProcessTV, autoProcessTVSR, sonarr, radarr
 from resources.readsettings import ReadSettings
 from resources.mediaprocessor import MediaProcessor
 from resources.log import getLogger
@@ -16,7 +16,7 @@ log.info("Deluge post processing started.")
 
 try:
     settings = ReadSettings()
-    categories = [settings.deluge['sb'], settings.deluge['cp'], settings.deluge['sonarr'], settings.deluge['radarr'], settings.deluge['sr'], settings.deluge['bypass']]
+    categories = [settings.deluge['sb'], settings.deluge['sonarr'], settings.deluge['radarr'], settings.deluge['sr'], settings.deluge['bypass']]
     remove = settings.deluge['remove']
 
     if len(sys.argv) < 4:
@@ -148,22 +148,19 @@ try:
     except:
         log.exception("Error occurred handling file")
 
-    if categories[0].startswith(category):
+    if settings.deluge['sb'].startswith(category):
         log.info("Passing %s directory to Sickbeard." % path)
         autoProcessTV.processEpisode(path, settings, pathMapping=path_mapping)
-    elif categories[1].startswith(category):
-        log.info("Passing %s directory to Couch Potato." % path)
-        autoProcessMovie.process(path, settings, torrent_name, pathMapping=path_mapping)
-    elif categories[2].startswith(category):
+    elif settings.deluge['sonarr'].startswith(category):
         log.info("Passing %s directory to Sonarr." % path)
         sonarr.processEpisode(path, settings, pathMapping=path_mapping)
-    elif categories[3].startswith(category):
+    elif settings.deluge['radarr'].startswith(category):
         log.info("Passing %s directory to Radarr." % path)
         radarr.processMovie(path, settings, pathMapping=path_mapping)
-    elif categories[4].startswith(category):
+    elif settings.deluge['sr'].startswith(category):
         log.info("Passing %s directory to Sickrage." % path)
         autoProcessTVSR.processEpisode(path, settings, pathMapping=path_mapping)
-    elif categories[5].startswith(category):
+    elif settings.deluge['bypass'].startswith(category):
         log.info("Bypassing any further processing as per category.")
 
     if delete_dir:

@@ -14,7 +14,6 @@ Integration
 - [Radarr](#radarr-setup)
 - [Sickbeard](#sickbeard-setup)
 - [SickRage](#sickrage-setup)
-- [CouchPotato](#couchpotato-setup)
 
 ### Downloaders Supported
 - [NZBGet](#nzbget-setup)
@@ -101,26 +100,6 @@ SickRage Setup
     - `/usr/bin/python /home/user/sickbeard_mp4_automator/postSickbeard.py`
 2. Set the [Sickrage settings](https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/autoProcess-Settings#sickrage) in autoProcess.ini
 
-CouchPotato Setup
---------------
-1. Set your [CouchPotato settings](https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/autoProcess-Settings#couchpotato) in autoProcess.ini
-2. Edit `main.py` in the `setup\PostProcess` folder
-    - Set the path variable to the script location
-    - By default it points to `C:\\Scripts\\`
-    - Use double backslahses
-2. Copy the PostProcess directory from the setup folder included with this script to the CouchPotato `custom_plugins` directory
-    - Navigate to the About page in CouchPotato, where the installation directory is displayed.
-    - Go to this folder and copy the PostProcess folder (the whole folder, not just the contents) to the CouchPotato `custom_plugins` directory
-    - Delete any `.pyc` files you find.
-    - Restart CouchPotato
-    - Verify in CouchPotato logs that PostProcess was loaded.
-3. If you're using one of the post download scripts ([SAB|NZBGet|uTorrent|deluge]PostProcess.py), disable automatic checking of the renamer folder, the script will automatically notify CouchPotato when it is complete to check for new videos to be renamed and relocated. Leaving this on may cause conflicts and CouchPotato may try to relocate/rename the file before processing is completed.
-    - Set `Run Every` to `0`
-    - Set `Force Every` to `0`
-    - If you aren't using one of these scripts and are using an unsupported downloader, you will need to have CouchPotato periodically check the folder for files, otherwise the post downloader scripts will manually trigger a renamer scan. Using manual triggers is helpful because it prevents a coincidental renamer scan during other processing events.
-4. Configure Downloaders
-    - In `Settings > Downloaders` configure your labels or categories to match what you have configured in your respective downloader.
-
 NZBGet Setup
 --------------
 1. Copy the script NZBGetPostProcess.py to NZBGet's script folder.
@@ -133,7 +112,6 @@ NZBGet Setup
     - Select `NZBGETPOSTPROCESS` option at the bottom of the left hand navigation panel and configure the options
         - `MP4_FOLDER` - default `~/sickbeard_mp4_automator/` - Location of the script. Use full path with trailing backslash.
         - `SHOULDCONVERT` - `True`/`False` - Convert file before passing to destination
-        - `CP_CAT` - default `couchpotato` - category of downloads that will be passed to CouchPotato
         - `SONARR_CAT` - default `sonarr` - category of downloads that will be passed to Sonarr
         - `SICKBEARD_CAT` - default `sickbeard` - category of downloads that will be passed to Sickbeard
         - `SICKRAGE_CAT` - default `sickrage` - category of downloads that will be passed to Sickrage
@@ -154,7 +132,6 @@ SABNZBD Setup
     - Configure `name` to match the settings from the `SABNZBD` section of `autoProcess.ini`
         - Default `sickbeard`
         - Default `sickrage`
-        - Default `couchpotato`
         - Default `sonarr`
         - Default `bypass`
     - Select the SABPostProcess.py script
@@ -345,7 +322,6 @@ This project makes use of, integrates with, or was inspired by the following pro
 - http://www.ffmpeg.org/
 - http://www.python.org/
 - http://www.sickbeard.com/
-- http://couchpota.to/
 - http://sabnzbd.org/
 - https://nzbget.net/
 - https://www.deluge-torrent.org/

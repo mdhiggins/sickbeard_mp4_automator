@@ -4,7 +4,7 @@ import os
 import re
 import sys
 import shutil
-from autoprocess import autoProcessTV, autoProcessMovie, autoProcessTVSR, sonarr, radarr
+from autoprocess import autoProcessTV, autoProcessTVSR, sonarr, radarr
 from resources.log import getLogger
 from resources.readsettings import ReadSettings
 from resources.mediaprocessor import MediaProcessor
@@ -33,7 +33,7 @@ try:
     content_path = str(sys.argv[4])
     name = sys.argv[5]
     torrent_hash = sys.argv[6]
-    categories = [settings.qBittorrent['cp'], settings.qBittorrent['sb'], settings.qBittorrent['sonarr'], settings.qBittorrent['radarr'], settings.qBittorrent['sr'], settings.qBittorrent['bypass']]
+    categories = [settings.qBittorrent['sb'], settings.qBittorrent['sonarr'], settings.qBittorrent['radarr'], settings.qBittorrent['sr'], settings.qBittorrent['bypass']]
     path_mapping = settings.qBittorrent['path-mapping']
 
     log.debug("Root Path: %s." % root_path)
@@ -161,22 +161,19 @@ try:
         path = newpath
         delete_dir = newpath
 
-    if categories[0].startswith(label):
-        log.info("Passing %s directory to Couch Potato." % path)
-        autoProcessMovie.process(path, settings, pathMapping=path_mapping)
-    elif categories[1].startswith(label):
+    if settings.qBittorrent['sb'].startswith(label):
         log.info("Passing %s directory to Sickbeard." % path)
         autoProcessTV.processEpisode(path, settings, pathMapping=path_mapping)
-    elif categories[2].startswith(label):
+    elif settings.qBittorrent['sonarr'].startswith(label):
         log.info("Passing %s directory to Sonarr." % path)
         sonarr.processEpisode(path, settings, pathMapping=path_mapping)
-    elif categories[3].startswith(label):
+    elif settings.qBittorrent['radarr'].startswith(label):
         log.info("Passing %s directory to Radarr." % path)
         radarr.processMovie(path, settings, pathMapping=path_mapping)
-    elif categories[4].startswith(label):
+    elif settings.qBittorrent['sr'].startswith(label):
         log.info("Passing %s directory to Sickrage." % path)
         autoProcessTVSR.processEpisode(path, settings, pathMapping=path_mapping)
-    elif categories[5].startswith(label):
+    elif settings.qBittorrent['bypass'].startswith(label):
         log.info("Bypassing any further processing as per category.")
 
     # Run a qbittorrent action after conversion.

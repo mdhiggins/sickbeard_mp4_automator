@@ -168,23 +168,10 @@ webroot =
 username = 
 password = 
 
-[CouchPotato]
-host = localhost
-port = 5050
-username = 
-password = 
-apikey = 
-delay = 65
-method = renamer
-delete-failed = False
-ssl = False
-webroot = 
-
 [SABNZBD]
 convert = True
 sickbeard-category = sickbeard
 sickrage-category = sickrage
-couchpotato-category = couchpotato
 sonarr-category = sonarr
 radarr-category = radarr
 bypass-category = bypass
@@ -192,7 +179,6 @@ output-directory =
 path-mapping = 
 
 [Deluge]
-couchpotato-label = couchpotato
 sickbeard-label = sickbeard
 sickrage-label = sickrage
 sonarr-label = sonarr
@@ -208,7 +194,6 @@ remove = False
 path-mapping = 
 
 [qBittorrent]
-couchpotato-label = couchpotato
 sickbeard-label = sickbeard
 sickrage-label = sickrage
 sonarr-label = sonarr
@@ -226,7 +211,6 @@ output-directory =
 path-mapping = 
 
 [uTorrent]
-couchpotato-label = couchpotato
 sickbeard-label = sickbeard
 sickrage-label = sickrage
 sonarr-label = sonarr
