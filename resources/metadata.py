@@ -46,6 +46,8 @@ class Metadata:
     tmdbid = None
     tvdbid = None
     imdbid = None
+    season = None
+    episode = None
 
     def __init__(self, mediatype, tmdbid=None, imdbid=None, tvdbid=None, season=None, episode=None, original=None, language=None, logger=None):
         tmdb.API_KEY = tmdb_api_key
