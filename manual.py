@@ -29,6 +29,7 @@ logging.getLogger("subliminal").setLevel(logging.CRITICAL)
 logging.getLogger("requests").setLevel(logging.WARNING)
 logging.getLogger("enzyme").setLevel(logging.WARNING)
 logging.getLogger("qtfaststart").setLevel(logging.CRITICAL)
+logging.getLogger("rebulk").setLevel(logging.WARNING)
 
 log.info("Manual processor started.")
 
