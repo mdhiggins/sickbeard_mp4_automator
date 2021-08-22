@@ -184,6 +184,7 @@ class ReadSettings:
             'ignore-truehd': 'mp4, m4v',
             'ignored-dispositions': '',
             'unique-dispositions': False,
+            'stream-codec-combinations': '',
         },
         'Universal Audio': {
             'codec': 'aac',
@@ -731,6 +732,7 @@ class ReadSettings:
         self.ignore_truehd = config.getextensions(section, "ignore-truehd")
         self.ignored_audio_dispositions = config.getlist(section, "ignored-dispositions")
         self.unique_audio_dispositions = config.getboolean(section, "unique-dispositions")
+        self.stream_codec_combinations = sorted([x.split(":") for x in config.getlist(section, "stream-codec-combinations")], key=lambda x: len(x), reverse=True)
 
         section = "Audio.ChannelFilters"
         self.afilterchannels = {}

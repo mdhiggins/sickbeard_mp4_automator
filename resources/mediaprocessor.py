@@ -455,6 +455,56 @@ class MediaProcessor:
                 self.log.debug("Found foced in stream title, setting forced disposition to True.")
                 stream.disposition['forced'] = True
 
+    # Get source audio tracks that meet criteria for being the same based on codec combination, language, and dispostion
+    def mapStreamCombinations(self, audiostreams):
+        combinations = []
+        for combo in self.settings.stream_codec_combinations:
+            indexes = self.sublistIndexes([x.codec for x in audiostreams], combo)
+            self.log.debug("Found indexes %s where codec parameters matched combination %s" % (indexes, combo))
+            for index in indexes:
+                stream_sublist = audiostreams[index: index + len(combo)]
+                language_sublist = [x.metadata['language'] for x in stream_sublist]
+                dispo_sublist = [dict(x.disposition) for x in stream_sublist]
+                for x in dispo_sublist:
+                    x['default'] = False
+                same_language = all(x == language_sublist[0] for x in language_sublist)
+                same_dispo = all(x == dispo_sublist[0] for x in dispo_sublist)
+                if same_language and same_dispo:
+                    combinations.append([x.index for x in stream_sublist])
+        self.log.info("The following stream indexes have been identified as being copies: %s." % combinations)
+        return combinations
+
+    def purgeDuplicateStreams(self, combinations, options, info):
+        purge = []
+        for combo in combinations:
+            filtered_options = [x for x in options if x['map'] in combo]
+            channels = sorted(list(set([x['channels'] for x in filtered_options])), reverse=True)
+            for c in channels:
+                same_channel_options = [x for x in filtered_options if x['channels'] == c]
+                if len(same_channel_options) > 1:
+                    codecs = [self.getSourceStream(x['map'], info).codec if x['codec'] == 'copy' else x['codec'] for x in same_channel_options]
+                    for codec in set(codecs):
+                        same_codec_options = [x for x in same_channel_options if x['codec'] == codec or (x['codec'] == 'copy' and self.getSourceStream(x['map'], info).codec == codec)]
+                        if len(same_codec_options) > 1:
+                            same_codec_options.sort(key=lambda x: x['bitrate'], reverse=True)
+                            same_codec_options.sort(key=lambda x: x['codec'] == "copy", reverse=True)
+                            purge.extend(same_codec_options[1:])
+        self.log.debug("Purge the following streams: %s." % purge)
+        self.log.info("Found %d streams that can be removed from the output file since they will dupcliates." % len(purge))
+        for p in purge:
+            try:
+                options.remove(p)
+            except:
+                self.log.debug("Unable to purge stream, may already have been removed.")
+
+    def sublistIndexes(self, x, y):
+        indexes = []
+        occ = [i for i, a in enumerate(x) if a == y[0]]
+        for b in occ:
+            if x[b:b + len(y)] == y:
+                indexes.append(b)
+        return indexes
+
     # Generate a dict of options to be passed to FFMPEG based on selected settings and the source file parameters and streams
     def generateOptions(self, inputfile, info=None, original=None, tagdata=None):
         # Get path information from the input file
@@ -641,6 +691,7 @@ class MediaProcessor:
         blocked_audio_languages = []
         blocked_audio_dispositions = []
         ua = (len(self.settings.ua) > 0)
+        acombinations = self.mapStreamCombinations(info.audio)
 
         # Sort incoming streams so that things like first language preferences respect these options
         audio_streams = info.audio
@@ -1010,6 +1061,8 @@ class MediaProcessor:
                     'mimetype': f.metadata['mimetype']
                 }
                 attachments.append(attachment)
+
+        self.purgeDuplicateStreams(acombinations, audio_settings, info)
 
         # Collect all options
         options = {
@@ -1446,6 +1499,9 @@ class MediaProcessor:
             shutil.move(outputfile, newoutputfile)
             return newoutputfile
         return outputfile
+
+    def getSourceStream(self, index, info):
+        return info.streams[index]
 
     def getSubExtensionFromCodec(self, codec):
         try:
