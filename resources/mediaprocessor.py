@@ -471,7 +471,7 @@ class MediaProcessor:
                 same_dispo = all(x == dispo_sublist[0] for x in dispo_sublist)
                 if same_language and same_dispo:
                     combinations.append([x.index for x in stream_sublist])
-        self.log.info("The following stream indexes have been identified as being copies: %s." % combinations)
+        self.log.info("The following stream indexes have been identified as being copies: %s [stream-codec-combinations]." % combinations)
         return combinations
 
     def purgeDuplicateStreams(self, combinations, options, info):
@@ -484,13 +484,13 @@ class MediaProcessor:
                 if len(same_channel_options) > 1:
                     codecs = [self.getSourceStream(x['map'], info).codec if x['codec'] == 'copy' else x['codec'] for x in same_channel_options]
                     for codec in set(codecs):
-                        same_codec_options = [x for x in same_channel_options if x['codec'] == codec or (x['codec'] == 'copy' and self.getSourceStream(x['map'], info).codec == codec)]
+                        same_codec_options = [x for x in same_channel_options if Converter.codec_name_to_ffprobe_codec_name("audio", x['codec']) == codec or (x['codec'] == 'copy' and self.getSourceStream(x['map'], info).codec == codec)]
                         if len(same_codec_options) > 1:
                             same_codec_options.sort(key=lambda x: x['bitrate'], reverse=True)
                             same_codec_options.sort(key=lambda x: x['codec'] == "copy", reverse=True)
                             purge.extend(same_codec_options[1:])
         self.log.debug("Purge the following streams: %s." % purge)
-        self.log.info("Found %d streams that can be removed from the output file since they will dupcliates." % len(purge))
+        self.log.info("Found %d streams that can be removed from the output file since they will dupcliates [stream-codec-combinations]." % len(purge))
         for p in purge:
             try:
                 options.remove(p)
