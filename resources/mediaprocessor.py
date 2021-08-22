@@ -496,6 +496,7 @@ class MediaProcessor:
                 options.remove(p)
             except:
                 self.log.debug("Unable to purge stream, may already have been removed.")
+        return len(purge) > 0
 
     def sublistIndexes(self, x, y):
         indexes = []
@@ -1062,7 +1063,8 @@ class MediaProcessor:
                 }
                 attachments.append(attachment)
 
-        self.purgeDuplicateStreams(acombinations, audio_settings, info)
+        if self.purgeDuplicateStreams(acombinations, audio_settings, info):
+            self.sortStreams(audio_settings, awl)
 
         # Collect all options
         options = {
