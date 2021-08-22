@@ -1064,7 +1064,10 @@ class MediaProcessor:
                 attachments.append(attachment)
 
         if self.purgeDuplicateStreams(acombinations, audio_settings, info):
-            self.sortStreams(audio_settings, awl)
+            try:
+                self.sortStreams(audio_settings, awl)
+            except:
+                self.log.exception("Error sorting output stream options [sort-streams].")
 
         # Collect all options
         options = {
