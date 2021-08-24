@@ -487,6 +487,7 @@ class MediaProcessor:
                         same_codec_options = [x for x in same_channel_options if Converter.codec_name_to_ffprobe_codec_name("audio", x['codec']) == codec or (x['codec'] == 'copy' and self.getSourceStream(x['map'], info).codec == codec)]
                         if len(same_codec_options) > 1:
                             same_codec_options.sort(key=lambda x: x['bitrate'], reverse=True)
+                            same_codec_options.sort(key=lambda x: self.getSourceStream(x['map'], info).disposition['default'], reverse=True)
                             same_codec_options.sort(key=lambda x: x['codec'] == "copy", reverse=True)
                             purge.extend(same_codec_options[1:])
         self.log.debug("Purge the following streams: %s." % purge)
@@ -905,6 +906,13 @@ class MediaProcessor:
                     blocked_audio_languages.append(a.metadata['language'])
                     self.log.debug("Blocking further %s audio streams to prevent multiple streams of the same language [audio-first-stream-of-language]." % a.metadata['language'])
 
+        # Purge Duplicate Streams
+        if self.purgeDuplicateStreams(acombinations, audio_settings, info):
+            try:
+                self.sortStreams(audio_settings, awl)
+            except:
+                self.log.exception("Error sorting output stream options [sort-streams].")
+
         # Set Default Audio Stream
         try:
             self.setDefaultAudioStream(audio_settings)
@@ -1062,12 +1070,6 @@ class MediaProcessor:
                     'mimetype': f.metadata['mimetype']
                 }
                 attachments.append(attachment)
-
-        if self.purgeDuplicateStreams(acombinations, audio_settings, info):
-            try:
-                self.sortStreams(audio_settings, awl)
-            except:
-                self.log.exception("Error sorting output stream options [sort-streams].")
 
         # Collect all options
         options = {
