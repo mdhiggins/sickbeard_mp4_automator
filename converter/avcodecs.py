@@ -846,6 +846,13 @@ class DtsCodec(AudioCodec):
     ffprobe_codec_name = 'dts'
     dts_experimental_enable = ['-strict', 'experimental']
 
+    def parse_options(self, opt, stream=0):
+        if 'channels' in opt:
+            c = opt['channels']
+            if c > 6:
+                opt['channels'] = 6
+        return super(DtsCodec, self).parse_options(opt, stream)
+
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         return self.dts_experimental_enable
 
