@@ -737,7 +737,7 @@ class ReadSettings:
         section = "Audio.ChannelFilters"
         self.afilterchannels = {}
         if config.has_section(section):
-            for key in config.get(section):
+            for key, value in config.items(section):
                 try:
                     channels = key.split("-", 1)
                     channels = [int(x) for x in channels]
@@ -784,7 +784,7 @@ class ReadSettings:
         section = "Subtitle.Subliminal.Auth"
         self.subproviders_auth = {}
         if config.has_section(section):
-            for key in config.get(section):
+            for key, value in config.items(section):
                 try:
                     rawcredentials = config.get(section, key)
                     credentials = rawcredentials.split(":", 1)
@@ -1030,8 +1030,8 @@ class ReadSettings:
                                 self.log.info("Found old value %s for %s.%s, migrating to new location %s.%s" % (old, skval[0], skval[1], k, sk))
                                 if not config.has_section(k):
                                     config.add_section(k)
-                                config.get(k).get(sk) = old
-                                del config.get(skval[0])[skval[1]]
+                                config.set(k, sk, old)
+                                config.remove_option(skval[0], skval[1])
                                 write = True
                         else:
                             if config.has_section(skval[0]) and config.has_option(skval[0], sk):
@@ -1039,8 +1039,8 @@ class ReadSettings:
                                 self.log.info("Found old value %s for %s.%s, migrating to new location %s.%s" % (old, skval[0], sk, k, sk))
                                 if not config.has_section(k):
                                     config.add_section(k)
-                                config.get(k).get(sk) = old
-                                del config.get(skval[0])[sk]
+                                config.set(k, sk, old)
+                                config.remove_option(skval[0], sk)
                                 write = True
                     except:
                         self.log.exception("Error migrating configuration.")
