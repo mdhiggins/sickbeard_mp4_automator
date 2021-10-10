@@ -554,9 +554,7 @@ class MediaProcessor:
             self.log.exception("Custom video stream copy check error.")
 
         vbitrate_estimate = self.estimateVideoBitrate(info)
-        vbitrate_ratio = self.settings.vbitrateratio.get(info.video.codec)
-        if not vbitrate_ratio:
-            vbitrate_ratio = self.settings.vbitrateratio.get("*", 1.0)
+        vbitrate_ratio = self.settings.vbitrateratio.get(info.video.codec, self.settings.vbitrateratio.get("*", 1.0))
         vbitrate = vbitrate_estimate * vbitrate_ratio
         self.log.debug("Using video bitrate ratio of %f, which results in %f changing to %f." % (vbitrate_ratio, vbitrate_estimate, vbitrate))
         if self.settings.vmaxbitrate and vbitrate > self.settings.vmaxbitrate:
