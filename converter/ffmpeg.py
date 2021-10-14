@@ -220,7 +220,9 @@ class MediaStreamInfo(object):
         elif key == 'duration':
             self.duration = self.parse_float(val)
         elif key == 'bit_rate':
-            self.bitrate = self.parse_int(val, None)
+            br = self.parse_int(val, None)
+            if br is not None and br > 0:
+                self.bitrate = br
         elif key == 'width':
             self.video_width = self.parse_int(val)
         elif key == 'height':
@@ -237,6 +239,9 @@ class MediaStreamInfo(object):
             self.forced = self.parse_bool(self.parse_int(val))
         elif key == 'DISPOSITION:default':
             self.default = self.parse_bool(self.parse_int(val))
+        elif key == 'TAG:bps' or key == 'TAG:BPS':
+            if not self.bitrate:
+                self.bitrate = self.parse_int(val)
 
         if key.startswith('TAG:'):
             key = key.split('TAG:')[1].lower()

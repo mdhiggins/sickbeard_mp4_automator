@@ -357,11 +357,16 @@ class MediaProcessor:
 
     # Estimate the video bitrate
     def estimateVideoBitrate(self, info):
+        # attempt to return the detected video bitrate, if applicable
+        if info.video and info.video.bitrate and info.video.bitrate > 0:
+            return info.video.bitrate / 1000
+
         try:
             total_bitrate = info.format.bitrate
             audio_bitrate = 0
             for a in info.audio:
-                audio_bitrate += a.bitrate
+                if a.bitrate is not None:
+                    audio_bitrate += a.bitrate
 
             self.log.debug("Total bitrate is %s." % info.format.bitrate)
             self.log.debug("Total audio bitrate is %s." % audio_bitrate)
