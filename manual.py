@@ -281,6 +281,7 @@ def processFile(inputfile, mp, info=None, relativePath=None, silent=False, tag=T
 
 def walkDir(dir, silent=False, preserveRelative=False, tmdbid=None, imdbid=None, tvdbid=None, tag=True, optionsOnly=False):
     files = []
+    error = []
     mp = MediaProcessor(settings, logger=log)
     for r, d, f in os.walk(dir):
         for file in f:
@@ -297,6 +298,13 @@ def walkDir(dir, silent=False, preserveRelative=False, tmdbid=None, imdbid=None,
                 processFile(filepath, mp, info=info, relativePath=relative, silent=silent, tag=tag, tmdbid=tmdbid, tvdbid=tvdbid, imdbid=imdbid)
             except SkipFileException:
                 log.debug("Skipping file %s." % filepath)
+            except:
+                log.exception("Error processing file %s." % filepath)
+                error.append(filepath)
+    if error:
+        log.error("Script failed to process the following files:")
+        for e in error:
+            log.error(e)
 
 
 def displayOptions(path):
