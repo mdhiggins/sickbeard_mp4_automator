@@ -1012,8 +1012,27 @@ class NVEncH264Codec(H264Codec):
         'device': str,
     })
 
+    def _codec_specific_parse_options(self, safe, stream=0):
+        if 'crf' in safe:
+            safe['qp'] = safe['crf']
+            del safe['crf']
+            qp = safe['qp']
+            if qp < 0 or qp > 52:
+                del safe['qp']
+            elif 'bitrate' in safe:
+                del safe['bitrate']
+        return safe
+
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         optlist = super(NVEncH264Codec, self)._codec_specific_produce_ffmpeg_list(safe, stream)
+
+        if 'qp' in safe:
+            optlist.extend(['-qp', str(safe['qp'])])
+            if 'maxrate' in safe:
+                optlist.extend(['-maxrate:v', str(safe['maxrate'])])
+            if 'bufsize' in safe:
+                optlist.extend(['-bufsize', str(safe['bufsize'])])
+
         if 'device' in safe:
             optlist.extend(['-filter_hw_device', safe['device']])
             if 'decode_device' in safe and safe['decode_device'] != safe['device']:
@@ -1409,8 +1428,26 @@ class NVEncH265Codec(H265Codec):
         'device': str,
     })
 
+    def _codec_specific_parse_options(self, safe, stream=0):
+        if 'crf' in safe:
+            safe['qp'] = safe['crf']
+            del safe['crf']
+            qp = safe['qp']
+            if qp < 0 or qp > 52:
+                del safe['qp']
+            elif 'bitrate' in safe:
+                del safe['bitrate']
+        return safe
+
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         optlist = super(NVEncH265Codec, self)._codec_specific_produce_ffmpeg_list(safe, stream)
+        if 'qp' in safe:
+            optlist.extend(['-qp', str(safe['qp'])])
+            if 'maxrate' in safe:
+                optlist.extend(['-maxrate:v', str(safe['maxrate'])])
+            if 'bufsize' in safe:
+                optlist.extend(['-bufsize', str(safe['bufsize'])])
+
         if 'device' in safe:
             optlist.extend(['-filter_hw_device', safe['device']])
             if 'decode_device' in safe and safe['decode_device'] != safe['device']:
