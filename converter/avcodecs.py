@@ -1497,6 +1497,50 @@ class Vp9Codec(VideoCodec):
     codec_name = 'vp9'
     ffmpeg_codec_name = 'libvpx-vp9'
     ffprobe_codec_name = 'vp9'
+    encoder_options = VideoCodec.encoder_options.copy()
+    encoder_options.update({
+        'profile': str,  # default: not-set, for valid values see above link
+        'framedata': dict  # dynamic params for framedata
+    })
+    color_transfer = {
+        "smpte2084": 16,
+        "smpte2086": 18,
+        "bt709": 1
+    }
+    color_primaries = {
+        "bt2020": 9,
+        "bt709": 1
+    }
+    color_space = {
+        "bt2020nc": 9,
+        "bt709": 1
+    }
+
+    def _codec_specific_parse_options(self, safe, stream=0):
+        framedata = safe['framedata']
+        if 'color_primaries' in framedata and self.color_primaries.get(framedata['color_primaries']):
+            safe['color_primaries'] = self.color_primaries.get(framedata['color_primaries'])
+        if 'color_transfer' in framedata and self.color_transfer.get(framedata['color_transfer']):
+            safe['color_transfer'] = self.color_trc.get(framedata['color_transfer'])
+        if 'color_space' in framedata and self.color_space.get(framedata['color_space']):
+            safe['color_space'] = self.color_space.get(framedata['color_space'])
+        if 'color_range' in framedata and framedata['color_range'] in [0, 1, 2]:
+            safe['color_range'] = framedata['color_range']
+        return safe
+
+    def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
+        optlist = super(Vp9Codec, self)._codec_specific_produce_ffmpeg_list(safe, stream)
+        if 'profile' in safe:
+            optlist.extend(['-profile:v', safe['profile']])
+        if 'color_primaries' in safe:
+            optlist.extend(['-color_primaries', safe['color_primaries']])
+        if 'color_transfer' in safe:
+            optlist.extend(['-color_trc', safe['color_transfer']])
+        if 'color_space' in safe:
+            optlist.extend(['-colorspace', safe['color_space']])
+        if 'color_range' in safe:
+            optlist.extend(['-color_range', safe['color_range']])
+        return optlist
 
 
 class Vp9QSVCodec(Vp9Codec):
