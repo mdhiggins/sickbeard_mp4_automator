@@ -358,23 +358,31 @@ class MediaProcessor:
     # Estimate the video bitrate
     def estimateVideoBitrate(self, info):
         # attempt to return the detected video bitrate, if applicable
-        if info.video and info.video.bitrate and info.video.bitrate > 0:
-            return info.video.bitrate / 1000
+        mbitrate = (info.video.bitrate / 1000) if info.video and info.video.bitrate and info.video.bitrate > 0 else None
 
         try:
             total_bitrate = info.format.bitrate
             audio_bitrate = 0
+            min_audio_bitrate = 0
             for a in info.audio:
                 if a.bitrate is not None:
                     audio_bitrate += a.bitrate
+                else:
+                    try:
+                        min_audio_bitrate += 64000 * int(a.audio_channels)
+                    except:
+                        min_audio_bitrate += 64000 * 2
 
             self.log.debug("Total bitrate is %s." % info.format.bitrate)
             self.log.debug("Total audio bitrate is %s." % audio_bitrate)
+            audio_bitrate += min_audio_bitrate
             self.log.debug("Estimated video bitrate is %s." % (total_bitrate - audio_bitrate))
-            return ((total_bitrate - audio_bitrate) / 1000) * .95
+            return mbitrate if mbitrate and mbitrate < (((total_bitrate - audio_bitrate) / 1000) * .95) else ((total_bitrate - audio_bitrate) / 1000) * .95
         except:
             if info.format.bitrate:
-                return info.format.bitrate / 1000
+                return mbitrate if mbitrate and mbitrate < (info.format.bitrate / 1000) else info.format.bitrate / 1000
+            if mbitrate:
+                return mbitrate
         return 0
 
     # Generate a JSON formatter dataset with the input and output information and ffmpeg command for a theoretical conversion
