@@ -220,9 +220,7 @@ class MediaStreamInfo(object):
         elif key == 'duration':
             self.duration = self.parse_float(val)
         elif key == 'bit_rate':
-            br = self.parse_int(val, None)
-            if br is not None and br > 0:
-                self.bitrate = br
+            self.bitrate = self.parse_int(val, None)
         elif key == 'width':
             self.video_width = self.parse_int(val)
         elif key == 'height':

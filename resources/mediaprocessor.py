@@ -356,34 +356,27 @@ class MediaProcessor:
                 'x': 0}
 
     # Estimate the video bitrate
-    def estimateVideoBitrate(self, info):
+    def estimateVideoBitrate(self, info, baserate=64000, tolerance=0.95):
         # attempt to return the detected video bitrate, if applicable
-        mbitrate = (info.video.bitrate / 1000) if info.video and info.video.bitrate and info.video.bitrate > 0 else None
+        min_video_bitrate = (info.video.bitrate / 1000) if info.video and info.video.bitrate else None
 
         try:
             total_bitrate = info.format.bitrate
             audio_bitrate = 0
             min_audio_bitrate = 0
             for a in info.audio:
-                if a.bitrate is not None:
-                    audio_bitrate += a.bitrate
-                else:
-                    try:
-                        min_audio_bitrate += 64000 * int(a.audio_channels)
-                    except:
-                        min_audio_bitrate += 64000 * 2
+                audio_bitrate += a.bitrate if a.birate else (baserate * (a.audio_channels or 2))
 
             self.log.debug("Total bitrate is %s." % info.format.bitrate)
             self.log.debug("Total audio bitrate is %s." % audio_bitrate)
             audio_bitrate += min_audio_bitrate
-            self.log.debug("Estimated video bitrate is %s." % (total_bitrate - audio_bitrate))
-            return mbitrate if mbitrate and mbitrate < (((total_bitrate - audio_bitrate) / 1000) * .95) else ((total_bitrate - audio_bitrate) / 1000) * .95
+            calculated_bitrate = (total_bitrate - audio_bitrate) / 1000
+            self.log.debug("Estimated video bitrate is %s." % (calculated_bitrate * 1000))
+            return min_video_bitrate if min_video_bitrate and min_video_bitrate < (calculated_bitrate * tolerance) else (calculated_bitrate * tolerance)
         except:
             if info.format.bitrate:
-                return mbitrate if mbitrate and mbitrate < (info.format.bitrate / 1000) else info.format.bitrate / 1000
-            if mbitrate:
-                return mbitrate
-        return 0
+                return min_video_bitrate if min_video_bitrate and min_video_bitrate < (info.format.bitrate / 1000) else (info.format.bitrate / 1000)
+        return min_video_bitrate
 
     # Generate a JSON formatter dataset with the input and output information and ffmpeg command for a theoretical conversion
     def jsonDump(self, inputfile, original=None):
