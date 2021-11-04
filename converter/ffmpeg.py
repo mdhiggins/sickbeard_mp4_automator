@@ -238,7 +238,10 @@ class MediaStreamInfo(object):
         elif key == 'DISPOSITION:default':
             self.default = self.parse_bool(self.parse_int(val))
         elif key.lower().startswith('tag:bps'):
-            self.bitrate = self.bitrate or (self.parse_int(val) * (1000 if self.parse_int(val) < 1000 else 1))
+            self.bitrate = self.bitrate or self.parse_int(val)
+
+        if self.bitrate and self.bitrate < 1000:
+            self.bitrate *= 1000
 
         if key.startswith('TAG:'):
             key = key.split('TAG:')[1].lower()
