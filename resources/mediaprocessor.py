@@ -365,7 +365,7 @@ class MediaProcessor:
             audio_bitrate = 0
             min_audio_bitrate = 0
             for a in info.audio:
-                audio_bitrate += a.bitrate if a.birate else (baserate * (a.audio_channels or 2))
+                audio_bitrate += a.bitrate if a.bitrate else (baserate * (a.audio_channels or 2))
 
             self.log.debug("Total bitrate is %s." % info.format.bitrate)
             self.log.debug("Total audio bitrate is %s." % audio_bitrate)
@@ -854,6 +854,7 @@ class MediaProcessor:
                 if self.settings.amaxbitrate and abitrate > self.settings.amaxbitrate:
                     self.log.debug("Calculated bitrate of %d exceeds maximum bitrate %d, setting to max value [audio-max-bitrate]." % (abitrate, self.settings.amaxbitrate))
                     abitrate = self.settings.amaxbitrate
+                    acodec = self.settings.acodec[0]
 
                 self.log.debug("Audio codec: %s." % acodec)
                 self.log.debug("Channels: %s." % audio_channels)
