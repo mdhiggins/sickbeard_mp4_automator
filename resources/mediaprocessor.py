@@ -451,7 +451,7 @@ class MediaProcessor:
             if 'comment' in title:
                 self.log.debug("Found comment in stream title, setting comment disposition to True.")
                 stream.disposition['comment'] = True
-            if 'hearing' in title:
+            if 'hearing' in title or 'sdh' in title:
                 self.log.debug("Found hearing in stream title, setting hearing_impaired disposition to True.")
                 stream.disposition['hearing_impaired'] = True
             if 'visual' in title:
@@ -1375,6 +1375,8 @@ class MediaProcessor:
                             self.log.debug("External %s subtitle file detected %s." % (lang, fname))
                             for dispo in BaseCodec.DISPOSITIONS:
                                 valid_external_sub.subtitle[0].disposition[dispo] = ("." + dispo) in fname
+                            if '.sdh' in fname:
+                                valid_external_sub.subtitle[0].disposition["hearing_impaired"] = True
                             valid_external_subs.append(valid_external_sub)
                         else:
                             self.log.debug("Ignoring %s external subtitle stream due to language %s." % (fname, lang))
