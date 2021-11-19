@@ -37,6 +37,7 @@ try:
     path_mapping = settings.qBittorrent['path-mapping']
 
     log.debug("Root Path: %s." % root_path)
+    log.debug("Content Path: %s." % content_path)
     log.debug("Label: %s." % label)
     log.debug("Categories: %s." % categories)
     log.debug("Torrent hash: %s." % torrent_hash)
