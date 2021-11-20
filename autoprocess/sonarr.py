@@ -80,6 +80,10 @@ def accessAPI(url, payload, headers, log, requests, nzbGet, sleep=10, retry=0, m
         rstate = r.json()
         log.debug(rstate)
         log.info("%sSonarr response: %s." % (infoprefix, rstate['status']))
+        try:
+            rstate = rstate[0]
+        except:
+            pass
         if rstate['body']['path'] != payload['path']:
             if retry > maxretry:
                 log.error("Sonarr returned path %s that does not match the directory that was requested to be scanned %s. Maximum number of retries exceeded (%d)." % (rstate['body']['path'], payload['path'], maxretry))

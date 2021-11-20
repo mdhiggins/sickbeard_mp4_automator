@@ -68,6 +68,10 @@ def processMovie(dirName, settings, nzbGet=False, importMode=None, logger=None, 
         r = requests.post(url, json=payload, headers=headers)
         rstate = r.json()
         log.debug(rstate)
+        try:
+            rstate = rstate[0]
+        except:
+            pass
         log.info("%sRadarr response: %s." % (infoprefix, rstate['status']))
         return True
     except:
