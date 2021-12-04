@@ -1493,7 +1493,7 @@ class NVEncH265CodecPatched(NVEncH265Codec):
         return safe
 
     def safe_framedata(self, opts):
-        metadata = ""
+        metadata = "hevc_metadata="
         if 'color_primaries' in opts and self.color_primaries.get(opts['color_primaries']):
             metadata += "colour_primaries=%d:" % (self.color_primaries.get(opts['color_primaries']))
         if 'color_transfer' in opts and self.color_transfer.get(opts['color_transfer']):
