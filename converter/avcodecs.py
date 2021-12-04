@@ -1464,6 +1464,76 @@ class NVEncH265CodecAlt(NVEncH265Codec):
     codec_name = 'hevc_nvenc'
 
 
+class NVEncH265CodecPatched(NVEncH265Codec):
+    """
+    Nvidia H.265/AVC video codec alternate designed to work with patched FFMPEG that supports HDR metadata.
+    https://github.com/klob/FFmpeg/releases/tag/release-hevc_nvenc_hdr_sei
+    """
+    codec_name = 'hevc_nvenc_patched'
+
+    color_transfer = {
+        "smpte2084": 16,
+        "smpte2086": 18,
+        "bt709": 1
+    }
+    color_primaries = {
+        "bt2020": 9,
+        "bt709": 1
+    }
+    color_space = {
+        "bt2020nc": 9,
+        "bt709": 1
+    }
+
+    def _codec_specific_parse_options(self, safe, stream=0):
+        safe = super(NVEncH265CodecPatched, self)._codec_specific_parse_options(safe, stream)
+        if 'framedata' in safe:
+            safe['bsfv'] = self.safe_framedata(safe['framedata'])
+            del safe['framedata']
+        return safe
+
+    def safe_framedata(self, opts):
+        metadata = ""
+        if 'color_primaries' in opts and self.color_primaries.get(opts['color_primaries']):
+            metadata += "colour_primaries=%d:" % (self.color_primaries.get(opts['color_primaries']))
+        if 'color_transfer' in opts and self.color_transfer.get(opts['color_transfer']):
+            metadata += "transfer_characteristics=%d:" % (self.color_transfer.get(opts['color_transfer']))
+        if 'color_space' in opts and self.color_space.get(opts['color_space']):
+            metadata += "matrix_coefficients=%d:" % (self.color_space.get(opts['color_space']))
+        if 'side_data_list' in opts:
+            for side_data in opts['side_data_list']:
+                if side_data.get('side_data_type') == 'Mastering display metadata':
+                    red_x = side_data['red_x']
+                    red_y = side_data['red_y']
+                    green_x = side_data['green_x']
+                    green_y = side_data['green_y']
+                    blue_x = side_data['blue_x']
+                    blue_y = side_data['blue_y']
+                    wp_x = side_data['white_point_x']
+                    wp_y = side_data['white_point_y']
+                    min_l = side_data['min_luminance']
+                    min_l = 50 if min_l < 50 else min_l
+                    max_l = side_data['max_luminance']
+                    max_l = 10000000 if max_l > 10000000 else max_l
+                    metadata += "master-display=\"G(%d|%d)B(%d|%d)R(%d|%d)WP(%d|%d)L(%d|%d)\":" % (green_x, green_y, blue_x, blue_y, red_x, red_y, wp_x, wp_y, max_l, min_l)
+                elif side_data.get('side_data_type') == 'Content light level metadata':
+                    max_content = side_data['max_content']
+                    max_average = side_data['max_average']
+                    if max_content == 0 and max_average == 0:
+                        continue
+                    max_content = 1000 if max_content > 1000 else max_content
+                    max_average = 400 if max_average < 400 else max_average
+                    max_content = max_average if max_content < max_average else max_content
+                    metadata += "max-cll=\"%d|%d\":" % (max_content, max_average)
+        return metadata[:-1]
+
+    def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
+        optlist = super(NVEncH265CodecPatched, self)._codec_specific_produce_ffmpeg_list(safe, stream)
+        if 'bsfv' in safe:
+            optlist.extend(['-bsf:v', safe['bsfv']])
+        return optlist
+
+
 class VideotoolboxEncH265(H265Codec):
     """
     Videotoolbox H.265/HEVC video codec.
@@ -1717,7 +1787,7 @@ video_codec_list = [
     TheoraCodec,
     H263Codec,
     H264Codec, H264CodecAlt, H264QSVCodec, H264VAAPICodec, OMXH264Codec, VideotoolboxEncH264, NVEncH264Codec,
-    H265Codec, H265QSVCodecAlt, H265QSVCodec, H265CodecAlt, H265QSVCodecPatched, H265VAAPICodec, VideotoolboxEncH265, NVEncH265Codec, NVEncH265CodecAlt,
+    H265Codec, H265QSVCodecAlt, H265QSVCodec, H265CodecAlt, H265QSVCodecPatched, H265VAAPICodec, VideotoolboxEncH265, NVEncH265Codec, NVEncH265CodecAlt, NVEncH265CodecPatched,
     DivxCodec,
     Vp8Codec,
     Vp9Codec, Vp9QSVCodec, Vp9QSVAltCodec,
