@@ -1515,7 +1515,7 @@ class NVEncH265CodecPatched(NVEncH265Codec):
                     min_l = 50 if min_l < 50 else min_l
                     max_l = side_data['max_luminance']
                     max_l = 10000000 if max_l > 10000000 else max_l
-                    metadata += "master-display=\"G(%d|%d)B(%d|%d)R(%d|%d)WP(%d|%d)L(%d|%d)\":" % (green_x, green_y, blue_x, blue_y, red_x, red_y, wp_x, wp_y, max_l, min_l)
+                    metadata += "master_display=\"G(%d|%d)B(%d|%d)R(%d|%d)WP(%d|%d)L(%d|%d)\":" % (green_x, green_y, blue_x, blue_y, red_x, red_y, wp_x, wp_y, max_l, min_l)
                 elif side_data.get('side_data_type') == 'Content light level metadata':
                     max_content = side_data['max_content']
                     max_average = side_data['max_average']
