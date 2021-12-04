@@ -1524,7 +1524,7 @@ class NVEncH265CodecPatched(NVEncH265Codec):
                     max_content = 1000 if max_content > 1000 else max_content
                     max_average = 400 if max_average < 400 else max_average
                     max_content = max_average if max_content < max_average else max_content
-                    metadata += "max-cll=\"%d|%d\":" % (max_content, max_average)
+                    metadata += "max_cll=\"%d|%d\":" % (max_content, max_average)
         return metadata[:-1]
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
