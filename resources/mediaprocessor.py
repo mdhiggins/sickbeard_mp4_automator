@@ -1360,23 +1360,26 @@ class MediaProcessor:
                 if fname.startswith(filename):  # filename in fname:
                     valid_external_sub = self.isValidSubtitleSource(os.path.join(dirName, fname))
                     if valid_external_sub:
-                        subname, langext = os.path.splitext(subname)
+                        self.log.debug("Potential subtitle candidate identified %s." % (fname))
+                        subname = subname[len(filename):]
                         lang = 'und'
-                        while langext:
-                            lang = getAlpha3TCode(langext)
-                            if lang != 'und':
-                                break
-                            subname, langext = os.path.splitext(subname)
+                        for seg in subname.lower().split("."):
+                            self.log.debug("Processing data point %s." % (seg))
+                            l = getAlpha3TCode(seg)
+                            if lang == 'und' and l != 'und':
+                                lang = l
+                            if seg in BaseCodec.DISPOSITIONS:
+                                valid_external_sub.subtitle[0].disposition[seg] = True
+                            # Alternate tags
+                            for k in BaseCodec.ALTERNATES:
+                                if seg in BaseCodec.ALTERNATES[k]:
+                                    valid_external_sub.subtitle[0].disposition[k] = True
                         if self.settings.sdl and lang == 'und':
                             lang = self.settings.sdl
                         valid_external_sub.subtitle[0].metadata['language'] = lang
 
                         if self.validLanguage(lang, swl):
                             self.log.debug("External %s subtitle file detected %s." % (lang, fname))
-                            for dispo in BaseCodec.DISPOSITIONS:
-                                valid_external_sub.subtitle[0].disposition[dispo] = ("." + dispo) in fname
-                            if '.sdh' in fname:
-                                valid_external_sub.subtitle[0].disposition["hearing_impaired"] = True
                             valid_external_subs.append(valid_external_sub)
                         else:
                             self.log.debug("Ignoring %s external subtitle stream due to language %s." % (fname, lang))

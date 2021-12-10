@@ -23,6 +23,12 @@ class BaseCodec(object):
         # 'metadata',
     ]
 
+    ALTERNATES = {
+        'comment': ['commentary'],
+        'forced': ['force'],
+        'hearing_impaired': ['sdh', 'hi', 'cc']
+    }
+
     encoder_options = {}
     codec_name = None
     ffmpeg_codec_name = None
