@@ -87,6 +87,8 @@ class MediaProcessor:
 
                     # Copy to additional locations
                     output_files = self.replicate(output['output'])
+                    for sub in output['external_subs']:
+                        output_files.extend(self.replicate(sub))
 
                     for file in output_files:
                         self.setPermissions(file)

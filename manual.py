@@ -265,6 +265,8 @@ def processFile(inputfile, mp, info=None, relativePath=None, silent=False, tag=T
         if settings.relocate_moov and not tagfailed:
             mp.QTFS(output['output'])
         output_files = mp.replicate(output['output'], relativePath=relativePath)
+        for sub in output['external_subs']:
+            output_files.extend(mp.replicate(sub, relativePath=relativePath))
         for file in output_files:
             mp.setPermissions(file)
         if settings.postprocess:
