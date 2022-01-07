@@ -939,10 +939,10 @@ class ReadSettings:
             fp = open(cfgfile, "w")
             config.write(fp)
             fp.close()
-        except IOError:
-            self.log.exception("Error writing to autoProcess.ini.")
         except PermissionError:
             self.log.exception("Error writing to autoProcess.ini due to permissions.")
+        except IOError:
+            self.log.exception("Error writing to autoProcess.ini.")
 
     def migrateFromOld(self, config, configFile):
         if config.has_section("MP4"):
