@@ -73,6 +73,12 @@ defaults = {
     }
 }
 
+CONFIG_DEFAULT = "logging.ini"
+CONFIG_DIRECTORY = "./config"
+RESOURCE_DIRECTORY = "./resources"
+RELATIVE_TO_ROOT = "../"
+LOG_NAME = "sma.log"
+
 
 def checkLoggingConfig(configfile):
     write = True
@@ -107,12 +113,12 @@ def getLogger(name=None, custompath=None):
         if not os.path.isdir(custompath):
             custompath = os.path.dirname(custompath)
         rootpath = os.path.abspath(custompath)
-        resourcepath = os.path.join(rootpath, "resources")
-        configpath = os.path.join(rootpath, "config")
+        resourcepath = os.path.normpath(os.path.join(rootpath, RESOURCE_DIRECTORY))
+        configpath = os.path.normpath(os.path.join(rootpath, CONFIG_DIRECTORY))
     else:
-        resourcepath = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
-        rootpath = os.path.abspath(os.path.join(resourcepath, "../"))
-        configpath = os.path.join(rootpath, "config")
+        rootpath = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), RELATIVE_TO_ROOT))
+        resourcepath = os.path.normpath(os.path.join(rootpath, RESOURCE_DIRECTORY))
+        configpath = os.path.normpath(os.path.join(rootpath, CONFIG_DIRECTORY))
 
     logpath = configpath
     if not os.path.isdir(logpath):
@@ -121,10 +127,10 @@ def getLogger(name=None, custompath=None):
     if not os.path.isdir(configpath):
         os.makedirs(configpath)
 
-    configfile = os.path.abspath(os.path.join(configpath, 'logging.ini')).replace("\\", "\\\\")
+    configfile = os.path.abspath(os.path.join(configpath, CONFIG_DEFAULT)).replace("\\", "\\\\")
     checkLoggingConfig(configfile)
 
-    logfile = os.path.abspath(os.path.join(logpath, 'sma.log')).replace("\\", "\\\\")
+    logfile = os.path.abspath(os.path.join(logpath, LOG_NAME)).replace("\\", "\\\\")
     fileConfig(configfile, defaults={'logfilename': logfile})
 
     logger = logging.getLogger(name)

@@ -500,6 +500,16 @@ class ReadSettings:
         }
     }
 
+    CONFIG_DEFAULT = "autoProcess.ini"
+    CONFIG_DIRECTORY = "./config"
+    RESOURCE_DIRECTORY = "./resources"
+    RELATIVE_TO_ROOT = "../"
+    ENV_CONFIG_VAR = "SMA_CONFIG"
+
+    @property
+    def CONFIG_RELATIVEPATH(self):
+        return os.path.join(self.CONFIG_DIRECTORY, self.CONFIG_DEFAULT)
+
     def __init__(self, configFile=None, logger=None):
         self.log = logger or logging.getLogger(__name__)
 
@@ -507,13 +517,15 @@ class ReadSettings:
         if sys.version_info.major == 2:
             self.log.warning("Python 2 is no longer officially supported. Use with caution.")
 
-        defaultConfigFile = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../config/autoProcess.ini"))
-        oldConfigFile = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../autoProcess.ini"))
-        envConfigFile = os.environ.get("SMA_CONFIG")
+        rootpath = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), self.RELATIVE_TO_ROOT))
+
+        defaultConfigFile = os.path.normpath(os.path.join(rootpath, self.CONFIG_RELATIVEPATH))
+        oldConfigFile = os.path.normpath(os.path.join(rootpath, self.CONFIG_DEFAULT))
+        envConfigFile = os.environ.get(self.ENV_CONFIG_VAR)
 
         if envConfigFile and os.path.exists(os.path.realpath(envConfigFile)):
             configFile = os.path.realpath(envConfigFile)
-            self.log.debug("SMACONFIG environment variable override found.")
+            self.log.debug("%s environment variable override found." % (self.ENV_CONFIG_VAR))
         elif not configFile:
             if not os.path.exists(defaultConfigFile) and os.path.exists(oldConfigFile):
                 try:
@@ -528,13 +540,13 @@ class ReadSettings:
             self.log.debug("Loading default config file.")
 
         if os.path.isdir(configFile):
-            new = os.path.realpath(os.path.join(os.path.join(configFile, "config"), "autoProcess.ini"))
-            old = os.path.realpath(os.path.join(configFile, "autoProcess.ini"))
+            new = os.path.realpath(os.path.join(configFile, self.CONFIG_RELATIVEPATH))
+            old = os.path.realpath(os.path.join(configFile, self.CONFIG_DEFAULT))
             if not os.path.exists(new) and os.path.exists(old):
                 configFile = old
             else:
                 configFile = new
-            self.log.debug("ConfigFile specified is a directory, joining with autoProcess.ini.")
+            self.log.debug("Configuration file specified is a directory, joining with %s." % (self.CONFIG_DEFAULT))
 
         self.log.info("Loading config file %s." % configFile)
 
@@ -940,9 +952,9 @@ class ReadSettings:
             config.write(fp)
             fp.close()
         except PermissionError:
-            self.log.exception("Error writing to autoProcess.ini due to permissions.")
+            self.log.exception("Error writing to %s due to permissions." % (self.CONFIG_DEFAULT))
         except IOError:
-            self.log.exception("Error writing to autoProcess.ini.")
+            self.log.exception("Error writing to %s." % (self.CONFIG_DEFAULT))
 
     def migrateFromOld(self, config, configFile):
         if config.has_section("MP4"):
