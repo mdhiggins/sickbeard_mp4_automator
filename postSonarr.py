@@ -307,7 +307,7 @@ try:
                     # Now a final rename step to ensure all release / codec information is accurate
                     try:
                         rename = renameFileRequest(baseURL, headers, sonarrepinfo['episodeFileId'], log)
-                        log.info("Sonarr response RenameSeries command: ID %d %s." % (rename['id'], rename['status']))
+                        log.info("Sonarr response RenameFiles command: ID %d %s." % (rename['id'], rename['status']))
                     except:
                         log.exception("Failed to trigger Sonarr rename.")
                 else:
