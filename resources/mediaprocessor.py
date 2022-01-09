@@ -319,7 +319,7 @@ class MediaProcessor:
                             stream = info.streams[so]
                             stream.metadata['title'] = track.title
                 except:
-                    self.log.exception("Pymediainfo exception.")
+                    self.log.error("Pymediainfo exception.")
                     pass
             return info
         except:
