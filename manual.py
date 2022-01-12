@@ -8,6 +8,7 @@ import glob
 import argparse
 import struct
 import enum
+import json
 import logging
 import tmdbsimple as tmdb
 from resources.log import getLogger
@@ -230,8 +231,35 @@ def tvInfo(guessData, tmdbid=None, tvdbid=None, imdbid=None, season=None, episod
     log.info("Matched TV episode as %s (TMDB ID: %d) S%02dE%02d" % (metadata.showname, int(metadata.tmdbid), int(season), int(episode)))
     return metadata
 
+processed = None
+def checkAlreadyProcessed(inputfile):
+    global processed
+
+    if 'processed.json' in inputfile:
+        return True
+
+    # folder script is in
+    serializedFile = os.path.join(sys.path[0], 'processed.json')
+
+    if processed is None:
+        try:
+            with open(serializedFile, 'r') as infile:
+                processed = set(json.load(infile))
+        except:
+            processed = set()
+
+    if inputfile in processed:
+        return True
+    else:
+        processed.add(inputfile)
+        with open(serializedFile, 'w') as outfile:
+            json.dump(list(processed), outfile)
+        return False
 
 def processFile(inputfile, mp, info=None, relativePath=None, silent=False, tag=True, tmdbid=None, tvdbid=None, imdbid=None, season=None, episode=None, original=None):
+    if checkAlreadyProcessed(inputfile):
+        return
+
     # Process
     info = info or mp.isValidSource(inputfile)
     if not info:
