@@ -244,10 +244,12 @@ def addtoProcessedArchive(inputfile, processedList, processedArchive):
     processedList.add(inputfile)
     with open(processedArchive, 'w') as pa:
         json.dump(processedList, pa)
+    log.debug("Adding %s to processed archive %s" % (inputfile, processedArchive))
 
 
 def processFile(inputfile, mp, info=None, relativePath=None, silent=False, tag=True, tmdbid=None, tvdbid=None, imdbid=None, season=None, episode=None, original=None, processedList=None, processedArchive=None):
     if checkAlreadyProcessed(inputfile, processedList, processedArchive):
+        log.debug("%s is already processed and will be skipped based on archive %s." % (inputfile, processedArchive))
         return
 
     # Process
@@ -295,6 +297,7 @@ def processFile(inputfile, mp, info=None, relativePath=None, silent=False, tag=T
                 elif tagdata.mediatype == MediaType.TV:
                     postprocessor.setTV(tagdata.tmdbid, tagdata.season, tagdata.episode)
             postprocessor.run_scripts()
+        addtoProcessedArchive(inputfile, processedList, processedArchive)
     else:
         log.error("There was an error processing file %s, no output data received" % inputfile)
 
