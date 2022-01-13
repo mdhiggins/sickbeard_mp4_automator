@@ -312,7 +312,7 @@ def walkDir(dir, settings, silent=False, preserveRelative=False, tmdbid=None, im
             log.info("Processing file %s" % (filepath))
             relative = os.path.split(os.path.relpath(filepath, dir))[0] if preserveRelative else None
             if optionsOnly:
-                displayOptions(filepath)
+                displayOptions(filepath, settings)
                 continue
             try:
                 processFile(filepath, mp, info=info, relativePath=relative, silent=silent, tag=tag, tmdbid=tmdbid, tvdbid=tvdbid, imdbid=imdbid)
@@ -327,7 +327,7 @@ def walkDir(dir, settings, silent=False, preserveRelative=False, tmdbid=None, im
             log.error(e)
 
 
-def displayOptions(path):
+def displayOptions(path, settings):
     mp = MediaProcessor(settings)
     log.info(mp.jsonDump(path))
 
@@ -459,7 +459,7 @@ def main():
         info = mp.isValidSource(path)
         if info:
             if (args['optionsonly']):
-                displayOptions(path)
+                displayOptions(path, settings)
                 return
             try:
                 processFile(path, mp, info=info, silent=silent, tag=settings.tagfile, tmdbid=args.get('tmdbid'), tvdbid=args.get('tvdbid'), imdbid=args.get('imdbid'), season=args.get('season'), episode=args.get('episode'), original=args.get('original'), processedList=processedList, processedArchive=processedArchive)
