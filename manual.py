@@ -178,6 +178,8 @@ def guessInfo(fileName, settings, tmdbid=None, tvdbid=None, imdbid=None, season=
             return tvInfo(guess, tmdbid=tmdbid, tvdbid=tvdbid, imdbid=imdbid, season=season, episode=episode, language=language, original=original)
         else:
             return None
+    except KeyboardInterrupt as ki:
+        raise(ki)
     except:
         log.exception("Unable to guess movie information")
         return None
@@ -207,8 +209,8 @@ def movieInfo(guessData, tmdbid=None, imdbid=None, language=None, original=None)
 
 
 def tvInfo(guessData, tmdbid=None, tvdbid=None, imdbid=None, season=None, episode=None, language=None, original=None):
-    season = season or guessData["season"]
-    episode = episode or guessData["episode"]
+    season = season or guessData.get("season", 0)
+    episode = episode or guessData.get("episode", 0)
 
     if not tmdbid and not tvdbid and not imdbid:
         tmdb.API_KEY = tmdb_api_key
@@ -321,6 +323,8 @@ def walkDir(dir, settings, silent=False, preserveRelative=False, tmdbid=None, im
                 processFile(filepath, mp, info=info, relativePath=relative, silent=silent, tag=tag, tmdbid=tmdbid, tvdbid=tvdbid, imdbid=imdbid)
             except SkipFileException:
                 log.debug("Skipping file %s." % filepath)
+            except KeyboardInterrupt:
+                break
             except:
                 log.exception("Error processing file %s." % filepath)
                 error.append(filepath)

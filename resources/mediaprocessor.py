@@ -108,6 +108,8 @@ class MediaProcessor:
                     return output_files
             else:
                 self.log.info("File %s is not valid" % inputfile)
+        except KeyboardInterrupt as ki:
+            raise(ki)
         except:
             self.log.exception("Error processing")
         return False
@@ -161,6 +163,8 @@ class MediaProcessor:
                 ripped_subs = self.ripSubs(inputfile, ripsubopts)
                 try:
                     outputfile, inputfile = self.convert(options, preopts, postopts, reportProgress, progressOutput)
+                except KeyboardInterrupt as ki:
+                    raise(ki)
                 except:
                     self.log.exception("Unexpected exception encountered during conversion")
                     return None
@@ -1786,6 +1790,8 @@ class MediaProcessor:
             except:
                 self.log.exception("Error restoring original inputfile after exception.")
                 return None, inputfile
+        except KeyboardInterrupt as ki:
+            raise(ki)
         except:
             self.log.exception("Unexpected exception during conversion.")
             try:
