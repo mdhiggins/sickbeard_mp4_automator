@@ -248,7 +248,7 @@ def addtoProcessedArchive(inputfile, processedList, processedArchive):
 
 
 def processFile(inputfile, mp, info=None, relativePath=None, silent=False, tag=True, tmdbid=None, tvdbid=None, imdbid=None, season=None, episode=None, original=None, processedList=None, processedArchive=None):
-    if checkAlreadyProcessed(inputfile, processedList, processedArchive):
+    if checkAlreadyProcessed(inputfile, processedList):
         log.debug("%s is already processed and will be skipped based on archive %s." % (inputfile, processedArchive))
         return
 
