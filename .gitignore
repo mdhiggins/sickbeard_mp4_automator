@@ -9,6 +9,7 @@ update.py
 *.bat
 *.backup*
 *.venv.py
+*.json
 config/custom.py
 
 #################
