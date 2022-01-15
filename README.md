@@ -266,7 +266,7 @@ optional arguments:
                         also enables process-same-extenions if true forcing the conversion of files
   -oo, --optionsonly    Display generated conversion options only, do not perform conversion
   -cl, --codeclist      Print a list of supported codecs and their paired FFMPEG encoders
-   -pa, --processedarchive
+  -pa, --processedarchive
                         Specify a processed list/archive so already processed files are skipped
 ```
 
