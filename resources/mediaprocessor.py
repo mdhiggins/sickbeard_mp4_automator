@@ -15,30 +15,30 @@ from resources.lang import getAlpha3TCode
 from autoprocess import plex
 try:
     from babelfish import Language
-except:
+except ImportError:
     pass
 try:
     import subliminal
     from guessit import guessit
-except:
+except ImportError:
     pass
 try:
     from pymediainfo import MediaInfo
-except:
+except ImportError:
     MediaInfo = None
 
 # Custom Functions
 try:
     from config.custom import validation
-except:
+except ImportError:
     validation = None
 try:
     from config.custom import blockVideoCopy
-except:
+except ImportError:
     blockVideoCopy = None
 try:
     from config.custom import blockAudioCopy
-except:
+except ImportError:
     blockAudioCopy = None
 
 
@@ -71,6 +71,8 @@ class MediaProcessor:
                         if self.settings.tagfile:
                             self.log.info("Tagging %s with TMDB ID %s." % (inputfile, tag.tmdbid))
                             tag.writeTags(output['output'], self.converter, self.settings.artwork, self.settings.thumbnail, output['x'], output['y'])
+                    except KeyboardInterrupt:
+                        raise
                     except:
                         self.log.exception("Unable to tag file")
                         tagfailed = True
@@ -103,13 +105,15 @@ class MediaProcessor:
                     if self.settings.Plex.get('refresh', False):
                         try:
                             plex.refreshPlex(self.settings, mediatype, self.log)
+                        except KeyboardInterrupt:
+                            raise
                         except:
                             self.log.exception("Error refreshing Plex.")
                     return output_files
             else:
                 self.log.info("File %s is not valid" % inputfile)
-        except KeyboardInterrupt as ki:
-            raise(ki)
+        except KeyboardInterrupt:
+            raise
         except:
             self.log.exception("Error processing")
         return False
@@ -132,6 +136,8 @@ class MediaProcessor:
         if info:
             try:
                 options, preopts, postopts, ripsubopts, downloaded_subs = self.generateOptions(inputfile, info=info, original=original, tagdata=tagdata)
+            except KeyboardInterrupt:
+                raise
             except:
                 self.log.exception("Unable to generate options, unexpected exception occurred.")
                 return None
@@ -156,15 +162,16 @@ class MediaProcessor:
                     if self.settings.downloadsubs:
                         self.log.info("Downloaded Subtitles")
                         self.log.info(json.dumps(downloaded_subs, sort_keys=False, indent=4))
-
+                except KeyboardInterrupt:
+                    raise
                 except:
                     self.log.exception("Unable to log options.")
 
                 ripped_subs = self.ripSubs(inputfile, ripsubopts)
                 try:
                     outputfile, inputfile = self.convert(options, preopts, postopts, reportProgress, progressOutput)
-                except KeyboardInterrupt as ki:
-                    raise(ki)
+                except KeyboardInterrupt:
+                    raise
                 except:
                     self.log.exception("Unexpected exception encountered during conversion")
                     return None
@@ -181,6 +188,8 @@ class MediaProcessor:
                         outputfile = os.path.join(self.settings.output_dir, os.path.split(inputfile)[1])
                         self.log.debug("Outputfile set to %s." % outputfile)
                         shutil.copy(inputfile, outputfile)
+                    except KeyboardInterrupt:
+                        raise
                     except:
                         self.log.exception("Error moving file to output directory.")
                         delete = False
@@ -312,6 +321,8 @@ class MediaProcessor:
                     if not validation(self, info, inputfile):
                         self.log.debug("Failed custom validation check, file is not valid.")
                         return None
+                except KeyboardInterrupt:
+                    raise
                 except:
                     self.log.exception("Custom validation check error.")
             if MediaInfo:
@@ -322,10 +333,14 @@ class MediaProcessor:
                             so = int(track.streamorder)
                             stream = info.streams[so]
                             stream.metadata['title'] = track.title
+                except KeyboardInterrupt:
+                    raise
                 except:
                     self.log.error("Pymediainfo exception.")
                     pass
             return info
+        except KeyboardInterrupt:
+            raise
         except:
             self.log.exception("isValidSource unexpectedly threw an exception, returning None.")
             return None
@@ -337,6 +352,8 @@ class MediaProcessor:
                 if len(info.subtitle) < 1 or info.video or len(info.audio) > 0:
                     return None
             return info
+        except KeyboardInterrupt:
+            raise
         except:
             self.log.exception("isValidSubtitleSource unexpectedly threw an exception, returning None.")
             return None
@@ -562,6 +579,8 @@ class MediaProcessor:
                 self.log.exception("Custom video stream copy check is preventing copying the stream.")
                 vdebug = vdebug + ".custom"
                 vcodec = vcodecs[0]
+        except KeyboardInterrupt:
+            raise
         except:
             self.log.exception("Custom video stream copy check error.")
 
@@ -790,6 +809,8 @@ class MediaProcessor:
                             self.log.exception("Custom audio stream copy check is preventing copying the stream.")
                             adebug = adebug + ".custom"
                             acodec = self.settings.ua[0]
+                    except KeyboardInterrupt:
+                        raise
                     except:
                         self.log.exception("Custom audio stream copy check error.")
 
@@ -826,6 +847,8 @@ class MediaProcessor:
                             self.log.exception("Custom audio stream copy check is preventing copying the stream.")
                             adebug = adebug + ".custom"
                             acodec = self.settings.acodec[0]
+                    except KeyboardInterrupt:
+                        raise
                     except:
                         self.log.exception("Custom audio stream copy check error.")
 
@@ -941,6 +964,8 @@ class MediaProcessor:
             for s in info.subtitle:
                 try:
                     image_based = self.isImageBasedSubtitle(inputfile, s.index)
+                except KeyboardInterrupt:
+                    raise
                 except:
                     self.log.error("Unknown error occurred while trying to determine if subtitle is text or image based. Probably corrupt, skipping.")
                     continue
@@ -996,6 +1021,8 @@ class MediaProcessor:
         downloaded_subs = []
         try:
             downloaded_subs = self.downloadSubtitles(inputfile, info.subtitle, swl, original, tagdata)
+        except KeyboardInterrupt:
+            raise
         except:
             self.log.exception("Unable to download subitltes [download-subs].")
 
@@ -1006,6 +1033,8 @@ class MediaProcessor:
             for external_sub in valid_external_subs:
                 try:
                     image_based = self.isImageBasedSubtitle(external_sub.path, 0)
+                except KeyboardInterrupt:
+                    raise
                 except:
                     self.log.error("Unknown error occurred while trying to determine if subtitle is text or image based. Probably corrupt, skipping.")
                     continue
@@ -1133,6 +1162,8 @@ class MediaProcessor:
                             options['video']['device'] = "sma2"
                             options['video']['decode_device'] = "sma"
                         break
+            except KeyboardInterrupt:
+                raise
             except:
                 self.log.exception("Error when trying to determine hardware acceleration support.")
 
@@ -1322,6 +1353,8 @@ class MediaProcessor:
                     try:
                         if self.isImageBasedSubtitle(inputfile, x.index):
                             sub_candidates.remove(x)
+                    except KeyboardInterrupt:
+                        raise
                     except:
                         self.log.error("Unknown error occurred while trying to determine if subtitle is text or image based. Probably corrupt, skipping.")
                         sub_candidates.remove(x)
@@ -1345,6 +1378,8 @@ class MediaProcessor:
                     try:
                         if self.isImageBasedSubtitle(x.path, 0):
                             sub_candidates.remove(x)
+                    except KeyboardInterrupt:
+                        raise
                     except:
                         self.log.error("Unknown error occurred while trying to determine if subtitle is text or image based. Probably corrupt, skipping.")
                         sub_candidates.remove(x)
@@ -1496,6 +1531,8 @@ class MediaProcessor:
                         video.release_group = og.get('release_group') or video.release_group
                         video.resolution = og.get('screen_size') or video.resolution
                         video.streaming_service = og.get('streaming_service') or video.streaming_service
+                    except KeyboardInterrupt:
+                        raise
                     except:
                         self.log.exception("Error importing original file data for subliminal, will attempt to proceed.")
 
@@ -1507,6 +1544,8 @@ class MediaProcessor:
                     self.setPermissions(path)
 
                 return paths
+            except KeyboardInterrupt:
+                raise
             except:
                 self.log.exception("Unable to download subtitles.")
         return []
@@ -1580,6 +1619,8 @@ class MediaProcessor:
                 self.log.error("Unable to create external %s subtitle file for stream %s, may be an incompatible format." % (extension, options['index']))
                 self.removeFile(outputfile)
                 continue
+            except KeyboardInterrupt:
+                raise
             except:
                 self.log.exception("Unable to create external subtitle file for stream %s." % (options['index']))
             self.setPermissions(outputfile)
@@ -1748,6 +1789,8 @@ class MediaProcessor:
 
         try:
             conv = self.converter.convert(outputfile, options, timeout=None, preopts=preopts, postopts=postopts, strip_metadata=self.settings.strip_metadata)
+        except KeyboardInterrupt:
+            raise
         except:
             self.log.exception("Error converting file.")
             return None, inputfile
@@ -1787,11 +1830,13 @@ class MediaProcessor:
             try:
                 os.rename(inputfile, originalinputfile)
                 return None, originalinputfile
+            except KeyboardInterrupt:
+                raise
             except:
                 self.log.exception("Error restoring original inputfile after exception.")
                 return None, inputfile
-        except KeyboardInterrupt as ki:
-            raise(ki)
+        except KeyboardInterrupt:
+            raise
         except:
             self.log.exception("Unexpected exception during conversion.")
             try:
@@ -1806,6 +1851,8 @@ class MediaProcessor:
             self.log.debug("Outputfile and finaloutputfile are different attempting to rename to final extension [temp_extension].")
             try:
                 os.rename(outputfile, finaloutputfile)
+            except KeyboardInterrupt:
+                raise
             except:
                 self.log.exception("Unable to rename output file to its final destination file extension [temp_extension].")
                 finaloutputfile = outputfile
@@ -1829,6 +1876,8 @@ class MediaProcessor:
             if newline:
                 sys.stdout.write('\n')
             sys.stdout.flush()
+        except KeyboardInterrupt:
+            raise
         except:
             print(complete)
 
@@ -1888,6 +1937,8 @@ class MediaProcessor:
                     shutil.copy(inputfile, d)
                     self.log.info("%s copied to %s." % (inputfile, d))
                     files.append(os.path.join(d, os.path.split(inputfile)[1]))
+                except KeyboardInterrupt:
+                    raise
                 except:
                     self.log.exception("First attempt to copy the file has failed.")
                     try:
@@ -1895,10 +1946,14 @@ class MediaProcessor:
                             self.removeFile(inputfile, 0, 0)
                         try:
                             shutil.copy(inputfile.decode(sys.getfilesystemencoding()), d)
+                        except KeyboardInterrupt:
+                            raise
                         except:
                             shutil.copy(inputfile, d)
                         self.log.info("%s copied to %s." % (inputfile, d))
                         files.append(os.path.join(d, os.path.split(inputfile)[1]))
+                    except KeyboardInterrupt:
+                        raise
                     except:
                         self.log.exception("Unable to create additional copy of file in %s." % (d))
 
@@ -1911,6 +1966,8 @@ class MediaProcessor:
                 shutil.move(inputfile, moveto)
                 self.log.info("%s moved to %s." % (inputfile, moveto))
                 files[0] = os.path.join(moveto, os.path.basename(inputfile))
+            except KeyboardInterrupt:
+                raise
             except:
                 self.log.exception("First attempt to move the file has failed.")
                 try:
@@ -1919,6 +1976,8 @@ class MediaProcessor:
                     shutil.move(inputfile.decode(sys.getfilesystemencoding()), moveto)
                     self.log.info("%s moved to %s." % (inputfile, moveto))
                     files[0] = os.path.join(moveto, os.path.basename(inputfile))
+                except KeyboardInterrupt:
+                    raise
                 except:
                     self.log.exception("Unable to move %s to %s" % (inputfile, moveto))
         for filename in files:
@@ -1941,6 +2000,8 @@ class MediaProcessor:
                     os.rename(replacement, filename)
                     filename = replacement
                 break
+            except KeyboardInterrupt:
+                raise
             except:
                 self.log.exception("Unable to remove or replace file %s." % filename)
                 if delay > 0:

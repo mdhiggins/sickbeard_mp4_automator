@@ -80,6 +80,8 @@ class Metadata:
                 release = next(x for x in releases['results'] if x['iso_3166_1'] == 'US')
                 rating = release['release_dates'][0]['certification']
                 self.rating = self.getRating(rating)
+            except KeyboardInterrupt:
+                raise
             except:
                 self.log.error("Unable to retrieve rating.")
                 self.rating = None
@@ -107,6 +109,8 @@ class Metadata:
                 content_ratings = seriesquery.content_ratings()
                 rating = next(x for x in content_ratings['results'] if x['iso_3166_1'] == 'US')['rating']
                 self.rating = self.getRating(rating)
+            except KeyboardInterrupt:
+                raise
             except:
                 self.log.error("Unable to retrieve rating.")
                 self.rating = None
@@ -126,9 +130,8 @@ class Metadata:
         if tmdbid:
             try:
                 return int(tmdbid)
-            except:
+            except ValueError:
                 self.log.error("Invalid TMDB ID provided.")
-                pass
 
         if mediatype == MediaType.Movie:
             if imdbid:
@@ -188,6 +191,8 @@ class Metadata:
 
                 try:
                     conv = converter.tag(path, metadata, coverpath)
+                except KeyboardInterrupt:
+                    raise
                 except:
                     self.log.exception("FFMPEG Tag Error.")
                     return False
@@ -198,12 +203,16 @@ class Metadata:
                     self.log.debug(debug)
                 self.log.info("Tags written successfully using FFMPEG fallback method.")
                 return True
+            except KeyboardInterrupt:
+                raise
             except:
                 self.log.exception("Unexpected tagging error using FFMPEG fallback method.")
                 return False
 
         try:
             video.delete()
+        except KeyboardInterrupt:
+            raise
         except:
             self.log.debug("Unable to clear original tags, will proceed.")
 
@@ -256,6 +265,8 @@ class Metadata:
             video.save()
             self.log.info("Tags written successfully using mutagen.")
             return True
+        except KeyboardInterrupt:
+            raise
         except:
             self.log.exception("There was an error writing the tags.")
         return False
@@ -375,6 +386,8 @@ class Metadata:
             if os.path.exists(savepath):
                 try:
                     os.remove(savepath)
+                except KeyboardInterrupt:
+                    raise
                 except:
                     i = 2
                     while os.path.exists(savepath):

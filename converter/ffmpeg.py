@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from multiprocessing.sharedctypes import Value
 import os.path
 import os
 import re
@@ -187,21 +188,21 @@ class MediaStreamInfo(object):
     def parse_float(val, default=0.0):
         try:
             return float(val)
-        except:
+        except ValueError:
             return default
 
     @staticmethod
     def parse_int(val, default=0):
         try:
             return int(val)
-        except:
+        except ValueError:
             return default
 
     @staticmethod
     def parse_bool(val, default=False):
         try:
             return bool(val)
-        except:
+        except ValueError:
             return default
 
     def parse_ffprobe(self, key, val):
@@ -279,7 +280,7 @@ class MediaStreamInfo(object):
                 try:
                     codec_class = next(x for x in video_codec_list if x.ffprobe_codec_name == self.codec)
                     self.video_level = codec_class.codec_specific_level_conversion(self.video_level)
-                except:
+                except ValueError or StopIteration:
                     pass
             elif key == 'pix_fmt':
                 self.pix_fmt = val.lower()
@@ -520,6 +521,8 @@ class FFMpeg(object):
             for cmd in cmds:
                 clean_cmds.append(str(cmd))
             cmds = clean_cmds
+        except KeyboardInterrupt:
+            raise
         except:
             raise FFMpegError("There was an error making all command line parameters a string")
         return Popen(cmds, shell=False, stdin=PIPE, stdout=PIPE, stderr=PIPE,
@@ -543,6 +546,8 @@ class FFMpeg(object):
                 '-probesize', '50M', '-analyzeduration', '100M',
                 '-i', fname])
             return json.loads(stdout_data)['frames'][0]
+        except KeyboardInterrupt:
+            raise
         except:
             raise FFMpegError("Unable to obtain FFMPEG framedata")
 
@@ -586,6 +591,8 @@ class FFMpeg(object):
 
         try:
             info.video.framedata = self.framedata(fname)
+        except KeyboardInterrupt:
+            raise
         except:
             pass
 
@@ -677,7 +684,7 @@ class FFMpeg(object):
             except UnicodeDecodeError:
                 try:
                     ret = ret.decode(console_encoding, errors="ignore")
-                except:
+                except ValueError:
                     pass
 
             total_output += ret

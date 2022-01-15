@@ -66,7 +66,7 @@ class BaseCodec(object):
                 typ = self.encoder_options[k]
                 try:
                     safe[k] = typ(v)
-                except:
+                except ValueError:
                     pass
         return safe
 

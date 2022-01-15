@@ -68,6 +68,8 @@ def mediatype():
         result = raw_input("#: ")
         try:
             return MediaTypes(int(result))
+        except KeyboardInterrupt:
+            raise
         except:
             print("Invalid selection")
             return mediatype()
@@ -178,8 +180,8 @@ def guessInfo(fileName, settings, tmdbid=None, tvdbid=None, imdbid=None, season=
             return tvInfo(guess, tmdbid=tmdbid, tvdbid=tvdbid, imdbid=imdbid, season=season, episode=episode, language=language, original=original)
         else:
             return None
-    except KeyboardInterrupt as ki:
-        raise(ki)
+    except KeyboardInterrupt:
+        raise
     except:
         log.exception("Unable to guess movie information")
         return None
@@ -190,16 +192,16 @@ def movieInfo(guessData, tmdbid=None, imdbid=None, language=None, original=None)
         tmdb.API_KEY = tmdb_api_key
         search = tmdb.Search()
         title = guessData['title']
-        if 'year' in guessData:
-            response = search.movie(query=title, year=guessData["year"])
-            if len(search.results) < 1:
-                response = search.movie(query=title, year=guessData["year"])
-        else:
-            response = search.movie(query=title)
+        # if 'year' in guessData:
+        #     response = search.movie(query=title, year=guessData["year"])
+        #     if len(search.results) < 1:
+        #         response = search.movie(query=title, year=guessData["year"])
+        # else:
+        #     response = search.movie(query=title)
         if len(search.results) < 1:
             return None
         result = search.results[0]
-        release = result['release_date']
+        # release = result['release_date']
         tmdbid = result['id']
         log.debug("Guessed filename resulted in TMDB ID %s" % tmdbid)
 
@@ -211,17 +213,19 @@ def movieInfo(guessData, tmdbid=None, imdbid=None, language=None, original=None)
 def tvInfo(guessData, tmdbid=None, tvdbid=None, imdbid=None, season=None, episode=None, language=None, original=None):
     season = season or guessData.get("season", 0)
     episode = episode or guessData.get("episode", 0)
+    if type(episode) == list:
+        episode = episode[0]
 
     if not tmdbid and not tvdbid and not imdbid:
         tmdb.API_KEY = tmdb_api_key
         search = tmdb.Search()
         series = guessData["title"]
-        if 'year' in guessData:
-            response = search.tv(query=series, first_air_date_year=guessData["year"])
-            if len(search.results) < 1:
-                response = search.tv(query=series)
-        else:
-            response = search.tv(query=series)
+        # if 'year' in guessData:
+        #     response = search.tv(query=series, first_air_date_year=guessData["year"])
+        #     if len(search.results) < 1:
+        #         response = search.tv(query=series)
+        # else:
+        #     response = search.tv(query=series)
         if len(search.results) < 1:
             return None
         result = search.results[0]
@@ -281,6 +285,8 @@ def processFile(inputfile, mp, info=None, relativePath=None, silent=False, tag=T
         if tagdata:
             try:
                 tagdata.writeTags(output['output'], mp.converter, mp.settings.artwork, mp.settings.thumbnail, width=output['x'], height=output['y'])
+            except KeyboardInterrupt:
+                raise
             except:
                 log.exception("There was an error tagging the file")
                 tagfailed = True
@@ -400,7 +406,7 @@ def main():
         settings = ReadSettings(os.path.join(os.path.dirname(sys.argv[0]), args['config']), logger=log)
     else:
         settings = ReadSettings(logger=log)
-    
+
     processedArchive = None
     processedList = None
     if args['processedarchive'] and os.path.exists(args['processedarchive']):
