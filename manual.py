@@ -378,7 +378,6 @@ def main():
     parser.add_argument('-pa', '--processedarchive', nargs='?', const="processedArchive.json", default=None, help="Specify a processed list/archive so already processed files are skipped")
 
     args = vars(parser.parse_args())
-    print(sys.argv)
 
     # Setup the silent mode
     silent = args['auto']
