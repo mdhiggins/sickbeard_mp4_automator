@@ -243,14 +243,14 @@ def checkAlreadyProcessed(inputfile, processedList):
     return inputfile in processedList
 
 
-def addtoProcessedArchive(inputfile, processedList, processedArchive):
+def addtoProcessedArchive(files, processedList, processedArchive):
     if processedList is None or processedArchive is None:
         return
 
-    processedList.append(inputfile)
+    processedList.extend(files)
     with open(processedArchive, 'w') as pa:
-        json.dump(processedList, pa, indent=4)
-    log.debug("Adding %s to processed archive %s" % (inputfile, processedArchive))
+        json.dump(list(set(processedList)), pa, indent=4)
+    log.debug("Adding %s to processed archive %s" % (files, processedArchive))
 
 
 def processFile(inputfile, mp, info=None, relativePath=None, silent=False, tag=True, tmdbid=None, tvdbid=None, imdbid=None, season=None, episode=None, original=None, processedList=None, processedArchive=None):
@@ -293,6 +293,7 @@ def processFile(inputfile, mp, info=None, relativePath=None, silent=False, tag=T
         if mp.settings.relocate_moov and not tagfailed:
             mp.QTFS(output['output'])
         output_files = mp.replicate(output['output'], relativePath=relativePath)
+        print(json.dumps(output, indent=4))
         for sub in output['external_subs']:
             output_files.extend(mp.replicate(sub, relativePath=relativePath))
         for file in output_files:
@@ -305,7 +306,7 @@ def processFile(inputfile, mp, info=None, relativePath=None, silent=False, tag=T
                 elif tagdata.mediatype == MediaType.TV:
                     postprocessor.setTV(tagdata.tmdbid, tagdata.season, tagdata.episode)
             postprocessor.run_scripts()
-        addtoProcessedArchive(inputfile, processedList, processedArchive)
+        addtoProcessedArchive(output_files + [output['input']] if not output['input_deleted'] else output_files, processedList, processedArchive)
     else:
         log.error("There was an error processing file %s, no output data received" % inputfile)
 
