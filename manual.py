@@ -192,12 +192,12 @@ def movieInfo(guessData, tmdbid=None, imdbid=None, language=None, original=None)
         tmdb.API_KEY = tmdb_api_key
         search = tmdb.Search()
         title = guessData['title']
-        # if 'year' in guessData:
-        #     response = search.movie(query=title, year=guessData["year"])
-        #     if len(search.results) < 1:
-        #         response = search.movie(query=title, year=guessData["year"])
-        # else:
-        #     response = search.movie(query=title)
+        if 'year' in guessData:
+            _ = search.movie(query=title, year=guessData["year"])
+            if len(search.results) < 1:
+                _ = search.movie(query=title, year=guessData["year"])
+        else:
+            _ = search.movie(query=title)
         if len(search.results) < 1:
             return None
         result = search.results[0]
@@ -220,13 +220,13 @@ def tvInfo(guessData, tmdbid=None, tvdbid=None, imdbid=None, season=None, episod
         tmdb.API_KEY = tmdb_api_key
         search = tmdb.Search()
         series = guessData["title"]
-        # if 'year' in guessData:
-        #     response = search.tv(query=series, first_air_date_year=guessData["year"])
-        #     if len(search.results) < 1:
-        #         response = search.tv(query=series)
-        # else:
-        #     response = search.tv(query=series)
-        if len(search.results) < 1:
+        if 'year' in guessData:
+            _ = search.tv(query=series, first_air_date_year=guessData["year"])
+            if len(search.results) < 1:
+                _ = search.tv(query=series)
+        else:
+            _ = search.tv(query=series)
+        if search and len(search.results) < 1:
             return None
         result = search.results[0]
         tmdbid = result['id']
@@ -247,9 +247,9 @@ def addtoProcessedArchive(inputfile, processedList, processedArchive):
     if processedList is None or processedArchive is None:
         return
 
-    processedList.add(inputfile)
+    processedList.append(inputfile)
     with open(processedArchive, 'w') as pa:
-        json.dump(processedList, pa)
+        json.dump(processedList, pa, indent=4)
     log.debug("Adding %s to processed archive %s" % (inputfile, processedArchive))
 
 
@@ -326,7 +326,7 @@ def walkDir(dir, settings, silent=False, preserveRelative=False, tmdbid=None, im
                 displayOptions(filepath, settings)
                 continue
             try:
-                processFile(filepath, mp, info=info, relativePath=relative, silent=silent, tag=tag, tmdbid=tmdbid, tvdbid=tvdbid, imdbid=imdbid)
+                processFile(filepath, mp, info=info, relativePath=relative, silent=silent, tag=tag, tmdbid=tmdbid, tvdbid=tvdbid, imdbid=imdbid, processedList=processedList, processedArchive=processedArchive)
             except SkipFileException:
                 log.debug("Skipping file %s." % filepath)
             except KeyboardInterrupt:
@@ -385,7 +385,7 @@ def main():
     parser.add_argument('-oo', '--optionsonly', action="store_true", help="Display generated conversion options only, do not perform conversion")
     parser.add_argument('-cl', '--codeclist', action="store_true", help="Print a list of supported codecs and their paired FFMPEG encoders")
     parser.add_argument('-o', '--original', help="Specify the original source/release filename")
-    parser.add_argument('-pa', '--processedarchive', help="Specify a processed list/archive so already processed files are skipped")
+    parser.add_argument('-pa', '--processedarchive', help="Specify a processed list/archive so already processed files are skipped", nargs='?', const="archive.json")
 
     args = vars(parser.parse_args())
 
