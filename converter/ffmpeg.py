@@ -188,21 +188,21 @@ class MediaStreamInfo(object):
     def parse_float(val, default=0.0):
         try:
             return float(val)
-        except ValueError:
+        except:
             return default
 
     @staticmethod
     def parse_int(val, default=0):
         try:
             return int(val)
-        except ValueError:
+        except:
             return default
 
     @staticmethod
     def parse_bool(val, default=False):
         try:
             return bool(val)
-        except ValueError:
+        except:
             return default
 
     def parse_ffprobe(self, key, val):
@@ -280,7 +280,7 @@ class MediaStreamInfo(object):
                 try:
                     codec_class = next(x for x in video_codec_list if x.ffprobe_codec_name == self.codec)
                     self.video_level = codec_class.codec_specific_level_conversion(self.video_level)
-                except ValueError or StopIteration:
+                except:
                     pass
             elif key == 'pix_fmt':
                 self.pix_fmt = val.lower()
@@ -684,7 +684,7 @@ class FFMpeg(object):
             except UnicodeDecodeError:
                 try:
                     ret = ret.decode(console_encoding, errors="ignore")
-                except ValueError:
+                except:
                     pass
 
             total_output += ret
