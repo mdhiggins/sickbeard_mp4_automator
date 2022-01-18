@@ -754,6 +754,7 @@ class MediaProcessor:
                     ua_bitrate = (self.default_channel_bitrate * 2) if (self.settings.ua_bitrate * 2) > (self.default_channel_bitrate * 2) else (self.settings.ua_bitrate * 2)
                     ua_disposition = a.dispostr
                     ua_filter = self.settings.ua_filter or None
+                    ua_profile = self.settings.ua_profile or None
 
                     # Custom channel based filters
                     ua_afilterchannel = self.settings.afilterchannels.get(a.audio_channels, {}).get(2)
@@ -774,6 +775,8 @@ class MediaProcessor:
                     self.log.debug("Channels: 2.")
                     self.log.debug("Filter: %s." % ua_filter)
                     self.log.debug("Bitrate: %s." % ua_bitrate)
+                    self.log.debug("VBR: %s." % self.settings.ua_vbr)
+                    self.log.debug("Profile: %s." % ua_profile)
                     self.log.debug("Language: %s." % a.metadata['language'])
                     self.log.debug("Disposition: %s." % ua_disposition)
 
@@ -782,6 +785,8 @@ class MediaProcessor:
                         'codec': self.settings.ua[0],
                         'channels': 2,
                         'bitrate': ua_bitrate,
+                        'quality': self.settings.ua_vbr,
+                        'profile': ua_profile,
                         'samplerate': self.settings.audio_samplerates[0] if len(self.settings.audio_samplerates) > 0 else None,
                         'sampleformat': self.settings.audio_sampleformat,
                         'filter': ua_filter,
@@ -795,12 +800,16 @@ class MediaProcessor:
                 # If the universal audio option is enabled and the source audio channel is only stereo, the additional universal stream will be skipped and a single channel will be made regardless of codec preference to avoid multiple stereo channels
                 afilter = None
                 asample = None
+                avbr = None
                 adisposition = a.dispostr
+                aprofile = None
                 if ua and a.audio_channels <= 2:
                     self.log.debug("Overriding default channel settings because universal audio is enabled but the source is stereo [universal-audio].")
                     acodec = 'copy' if a.codec in self.settings.ua else self.settings.ua[0]
                     audio_channels = a.audio_channels
                     abitrate = (a.audio_channels * self.default_channel_bitrate) if (a.audio_channels * self.settings.ua_bitrate) > (a.audio_channels * self.default_channel_bitrate) else (a.audio_channels * self.settings.ua_bitrate)
+                    avbr = self.settings.ua_vbr
+                    aprofile = self.settings.ua_profile or None
                     adebug = "universal-audio"
 
                     # Custom
@@ -830,6 +839,8 @@ class MediaProcessor:
                 else:
                     # If desired codec is the same as the source codec, copy to avoid quality loss
                     acodec = 'copy' if a.codec in self.settings.acodec else self.settings.acodec[0]
+                    avbr = self.settings.avbr
+                    aprofile = self.settings.aprofile or None
                     # Audio channel adjustments
                     if self.settings.maxchannels and a.audio_channels > self.settings.maxchannels:
                         self.log.debug("Audio source exceeds maximum channels, can not be copied. Settings channels to %d [audio-max-channels]." % self.settings.maxchannels)
@@ -888,6 +899,8 @@ class MediaProcessor:
                 self.log.debug("Audio codec: %s." % acodec)
                 self.log.debug("Channels: %s." % audio_channels)
                 self.log.debug("Bitrate: %s." % abitrate)
+                self.log.debug("VBR: %s." % avbr)
+                self.log.debug("Audio Profile: %s." % aprofile)
                 self.log.debug("Language: %s." % a.metadata['language'])
                 self.log.debug("Filter: %s." % afilter)
                 self.log.debug("Disposition: %s." % adisposition)
@@ -907,6 +920,8 @@ class MediaProcessor:
                     'codec': acodec,
                     'channels': audio_channels,
                     'bitrate': abitrate,
+                    'profile': aprofile,
+                    'quality': avbr,
                     'filter': afilter,
                     'samplerate': asample,
                     'sampleformat': self.settings.audio_sampleformat,

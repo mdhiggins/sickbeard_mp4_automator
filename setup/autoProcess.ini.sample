@@ -77,10 +77,12 @@ default-language =
 first-stream-of-language = False
 allow-language-relax = True
 channel-bitrate = 128
+variable-bitrate = 0
 max-bitrate = 0
 max-channels = 0
 prefer-more-channels = True
 default-more-channels = True
+profile = 
 filter = 
 force-filter = False
 sample-rates = 
@@ -95,8 +97,10 @@ unique-dispositions = False
 [Universal Audio]
 codec = aac
 channel-bitrate = 128
+variable-bitrate = 0
 first-stream-only = False
 move-after = False
+profile = 
 filter = 
 force-filter = False
 

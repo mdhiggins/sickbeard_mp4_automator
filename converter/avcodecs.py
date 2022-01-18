@@ -100,6 +100,7 @@ class AudioCodec(BaseCodec):
         'filter': str,
         'map': int,
         'disposition': str,
+        'profile': str,
     }
 
     def parse_options(self, opt, stream=0):
@@ -167,6 +168,8 @@ class AudioCodec(BaseCodec):
             optlist.extend(['-sample_fmt:a:' + stream, str(safe['sample_fmt'])])
         if 'filter' in safe:
             optlist.extend(['-filter:a:' + stream, str(safe['filter'])])
+        if 'profile' in safe:
+            optlist.extend(['-profile:a:' + stream, str(safe['profile'])])
         if 'title' in safe:
             optlist.extend(['-metadata:s:a:' + stream, "title=" + str(safe['title'])])
             optlist.extend(['-metadata:s:a:' + stream, "handler_name=" + str(safe['title'])])
@@ -180,7 +183,7 @@ class AudioCodec(BaseCodec):
         optlist.extend(['-metadata:s:a:' + stream, "language=" + lang])
         optlist.extend(['-disposition:a:' + stream, self.safe_disposition(safe.get('disposition'))])
 
-        optlist.extend(self._codec_specific_produce_ffmpeg_list(safe))
+        optlist.extend(self._codec_specific_produce_ffmpeg_list(safe, stream))
         return optlist
 
 
@@ -250,7 +253,7 @@ class SubtitleCodec(BaseCodec):
         optlist.extend(['-metadata:s:s:' + stream, "language=" + lang])
         optlist.extend(['-disposition:s:' + stream, self.safe_disposition(safe.get('disposition'))])
 
-        optlist.extend(self._codec_specific_produce_ffmpeg_list(safe))
+        optlist.extend(self._codec_specific_produce_ffmpeg_list(safe, stream))
         return optlist
 
 
@@ -470,7 +473,7 @@ class VideoCodec(BaseCodec):
             optlist.extend(['-metadata:s:v', "title="])
             optlist.extend(['-metadata:s:v', "handler_name="])
 
-        optlist.extend(self._codec_specific_produce_ffmpeg_list(safe))
+        optlist.extend(self._codec_specific_produce_ffmpeg_list(safe, stream))
 
         # consolidate filters
         if optlist.count('-vf') > 1:
@@ -711,14 +714,20 @@ class VorbisCodec(AudioCodec):
     encoder_options = AudioCodec.encoder_options.copy()
     encoder_options.update({
         'quality': int,  # audio quality. Range is 0-10(highest quality)
-        # 3-6 is a good range to try. Default is 3
     })
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         optlist = []
         stream = str(stream)
+
         if 'quality' in safe:
-            optlist.extend(['-qscale:a:' + stream, safe['quality']])
+            if safe['quality'] < 1 or safe['quality'] > 10:
+                del safe['title']
+            elif 'bitrate' in safe:
+                del safe['bitrate']
+
+        if 'quality' in safe:
+            optlist.extend(['-q:a:' + stream, str(safe['quality'])])
         return optlist
 
 
@@ -749,13 +758,42 @@ class FdkAacCodec(AudioCodec):
     codec_name = 'libfdk_aac'
     ffmpeg_codec_name = 'libfdk_aac'
     ffprobe_codec_name = 'aac'
+    encoder_options = AudioCodec.encoder_options.copy()
+    encoder_options.update({
+        'quality': int,  # audio quality. Range is 0-5(highest quality)
+    })
 
     def parse_options(self, opt, stream=0):
         if 'channels' in opt:
             c = opt['channels']
             if c > 6:
                 opt['channels'] = 6
+        if 'profile' in opt:
+            p = opt['profile']
+            if 'channels' in opt:
+                c = opt['channels']
+                if c > 2 and p in ['aac_he_v2']:
+                    opt['channels'] = 2  # Max 2
+            if 'quality' in opt:
+                q = opt['quality']
+                if q > 3 and p in ['aac_he', 'aac_he_v2']:
+                    opt['quality'] = 3  # Max 3
         return super(FdkAacCodec, self).parse_options(opt, stream)
+
+    def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
+        optlist = []
+        stream = str(stream)
+
+        if 'quality' in safe:
+            q = safe['quality']
+            if q < 1 or q > 5:
+                del safe['title']
+            elif 'bitrate' in safe:
+                del safe['bitrate']
+
+        if 'quality' in safe:
+            optlist.extend(['-vbr:a:' + stream, str(safe['quality'])])
+        return optlist
 
 
 class FAacCodec(AudioCodec):
@@ -870,6 +908,25 @@ class Mp3Codec(AudioCodec):
     codec_name = 'mp3'
     ffmpeg_codec_name = 'libmp3lame'
     ffprobe_codec_name = 'mp3'
+    encoder_options = AudioCodec.encoder_options.copy()
+    encoder_options.update({
+        'quality': int,  # audio quality. Range is 0-5(highest quality)
+    })
+
+    def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
+        optlist = []
+        stream = str(stream)
+
+        if 'quality' in safe:
+            q = safe['quality']
+            if q < 0 or q > 9:
+                del safe['title']
+            elif 'bitrate' in safe:
+                del safe['bitrate']
+
+        if 'quality' in safe:
+            optlist.extend(['-q:a:' + stream, str(safe['quality'])])
+        return optlist
 
 
 class Mp2Codec(AudioCodec):

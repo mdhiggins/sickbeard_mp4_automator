@@ -170,11 +170,13 @@ class ReadSettings:
             'first-stream-of-language': False,
             'allow-language-relax': True,
             'channel-bitrate': 128,
+            'variable-bitrate': 0,
             'max-bitrate': 0,
             'max-channels': 0,
             'prefer-more-channels': True,
             'default-more-channels': True,
             'filter': '',
+            'profile': '',
             'force-filter': False,
             'sample-rates': '',
             'sample-format': '',
@@ -189,9 +191,11 @@ class ReadSettings:
         'Universal Audio': {
             'codec': 'aac',
             'channel-bitrate': 128,
+            'variable-bitrate': 0,
             'first-stream-only': False,
             'move-after': False,
             'filter': '',
+            'profile': '',
             'force-filter': False,
         },
         'Audio.ChannelFilters': {
@@ -732,10 +736,12 @@ class ReadSettings:
         self.awl = config.getlist(section, 'languages')
         self.adl = config.get(section, 'default-language').lower()
         self.abitrate = config.getint(section, "channel-bitrate")
+        self.avbr = config.getint(section, "variable-bitrate")
         self.amaxbitrate = config.getint(section, 'max-bitrate')
         self.maxchannels = config.getint(section, 'max-channels')
         self.prefer_more_channels = config.getboolean(section, "prefer-more-channels")
         self.default_more_channels = config.getboolean(section, "default-more-channels")
+        self.aprofile = config.get(section, "profile").lower()
         self.afilter = config.get(section, "filter")
         self.aforcefilter = config.getboolean(section, 'force-filter')
         self.audio_samplerates = [int(x) for x in config.getlist(section, "sample-rates") if x.isdigit()]
@@ -766,8 +772,10 @@ class ReadSettings:
         section = "Universal Audio"
         self.ua = config.getlist(section, "codec")
         self.ua_bitrate = config.getint(section, "channel-bitrate")
+        self.ua_vbr = config.getint(section, "variable-bitrate")
         self.ua_first_only = config.getboolean(section, "first-stream-only")
         self.ua_last = config.getboolean(section, "move-after")
+        self.ua_profile = config.get(section, "profile").lower()
         self.ua_filter = config.get(section, "filter")
         self.ua_forcefilter = config.getboolean(section, 'force-filter')
 
