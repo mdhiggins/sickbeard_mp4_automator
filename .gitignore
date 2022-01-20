@@ -11,6 +11,8 @@ update.py
 *.venv.py
 *.json
 config/custom.py
+post_process/*
+!post_process/post_process.md
 
 #################
 ## Eclipse
