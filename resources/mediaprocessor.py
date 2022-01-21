@@ -1145,12 +1145,15 @@ class MediaProcessor:
         postopts = ['-threads', str(self.settings.threads), '-metadata:g', 'encoding_tool=SMA']
 
         # FFMPEG allows TrueHD experimental
-        if options.get('format') in ['mp4']:
-            for a in options['audio']:
-                if info.streams[a.get('map')].codec == 'truehd' and a.get('codec') == 'copy':
-                    self.log.debug("Adding experimental flag for mp4 with trueHD as a trueHD stream is being copied.")
-                    postopts.extend(['-strict', 'experimental'])
-                    break
+        if options.get('format') in ['mp4'] and any(a for a in options['audio'] if info.streams[a.get('map')].codec == 'truehd' and a.get('codec') == 'copy'):
+            self.log.debug("Adding experimental flag for mp4 with trueHD as a trueHD stream is being copied.")
+            postopts.extend(['-strict', 'experimental'])
+
+        if self.settings.output_format in ['mkv'] and self.settings.relocate_moov:
+            self.log.debug("Relocate MOOV enabled but format is %s, adding reserve_index_space parameter.")
+            m = info.format.duration / (60 * 60)
+            m = int(m) if m == int(m) else int(m) + 1
+            postopts.extend(['-reserve_index_space', "%dk" % (m * 50)])
 
         if len(options['subtitle']) > 0:
             self.log.debug("Subtitle streams detected, adding fix_sub_duration option to preopts.")
