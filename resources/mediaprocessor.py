@@ -1205,6 +1205,10 @@ class MediaProcessor:
                 if ffcodec not in encoders:
                     self.log.warning("===========WARNING===========")
                     self.log.warning("The encoder you have chosen %s (%s) is not listed as supported in your FFMPEG build, conversion will likely fail, please use a build of FFMPEG that supports %s." % (o['codec'], ffcodec, ffcodec))
+                    ffpcodec = self.converter.codec_name_to_ffprobe_codec_name(o['codec'])
+                    if ffpcodec and ffpcodec in codecs and codecs[ffpcodec]['encoders']:
+                        self.log.warning("Other encoders your FFMPEG build does support for codec %s:" % (ffpcodec))
+                        self.log.warning(codecs[ffpcodec]['encoders'])
                     self.log.warning("===========WARNING===========")
 
         return options, preopts, postopts, ripsubopts, downloaded_subs
