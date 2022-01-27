@@ -542,6 +542,10 @@ class MediaProcessor:
         sources = [inputfile]
         ripsubopts = []
 
+        codecs = self.converter.ffmpeg.codecs
+        self.log.debug("FFMPEG codecs w/ encoders and decoders:")
+        self.log.debug(codecs)
+
         info = info or self.converter.probe(inputfile)
 
         if not info:
@@ -1161,7 +1165,7 @@ class MediaProcessor:
 
         if vcodec != 'copy':
             try:
-                opts, device = self.setAcceleration(info.video.codec)
+                opts, device = self.setAcceleration(info.video.codec, codecs)
                 preopts.extend(opts)
                 for k in self.settings.hwdevices:
                     if k in vcodec:
@@ -1193,16 +1197,26 @@ class MediaProcessor:
             postopts.extend(['-tag:v', 'hvc1'])
             self.log.info("Tagging copied video stream as hvc1")
 
+        # Encoder check
+        encoders = [item for sublist in [codecs[x]["encoders"] for x in codecs] for item in sublist]
+        for o in [video_settings] + audio_settings + subtitle_settings + attachments:
+            if 'codec' in o and o['codec'] != 'copy':
+                ffcodec = self.converter.codec_name_to_ffmpeg_codec_name(o['codec'])
+                if ffcodec not in encoders:
+                    self.log.warning("===========WARNING===========")
+                    self.log.warning("The encoder you have chosen %s (%s) is not listed as supported in your FFMPEG build, conversion will likely fail, please use a build of FFMPEG that supports %s." % (o['codec'], ffcodec, ffcodec))
+                    self.log.warning("===========WARNING===========")
+
         return options, preopts, postopts, ripsubopts, downloaded_subs
 
     def validLanguage(self, language, whitelist, blocked=[]):
         return ((len(whitelist) < 1 or language in whitelist) and language not in blocked)
 
-    def setAcceleration(self, video_codec):
+    def setAcceleration(self, video_codec, codecs=None):
         opts = []
         device = None
         # Look up which codecs and which decoders/encoders are available in this build of ffmpeg
-        codecs = self.converter.ffmpeg.codecs
+        codecs = codecs or self.converter.ffmpeg.codecs
 
         # Lookup which hardware acceleration platforms are available in this build of ffmpeg
         hwaccels = self.converter.ffmpeg.hwaccels
@@ -1211,9 +1225,7 @@ class MediaProcessor:
         self.log.debug(self.settings.hwaccels)
         self.log.debug("Selected hwaccel decoder pairs:")
         self.log.debug(self.settings.hwaccel_decoders)
-        self.log.debug("FFMPEG codecs:")
-        self.log.debug(codecs)
-        self.log.debug("FFMPEG decoders:")
+        self.log.debug("FFMPEG hwaccels:")
         self.log.debug(hwaccels)
 
         # Find the first of the specified hardware acceleration platform that is available in this build of ffmpeg.  The order of specified hardware acceleration platforms determines priority.
