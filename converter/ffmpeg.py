@@ -440,7 +440,7 @@ class FFMpeg(object):
     """
     DEFAULT_JPEG_QUALITY = 4
     CODECS_LINE_RE = re.compile(
-        r'^ [A-Z.]{6} ([^ \=]+) +(.+)$', re.M)
+        r'^ ([A-Z.]{6}) ([^ \=]+) +(.+)$', re.M)
     CODECS_DECODERS_RE = re.compile(
         r' \(decoders: ([^)]+) \)')
     CODECS_ENCODERS_RE = re.compile(
@@ -487,13 +487,15 @@ class FFMpeg(object):
     def codecs(self):
         codecs = self._get_stdout([self.ffprobe_path, '-hide_banner', '-codecs'])
         codecs = {
-            line_match.group(1): line_match.group(2)
+            line_match.group(2): (line_match.group(1), line_match.group(3))
             for line_match in self.CODECS_LINE_RE.finditer(codecs)}
 
         for codec, coders in codecs.items():
-            decoders_match = self.CODECS_DECODERS_RE.search(coders)
-            encoders_match = self.CODECS_ENCODERS_RE.search(coders)
-            codecs[codec] = dict(decoders=decoders_match and decoders_match.group(1).split() or [], encoders=encoders_match and encoders_match.group(1).split() or [])
+            decoders_match = self.CODECS_DECODERS_RE.search(coders[1])
+            encoders_match = self.CODECS_ENCODERS_RE.search(coders[1])
+            self_encoder = [codec] if coders[0][1] == "E" else []
+            self_decoder = [codec] if coders[0][0] == "D" else []
+            codecs[codec] = dict(decoders=decoders_match and decoders_match.group(1).split() or self_decoder, encoders=encoders_match and encoders_match.group(1).split() or self_encoder)
         return codecs
 
     @property
@@ -503,12 +505,12 @@ class FFMpeg(object):
     @property
     def encoders(self):
         encoders = self._get_stdout([self.ffmpeg_path, '-hide_banner', '-encoders'])
-        return [line_match.group(1) for line_match in self.CODECS_LINE_RE.finditer(encoders)]
+        return [line_match.group(2) for line_match in self.CODECS_LINE_RE.finditer(encoders)]
 
     @property
     def decoders(self):
         decoders = self._get_stdout([self.ffmpeg_path, '-hide_banner', '-decoders'])
-        return [line_match.group(1) for line_match in self.CODECS_LINE_RE.finditer(decoders)]
+        return [line_match.group(2) for line_match in self.CODECS_LINE_RE.finditer(decoders)]
 
     def hwaccel_decoder(self, video_codec, hwaccel):
         source_codec = self.DECODER_SYNONYMS.get(video_codec, video_codec)
