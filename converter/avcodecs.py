@@ -1361,7 +1361,7 @@ class H265QSVCodecAlt(H265QSVCodec):
     """
     HEVC video codec alternate.
     """
-    codec_name = 'hevcqsv'
+    codec_name = 'hevc_qsv'
 
 
 class H265QSVCodecPatched(H265QSVCodec):
@@ -1478,6 +1478,13 @@ class H265VAAPICodec(H265Codec):
             fmtstr = ",%s=%s" % (self.scale_filter, fmtstr[1:]) if fmtstr else ""
             optlist.extend(['-vf', "format=%s|vaapi,hwupload%s" % (fmt, fmtstr)])
         return optlist
+
+
+class H265VAAPICodecAlt(H265VAAPICodec):
+    """
+    HEVC video codec alternate.
+    """
+    codec_name = 'hevc_vaapi'
 
 
 class NVEncH265Codec(H265Codec):
@@ -1852,7 +1859,7 @@ video_codec_list = [
     TheoraCodec,
     H263Codec,
     H264Codec, H264CodecAlt, H264QSVCodec, H264VAAPICodec, OMXH264Codec, VideotoolboxEncH264, NVEncH264Codec,
-    H265Codec, H265QSVCodecAlt, H265QSVCodec, H265CodecAlt, H265QSVCodecPatched, H265VAAPICodec, VideotoolboxEncH265, NVEncH265Codec, NVEncH265CodecAlt, NVEncH265CodecPatched,
+    H265Codec, H265QSVCodecAlt, H265QSVCodec, H265CodecAlt, H265QSVCodecPatched, H265VAAPICodec, H265VAAPICodecAlt, VideotoolboxEncH265, NVEncH265Codec, NVEncH265CodecAlt, NVEncH265CodecPatched,
     DivxCodec,
     Vp8Codec,
     Vp9Codec, Vp9QSVCodec, Vp9QSVAltCodec,
