@@ -574,6 +574,10 @@ class MediaProcessor:
             vdebug = vdebug + ".hdr"
 
         vcodecs = self.settings.hdr.get('codec', []) if vHDR and len(self.settings.hdr.get('codec', [])) > 0 else self.settings.vcodec
+        ffpvcodec = Converter.codec_name_to_ffprobe_codec_name(vcodecs[0])
+        if ffpvcodec and ffpvcodec not in vcodecs:
+            vcodecs.append(ffpvcodec)
+            self.log.debug("Video codec pool is missing the FFPROBE value of the primary conversion codec %s which will prevent remuxing, adding %s to the list." % (vcodecs[0], ffpvcodec))
         self.log.debug("Pool of video codecs is %s." % (vcodecs))
         vcodec = "copy" if info.video.codec in vcodecs else vcodecs[0]
 
@@ -729,6 +733,17 @@ class MediaProcessor:
         blocked_audio_dispositions = []
         ua = (len(self.settings.ua) > 0)
         acombinations = self.mapStreamCombinations(info.audio)
+
+        if ua:
+            ffpuacodec = Converter.codec_name_to_ffprobe_codec_name(self.settings.ua[0])
+            if ffpuacodec and ffpuacodec not in self.settings.ua:
+                self.settings.ua[0].append(ffpuacodec)
+                self.log.debug("Universal audio codec pool is missing the FFPROBE value of the primary conversion codec %s which will prevent remuxing, adding %s to the list." % (self.settings.ua[0], ffpuacodec))
+
+        ffpacodec = Converter.codec_name_to_ffprobe_codec_name(self.settings.acodec[0])
+        if ffpacodec and ffpacodec not in self.settings.acodec:
+            self.settings.acodec.append(ffpacodec)
+            self.log.debug("Audio codec pool is missing the FFPROBE value of the primary conversion codec %s which will prevent remuxing, adding %s to the list." % (self.settings.acodec[0], ffpacodec))
 
         # Sort incoming streams so that things like first language preferences respect these options
         audio_streams = info.audio
@@ -1205,7 +1220,7 @@ class MediaProcessor:
                 if ffcodec not in encoders:
                     self.log.warning("===========WARNING===========")
                     self.log.warning("The encoder you have chosen %s (%s) is not listed as supported in your FFMPEG build, conversion will likely fail, please use a build of FFMPEG that supports %s or choose a different encoder." % (o['codec'], ffcodec, ffcodec))
-                    ffpcodec = self.converter.codec_name_to_ffprobe_codec_name(o['codec'])
+                    ffpcodec = Converter.codec_name_to_ffprobe_codec_name(o['codec'])
                     if ffpcodec and ffpcodec in codecs and codecs[ffpcodec]['encoders']:
                         self.log.warning("Other encoders your current FFMPEG build does support for codec %s:" % (ffpcodec))
                         self.log.warning(codecs[ffpcodec]['encoders'])
