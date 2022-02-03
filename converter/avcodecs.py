@@ -1814,6 +1814,13 @@ class SSACodec(SubtitleCodec):
     ffprobe_codec_name = 'ass'
 
 
+class SSACodecAlt(SSACodec):
+    """
+    SSA (SubStation Alpha) subtitle.
+    """
+    codec_name = 'ssa'
+
+
 class SubRip(SubtitleCodec):
     """
     SubRip subtitle.
@@ -1869,7 +1876,7 @@ video_codec_list = [
 ]
 
 subtitle_codec_list = [
-    SubtitleNullCodec, SubtitleCopyCodec, MOVTextCodec, SrtCodec, SSACodec, SubRip, DVDSub,
+    SubtitleNullCodec, SubtitleCopyCodec, MOVTextCodec, SrtCodec, SSACodec, SSACodecAlt, SubRip, DVDSub,
     DVBSub, DVDSubAlt, WebVTTCodec, PGSCodec, PGSCodecAlt
 ]
 
