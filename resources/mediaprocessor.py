@@ -1262,7 +1262,7 @@ class MediaProcessor:
                     opts.extend(['-hwaccel_output_format', self.settings.hwoutputfmt[hwaccel]])
 
                 # If there's a decoder for this acceleration platform, also use it
-                decoder = self.converter.ffmpeg.hwaccel_decoder(video_codec, hwaccel)
+                decoder = self.converter.ffmpeg.hwaccel_decoder(video_codec, self.settings.hwoutputfmt.get(hwaccel, hwaccel))
                 self.log.debug("Decoder: %s." % decoder)
                 if (decoder in codecs[video_codec]['decoders'] and decoder in self.settings.hwaccel_decoders):
                     self.log.info("%s decoder is also supported by this ffmpeg build and will also be used [hwaccel-decoders]." % decoder)
