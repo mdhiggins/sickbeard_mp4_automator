@@ -196,7 +196,7 @@ class Converter(object):
 
         return optlist
 
-    def tag(self, infile, metadata={}, coverpath=None):
+    def tag(self, infile, metadata={}, coverpath=None, streaming=0):
         """
         Tag media file (infile) with metadata dictionary and optional cover art
         """
@@ -222,6 +222,9 @@ class Converter(object):
 
         for k in metadata:
             opts.extend(["-metadata", "%s=%s" % (k, metadata[k])])
+
+        if streaming:
+            opts.extend(['-reserve_index_space', "%dk" % (streaming)])
 
         for timecode, debug in self.ffmpeg.convert(outfile, opts):
             yield int((100.0 * timecode) / info.format.duration), debug

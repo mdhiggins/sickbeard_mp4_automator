@@ -154,7 +154,7 @@ class Metadata:
                     tmdbid = find.tv_results[0].get('id')
         return tmdbid
 
-    def writeTags(self, path, converter, artwork=True, thumbnail=False, width=None, height=None):
+    def writeTags(self, path, converter, artwork=True, thumbnail=False, width=None, height=None, streaming=0):
         self.log.info("Tagging file: %s." % path)
         if width and height:
             try:
@@ -164,7 +164,7 @@ class Metadata:
 
         try:
             video = MP4(path)
-        except MP4StreamInfoError:
+        except (MP4StreamInfoError, KeyError):
             self.log.debug('File is not a valid MP4 file and cannot be tagged using mutagen, falling back to FFMPEG limited tagging.')
             try:
                 metadata = {}
@@ -190,7 +190,7 @@ class Metadata:
                     coverpath = self.getArtwork(path, thumbnail=thumbnail)
 
                 try:
-                    conv = converter.tag(path, metadata, coverpath)
+                    conv = converter.tag(path, metadata, coverpath, streaming)
                 except KeyboardInterrupt:
                     raise
                 except:
