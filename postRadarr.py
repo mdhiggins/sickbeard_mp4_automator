@@ -232,7 +232,7 @@ try:
                 if downloadedMoviesScanInProgress(baseURL, headers, moviefile_sourcefolder, log):
                     log.info("DownloadedMoviesScan command is in process for this movie, cannot wait for rescan but will queue.")
                     rescanAndWait(baseURL, headers, movieid, log, retries=0)
-                    renameRequest(baseURL, headers, movieid, log)
+                    renameRequest(baseURL, headers, moviefileid, movieid, log)
                 elif rescanAndWait(baseURL, headers, movieid, log):
                     log.info("Rescan command completed successfully.")
 
