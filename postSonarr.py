@@ -251,7 +251,7 @@ try:
                 if downloadedEpisodesScanInProgress(baseURL, headers, episodefile_sourcefolder, log):
                     log.info("DownloadedEpisodesScan command is in process for this episode, cannot wait for rescan but will queue.")
                     rescanAndWait(baseURL, headers, seriesid, log, retries=0)
-                    renameSeriesRequest(baseURL, headers, seriesid, log)
+                    renameFileRequest(baseURL, headers, episodefile_id, seriesid, log)
                 elif rescanAndWait(baseURL, headers, seriesid, log):
                     log.info("Rescan command completed.")
 
