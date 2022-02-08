@@ -61,11 +61,11 @@ def renameSeriesRequest(baseURL, headers, seriesid, log):
     return rstate
 
 
-def renameFileRequest(baseURL, headers, fileid, log):
+def renameFileRequest(baseURL, headers, fileid, seriesid, log):
     url = baseURL + "/api/v3/command"
     log.debug("Queueing rename command to Sonarr via %s." % url)
 
-    payload = {'name': 'RenameFiles', 'files': [fileid]}
+    payload = {'name': 'RenameFiles', 'files': [fileid], 'seriesId': seriesid}
     log.debug(str(payload))
     r = requests.post(url, json=payload, headers=headers)
     rstate = r.json()
@@ -306,7 +306,7 @@ try:
 
                     # Now a final rename step to ensure all release / codec information is accurate
                     try:
-                        rename = renameFileRequest(baseURL, headers, sonarrepinfo['episodeFileId'], log)
+                        rename = renameFileRequest(baseURL, headers, sonarrepinfo['episodeFileId'], seriesid, log)
                         log.info("Sonarr response RenameFiles command: ID %d %s." % (rename['id'], rename['status']))
                     except:
                         log.exception("Failed to trigger Sonarr rename.")

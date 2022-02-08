@@ -46,11 +46,11 @@ def rescanAndWait(baseURL, headers, movieid, log, retries=6, delay=10):
     return command['status'].lower() in ['complete', 'completed']
 
 
-def renameRequest(baseURL, headers, movieid, log):
+def renameRequest(baseURL, headers, fileid, movieid, log):
     url = baseURL + "/api/command"
     log.debug("Queueing rename command to Radarr via %s." % url)
 
-    payload = {'name': 'RenameMovie', 'movieIds': [movieid]}
+    payload = {'name': 'RenameFiles', 'files': [fileid], 'movieId': movieid}
     log.debug(str(payload))
     r = requests.post(url, json=payload, headers=headers)
     rstate = r.json()
@@ -285,7 +285,7 @@ try:
 
                     # Now a final rename step to ensure all release / codec information is accurate
                     try:
-                        rename = renameRequest(baseURL, headers, movieid, log)
+                        rename = renameRequest(baseURL, headers, movieinfo['movieFile']['id'], movieid, log)
                         log.info("Radarr response Rename command: ID %d %s." % (rename['id'], rename['status']))
                     except:
                         log.exception("Failed to trigger Radarr rename.")
