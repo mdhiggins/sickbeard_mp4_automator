@@ -73,7 +73,7 @@ class MediaProcessor:
 
                         m = 0
                         if self.settings.output_format in ['mkv'] and self.settings.relocate_moov:
-                            self.log.debug("Relocate MOOV enabled but format is %s, adding reserve_index_space parameter.")
+                            self.log.debug("Relocate MOOV enabled but format is %s, adding reserve_index_space parameter." % (self.settings.output_format))
                             m = info.format.duration / (60 * 60)
                             m = int(m) if m == int(m) else int(m) + 1
 
