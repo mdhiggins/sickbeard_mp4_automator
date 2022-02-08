@@ -284,12 +284,7 @@ def processFile(inputfile, mp, info=None, relativePath=None, silent=False, tag=T
         tagfailed = False
         if tagdata:
             try:
-                m = 0
-                if mp.settings.output_format in ['mkv'] and mp.settings.relocate_moov:
-                    log.debug("Relocate MOOV enabled but format is %s, adding reserve_index_space parameter." % (mp.settings.output_format))
-                    m = info.format.duration / (60 * 60)
-                    m = int(m) if m == int(m) else int(m) + 1
-                tagdata.writeTags(output['output'], mp.converter, mp.settings.artwork, mp.settings.thumbnail, width=output['x'], height=output['y'], streaming=m)
+                tagdata.writeTags(output['output'], mp.converter, mp.settings.artwork, mp.settings.thumbnail, width=output['x'], height=output['y'], streaming=output['rsi'])
             except KeyboardInterrupt:
                 raise
             except:

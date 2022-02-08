@@ -70,14 +70,7 @@ class MediaProcessor:
                         tmdbid = tag.tmdbid
                         if self.settings.tagfile:
                             self.log.info("Tagging %s with TMDB ID %s." % (inputfile, tag.tmdbid))
-
-                        m = 0
-                        if self.settings.output_format in ['mkv'] and self.settings.relocate_moov:
-                            self.log.debug("Relocate MOOV enabled but format is %s, adding reserve_index_space parameter." % (self.settings.output_format))
-                            m = info.format.duration / (60 * 60)
-                            m = int(m) if m == int(m) else int(m) + 1
-
-                        tag.writeTags(output['output'], self.converter, self.settings.artwork, self.settings.thumbnail, output['x'], output['y'], streaming=m)
+                            tag.writeTags(output['output'], self.converter, self.settings.artwork, self.settings.thumbnail, output['x'], output['y'], streaming=output['rsi'])
                     except KeyboardInterrupt:
                         raise
                     except:
@@ -223,6 +216,13 @@ class MediaProcessor:
             input_extension = self.parseFile(inputfile)[2]
             output_extension = self.parseFile(outputfile)[2]
 
+            rsi = 0
+            if self.settings.output_format in ['mkv'] and self.settings.relocate_moov:
+                self.log.debug("Relocate MOOV enabled but format is %s, adding reserve_index_space parameter.")
+                rsi = info.format.duration / (60 * 60)
+                rsi = int(rsi) if rsi == int(rsi) else int(rsi) + 1
+                rsi = rsi * 50
+
             return {'input': inputfile,
                     'input_extension': input_extension,
                     'input_deleted': deleted,
@@ -233,7 +233,9 @@ class MediaProcessor:
                     'postopts': postopts,
                     'external_subs': downloaded_subs + ripped_subs,
                     'x': dim['x'],
-                    'y': dim['y']}
+                    'y': dim['y'],
+                    'rsi': rsi
+                    }
         return None
 
     def cleanDispositions(self, info):
