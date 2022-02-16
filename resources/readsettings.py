@@ -148,6 +148,7 @@ class ReadSettings:
             'profile': '',
             'max-level': 0.0,
             'pix-fmt': '',
+            'prioritize-source-pix-fmt': True,
             'filter': '',
             'force-filter': False,
         },
@@ -715,6 +716,7 @@ class ReadSettings:
         self.video_level = config.getfloat(section, "max-level")
         self.vprofile = config.getlist(section, "profile")
         self.pix_fmt = config.getlist(section, "pix-fmt")
+        self.keep_source_pix_fmt = config.getboolean(section, "prioritize-source-pix-fmt")
 
         # HDR
         section = "HDR"

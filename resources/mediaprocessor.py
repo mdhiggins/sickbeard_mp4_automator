@@ -683,7 +683,7 @@ class MediaProcessor:
         vpix_fmt = None
         if vHDR and len(self.settings.hdr.get('pix_fmt')) > 0:
             if info.video.pix_fmt in self.settings.hdr.get('pix_fmt'):
-                vpix_fmt = info.video.pix_fmt
+                vpix_fmt = info.video.pix_fmt if self.settings.keep_source_pix_fmt else self.settings.hdr.get('pix_fmt')[0]
             else:
                 vpix_fmt = self.settings.hdr.get('pix_fmt')[0]
                 self.log.debug("Overriding video pix_fmt. Codec cannot be copied because pix_fmt is not approved [hdr-pix-fmt].")
@@ -691,9 +691,9 @@ class MediaProcessor:
                 vcodec = vcodecs[0]
         elif not vHDR and len(self.settings.pix_fmt):
             if info.video.pix_fmt in self.settings.pix_fmt:
-                vpix_fmt = info.video.pix_fmt
+                vpix_fmt = info.video.pix_fmt if self.settings.keep_source_pix_fmt else self.settings.pix_fmt[0]
             else:
-                vpix_fmt = self.settings.pix_fmt[0] if len(self.settings.pix_fmt) else None
+                vpix_fmt = self.settings.pix_fmt[0]
                 self.log.debug("Overriding video pix_fmt. Codec cannot be copied because pix_fmt is not approved [pix-fmt].")
                 vdebug = vdebug + ".pix_fmt"
                 vcodec = vcodecs[0]

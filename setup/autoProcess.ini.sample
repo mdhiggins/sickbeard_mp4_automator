@@ -55,6 +55,7 @@ max-width = 0
 profile = 
 max-level = 0.0
 pix-fmt = 
+prioritize-source-pix-fmt = True
 filter = 
 force-filter = False
 
