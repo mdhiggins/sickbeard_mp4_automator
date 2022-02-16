@@ -1661,7 +1661,7 @@ class MediaProcessor:
                 conv = self.converter.convert(outputfile, options, timeout=None)
                 _, cmds = next(conv)
                 self.log.debug("Subtitle extraction FFmpeg command:")
-                self.log.debug(" ".join(str(item) for item in cmds))
+                self.log.debug(self.printableFFMPEGCommand(cmds))
                 for timecode, debug in conv:
                     self.log.debug(debug)
 
@@ -1762,7 +1762,7 @@ class MediaProcessor:
             conv = self.converter.convert(None, options, timeout=30, postopts=postopts)
             _, cmds = next(conv)
             self.log.debug("isImageBasedSubtitle FFmpeg command:")
-            self.log.debug(" ".join(str(item) for item in cmds))
+            self.log.debug(self.printableFFMPEGCommand(cmds))
             for timecode, debug in conv:
                 self.log.debug(debug)
         except FFMpegConvertError:
@@ -1783,6 +1783,9 @@ class MediaProcessor:
                 return True
         self.log.debug("canBypassConvert returned False.")
         return False
+
+    def printableFFMPEGCommand(self, cmds):
+        return " ".join("\"%s\"" % item if (" " in item or "|" in item) and "\"" not in item else item for item in cmds) 
 
     # Encode a new file based on selected options, built in naming conflict resolution
     def convert(self, options, preopts, postopts, reportProgress=False, progressOutput=None):
@@ -1850,7 +1853,7 @@ class MediaProcessor:
         _, cmds = next(conv)
         self.log.info("FFmpeg command:")
         self.log.info("======================")
-        self.log.info(" ".join("\"%s\"" % item if " " in item and "\"" not in item else item for item in cmds))
+        self.log.info(self.printableFFMPEGCommand(cmds))
         self.log.info("======================")
 
         try:
