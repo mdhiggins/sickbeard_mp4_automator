@@ -1218,6 +1218,14 @@ class H264QSVCodec(H264Codec):
         return optlist
 
 
+class H264V4l2m2m(H264Codec):
+    """
+    H.264/AVC video codec.
+    """
+    codec_name = 'h264_v4l2m2m'
+    ffmpeg_codec_name = 'h264_v4l2m2m'
+
+
 class H265Codec(VideoCodec):
     """
     H.265/AVC video codec.
@@ -1485,6 +1493,14 @@ class H265VAAPICodecAlt(H265VAAPICodec):
     HEVC video codec alternate.
     """
     codec_name = 'hevc_vaapi'
+
+
+class H265V4l2m2m(H265Codec):
+    """
+    HEVC video codec.
+    """
+    codec_name = 'hevc_v4l2m2m'
+    ffmpeg_codec_name = 'hevc_v4l2m2m'
 
 
 class NVEncH265Codec(H265Codec):
@@ -1865,8 +1881,8 @@ video_codec_list = [
     VideoNullCodec, VideoCopyCodec,
     TheoraCodec,
     H263Codec,
-    H264Codec, H264CodecAlt, H264QSVCodec, H264VAAPICodec, OMXH264Codec, VideotoolboxEncH264, NVEncH264Codec,
-    H265Codec, H265QSVCodecAlt, H265QSVCodec, H265CodecAlt, H265QSVCodecPatched, H265VAAPICodec, H265VAAPICodecAlt, VideotoolboxEncH265, NVEncH265Codec, NVEncH265CodecAlt, NVEncH265CodecPatched,
+    H264Codec, H264CodecAlt, H264QSVCodec, H264VAAPICodec, OMXH264Codec, VideotoolboxEncH264, NVEncH264Codec, H264V4l2m2m,
+    H265Codec, H265QSVCodecAlt, H265QSVCodec, H265CodecAlt, H265QSVCodecPatched, H265VAAPICodec, H265VAAPICodecAlt, VideotoolboxEncH265, NVEncH265Codec, NVEncH265CodecAlt, NVEncH265CodecPatched, H265V4l2m2m,
     DivxCodec,
     Vp8Codec,
     Vp9Codec, Vp9QSVCodec, Vp9QSVAltCodec,
