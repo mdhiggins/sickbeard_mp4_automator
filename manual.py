@@ -248,7 +248,7 @@ def addtoProcessedArchive(files, processedList, processedArchive):
         return
 
     processedList.extend(files)
-    with open(processedArchive, 'w') as pa:
+    with open(processedArchive, 'w', encoding="utf8") as pa:
         json.dump(list(set(processedList)), pa, indent=4)
     log.debug("Adding %s to processed archive %s" % (files, processedArchive))
 
@@ -418,11 +418,11 @@ def main():
         log.info("Processed archived specified at %s" % (processedArchive))
     elif args['processedarchive']:
         processedArchive = os.path.normpath(args['processedarchive'])
-        with open(processedArchive, 'w') as pa:
+        with open(processedArchive, 'w', encoding="utf8") as pa:
             json.dump([], pa)
         log.info("Processed archived specified at %s but file does not exist, creating" % (processedArchive))
     if processedArchive:
-        pa = open(processedArchive)
+        pa = open(processedArchive, encoding="utf8")
         processedList = json.load(pa)
         log.info("Loaded archive list containing %d files" % (len(processedList)))
 
