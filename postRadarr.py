@@ -47,7 +47,7 @@ def rescanAndWait(baseURL, headers, movieid, log, retries=6, delay=10):
 
 
 def renameRequest(baseURL, headers, fileid, movieid, log):
-    url = baseURL + "/api/command"
+    url = baseURL + "/api/v3/command"
     log.debug("Queueing rename command to Radarr via %s." % url)
 
     payload = {'name': 'RenameFiles', 'files': [fileid], 'movieId': movieid}
