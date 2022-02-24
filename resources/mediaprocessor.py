@@ -700,6 +700,8 @@ class MediaProcessor:
             # Check pix_fmt compatibility and fallback to other viable pix_fmt options
             encoder = Converter.codec_name_to_ffmpeg_codec_name(vcodec)
             valid_formats = self.converter.ffmpeg.encoder_formats(vcodec)
+            self.log.debug("Valid formats for encoder %s:" % (encoder))
+            self.log.debug(valid_formats)
             self.log.debug(valid_formats)
             if vpix_fmt not in valid_formats and info.video.pix_fmt in valid_formats and self.settings.keep_source_pix_fmt:
                 self.log.info("Pix_fmt selected %s is not compatible with encoder %s, but source video format is compatible, using None" % (vpix_fmt, encoder))
