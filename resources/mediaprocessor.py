@@ -1271,6 +1271,13 @@ class MediaProcessor:
                     self.log.info("%s decoder is also supported by this ffmpeg build and will also be used [hwaccel-decoders]." % decoder)
                     opts.extend(['-vcodec', decoder])
                 break
+        if "-vcodec" not in opts:
+            # No matching decoder found for hwaccel, see if there's still a valid decoder that may not match
+            for decoder in self.settings.hwaccel_decoders:
+                if (decoder in codecs[video_codec]['decoders'] and decoder in self.settings.hwaccel_decoders) and decoder.startswith(video_codec):
+                    self.log.info("%s decoder is supported by this ffmpeg build and will also be used [hwaccel-decoders]." % decoder)
+                    opts.extend(['-vcodec', decoder])
+                    break
         return opts, device
 
     def setDefaultAudioStream(self, audio_settings):
