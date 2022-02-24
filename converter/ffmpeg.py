@@ -516,6 +516,16 @@ class FFMpeg(object):
         source_codec = self.DECODER_SYNONYMS.get(video_codec, video_codec)
         return '{0}_{1}'.format(source_codec, hwaccel)
 
+    def encoder_formats(self, encoder):
+        prefix = "Supported pixel formats:"
+        formatline = next(line.strip() for line in self._get_stdout([self.ffmpeg_path, '-hide_banner', '-h', 'encoder=%s' % encoder]).split('\n')[1:] if line.strip().startswith(prefix))
+        return formatline.split(":")[1].strip().split(" ")
+
+    def decoder_formats(self, decoder):
+        prefix = "Supported pixel formats:"
+        formatline = next(line.strip() for line in self._get_stdout([self.ffmpeg_path, '-hide_banner', '-h', 'decoder=%s' % decoder]).split('\n')[1:] if line.strip().startswith(prefix))
+        return formatline.split(":")[1].strip().split(" ")
+
     @staticmethod
     def _spawn(cmds):
         clean_cmds = []

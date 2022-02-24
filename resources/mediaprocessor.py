@@ -678,8 +678,6 @@ class MediaProcessor:
         if vHDR and self.settings.hdr.get('codec_params'):
             vparams = self.settings.hdr.get('codec_params')
 
-        vframedata = self.normalizeFramedata(info.video.framedata, vHDR) if self.settings.dynamic_params else None
-
         vpix_fmt = None
         if vHDR and len(self.settings.hdr.get('pix_fmt')) > 0:
             if info.video.pix_fmt in self.settings.hdr.get('pix_fmt'):
@@ -697,6 +695,29 @@ class MediaProcessor:
                 self.log.debug("Overriding video pix_fmt. Codec cannot be copied because pix_fmt is not approved [pix-fmt].")
                 vdebug = vdebug + ".pix_fmt"
                 vcodec = vcodecs[0]
+
+        if vcodec != 'copy':
+            # Check pix_fmt compatibility and fallback to other viable pix_fmt options
+            encoder = Converter.codec_name_to_ffmpeg_codec_name(vcodec)
+            valid_formats = self.converter.ffmpeg.encoder_formats(vcodec)
+            self.log.debug(valid_formats)
+            if vpix_fmt not in valid_formats and info.video.pix_fmt in valid_formats and self.settings.keep_source_pix_fmt:
+                self.log.info("Pix_fmt selected %s is not compatible with encoder %s, but source video format is compatible, using None" % (vpix_fmt, encoder))
+                vpix_fmt = None
+            elif vpix_fmt not in valid_formats:
+                if vHDR and len(self.settings.hdr.get('pix_fmt')) > 0:
+                    new_vpix_fmt = next((vf for vf in self.settings.hdr.get('pix_fmt') if vf in valid_formats), valid_formats[0])
+                elif not vHDR and len(self.settings.pix_fmt):
+                    new_vpix_fmt = next((vf for vf in self.settings.pix_fmt if vf in valid_formats), valid_formats[0])
+                else:
+                    new_vpix_fmt = valid_formats[0]
+                self.log.info("Pix_fmt selected %s is not compatible with encoder %s and source video format is not compatible , using %s" % (vpix_fmt, encoder, new_vpix_fmt))
+                vpix_fmt = new_vpix_fmt
+
+        vframedata = self.normalizeFramedata(info.video.framedata, vHDR) if self.settings.dynamic_params else None
+        if vframedata and vframedata.get("pix_fmt") != vpix_fmt:
+            self.log.debug("Pix_fmt is changing, will not preserve framedata")
+            vframedata = None
 
         self.log.debug("Video codec: %s." % vcodec)
         self.log.debug("Video bitrate: %s." % vbitrate)
@@ -1270,6 +1291,8 @@ class MediaProcessor:
                 if (decoder in codecs[video_codec]['decoders'] and decoder in self.settings.hwaccel_decoders):
                     self.log.info("%s decoder is also supported by this ffmpeg build and will also be used [hwaccel-decoders]." % decoder)
                     opts.extend(['-vcodec', decoder])
+                    self.log.debug("Decoder formats:")
+                    self.log.debug(self.converter.ffmpeg.decoder_formats(decoder))
                 break
         if "-vcodec" not in opts:
             # No matching decoder found for hwaccel, see if there's still a valid decoder that may not match
@@ -1277,6 +1300,8 @@ class MediaProcessor:
                 if (decoder in codecs[video_codec]['decoders'] and decoder in self.settings.hwaccel_decoders) and decoder.startswith(video_codec):
                     self.log.info("%s decoder is supported by this ffmpeg build and will also be used [hwaccel-decoders]." % decoder)
                     opts.extend(['-vcodec', decoder])
+                    self.log.debug("Decoder formats:")
+                    self.log.debug(self.converter.ffmpeg.decoder_formats(decoder))
                     break
         return opts, device
 
