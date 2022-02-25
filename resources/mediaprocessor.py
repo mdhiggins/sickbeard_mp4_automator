@@ -703,10 +703,10 @@ class MediaProcessor:
             self.log.debug("Valid formats for encoder %s:" % (encoder))
             self.log.debug(valid_formats)
             self.log.debug(valid_formats)
-            if vpix_fmt not in valid_formats and info.video.pix_fmt in valid_formats and self.settings.keep_source_pix_fmt:
+            if vpix_fmt and vpix_fmt not in valid_formats and info.video.pix_fmt in valid_formats and self.settings.keep_source_pix_fmt:
                 self.log.info("Pix_fmt selected %s is not compatible with encoder %s, but source video format is compatible, using None" % (vpix_fmt, encoder))
                 vpix_fmt = None
-            elif vpix_fmt not in valid_formats:
+            elif vpix_fmt and vpix_fmt not in valid_formats:
                 if vHDR and len(self.settings.hdr.get('pix_fmt')) > 0:
                     new_vpix_fmt = next((vf for vf in self.settings.hdr.get('pix_fmt') if vf in valid_formats), valid_formats[0])
                 elif not vHDR and len(self.settings.pix_fmt):
