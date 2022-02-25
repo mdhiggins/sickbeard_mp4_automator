@@ -708,11 +708,11 @@ class MediaProcessor:
                 vpix_fmt = None
             elif vpix_fmt and vpix_fmt not in valid_formats:
                 if vHDR and len(self.settings.hdr.get('pix_fmt')) > 0:
-                    new_vpix_fmt = next((vf for vf in self.settings.hdr.get('pix_fmt') if vf in valid_formats), valid_formats[0])
+                    new_vpix_fmt = next((vf for vf in self.settings.hdr.get('pix_fmt') if vf in valid_formats), None)
                 elif not vHDR and len(self.settings.pix_fmt):
-                    new_vpix_fmt = next((vf for vf in self.settings.pix_fmt if vf in valid_formats), valid_formats[0])
+                    new_vpix_fmt = next((vf for vf in self.settings.pix_fmt if vf in valid_formats), None)
                 else:
-                    new_vpix_fmt = valid_formats[0]
+                    new_vpix_fmt = None
                 self.log.info("Pix_fmt selected %s is not compatible with encoder %s and source video format is not compatible , using %s" % (vpix_fmt, encoder, new_vpix_fmt))
                 vpix_fmt = new_vpix_fmt
 
