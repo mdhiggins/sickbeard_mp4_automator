@@ -1225,6 +1225,10 @@ class H264V4l2m2m(H264Codec):
     codec_name = 'h264_v4l2m2m'
     ffmpeg_codec_name = 'h264_v4l2m2m'
 
+    def _codec_specific_parse_options(self, safe, stream=0):
+        safe['pix_fmt'] = "yuv420p"
+        return safe
+
 
 class H265Codec(VideoCodec):
     """
