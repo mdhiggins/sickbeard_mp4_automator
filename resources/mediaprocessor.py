@@ -522,7 +522,7 @@ class MediaProcessor:
                 if len(same_channel_options) > 1:
                     codecs = [self.getSourceStream(x['map'], info).codec if x['codec'] == 'copy' else x['codec'] for x in same_channel_options]
                     for codec in set(codecs):
-                        same_codec_options = [x for x in same_channel_options if Converter.codec_name_to_ffprobe_codec_name("audio", x['codec']) == codec or (x['codec'] == 'copy' and self.getSourceStream(x['map'], info).codec == codec)]
+                        same_codec_options = [x for x in same_channel_options if Converter.codec_name_to_ffprobe_codec_name(x['codec']) == codec or (x['codec'] == 'copy' and self.getSourceStream(x['map'], info).codec == codec)]
                         if len(same_codec_options) > 1:
                             same_codec_options.sort(key=lambda x: x['bitrate'], reverse=True)
                             same_codec_options.sort(key=lambda x: self.getSourceStream(x['map'], info).disposition['default'], reverse=True)
