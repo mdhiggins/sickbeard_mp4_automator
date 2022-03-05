@@ -21,7 +21,7 @@ Include log files *for the specific job (not just a dump of all your logs for th
 Log files are found in your script root config folder `./sma/config/sma.log`
 
 **FFMpeg headers**
- - Run ffmpeg and post the headers, example output https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/FFMPEG-Headers
+ - Run ffmpeg and post the headers, example [headers]https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/FFMPEG-Headers
 
 **System Information**
  - OS: [e.g. Windows]
