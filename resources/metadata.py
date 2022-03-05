@@ -376,8 +376,11 @@ class Metadata:
                 else:
                     poster_path = self.seasondata.get('poster_path')
 
+                if not poster_path:
+                    poster_path = self.showdata.get('poster_path')
+
             if not poster_path:
-                self.log.warning("No artwork found for media file.")
+                self.log.debug("No artwork found for media file.")
                 return None
 
             savepath = os.path.join(tempfile.gettempdir(), "poster-%s.jpg" % (self.tmdbid))
