@@ -20,10 +20,12 @@ For manual.py include the full command, for integrated commands please include r
 Include log files *for the specific job (not just a dump of all your logs for the past month)* that's causing the issue. Please turn on [debug level logging](https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/Debug-Level-Logging)
 Log files are found in your script root config folder `./sma/config/sma.log`
 
+**FFMpeg headers**
+ - Run ffmpeg and post the headers, example output https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/FFMPEG-Headers
+
 **System Information**
  - OS: [e.g. Windows]
  - Python version
- - FFMPEG version
  - Docker config (if relevant)
 
 **Expected behavior**
