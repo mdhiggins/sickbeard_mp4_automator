@@ -71,6 +71,17 @@ class BaseCodec(object):
         return safe
 
 
+class BaseDecoder(object):
+    """
+    Base decoder class.
+    """
+    decoder_name = None
+    max_color = 9999
+
+    def supportsBitDepth(self, depth):
+        return depth <= self.max_color
+
+
 class AudioCodec(BaseCodec):
     """
     Base audio codec class handles general audio options. Possible
@@ -1218,7 +1229,7 @@ class H264QSVCodec(H264Codec):
         return optlist
 
 
-class H264V4l2m2m(H264Codec):
+class H264V4l2m2mCodec(H264Codec):
     """
     H.264/AVC video codec.
     """
@@ -1228,6 +1239,11 @@ class H264V4l2m2m(H264Codec):
     def _codec_specific_parse_options(self, safe, stream=0):
         safe['pix_fmt'] = "yuv420p"
         return safe
+
+
+class H264V4l2m2mDecoder(BaseDecoder):
+    decoder_name = "h264_v4l2m2m"
+    max_color = 8
 
 
 class H265Codec(VideoCodec):
@@ -1499,12 +1515,17 @@ class H265VAAPICodecAlt(H265VAAPICodec):
     codec_name = 'hevc_vaapi'
 
 
-class H265V4l2m2m(H265Codec):
+class H265V4l2m2mCodec(H265Codec):
     """
     HEVC video codec.
     """
     codec_name = 'hevc_v4l2m2m'
     ffmpeg_codec_name = 'hevc_v4l2m2m'
+
+
+class H265V4l2m2mDecoder(BaseDecoder):
+    decoder_name = "hevc_v4l2m2m"
+    max_color = 10
 
 
 class NVEncH265Codec(H265Codec):
@@ -1624,6 +1645,16 @@ class NVEncH265CodecPatched(NVEncH265Codec):
         if 'bsfv' in safe:
             optlist.extend(['-bsf:v', safe['bsfv']])
         return optlist
+
+
+class H264CuvidDecoder(BaseDecoder):
+    decoder_name = "h264_cuvid"
+    max_color = 8
+
+
+class H265CuvidDecoder(BaseDecoder):
+    decoder_name = "hevc_cuvid"
+    max_color = 10
 
 
 class VideotoolboxEncH265(H265Codec):
@@ -1885,8 +1916,8 @@ video_codec_list = [
     VideoNullCodec, VideoCopyCodec,
     TheoraCodec,
     H263Codec,
-    H264Codec, H264CodecAlt, H264QSVCodec, H264VAAPICodec, OMXH264Codec, VideotoolboxEncH264, NVEncH264Codec, H264V4l2m2m,
-    H265Codec, H265QSVCodecAlt, H265QSVCodec, H265CodecAlt, H265QSVCodecPatched, H265VAAPICodec, H265VAAPICodecAlt, VideotoolboxEncH265, NVEncH265Codec, NVEncH265CodecAlt, NVEncH265CodecPatched, H265V4l2m2m,
+    H264Codec, H264CodecAlt, H264QSVCodec, H264VAAPICodec, OMXH264Codec, VideotoolboxEncH264, NVEncH264Codec, H264V4l2m2mCodec,
+    H265Codec, H265QSVCodecAlt, H265QSVCodec, H265CodecAlt, H265QSVCodecPatched, H265VAAPICodec, H265VAAPICodecAlt, VideotoolboxEncH265, NVEncH265Codec, NVEncH265CodecAlt, NVEncH265CodecPatched, H265V4l2m2mCodec,
     DivxCodec,
     Vp8Codec,
     Vp9Codec, Vp9QSVCodec, Vp9QSVAltCodec,
@@ -1902,4 +1933,9 @@ subtitle_codec_list = [
 
 attachment_codec_list = [
     AttachmentCopyCodec
+]
+
+decoder_list = [
+    H264CuvidDecoder, H264V4l2m2mDecoder,
+    H265CuvidDecoder, H265V4l2m2mDecoder
 ]

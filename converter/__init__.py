@@ -2,7 +2,7 @@
 
 import os
 
-from converter.avcodecs import video_codec_list, audio_codec_list, subtitle_codec_list, attachment_codec_list
+from converter.avcodecs import video_codec_list, audio_codec_list, subtitle_codec_list, attachment_codec_list, decoder_list, BaseDecoder
 from converter.formats import format_list
 from converter.ffmpeg import FFMpeg, FFMpegError, FFMpegConvertError
 
@@ -62,6 +62,10 @@ class Converter(object):
     @staticmethod
     def codec_name_to_ffmpeg_codec_name(codec_name):
         return next((x.ffmpeg_codec_name for x in video_codec_list + audio_codec_list + subtitle_codec_list + attachment_codec_list if x.codec_name == codec_name), None)
+
+    @staticmethod
+    def decoder(decoder):
+        return next(x() for x in decoder_list if x.decoder_name == decoder) or BaseDecoder()
 
     def parse_options(self, opt, twopass=None, strip_metadata=False):
         """

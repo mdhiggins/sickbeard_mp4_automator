@@ -512,6 +512,17 @@ class FFMpeg(object):
         decoders = self._get_stdout([self.ffmpeg_path, '-hide_banner', '-decoders'])
         return [line_match.group(2) for line_match in self.CODECS_LINE_RE.finditer(decoders)]
 
+    @property
+    def pix_fmts(self):
+        formats = {}
+        formatlines = [f.strip() for f in self._get_stdout([self.ffmpeg_path, '-hide_banner', '-pix_fmts']).split('\n')[8:] if f.strip()]
+        for f in formatlines:
+            frmt = [x for x in f.split(" ") if x]
+            if len(frmt) == 5:
+                bitdepth = max([int(b) for b in frmt[4].split("-")])
+                formats[str(frmt[1])] = bitdepth
+        return formats
+
     def hwaccel_decoder(self, video_codec, hwaccel):
         source_codec = self.DECODER_SYNONYMS.get(video_codec, video_codec)
         return '{0}_{1}'.format(source_codec, hwaccel)

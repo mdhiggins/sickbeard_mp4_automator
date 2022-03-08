@@ -1206,7 +1206,7 @@ class MediaProcessor:
 
         if vcodec != 'copy':
             try:
-                opts, device = self.setAcceleration(info.video.codec, codecs)
+                opts, device = self.setAcceleration(info.video.codec, info.video.pix_fmt, codecs)
                 preopts.extend(opts)
                 for k in self.settings.hwdevices:
                     if k in vcodec:
@@ -1257,8 +1257,10 @@ class MediaProcessor:
     def validLanguage(self, language, whitelist, blocked=[]):
         return ((len(whitelist) < 1 or language in whitelist) and language not in blocked)
 
-    def setAcceleration(self, video_codec, codecs=None):
+    def setAcceleration(self, video_codec, pix_fmt, codecs=None):
         opts = []
+        pix_fmts = self.converter.ffmpeg.pix_fmts
+        bit_depth = pix_fmts.get(pix_fmt, 0)
         device = None
         # Look up which codecs and which decoders/encoders are available in this build of ffmpeg
         codecs = codecs or self.converter.ffmpeg.codecs
@@ -1272,6 +1274,7 @@ class MediaProcessor:
         self.log.debug(self.settings.hwaccel_decoders)
         self.log.debug("FFMPEG hwaccels:")
         self.log.debug(hwaccels)
+        self.log.debug("Input format %s bit depth %d." % (pix_fmt, bit_depth))
 
         # Find the first of the specified hardware acceleration platform that is available in this build of ffmpeg.  The order of specified hardware acceleration platforms determines priority.
         for hwaccel in self.settings.hwaccels:
@@ -1290,21 +1293,27 @@ class MediaProcessor:
                 # If there's a decoder for this acceleration platform, also use it
                 decoder = self.converter.ffmpeg.hwaccel_decoder(video_codec, self.settings.hwoutputfmt.get(hwaccel, hwaccel))
                 self.log.debug("Decoder: %s." % decoder)
-                if (decoder in codecs[video_codec]['decoders'] and decoder in self.settings.hwaccel_decoders):
-                    self.log.info("%s decoder is also supported by this ffmpeg build and will also be used [hwaccel-decoders]." % decoder)
-                    opts.extend(['-vcodec', decoder])
-                    self.log.debug("Decoder formats:")
-                    self.log.debug(self.converter.ffmpeg.decoder_formats(decoder))
+                if decoder in codecs[video_codec]['decoders'] and decoder in self.settings.hwaccel_decoders:
+                    if Converter.decoder(decoder).supportsBitDepth(bit_depth):
+                        self.log.info("%s decoder is also supported by this ffmpeg build and will also be used [hwaccel-decoders]." % decoder)
+                        opts.extend(['-vcodec', decoder])
+                        self.log.debug("Decoder formats:")
+                        self.log.debug(self.converter.ffmpeg.decoder_formats(decoder))
+                    else:
+                        self.log.debug("Decoder %s is supported but cannot support bit depth %d of format %s." % (decoder, bit_depth, pix_fmt))
                 break
         if "-vcodec" not in opts:
             # No matching decoder found for hwaccel, see if there's still a valid decoder that may not match
             for decoder in self.settings.hwaccel_decoders:
-                if (decoder in codecs[video_codec]['decoders'] and decoder in self.settings.hwaccel_decoders) and decoder.startswith(video_codec):
-                    self.log.info("%s decoder is supported by this ffmpeg build and will also be used [hwaccel-decoders]." % decoder)
-                    opts.extend(['-vcodec', decoder])
-                    self.log.debug("Decoder formats:")
-                    self.log.debug(self.converter.ffmpeg.decoder_formats(decoder))
-                    break
+                if decoder in codecs[video_codec]['decoders'] and decoder in self.settings.hwaccel_decoders and decoder.startswith(video_codec):
+                    if Converter.decoder(decoder).supportsBitDepth(bit_depth):
+                        self.log.info("%s decoder is supported by this ffmpeg build and will also be used [hwaccel-decoders]." % decoder)
+                        opts.extend(['-vcodec', decoder])
+                        self.log.debug("Decoder formats:")
+                        self.log.debug(self.converter.ffmpeg.decoder_formats(decoder))
+                        break
+                    else:
+                        self.log.debug("Decoder %s is supported but cannot support bit depth %d of format %s." % (decoder, bit_depth, pix_fmt))
         return opts, device
 
     def setDefaultAudioStream(self, audio_settings):
@@ -1819,7 +1828,7 @@ class MediaProcessor:
         return False
 
     def printableFFMPEGCommand(self, cmds):
-        return " ".join("\"%s\"" % item if (" " in item or "|" in item) and "\"" not in item else item for item in cmds) 
+        return " ".join("\"%s\"" % item if (" " in item or "|" in item) and "\"" not in item else item for item in cmds)
 
     # Encode a new file based on selected options, built in naming conflict resolution
     def convert(self, options, preopts, postopts, reportProgress=False, progressOutput=None):
