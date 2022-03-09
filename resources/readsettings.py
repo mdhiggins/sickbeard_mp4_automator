@@ -220,6 +220,11 @@ class ReadSettings:
             'unique-dispositions': False,
             'attachment-codec': '',
         },
+        'Subtitle.CleanIt': {
+            'enabled': False,
+            'config-path': '',
+            'tags': '',
+        },
         'Subtitle.Subliminal': {
             'download-subs': False,
             'download-hearing-impaired-subs': False,
@@ -799,6 +804,12 @@ class ReadSettings:
         self.ignored_subtitle_dispositions = config.getlist(section, "ignored-dispositions")
         self.unique_subtitle_dispositions = config.getboolean(section, "unique-dispositions")
         self.attachmentcodec = config.getlist(section, 'attachment-codec')
+
+        # CleanIt
+        section = "Subtitle.CleanIt"
+        self.cleanit = config.getboolean(section, "enabled")
+        self.cleanit_config = config.get(section, "config-path")
+        self.cleanit_tags = config.getlist(section, "tags")
 
         # Sublmininal
         section = "Subtitle.Subliminal"

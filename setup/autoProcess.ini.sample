@@ -126,6 +126,11 @@ ignored-dispositions =
 unique-dispositions = False
 attachment-codec = 
 
+[Subtitle.CleanIt]
+enabled = False
+config-path = 
+tags = 
+
 [Subtitle.Subliminal]
 download-subs = False
 download-hearing-impaired-subs = False

@@ -14,6 +14,10 @@ from resources.postprocess import PostProcessor
 from resources.lang import getAlpha3TCode
 from autoprocess import plex
 try:
+    import cleanit
+except ImportError:
+    cleanit = None
+try:
     from babelfish import Language
 except ImportError:
     pass
@@ -168,6 +172,9 @@ class MediaProcessor:
                     self.log.exception("Unable to log options.")
 
                 ripped_subs = self.ripSubs(inputfile, ripsubopts)
+                if self.settings.cleanit:
+                    for rs in ripped_subs:
+                        self.cleanExternalSub(rs)
                 try:
                     outputfile, inputfile = self.convert(options, preopts, postopts, reportProgress, progressOutput)
                 except KeyboardInterrupt:
@@ -367,6 +374,32 @@ class MediaProcessor:
             self.log.exception("isValidSubtitleSource unexpectedly threw an exception, returning None.")
             return None
 
+    def processExternalSub(self, valid_external_sub, inputfile):
+        if not valid_external_sub:
+            return valid_external_sub
+        _, filename, _ = self.parseFile(inputfile)
+        _, subname, _ = self.parseFile(valid_external_sub.path)
+        subname = subname[len(filename + os.path.extsep):]
+        lang = 'und'
+        for suf in subname.lower().split(os.path.extsep):
+            self.log.debug("Processing subtitle file suffix %s." % (suf))
+            l = getAlpha3TCode(suf)
+            if lang == 'und' and l != 'und':
+                lang = l
+                self.log.debug("Found language match %s." % (lang))
+            if suf in BaseCodec.DISPOSITIONS:
+                valid_external_sub.subtitle[0].disposition[suf] = True
+                self.log.debug("Found disposition match %s." % (suf))
+            # Alternate tags
+            for k in BaseCodec.ALTERNATES:
+                if suf in BaseCodec.ALTERNATES[k]:
+                    valid_external_sub.subtitle[0].disposition[k] = True
+                    self.log.debug("Found disposition match %s." % (k))
+        if self.settings.sdl and lang == 'und':
+            lang = self.settings.sdl
+        valid_external_sub.subtitle[0].metadata['language'] = lang
+        return valid_external_sub
+
     def getDefaultAudioLanguage(self, options):
         for a in options.get("audio", []):
             if "+default" in a.get("disposition", "").lower():
@@ -529,7 +562,7 @@ class MediaProcessor:
                             same_codec_options.sort(key=lambda x: x['codec'] == "copy", reverse=True)
                             purge.extend(same_codec_options[1:])
         self.log.debug("Purge the following streams: %s." % purge)
-        self.log.info("Found %d streams that can be removed from the output file since they will dupcliates [stream-codec-combinations]." % len(purge))
+        self.log.info("Found %d streams that can be removed from the output file since they will duplicates [stream-codec-combinations]." % len(purge))
         for p in purge:
             try:
                 options.remove(p)
@@ -717,7 +750,7 @@ class MediaProcessor:
         #         vpix_fmt = new_vpix_fmt
 
         vframedata = self.normalizeFramedata(info.video.framedata, vHDR) if self.settings.dynamic_params else None
-        if vframedata and "pix_fmt" in vframedata and vframedata["pix_fmt"] != vpix_fmt:
+        if vpix_fmt and vframedata and "pix_fmt" in vframedata and vframedata["pix_fmt"] != vpix_fmt:
             self.log.debug("Pix_fmt is changing, will not preserve framedata")
             vframedata = None
 
@@ -729,7 +762,7 @@ class MediaProcessor:
         self.log.debug("Video level: %s." % vlevel)
         self.log.debug("Video profile: %s." % vprofile)
         self.log.debug("Video preset: %s." % vpreset)
-        self.log.debug("Video pix format: %s." % vpix_fmt)
+        self.log.debug("Video pix_fmt: %s." % vpix_fmt)
         self.log.debug("Video field order: %s." % vfieldorder)
         self.log.debug("Video width: %s." % vwidth)
         self.log.debug("Video debug %s." % vdebug)
@@ -1025,6 +1058,7 @@ class MediaProcessor:
         subtitle_settings = []
         blocked_subtitle_languages = []
         blocked_subtitle_dispositions = []
+        valid_external_subs = []
         self.log.info("Reading subtitle streams.")
         if not self.settings.ignore_embedded_subs:
             for s in info.subtitle:
@@ -1042,6 +1076,20 @@ class MediaProcessor:
                 if image_based and self.settings.embedimgsubs and self.settings.scodec_image and len(self.settings.scodec_image) > 0:
                     scodec = 'copy' if s.codec in self.settings.scodec_image else self.settings.scodec_image[0]
                 elif not image_based and self.settings.embedsubs and self.settings.scodec and len(self.settings.scodec) > 0:
+                    if self.settings.cleanit:
+                        try:
+                            rips = self.ripSubs(inputfile, [self.generateRipSubOpts(inputfile, s, 'srt')])
+                            if rips:
+                                new_sub_path = rips[0]
+                                new_sub = self.isValidSubtitleSource(new_sub_path)
+                                new_sub = self.processExternalSub(new_sub, inputfile)
+                                if new_sub:
+                                    self.log.info("Subtitle %s extracted for cleaning [subtitles.cleanit]." % (new_sub_path))
+                                    self.cleanExternalSub(new_sub.path)
+                                    valid_external_subs.append(new_sub)
+                                continue
+                        except:
+                            self.log.exception("Subtitle rip and cleaning failed.")
                     scodec = 'copy' if s.codec in self.settings.scodec else self.settings.scodec[0]
 
                 if scodec:
@@ -1065,21 +1113,7 @@ class MediaProcessor:
                         elif not image_based and not self.settings.embedsubs and self.settings.scodec and len(self.settings.scodec) > 0:
                             scodec = 'copy' if s.codec in self.settings.scodec else self.settings.scodec[0]
                         if scodec:
-                            ripsub = [{
-                                'map': s.index,
-                                'codec': scodec,
-                                'language': s.metadata['language'],
-                                'debug': "subtitle"
-                            }]
-                            options = {
-                                'source': [inputfile],
-                                'subtitle': ripsub,
-                                'format': s.codec if scodec == 'copy' else scodec,
-                                'disposition': s.dispostr,
-                                'language': s.metadata['language'],
-                                'index': s.index
-                            }
-                            ripsubopts.append(options)
+                            ripsubopts.append(self.generateRipSubOpts(inputfile, s, scodec))
                             if self.settings.sub_first_language_stream:
                                 blocked_subtitle_languages.append(s.metadata['language'])
 
@@ -1093,52 +1127,51 @@ class MediaProcessor:
             self.log.exception("Unable to download subitltes [download-subs].")
 
         # External subtitle import
-        valid_external_subs = None
         if not self.settings.embedonlyinternalsubs:
-            valid_external_subs = self.scanForExternalSubs(inputfile, swl)
-            for external_sub in valid_external_subs:
-                try:
-                    image_based = self.isImageBasedSubtitle(external_sub.path, 0)
-                except KeyboardInterrupt:
-                    raise
-                except:
-                    self.log.error("Unknown error occurred while trying to determine if subtitle is text or image based. Probably corrupt, skipping.")
-                    continue
-                scodec = None
-                self.cleanDispositions(external_sub)
-                sdisposition = external_sub.subtitle[0].dispostr
-                if image_based and self.settings.embedimgsubs and self.settings.scodec_image and len(self.settings.scodec_image) > 0:
-                    scodec = self.settings.scodec_image[0]
-                elif not image_based and self.settings.embedsubs and self.settings.scodec and len(self.settings.scodec) > 0:
-                    scodec = self.settings.scodec[0]
+            valid_external_subs = self.scanForExternalSubs(inputfile, swl, valid_external_subs)
+        for external_sub in valid_external_subs:
+            try:
+                image_based = self.isImageBasedSubtitle(external_sub.path, 0)
+            except KeyboardInterrupt:
+                raise
+            except:
+                self.log.error("Unknown error occurred while trying to determine if subtitle is text or image based. Probably corrupt, skipping.")
+                continue
+            scodec = None
+            self.cleanDispositions(external_sub)
+            sdisposition = external_sub.subtitle[0].dispostr
+            if image_based and self.settings.embedimgsubs and self.settings.scodec_image and len(self.settings.scodec_image) > 0:
+                scodec = self.settings.scodec_image[0]
+            elif not image_based and self.settings.embedsubs and self.settings.scodec and len(self.settings.scodec) > 0:
+                scodec = self.settings.scodec[0]
 
-                if not scodec:
-                    self.log.info("Skipping external subtitle file %s, no appropriate codecs found or embed disabled." % os.path.basename(external_sub.path))
-                    continue
+            if not scodec:
+                self.log.info("Skipping external subtitle file %s, no appropriate codecs found or embed disabled." % os.path.basename(external_sub.path))
+                continue
 
-                if self.validLanguage(external_sub.subtitle[0].metadata['language'], swl, blocked_subtitle_languages) and self.validDisposition(external_sub.subtitle[0].metadata['language'], sdisposition, self.settings.ignored_subtitle_dispositions, self.settings.unique_subtitle_dispositions, blocked_subtitle_dispositions):
-                    if external_sub.path not in sources:
-                        sources.append(external_sub.path)
+            if self.validLanguage(external_sub.subtitle[0].metadata['language'], swl, blocked_subtitle_languages) and self.validDisposition(external_sub.subtitle[0].metadata['language'], sdisposition, self.settings.ignored_subtitle_dispositions, self.settings.unique_subtitle_dispositions, blocked_subtitle_dispositions):
+                if external_sub.path not in sources:
+                    sources.append(external_sub.path)
 
-                    self.log.info("Creating %s subtitle stream by importing %s-based %s [embed-subs]." % (scodec, "Image" if image_based else "Text", os.path.basename(external_sub.path)))
-                    subtitle_settings.append({
-                        'source': sources.index(external_sub.path),
-                        'map': 0,
-                        'codec': scodec,
-                        'disposition': sdisposition,
-                        'title': self.subtitleStreamTitle(external_sub.subtitle[0].disposition),
-                        'language': external_sub.subtitle[0].metadata['language'],
-                        'debug': 'subtitle.embed-subs'})
+                self.log.info("Creating %s subtitle stream by importing %s-based %s [embed-subs]." % (scodec, "Image" if image_based else "Text", os.path.basename(external_sub.path)))
+                subtitle_settings.append({
+                    'source': sources.index(external_sub.path),
+                    'map': 0,
+                    'codec': scodec,
+                    'disposition': sdisposition,
+                    'title': self.subtitleStreamTitle(external_sub.subtitle[0].disposition),
+                    'language': external_sub.subtitle[0].metadata['language'],
+                    'debug': 'subtitle.embed-subs'})
 
-                    self.log.debug("Path: %s." % external_sub.path)
-                    self.log.debug("Codec: %s." % self.settings.scodec[0])
-                    self.log.debug("Langauge: %s." % external_sub.subtitle[0].metadata['language'])
-                    self.log.debug("Disposition: %s." % sdisposition)
+                self.log.debug("Path: %s." % external_sub.path)
+                self.log.debug("Codec: %s." % self.settings.scodec[0])
+                self.log.debug("Langauge: %s." % external_sub.subtitle[0].metadata['language'])
+                self.log.debug("Disposition: %s." % sdisposition)
 
-                    self.deletesubs.add(external_sub.path)
+                self.deletesubs.add(external_sub.path)
 
-                    if self.settings.sub_first_language_stream:
-                        blocked_subtitle_languages.append(external_sub.subtitle[0].metadata['language'])
+                if self.settings.sub_first_language_stream:
+                    blocked_subtitle_languages.append(external_sub.subtitle[0].metadata['language'])
 
         # Set Default Subtitle Stream
         try:
@@ -1486,38 +1519,21 @@ class MediaProcessor:
             self.log.info("No valid subtitle stream candidates found to be burned into video stream [burn-subtitles].")
         return None
 
-    def scanForExternalSubs(self, inputfile, swl):
-        input_dir, filename, input_extension = self.parseFile(inputfile)
-        valid_external_subs = []
-        for dirName, subdirList, fileList in os.walk(input_dir):
+    def scanForExternalSubs(self, inputfile, swl, valid_external_subs=None):
+        valid_external_subs = valid_external_subs or []
+        input_dir, filename, _ = self.parseFile(inputfile)
+        for dirName, _, fileList in os.walk(input_dir):
             for fname in fileList:
-                subname, subextension = os.path.splitext(fname)
-                # Watch for appropriate file extension
+                if any(os.path.join(dirName, fname) == x.path for x in valid_external_subs):
+                    self.log.debug("Already loaded %s, skipping." % (fname))
+                    continue
                 if fname.startswith(filename):  # filename in fname:
                     valid_external_sub = self.isValidSubtitleSource(os.path.join(dirName, fname))
                     if valid_external_sub:
                         self.log.debug("Potential subtitle candidate identified %s." % (fname))
-                        subname = subname[len(filename + os.path.extsep):]
-                        lang = 'und'
-                        for suf in subname.lower().split(os.path.extsep):
-                            self.log.debug("Processing subtitle file suffix %s." % (suf))
-                            l = getAlpha3TCode(suf)
-                            if lang == 'und' and l != 'und':
-                                lang = l
-                                self.log.debug("Found language match %s." % (lang))
-                            if suf in BaseCodec.DISPOSITIONS:
-                                valid_external_sub.subtitle[0].disposition[suf] = True
-                                self.log.debug("Found disposition match %s." % (suf))
-                            # Alternate tags
-                            for k in BaseCodec.ALTERNATES:
-                                if suf in BaseCodec.ALTERNATES[k]:
-                                    valid_external_sub.subtitle[0].disposition[k] = True
-                                    self.log.debug("Found disposition match %s." % (k))
-                        if self.settings.sdl and lang == 'und':
-                            lang = self.settings.sdl
-                        valid_external_sub.subtitle[0].metadata['language'] = lang
-
-                        if self.validLanguage(lang, swl):
+                        valid_external_sub = self.processExternalSub(valid_external_sub, inputfile)
+                        lang = valid_external_sub.subtitle[0].metadata['language']
+                        if self.validLanguage(lang, swl) and valid_external_sub:
                             self.log.debug("Valid external %s subtitle file detected %s." % (lang, fname))
                             valid_external_subs.append(valid_external_sub)
                         else:
@@ -1527,6 +1543,15 @@ class MediaProcessor:
         valid_external_subs.sort(key=lambda x: swl.index(x.subtitle[0].metadata['language']) if x.subtitle[0].metadata['language'] in swl else 999)
 
         return valid_external_subs
+
+    def cleanExternalSub(self, path):
+        if cleanit:
+            self.log.debug("Cleaning subtitle with path %s [subtitles.cleanit]." % (path))
+            sub = cleanit.Subtitle(path)
+            cfg = cleanit.Config.from_path(self.settings.cleanit_config) if self.settings.cleanit_config else cleanit.Config()
+            rules = cfg.select_rules(tags=self.settings.cleanit_tags)
+            if sub.clean(rules):
+                sub.save()
 
     @staticmethod
     def custom_scan_video(path, tagdata=None):
@@ -1692,6 +1717,23 @@ class MediaProcessor:
             outputfile = os.path.join(output_dir, filename + "." + language + dispo + "." + str(i) + "." + extension)
             i += 1
         return outputfile
+
+    def generateRipSubOpts(self, inputfile, s, scodec):
+        ripsub = [{
+            'map': s.index,
+            'codec': scodec,
+            'language': s.metadata['language'],
+            'debug': "subtitle"
+        }]
+        options = {
+            'source': [inputfile],
+            'subtitle': ripsub,
+            'format': s.codec if scodec == 'copy' else scodec,
+            'disposition': s.dispostr,
+            'language': s.metadata['language'],
+            'index': s.index
+        }
+        return options
 
     def ripSubs(self, inputfile, ripsubopts):
         rips = []

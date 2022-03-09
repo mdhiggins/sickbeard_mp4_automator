@@ -10,3 +10,4 @@ python-dateutil
 stevedore
 qtfaststart
 pymediainfo
+cleanit
