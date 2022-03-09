@@ -1471,7 +1471,7 @@ class MediaProcessor:
             filtered_subtitle_streams = [x for x in subtitle_streams if self.validLanguage(x.metadata.get('language'), swl)]
             filtered_subtitle_streams = sorted(filtered_subtitle_streams, key=lambda x: swl.index(x.metadata.get('language')) if x.metadata.get('language') in swl else 999)
             sub_candidates = []
-            if len(filtered_subtitle_streams) > 0:
+            if len(filtered_subtitle_streams) > 0 and not self.settings.cleanit:
                 first_index = sorted([x.index for x in subtitle_streams])[0]
 
                 # Filter subtitles to be burned based on setting
