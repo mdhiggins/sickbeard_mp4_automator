@@ -53,7 +53,10 @@ def processMovie(dirName, settings, nzbGet=False, importMode=None, logger=None, 
     payload = {'name': 'DownloadedMoviesScan', 'path': dirName}
     if importMode:
         payload["importMode"] = importMode
-    headers = {'X-Api-Key': apikey}
+    headers = {
+        'X-Api-Key': apikey,
+        'User-Agent': "SMA - autoprocess/radarr"
+    }
 
     log.debug("Radarr host: %s." % host)
     log.debug("Radarr port: %s." % port)

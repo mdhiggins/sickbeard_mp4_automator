@@ -54,7 +54,10 @@ def processEpisode(dirName, settings, nzbGet=False, importMode=None, logger=None
     payload = {'name': 'downloadedepisodesscan', 'path': dirName}
     if importMode:
         payload["importMode"] = importMode
-    headers = {'X-Api-Key': apikey}
+    headers = {
+        'X-Api-Key': apikey,
+        'User-Agent': "SMA - autoprocess/sonarr"
+    }
 
     log.debug("Sonarr host: %s." % host)
     log.debug("Sonarr port: %s." % port)

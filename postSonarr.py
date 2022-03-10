@@ -244,7 +244,10 @@ try:
             log.debug("Sonarr apikey: %s." % apikey)
 
             if apikey != '':
-                headers = {'X-Api-Key': apikey}
+                headers = {
+                    'X-Api-Key': apikey,
+                    'User-Agent': "SMA - postSonarr"
+                }
 
                 subs = backupSubs(success[0], mp, log)
 

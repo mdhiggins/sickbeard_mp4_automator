@@ -225,7 +225,10 @@ try:
             log.debug("Radarr apikey: %s." % apikey)
 
             if apikey != '':
-                headers = {'X-Api-Key': apikey}
+                headers = {
+                    'X-Api-Key': apikey,
+                    'User-Agent': "SMA - postRadarr"
+                }
 
                 subs = backupSubs(success[0], mp, log)
 
