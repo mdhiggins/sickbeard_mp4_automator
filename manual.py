@@ -294,7 +294,7 @@ def processFile(inputfile, mp, info=None, relativePath=None, silent=False, tag=T
             mp.QTFS(output['output'])
         output_files = mp.replicate(output['output'], relativePath=relativePath)
         print(json.dumps(output, indent=4))
-        for sub in output['external_subs']:
+        for sub in [x for x in output['external_subs'] if os.path.exists(x)]:
             output_files.extend(mp.replicate(sub, relativePath=relativePath))
         for file in output_files:
             mp.setPermissions(file)

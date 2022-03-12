@@ -85,15 +85,12 @@ class MediaProcessor:
                     if self.settings.relocate_moov and not tagfailed:
                         self.QTFS(output['output'])
 
-                    # Permissions
-                    self.setPermissions(output['output'])
-
                     # Reverse Ouput
                     output['output'] = self.restoreFromOutput(inputfile, output['output'])
 
                     # Copy to additional locations
                     output_files = self.replicate(output['output'])
-                    for sub in output['external_subs']:
+                    for sub in [x for x in output['external_subs'] if os.path.exists(x)]:
                         output_files.extend(self.replicate(sub))
 
                     for file in output_files:
