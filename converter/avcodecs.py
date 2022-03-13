@@ -1544,6 +1544,7 @@ class NVEncH265Codec(H265Codec):
     codec_name = 'h265_nvenc'
     ffmpeg_codec_name = 'hevc_nvenc'
     scale_filter = 'scale_npp'
+    max_depth = 10
     encoder_options = H265Codec.encoder_options.copy()
     encoder_options.update({
         'decode_device': str,
