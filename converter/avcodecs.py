@@ -37,6 +37,10 @@ class BaseCodec(object):
     codec_name = None
     ffmpeg_codec_name = None
     ffprobe_codec_name = None
+    max_depth = 9999
+
+    def supportsBitDepth(self, depth):
+        return depth <= self.max_depth
 
     def parse_options(self, opt):
         if 'codec' not in opt or opt['codec'] != self.codec_name:
@@ -80,10 +84,10 @@ class BaseDecoder(object):
     Base decoder class.
     """
     decoder_name = None
-    max_color = 9999
+    max_depth = 9999
 
     def supportsBitDepth(self, depth):
-        return depth <= self.max_color
+        return depth <= self.max_depth
 
 
 class AudioCodec(BaseCodec):
@@ -1086,6 +1090,7 @@ class NVEncH264Codec(H264Codec):
     codec_name = 'h264_nvenc'
     ffmpeg_codec_name = 'h264_nvenc'
     scale_filter = 'scale_npp'
+    max_depth = 8
     encoder_options = H264Codec.encoder_options.copy()
     encoder_options.update({
         'decode_device': str,
@@ -1247,7 +1252,7 @@ class H264V4l2m2mCodec(H264Codec):
 
 class H264V4l2m2mDecoder(BaseDecoder):
     decoder_name = "h264_v4l2m2m"
-    max_color = 8
+    max_depth = 8
 
 
 class H265Codec(VideoCodec):
@@ -1529,7 +1534,7 @@ class H265V4l2m2mCodec(H265Codec):
 
 class H265V4l2m2mDecoder(BaseDecoder):
     decoder_name = "hevc_v4l2m2m"
-    max_color = 10
+    max_depth = 10
 
 
 class NVEncH265Codec(H265Codec):
@@ -1653,12 +1658,12 @@ class NVEncH265CodecPatched(NVEncH265Codec):
 
 class H264CuvidDecoder(BaseDecoder):
     decoder_name = "h264_cuvid"
-    max_color = 8
+    max_depth = 8
 
 
 class H265CuvidDecoder(BaseDecoder):
     decoder_name = "hevc_cuvid"
-    max_color = 10
+    max_depth = 10
 
 
 class VideotoolboxEncH265(H265Codec):
