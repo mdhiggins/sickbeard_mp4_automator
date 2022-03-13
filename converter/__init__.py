@@ -67,6 +67,10 @@ class Converter(object):
     def decoder(decoder):
         return next(x() for x in decoder_list if x.decoder_name == decoder) or BaseDecoder()
 
+    @staticmethod
+    def encoder(encoder):
+        return next((x() for x in video_codec_list + audio_codec_list + subtitle_codec_list + attachment_codec_list if x.codec_name == encoder), None)
+
     def parse_options(self, opt, twopass=None, strip_metadata=False):
         """
         Parse format/codec options and prepare raw ffmpeg option list.
