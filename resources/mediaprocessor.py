@@ -568,8 +568,6 @@ class MediaProcessor:
         ripsubopts = []
 
         codecs = self.converter.ffmpeg.codecs
-        self.log.debug("FFMPEG codecs w/ encoders and decoders:")
-        self.log.debug(json.dumps(codecs, indent=4))
 
         info = info or self.converter.probe(inputfile)
 
