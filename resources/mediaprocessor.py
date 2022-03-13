@@ -568,6 +568,7 @@ class MediaProcessor:
         ripsubopts = []
 
         codecs = self.converter.ffmpeg.codecs
+        pix_fmts = self.converter.ffmpeg.pix_fmts
 
         info = info or self.converter.probe(inputfile)
 
@@ -711,6 +712,26 @@ class MediaProcessor:
                 self.log.debug("Overriding video pix_fmt. Codec cannot be copied because pix_fmt is not approved [pix-fmt].")
                 vdebug = vdebug + ".pix_fmt"
                 vcodec = vcodecs[0]
+
+        # Bit depth pix-fmt safety check
+        source_bit_depth = pix_fmts.get(info.video.pix_fmt, 0)
+        output_bit_depth = pix_fmts.get(vpix_fmt, 0)
+        bit_depth = output_bit_depth or source_bit_depth
+        self.log.debug("Source bit-depth %d, output %d, using depth %d." % (source_bit_depth, output_bit_depth, bit_depth))
+
+        if vcodec != 'copy':
+            vencoder = Converter.encoder(vcodec)
+            if vencoder and not vencoder.supportsBitDepth(bit_depth):
+                self.log.debug("Selected video encoder %s does not support bit depth %d." % (vcodec, bit_depth))
+                vpix_fmt = None
+                viable_formats = sorted([x for x in pix_fmts if pix_fmts[x] <= vencoder.max_depth], key=lambda x: pix_fmts[x], reverse=True)
+                match = re.search(r"yuv[a-z]?[0-9]{3}", info.video.pix_fmt)
+                if match:
+                    vpix_fmt = next(x for x in viable_formats if match.group(0) in x)
+                if vpix_fmt:
+                    self.log.info("Pix-fmt adjusted to %s in order to maintain compatible bit-depth <=%d." % (vpix_fmt, vencoder.max_depth))
+                else:
+                    self.log.debug("No viable pix-fmt option found for bit-depth %d, leave as %s." % (vencoder.max_depth, vpix_fmt))
 
         vframedata = self.normalizeFramedata(info.video.framedata, vHDR) if self.settings.dynamic_params else None
         if vpix_fmt and vframedata and "pix_fmt" in vframedata and vframedata["pix_fmt"] != vpix_fmt:
@@ -1225,7 +1246,7 @@ class MediaProcessor:
 
         if vcodec != 'copy':
             try:
-                opts, device = self.setAcceleration(info.video.codec, info.video.pix_fmt, codecs)
+                opts, device = self.setAcceleration(info.video.codec, info.video.pix_fmt, codecs, pix_fmts)
                 preopts.extend(opts)
                 for k in self.settings.hwdevices:
                     if k in vcodec:
@@ -1313,9 +1334,9 @@ class MediaProcessor:
         return True
 
     # Hardware acceleration options now with bit depth safety checks
-    def setAcceleration(self, video_codec, pix_fmt, codecs=None):
+    def setAcceleration(self, video_codec, pix_fmt, codecs=[], pix_fmts=[]):
         opts = []
-        pix_fmts = self.converter.ffmpeg.pix_fmts
+        pix_fmts = pix_fmts or self.converter.ffmpeg.pix_fmts
         bit_depth = pix_fmts.get(pix_fmt, 0)
         device = None
         # Look up which codecs and which decoders/encoders are available in this build of ffmpeg
