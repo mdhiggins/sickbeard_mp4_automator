@@ -81,10 +81,8 @@ channel-bitrate = 128
 variable-bitrate = 0
 max-bitrate = 0
 max-channels = 0
-sorting = language, channels.d, d.comment
-default-sorting = channels.d, d.comment
-profile = 
 filter = 
+profile = 
 force-filter = False
 sample-rates = 
 sample-format = 
@@ -94,6 +92,13 @@ aac-adtstoasc = False
 ignore-truehd = mp4, m4v
 ignored-dispositions = 
 unique-dispositions = False
+stream-codec-combinations = 
+
+[Audio.Sorting]
+sorting = language, channels.d, d.comment
+default-sorting = channels.d, d.comment
+codecs = 
+final-sort = False
 
 [Universal Audio]
 codec = aac
@@ -101,8 +106,8 @@ channel-bitrate = 128
 variable-bitrate = 0
 first-stream-only = False
 move-after = False
-profile = 
 filter = 
+profile = 
 force-filter = False
 
 [Audio.ChannelFilters]
@@ -125,7 +130,10 @@ ignore-embedded-subs = False
 ignored-dispositions = 
 unique-dispositions = False
 attachment-codec = 
+
+[Subtitle.Sorting]
 sorting = language, d.comment, d.default.d, d.forced.d
+codecs = 
 
 [Subtitle.CleanIt]
 enabled = False
