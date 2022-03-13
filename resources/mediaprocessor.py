@@ -518,7 +518,7 @@ class MediaProcessor:
         return combinations
 
     # Iterate through generated options and remove potential duplicate streams based on mapped combinations
-    def purgeDuplicateStreams(self, combinations, options, info):
+    def purgeDuplicateStreams(self, combinations, options, info, acodecs, uacodecs):
         purge = []
         for combo in combinations:
             filtered_options = [x for x in options if x['map'] in combo]
@@ -526,22 +526,34 @@ class MediaProcessor:
             for c in channels:
                 same_channel_options = [x for x in filtered_options if x['channels'] == c]
                 if len(same_channel_options) > 1:
-                    codecs = [self.getSourceStream(x['map'], info).codec if x['codec'] == 'copy' else x['codec'] for x in same_channel_options]
-                    for codec in set(codecs):
-                        same_codec_options = [x for x in same_channel_options if Converter.codec_name_to_ffprobe_codec_name(x['codec']) == codec or (x['codec'] == 'copy' and self.getSourceStream(x['map'], info).codec == codec)]
-                        if len(same_codec_options) > 1:
-                            same_codec_options.sort(key=lambda x: x['bitrate'], reverse=True)
-                            same_codec_options.sort(key=lambda x: self.getSourceStream(x['map'], info).disposition['default'], reverse=True)
-                            same_codec_options.sort(key=lambda x: x['codec'] == "copy", reverse=True)
-                            purge.extend(same_codec_options[1:])
-        self.log.debug("Purge the following streams: %s." % purge)
-        self.log.info("Found %d streams that can be removed from the output file since they will duplicates [stream-codec-combinations]." % len(purge))
+                    allowed_codecs = uacodecs if c <= 2 and uacodecs else acodecs
+                    if any(x for x in same_channel_options if x['codec'] == 'copy' and self.getSourceStream(x['map'], info).codec in allowed_codecs):
+                        # Remuxable stream found but other audio streams of same channel quantity present
+                        self.duplicateStreamSort(same_channel_options, info)
+                        purge.extend(same_channel_options[1:])
+                    else:
+                        codecs = [self.getSourceStream(x['map'], info).codec if x['codec'] == 'copy' else x['codec'] for x in same_channel_options]
+                        for codec in set(codecs):
+                            same_codec_options = [x for x in same_channel_options if Converter.codec_name_to_ffprobe_codec_name(x['codec']) == codec or (x['codec'] == 'copy' and self.getSourceStream(x['map'], info).codec == codec)]
+                            if len(same_codec_options) > 1:
+                                # No remuxable streams but 2 streams of the output codec are being created
+                                self.duplicateStreamSort(same_codec_options, info)
+                                purge.extend(same_codec_options[1:])
+        self.log.debug("Purging the following streams:")
+        self.log.debug(json.dumps(purge, indent=4))
+        self.log.info("Found %d streams that can be removed from the output file since they will be duplicates [stream-codec-combinations]." % len(purge))
         for p in purge:
             try:
                 options.remove(p)
             except:
                 self.log.debug("Unable to purge stream, may already have been removed.")
         return len(purge) > 0
+
+    # Sorter used by purgeDuplicateStreams
+    def duplicateStreamSort(self, options, info):
+        options.sort(key=lambda x: x['bitrate'], reverse=True)
+        options.sort(key=lambda x: self.getSourceStream(x['map'], info).disposition['default'], reverse=True)
+        options.sort(key=lambda x: x['codec'] == "copy", reverse=True)
 
     # Get indexes for sublists
     def sublistIndexes(self, x, y):
@@ -1029,7 +1041,7 @@ class MediaProcessor:
         final_audio_sort = self.settings.audio_sorting_finalpass
 
         # Purge Duplicate Streams
-        if self.purgeDuplicateStreams(acombinations, audio_settings, info) and not final_audio_sort:
+        if self.purgeDuplicateStreams(acombinations, audio_settings, info, self.settings.acodec, self.settings.ua) and not final_audio_sort:
             self.log.debug("Forcing final audio sort as streams were purged [stream-codec-combinations].")
             final_audio_sort = True
 
@@ -1057,6 +1069,7 @@ class MediaProcessor:
         self.log.info("Reading subtitle streams.")
         if not self.settings.ignore_embedded_subs:
             for s in info.subtitle:
+                self.log.info("Subtitle detected for stream %s - %s %s." % (s.index, s.codec, s.metadata['language']))
                 # Custom skip
                 try:
                     if skipStream and skipStream(self, s, info, inputfile):
@@ -1067,52 +1080,49 @@ class MediaProcessor:
                 except:
                     self.log.exception("Custom subtitle stream skip check error for stream %s." % (s.index))
 
-                try:
-                    image_based = self.isImageBasedSubtitle(inputfile, s.index)
-                except KeyboardInterrupt:
-                    raise
-                except:
-                    self.log.error("Unknown error occurred while trying to determine if subtitle is text or image based. Probably corrupt, skipping.")
-                    continue
-                self.log.info("%s-based subtitle detected for stream %s - %s %s." % ("Image" if image_based else "Text", s.index, s.codec, s.metadata['language']))
+                if self.validLanguage(s.metadata['language'], swl, blocked_subtitle_languages) and self.validDisposition(s.metadata['language'], s.dispostr, self.settings.ignored_subtitle_dispositions, self.settings.unique_subtitle_dispositions, blocked_subtitle_dispositions):
+                    try:
+                        image_based = self.isImageBasedSubtitle(inputfile, s.index)
+                    except KeyboardInterrupt:
+                        raise
+                    except:
+                        self.log.error("Unknown error occurred while trying to determine if subtitle is text or image based. Probably corrupt, skipping.")
+                        continue
+                    self.log.info("Stream %s is %s-based subtitle for codec %s." % (s.index, "image" if image_based else "text", s.codec))
 
-                scodec = None
-                sdisposition = s.dispostr
-                if image_based and self.settings.embedimgsubs and self.settings.scodec_image and len(self.settings.scodec_image) > 0:
-                    scodec = 'copy' if s.codec in self.settings.scodec_image else self.settings.scodec_image[0]
-                elif not image_based and self.settings.embedsubs and self.settings.scodec and len(self.settings.scodec) > 0:
-                    if self.settings.cleanit:
-                        try:
-                            rips = self.ripSubs(inputfile, [self.generateRipSubOpts(inputfile, s, 'srt')])
-                            if rips:
-                                new_sub_path = rips[0]
-                                new_sub = self.isValidSubtitleSource(new_sub_path)
-                                new_sub = self.processExternalSub(new_sub, inputfile)
-                                if new_sub:
-                                    self.log.info("Subtitle %s extracted for cleaning [subtitles.cleanit]." % (new_sub_path))
-                                    self.cleanExternalSub(new_sub.path)
-                                    valid_external_subs.append(new_sub)
-                                continue
-                        except:
-                            self.log.exception("Subtitle rip and cleaning failed.")
-                    scodec = 'copy' if s.codec in self.settings.scodec else self.settings.scodec[0]
+                    scodec = None
+                    if image_based and self.settings.embedimgsubs and self.settings.scodec_image and len(self.settings.scodec_image) > 0:
+                        scodec = 'copy' if s.codec in self.settings.scodec_image else self.settings.scodec_image[0]
+                    elif not image_based and self.settings.embedsubs and self.settings.scodec and len(self.settings.scodec) > 0:
+                        if self.settings.cleanit:
+                            try:
+                                rips = self.ripSubs(inputfile, [self.generateRipSubOpts(inputfile, s, 'srt')])
+                                if rips:
+                                    new_sub_path = rips[0]
+                                    new_sub = self.isValidSubtitleSource(new_sub_path)
+                                    new_sub = self.processExternalSub(new_sub, inputfile)
+                                    if new_sub:
+                                        self.log.info("Subtitle %s extracted for cleaning [subtitles.cleanit]." % (new_sub_path))
+                                        self.cleanExternalSub(new_sub.path)
+                                        valid_external_subs.append(new_sub)
+                                    continue
+                            except:
+                                self.log.exception("Subtitle rip and cleaning failed.")
+                        scodec = 'copy' if s.codec in self.settings.scodec else self.settings.scodec[0]
 
-                if scodec:
-                    # Proceed if no whitelist is set, or if the language is in the whitelist
-                    if self.validLanguage(s.metadata['language'], swl, blocked_subtitle_languages) and self.validDisposition(s.metadata['language'], sdisposition, self.settings.ignored_subtitle_dispositions, self.settings.unique_subtitle_dispositions, blocked_subtitle_dispositions):
+                    if scodec:
                         self.log.info("Creating %s subtitle stream from source stream %d." % (scodec, s.index))
                         subtitle_settings.append({
                             'map': s.index,
                             'codec': scodec,
                             'language': s.metadata['language'],
-                            'disposition': sdisposition,
+                            'disposition': s.dispostr,
                             'title': self.subtitleStreamTitle(s.disposition, s.metadata.get('title')),
                             'debug': 'subtitle.embed-subs'
                         })
                         if self.settings.sub_first_language_stream:
                             blocked_subtitle_languages.append(s.metadata['language'])
-                else:
-                    if self.validLanguage(s.metadata['language'], swl, blocked_subtitle_languages) and self.validDisposition(s.metadata['language'], sdisposition, self.settings.ignored_subtitle_dispositions, self.settings.unique_subtitle_dispositions, blocked_subtitle_dispositions):
+                    else:
                         if image_based and not self.settings.embedimgsubs and self.settings.scodec_image and len(self.settings.scodec_image) > 0:
                             scodec = 'copy' if s.codec in self.settings.scodec_image else self.settings.scodec_image[0]
                         elif not image_based and not self.settings.embedsubs and self.settings.scodec and len(self.settings.scodec) > 0:
@@ -1927,8 +1937,9 @@ class MediaProcessor:
             _, cmds = next(conv)
             self.log.debug("isImageBasedSubtitle FFmpeg command:")
             self.log.debug(self.printableFFMPEGCommand(cmds))
-            for timecode, debug in conv:
-                self.log.debug(debug)
+            for _, debug in conv:
+                if debug:
+                    self.log.debug(debug)
         except FFMpegConvertError:
             return True
         return False
