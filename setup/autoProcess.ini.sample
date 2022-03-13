@@ -81,8 +81,8 @@ channel-bitrate = 128
 variable-bitrate = 0
 max-bitrate = 0
 max-channels = 0
-prefer-more-channels = True
-default-more-channels = True
+sorting = language, channels.d, d.comment
+default-sorting = channels.d, d.comment
 profile = 
 filter = 
 force-filter = False
@@ -125,6 +125,7 @@ ignore-embedded-subs = False
 ignored-dispositions = 
 unique-dispositions = False
 attachment-codec = 
+sorting = language, d.comment, d.default.d, d.forced.d
 
 [Subtitle.CleanIt]
 enabled = False

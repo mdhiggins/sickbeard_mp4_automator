@@ -174,8 +174,8 @@ class ReadSettings:
             'variable-bitrate': 0,
             'max-bitrate': 0,
             'max-channels': 0,
-            'prefer-more-channels': True,
-            'default-more-channels': True,
+            'sorting': 'language, channels.d, d.comment',
+            'default-sorting': 'channels.d, d.comment',
             'filter': '',
             'profile': '',
             'force-filter': False,
@@ -219,6 +219,7 @@ class ReadSettings:
             'ignored-dispositions': '',
             'unique-dispositions': False,
             'attachment-codec': '',
+            'sorting': 'language, d.comment, d.default.d, d.forced.d'
         },
         'Subtitle.CleanIt': {
             'enabled': False,
@@ -746,8 +747,8 @@ class ReadSettings:
         self.avbr = config.getint(section, "variable-bitrate")
         self.amaxbitrate = config.getint(section, 'max-bitrate')
         self.maxchannels = config.getint(section, 'max-channels')
-        self.prefer_more_channels = config.getboolean(section, "prefer-more-channels")
-        self.default_more_channels = config.getboolean(section, "default-more-channels")
+        self.audio_sorting = config.getlist(section, 'sorting')
+        self.audio_default_sorting = config.getlist(section, 'default-sorting')
         self.aprofile = config.get(section, "profile").lower()
         self.afilter = config.get(section, "filter")
         self.aforcefilter = config.getboolean(section, 'force-filter')
@@ -804,6 +805,7 @@ class ReadSettings:
         self.ignored_subtitle_dispositions = config.getlist(section, "ignored-dispositions")
         self.unique_subtitle_dispositions = config.getboolean(section, "unique-dispositions")
         self.attachmentcodec = config.getlist(section, 'attachment-codec')
+        self.sub_sorting = config.getlist(section, 'sorting')
 
         # CleanIt
         section = "Subtitle.CleanIt"
