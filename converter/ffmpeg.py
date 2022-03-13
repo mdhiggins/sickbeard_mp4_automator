@@ -608,7 +608,7 @@ class FFMpeg(object):
         info.path = fname
 
         stdout_data = self._get_stdout([
-            self.ffprobe_path, '-show_format', '-show_streams', fname])
+            self.ffprobe_path, '-show_format', '-show_streams', '-show_entries', 'stream_tags:format_tags', fname])
         info.parse_ffprobe(stdout_data)
 
         if not info.format.format and len(info.streams) == 0:

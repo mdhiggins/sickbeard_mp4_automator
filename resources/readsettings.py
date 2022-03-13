@@ -182,7 +182,6 @@ class ReadSettings:
             'copy-original': False,
             'copy-original-before': False,
             'aac-adtstoasc': False,
-            'ignore-truehd': 'mp4, m4v',
             'ignored-dispositions': '',
             'unique-dispositions': False,
             'stream-codec-combinations': '',
@@ -592,7 +591,6 @@ class ReadSettings:
         self.audio_first_language_stream = config.getboolean(section, "first-stream-of-language")
         self.allow_language_relax = config.getboolean(section, "allow-language-relax")
         self.aac_adtstoasc = config.getboolean(section, 'aac-adtstoasc')
-        self.ignore_truehd = config.getextensions(section, "ignore-truehd")
         self.ignored_audio_dispositions = config.getlist(section, "ignored-dispositions")
         self.unique_audio_dispositions = config.getboolean(section, "unique-dispositions")
         self.stream_codec_combinations = sorted([x.split(":") for x in config.getlist(section, "stream-codec-combinations")], key=lambda x: len(x), reverse=True)

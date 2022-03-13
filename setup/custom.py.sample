@@ -24,3 +24,8 @@ def blockAudioCopy(mp, stream, path):
     # Custom function that skips HDR files that are missing proper HDR metadata / framedata
     mp.log.info("Initiating custom audio copy check method.")
     return False
+
+
+def skipStream(mp, stream, info, path):
+    # Custom function that skips over a stream
+    return False

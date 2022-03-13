@@ -89,7 +89,6 @@ sample-format =
 copy-original = False
 copy-original-before = False
 aac-adtstoasc = False
-ignore-truehd = mp4, m4v
 ignored-dispositions = 
 unique-dispositions = False
 stream-codec-combinations = 

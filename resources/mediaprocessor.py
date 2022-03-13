@@ -26,24 +26,9 @@ try:
     from guessit import guessit
 except ImportError:
     pass
-try:
-    from pymediainfo import MediaInfo
-except ImportError:
-    MediaInfo = None
 
 # Custom Functions
-try:
-    from config.custom import validation
-except ImportError:
-    validation = None
-try:
-    from config.custom import blockVideoCopy
-except ImportError:
-    blockVideoCopy = None
-try:
-    from config.custom import blockAudioCopy
-except ImportError:
-    blockAudioCopy = None
+from resources.custom import *
 
 
 class MediaProcessor:
@@ -242,12 +227,14 @@ class MediaProcessor:
                     }
         return None
 
+    # Wipe disposition data based on settings
     def cleanDispositions(self, info):
         for stream in info.streams:
             for dispo in self.settings.sanitize_disposition:
                 self.log.debug("Setting %s to False for stream %d [sanitize-disposition]." % (dispo, stream.index))
                 stream.disposition[dispo] = False
 
+    # Get title for video stream based on disposition
     def videoStreamTitle(self, width=0, height=0, hdr=False, swidth=0, sheight=0):
         output = "Video"
 
@@ -270,6 +257,7 @@ class MediaProcessor:
             output += " HDR"
         return output.strip() if output else None
 
+    # Get title for audio stream based on disposition
     def audioStreamTitle(self, channels, disposition, title=None):
         if self.settings.keep_titles and title:
             return title
@@ -292,6 +280,7 @@ class MediaProcessor:
             output += " (Dub)"
         return output.strip() if output else None
 
+    # Get title for subtitle stream based on disposition
     def subtitleStreamTitle(self, disposition, title=None):
         if self.settings.keep_titles and title:
             return title
@@ -338,19 +327,6 @@ class MediaProcessor:
                     raise
                 except:
                     self.log.exception("Custom validation check error.")
-            if MediaInfo:
-                try:
-                    media_info = MediaInfo.parse(inputfile)
-                    for track in media_info.tracks:
-                        if track.title and track.streamorder is not None:
-                            so = int(track.streamorder)
-                            stream = info.streams[so]
-                            stream.metadata['title'] = track.title
-                except KeyboardInterrupt:
-                    raise
-                except:
-                    self.log.error("Pymediainfo exception.")
-                    pass
             return info
         except KeyboardInterrupt:
             raise
@@ -358,6 +334,7 @@ class MediaProcessor:
             self.log.exception("isValidSource unexpectedly threw an exception, returning None.")
             return None
 
+    # Determine if a file can be read by FFPROBE and is a subtitle only
     def isValidSubtitleSource(self, inputfile):
         try:
             info = self.converter.probe(inputfile)
@@ -371,6 +348,7 @@ class MediaProcessor:
             self.log.exception("isValidSubtitleSource unexpectedly threw an exception, returning None.")
             return None
 
+    # Parse filename of external subtitle file and set appropriate disposition and language information
     def processExternalSub(self, valid_external_sub, inputfile):
         if not valid_external_sub:
             return valid_external_sub
@@ -393,6 +371,7 @@ class MediaProcessor:
         valid_external_sub.subtitle[0].metadata['language'] = lang
         return valid_external_sub
 
+    # Default audio language based on encoder options
     def getDefaultAudioLanguage(self, options):
         for a in options.get("audio", []):
             if "+default" in a.get("disposition", "").lower():
@@ -538,6 +517,7 @@ class MediaProcessor:
         self.log.info("The following stream indexes have been identified as being copies: %s [stream-codec-combinations]." % combinations)
         return combinations
 
+    # Iterate through generated options and remove potential duplicate streams based on mapped combinations
     def purgeDuplicateStreams(self, combinations, options, info):
         purge = []
         for combo in combinations:
@@ -563,6 +543,7 @@ class MediaProcessor:
                 self.log.debug("Unable to purge stream, may already have been removed.")
         return len(purge) > 0
 
+    # Get indexes for sublists
     def sublistIndexes(self, x, y):
         indexes = []
         occ = [i for i, a in enumerate(x) if a == y[0]]
@@ -570,6 +551,15 @@ class MediaProcessor:
             if x[b:b + len(y)] == y:
                 indexes.append(b)
         return indexes
+
+    # Ensure ffprobe variant of codec is present
+    def ffprobeSafeCodecs(self, codecs):
+        if codecs:
+            ffpcodec = Converter.codec_name_to_ffprobe_codec_name(codecs[0])
+            if ffpcodec and ffpcodec not in codecs:
+                self.log.debug("Codec pool is missing the FFPROBE value of the primary conversion codec %s which will prevent remuxing, adding %s to the list." % (codecs[0], ffpcodec))
+                codecs.append(ffpcodec)
+        return codecs
 
     # Generate a dict of options to be passed to FFMPEG based on selected settings and the source file parameters and streams
     def generateOptions(self, inputfile, info=None, original=None, tagdata=None):
@@ -579,7 +569,7 @@ class MediaProcessor:
 
         codecs = self.converter.ffmpeg.codecs
         self.log.debug("FFMPEG codecs w/ encoders and decoders:")
-        self.log.debug(codecs)
+        self.log.debug(json.dumps(codecs, indent=4))
 
         info = info or self.converter.probe(inputfile)
 
@@ -587,7 +577,10 @@ class MediaProcessor:
             self.log.error("FFPROBE returned no value for inputfile %s (exists: %s), either the file does not exist or is not a format FFPROBE can read." % (inputfile, os.path.exists(inputfile)))
             return None, None, None, None, None
 
+        # Ensure we have adequate language tracks present, assigned undefined languages to default, relax language parameters if needed
         awl, swl = self.safeLanguage(info)
+
+        # Update disposition information using titles, requires PyMediaInfo
         self.titleDispositionCheck(info)
         self.cleanDispositions(info)
 
@@ -597,7 +590,9 @@ class MediaProcessor:
         except:
             self.log.exception("Unable to print input file data")
 
+        ###############################################################
         # Video stream
+        ###############################################################
         self.log.info("Reading video stream.")
         self.log.info("Video codec detected: %s." % info.video.codec)
         self.log.info("Pix Fmt: %s." % info.video.pix_fmt)
@@ -609,10 +604,7 @@ class MediaProcessor:
             vdebug = vdebug + ".hdr"
 
         vcodecs = self.settings.hdr.get('codec', []) if vHDR and len(self.settings.hdr.get('codec', [])) > 0 else self.settings.vcodec
-        ffpvcodec = Converter.codec_name_to_ffprobe_codec_name(vcodecs[0])
-        if ffpvcodec and ffpvcodec not in vcodecs:
-            vcodecs.append(ffpvcodec)
-            self.log.debug("Video codec pool is missing the FFPROBE value of the primary conversion codec %s which will prevent remuxing, adding %s to the list." % (vcodecs[0], ffpvcodec))
+        vcodecs = self.ffprobeSafeCodecs(vcodecs)
         self.log.debug("Pool of video codecs is %s." % (vcodecs))
         vcodec = "copy" if info.video.codec in vcodecs else vcodecs[0]
 
@@ -722,26 +714,6 @@ class MediaProcessor:
                 vdebug = vdebug + ".pix_fmt"
                 vcodec = vcodecs[0]
 
-        # if vcodec != 'copy':
-        #     # Check pix_fmt compatibility and fallback to other viable pix_fmt options
-        #     encoder = Converter.codec_name_to_ffmpeg_codec_name(vcodec)
-        #     valid_formats = self.converter.ffmpeg.encoder_formats(vcodec)
-        #     self.log.debug("Valid formats for encoder %s:" % (encoder))
-        #     self.log.debug(valid_formats)
-        #     self.log.debug(valid_formats)
-        #     if vpix_fmt and vpix_fmt not in valid_formats and info.video.pix_fmt in valid_formats and self.settings.keep_source_pix_fmt:
-        #         self.log.info("Pix_fmt selected %s is not compatible with encoder %s, but source video format is compatible, using None" % (vpix_fmt, encoder))
-        #         vpix_fmt = None
-        #     elif vpix_fmt and vpix_fmt not in valid_formats:
-        #         if vHDR and len(self.settings.hdr.get('pix_fmt')) > 0:
-        #             new_vpix_fmt = next((vf for vf in self.settings.hdr.get('pix_fmt') if vf in valid_formats), None)
-        #         elif not vHDR and len(self.settings.pix_fmt):
-        #             new_vpix_fmt = next((vf for vf in self.settings.pix_fmt if vf in valid_formats), None)
-        #         else:
-        #             new_vpix_fmt = None
-        #         self.log.info("Pix_fmt selected %s is not compatible with encoder %s and source video format is not compatible , using %s" % (vpix_fmt, encoder, new_vpix_fmt))
-        #         vpix_fmt = new_vpix_fmt
-
         vframedata = self.normalizeFramedata(info.video.framedata, vHDR) if self.settings.dynamic_params else None
         if vpix_fmt and vframedata and "pix_fmt" in vframedata and vframedata["pix_fmt"] != vpix_fmt:
             self.log.debug("Pix_fmt is changing, will not preserve framedata")
@@ -782,7 +754,9 @@ class MediaProcessor:
             'debug': vdebug,
         }
 
+        ###############################################################
         # Audio streams
+        ###############################################################
         self.log.info("Reading audio streams.")
 
         # Iterate through audio streams
@@ -792,18 +766,13 @@ class MediaProcessor:
         ua = (len(self.settings.ua) > 0)
         acombinations = self.mapStreamCombinations(info.audio)
 
-        if ua:
-            ffpuacodec = Converter.codec_name_to_ffprobe_codec_name(self.settings.ua[0])
-            if ffpuacodec and ffpuacodec not in self.settings.ua:
-                self.settings.ua[0].append(ffpuacodec)
-                self.log.debug("Universal audio codec pool is missing the FFPROBE value of the primary conversion codec %s which will prevent remuxing, adding %s to the list." % (self.settings.ua[0], ffpuacodec))
+        self.settings.ua = self.ffprobeSafeCodecs(self.settings.ua)
+        self.log.debug("Pool universal audio codecs is %s." % (self.settings.ua))
 
-        ffpacodec = Converter.codec_name_to_ffprobe_codec_name(self.settings.acodec[0])
-        if ffpacodec and ffpacodec not in self.settings.acodec:
-            self.settings.acodec.append(ffpacodec)
-            self.log.debug("Audio codec pool is missing the FFPROBE value of the primary conversion codec %s which will prevent remuxing, adding %s to the list." % (self.settings.acodec[0], ffpacodec))
+        self.settings.acodec = self.ffprobeSafeCodecs(self.settings.acodec)
+        self.log.debug("Pool of audio codecs is %s." % (self.settings.acodec))
 
-        # Sort incoming streams so that things like first language preferences respect these options
+        # Sort incoming streams
         audio_streams = info.audio
         try:
             self.sortStreams(audio_streams, self.settings.audio_sorting, awl, self.settings.audio_sorting_codecs or self.settings.acodec, info)
@@ -813,12 +782,15 @@ class MediaProcessor:
         for a in audio_streams:
             self.log.info("Audio detected for stream %s - %s %s %d channel." % (a.index, a.codec, a.metadata['language'], a.audio_channels))
 
-            if a.codec == 'truehd' and self.settings.output_extension in self.settings.ignore_truehd:
-                if len([x for x in info.audio if x.audio_channels == a.audio_channels and x.metadata['language'] == a.metadata['language']]) > 1:
-                    self.log.info("Skipping trueHD stream %s as typically the 2nd audio stream is the AC3 core of the truehd stream [audio-ignore-truehd]." % a.index)
+            # Custom skip
+            try:
+                if skipStream and skipStream(self, a, info, inputfile):
+                    self.log.info("Audio stream %s will be skipped, custom skipStream function returned True." % (a.index))
                     continue
-                else:
-                    self.log.info("TrueHD stream detected but no other comparable audio streams in source, cannot skip stream %s [audio-ignore-truehd]." % a.index)
+            except KeyboardInterrupt:
+                raise
+            except:
+                self.log.exception("Custom audio stream skip check error for stream %s." % (a.index))
 
             # Proceed if no whitelist is set, or if the language is in the whitelist
             uadata = None
@@ -1016,7 +988,8 @@ class MediaProcessor:
                     audio_settings.insert(uaposition, uadata)
                     aposition = aposition if self.settings.ua_last else (aposition + 1)
 
-                if self.settings.audio_copyoriginal and acodec != 'copy' and not (a.codec == 'truehd' and self.settings.output_extension in self.settings.ignore_truehd):
+                # Copy the original stream
+                if self.settings.audio_copyoriginal and acodec != 'copy':
                     self.log.info("Copying audio stream from source stream %d format %s [audio-copy-original]." % (a.index, a.codec))
                     aposition = aposition if self.settings.audio_copyoriginal_before else (aposition + 1)
                     audio_settings.insert(aposition, {
@@ -1037,7 +1010,8 @@ class MediaProcessor:
         final_audio_sort = self.settings.audio_sorting_finalpass
 
         # Purge Duplicate Streams
-        if self.purgeDuplicateStreams(acombinations, audio_settings, info):
+        if self.purgeDuplicateStreams(acombinations, audio_settings, info) and not final_audio_sort:
+            self.log.debug("Forcing final audio sort as streams were purged [stream-codec-combinations].")
             final_audio_sort = True
 
         # Final Sort
@@ -1054,7 +1028,9 @@ class MediaProcessor:
         except:
             self.log.exception("Unable to set the default audio stream.")
 
-        # Iterate through subtitle streams
+        ###############################################################
+        # Subtitle streams
+        ###############################################################
         subtitle_settings = []
         blocked_subtitle_languages = []
         blocked_subtitle_dispositions = []
@@ -1062,6 +1038,16 @@ class MediaProcessor:
         self.log.info("Reading subtitle streams.")
         if not self.settings.ignore_embedded_subs:
             for s in info.subtitle:
+                # Custom skip
+                try:
+                    if skipStream and skipStream(self, s, info, inputfile):
+                        self.log.info("Subtitle stream %s will be skipped, custom skipStream function returned True." % (s.index))
+                        continue
+                except KeyboardInterrupt:
+                    raise
+                except:
+                    self.log.exception("Custom subtitle stream skip check error for stream %s." % (s.index))
+
                 try:
                     image_based = self.isImageBasedSubtitle(inputfile, s.index)
                 except KeyboardInterrupt:
@@ -1126,8 +1112,10 @@ class MediaProcessor:
         except:
             self.log.exception("Unable to download subitltes [download-subs].")
 
-        # External subtitle import
-        if not self.settings.embedonlyinternalsubs:
+        ###############################################################
+        # External subtitles
+        ###############################################################
+        if not self.settings.embedonlyinternalsubs:  # Subittles extract just for cleaning will still be imported back
             valid_external_subs = self.scanForExternalSubs(inputfile, swl, valid_external_subs)
         for external_sub in valid_external_subs:
             try:
@@ -1153,7 +1141,7 @@ class MediaProcessor:
                 if external_sub.path not in sources:
                     sources.append(external_sub.path)
 
-                self.log.info("Creating %s subtitle stream by importing %s-based %s [embed-subs]." % (scodec, "Image" if image_based else "Text", os.path.basename(external_sub.path)))
+                self.log.info("Creating %s subtitle stream by importing %s-based subtitle %s [embed-subs]." % (scodec, "Image" if image_based else "Text", os.path.basename(external_sub.path)))
                 subtitle_settings.append({
                     'source': sources.index(external_sub.path),
                     'map': 0,
@@ -1287,9 +1275,46 @@ class MediaProcessor:
 
         return options, preopts, postopts, ripsubopts, downloaded_subs
 
+    # Determine if a stream has a valid language for the main option generator
     def validLanguage(self, language, whitelist, blocked=[]):
         return ((len(whitelist) < 1 or language in whitelist) and language not in blocked)
 
+    # Complex valid disposition checker supporting unique dispositions, language combinations etc for the main option generator
+    def validDisposition(self, language, disposition, ignored, unique, existing, append=True):
+        dispodict = self.dispoStringToDict(disposition)
+        truedispositions = [x for x in dispodict if dispodict[x]]
+        for dispo in truedispositions:
+            if dispo in ignored:
+                self.log.debug("Ignoring stream because disposition %s is on the ignore list." % (dispo))
+                return False
+        if unique:
+            search = "%s.%s" % (language, disposition)
+            if search in existing:
+                self.log.debug("Invalid disposition, stream fitting this disposition profile already exists, ignoring.")
+                return False
+            if append:
+                self.log.debug("Valid disposition, adding %s to the ignored list." % (search))
+                existing.append(search)
+            return True
+        return True
+
+    # Help method to convert dispo string back into a dict
+    def dispoStringToDict(self, dispostr):
+        dispo = {}
+        if dispostr:
+            d = re.findall('([+-][a-zA-Z]*)', dispostr)
+            for x in d:
+                dispo[x[1:]] = x.startswith('+')
+        return dispo
+
+    # Simple disposition filter
+    def checkDisposition(self, allowed, source):
+        for a in allowed:
+            if not source.get(a):
+                return False
+        return True
+
+    # Hardware acceleration options now with bit depth safety checks
     def setAcceleration(self, video_codec, pix_fmt, codecs=None):
         opts = []
         pix_fmts = self.converter.ffmpeg.pix_fmts
@@ -1349,6 +1374,7 @@ class MediaProcessor:
                         self.log.debug("Decoder %s is supported but cannot support bit depth %d of format %s." % (decoder, bit_depth, pix_fmt))
         return opts, device
 
+    # Using sorting and filtering to determine which audio track should be flagged as default, only one track will be selected
     def setDefaultAudioStream(self, audio_settings, languages=None, codecs=None, info=None):
         if len(audio_settings) > 0:
             audio_streams = audio_settings[:]
@@ -1400,6 +1426,7 @@ class MediaProcessor:
         else:
             self.log.debug("Audio output is empty, unable to set default audio streams.")
 
+    # Ensure that at least one subtitle stream is default based on language data
     def setDefaultSubtitleStream(self, subtitle_settings):
         if len(subtitle_settings) > 0 and self.settings.sdl:
             if len([x for x in subtitle_settings if '+default' in (x.get('disposition') or '')]) < 1:
@@ -1417,6 +1444,7 @@ class MediaProcessor:
         else:
             self.log.debug("Subtitle output is empty or no default subtitle language is set, will not pass over subtitle output to set a default stream.")
 
+    # Sort streams
     def sortStreams(self, streams, keys, languages=None, codecs=None, info=None):
         def dumper(obj):
             try:
@@ -1475,44 +1503,13 @@ class MediaProcessor:
         self.log.debug("After sort:")
         self.log.debug(json.dumps(streams, default=dumper, indent=4))
 
-    def checkDisposition(self, allowed, source):
-        for a in allowed:
-            if not source.get(a):
-                return False
-        return True
-
-    def validDisposition(self, language, disposition, ignored, unique, existing, append=True):
-        dispodict = self.dispoStringToDict(disposition)
-        truedispositions = [x for x in dispodict if dispodict[x]]
-        for dispo in truedispositions:
-            if dispo in ignored:
-                self.log.debug("Ignoring stream because disposition %s is on the ignore list." % (dispo))
-                return False
-        if unique:
-            search = "%s.%s" % (language, disposition)
-            if search in existing:
-                self.log.debug("Invalid disposition, stream fitting this disposition profile already exists, ignoring.")
-                return False
-            if append:
-                self.log.debug("Valid disposition, adding %s to the ignored list." % (search))
-                existing.append(search)
-            return True
-        return True
-
-    def dispoStringToDict(self, dispostr):
-        dispo = {}
-        if dispostr:
-            d = re.findall('([+-][a-zA-Z]*)', dispostr)
-            for x in d:
-                dispo[x[1:]] = x.startswith('+')
-        return dispo
-
+    # Generate filter string to burn subtitles
     def burnSubtitleFilter(self, inputfile, subtitle_streams, swl, valid_external_subs=None):
         if self.settings.burn_subtitles:
             filtered_subtitle_streams = [x for x in subtitle_streams if self.validLanguage(x.metadata.get('language'), swl)]
             filtered_subtitle_streams = sorted(filtered_subtitle_streams, key=lambda x: swl.index(x.metadata.get('language')) if x.metadata.get('language') in swl else 999)
             sub_candidates = []
-            if len(filtered_subtitle_streams) > 0 and not self.settings.cleanit:
+            if len(filtered_subtitle_streams) > 0 and not self.settings.cleanit:  # Don't burn embedded subtitles if we're cleaning, favor external
                 first_index = sorted([x.index for x in subtitle_streams])[0]
 
                 # Filter subtitles to be burned based on setting
@@ -1560,6 +1557,7 @@ class MediaProcessor:
             self.log.info("No valid subtitle stream candidates found to be burned into video stream [burn-subtitles].")
         return None
 
+    # Scan for external subtitle files
     def scanForExternalSubs(self, inputfile, swl, valid_external_subs=None):
         valid_external_subs = valid_external_subs or []
         input_dir, filename, _ = self.parseFile(inputfile)
@@ -1585,6 +1583,7 @@ class MediaProcessor:
 
         return valid_external_subs
 
+    # Process external subtitle file with CleanIt library
     def cleanExternalSub(self, path):
         if cleanit:
             self.log.debug("Cleaning subtitle with path %s [subtitles.cleanit]." % (path))
@@ -1594,6 +1593,7 @@ class MediaProcessor:
             if sub.clean(rules):
                 sub.save()
 
+    # Custom method to allow additional video data to be passed to subliminal for better subtitle accuracy
     @staticmethod
     def custom_scan_video(path, tagdata=None):
         # check for non-existing path
@@ -1626,6 +1626,7 @@ class MediaProcessor:
 
         return video
 
+    # Download subtitles using subliminal
     def downloadSubtitles(self, inputfile, existing_subtitle_streams, swl, original=None, tagdata=None):
         if self.settings.downloadsubs:
             languages = set()
@@ -1711,6 +1712,7 @@ class MediaProcessor:
                 self.log.exception("Unable to download subtitles.")
         return []
 
+    # Generic permission setter
     def setPermissions(self, path):
         try:
             if os.path.exists(path):
@@ -1722,6 +1724,7 @@ class MediaProcessor:
         except:
             self.log.exception("Unable to set new file permissions.")
 
+    # Undo output dir
     def restoreFromOutput(self, inputfile, outputfile):
         if self.settings.output_dir and outputfile.startswith(self.settings.output_dir):
             input_dir, filename, input_extension = self.parseFile(inputfile)
@@ -1731,9 +1734,11 @@ class MediaProcessor:
             return newoutputfile
         return outputfile
 
+    # Reverse map option back to source stream
     def getSourceStream(self, index, info):
         return info.streams[index]
 
+    # Get subtitle extension based on codec
     def getSubExtensionFromCodec(self, codec):
         try:
             return subtitle_codec_extensions[codec]
@@ -1741,10 +1746,12 @@ class MediaProcessor:
             self.log.info("Wasn't able to determine subtitle file extension, defaulting to codec %s." % codec)
             return codec
 
+    # Get subtitle file name based on options
     def getSubOutputFileFromOptions(self, inputfile, options, extension):
         language = options["language"]
         return self.getSubOutputFile(inputfile, language, options['disposition'], extension)
 
+    # Get subtitle file name based on language, disposition, and extension
     def getSubOutputFile(self, inputfile, language, disposition, extension):
         disposition = self.dispoStringToDict(disposition)
         dispo = ""
@@ -1762,6 +1769,7 @@ class MediaProcessor:
             i += 1
         return outputfile
 
+    # Generate options to rip a subtitle from a container file
     def generateRipSubOpts(self, inputfile, s, scodec):
         ripsub = [{
             'map': s.index,
@@ -1779,8 +1787,10 @@ class MediaProcessor:
         }
         return options
 
+    # Rip subtitle from container
     def ripSubs(self, inputfile, ripsubopts):
         rips = []
+        ripsubopts = ripsubopts if isinstance(ripsubopts, list) else [ripsubopts]
         for options in ripsubopts:
             extension = self.getSubExtensionFromCodec(options['format'])
             outputfile = self.getSubOutputFileFromOptions(inputfile, options, extension)
@@ -1807,6 +1817,7 @@ class MediaProcessor:
             self.setPermissions(outputfile)
         return rips
 
+    # Get output file name
     def getOutputFile(self, input_dir, filename, input_extension, temp_extension=None, ignore_output_dir=False, number=0):
         if ignore_output_dir:
             output_dir = input_dir
@@ -1830,12 +1841,14 @@ class MediaProcessor:
         self.log.debug("Output file: %s." % outputfile)
         return outputfile, output_dir
 
+    # Framedata normalization
     def parseAndNormalize(self, inputstring, denominator, splitter="/"):
         n, d = [float(x) for x in inputstring.split(splitter)]
         if d == denominator:
             return n
         return int(round((n / d) * denominator))
 
+    # Ensure framedata has minimum parameters
     def hasValidFrameData(self, framedata):
         try:
             if 'side_data_list' in framedata:
@@ -1846,6 +1859,7 @@ class MediaProcessor:
         except:
             return False
 
+    # Framedata normalization
     def normalizeFramedata(self, framedata, hdr):
         try:
             if hdr:
@@ -1869,6 +1883,7 @@ class MediaProcessor:
         except:
             return framedata
 
+    # Check if video stream meets criteria to be considered HDR
     def isHDR(self, videostream):
         if len(self.settings.hdr['space']) < 1 and len(self.settings.hdr['transfer']) < 1 and len(self.settings.hdr['primaries']) < 1:
             self.log.debug("No HDR screening parameters defined, returning false [hdr].")
@@ -1883,6 +1898,7 @@ class MediaProcessor:
         self.log.info("HDR video stream detected for %d." % videostream.index)
         return True
 
+    # Run test conversion of subtitle to see if its image based, does not appear to be any other way to tell dynamically
     def isImageBasedSubtitle(self, inputfile, map):
         ripsub = [{'map': map, 'codec': 'srt'}]
         options = {'source': [inputfile], 'format': 'srt', 'subtitle': ripsub}
@@ -1898,6 +1914,7 @@ class MediaProcessor:
             return True
         return False
 
+    # Check if video file meets criteria to just bypass conversion
     def canBypassConvert(self, inputfile, info, options=None):
         # Process same extensions
         if self.settings.output_extension == self.parseFile(inputfile)[2]:
@@ -1913,6 +1930,7 @@ class MediaProcessor:
         self.log.debug("canBypassConvert returned False.")
         return False
 
+    # Generate copy/paste friendly FFMPEG command
     def printableFFMPEGCommand(self, cmds):
         return " ".join("\"%s\"" % item if (" " in item or "|" in item) and "\"" not in item else item for item in cmds)
 
@@ -2043,6 +2061,7 @@ class MediaProcessor:
 
         return finaloutputfile, inputfile
 
+    # Generate progress bar
     def displayProgressBar(self, complete, debug="", width=20, newline=False):
         try:
             divider = 100 / width
@@ -2193,6 +2212,7 @@ class MediaProcessor:
                     time.sleep(delay)
         return False if os.path.isfile(filename) else True
 
+    # Formatter needed for burn subtitle filter syntax
     def raw(self, text):
         escape_dict = {'\\': r'\\',
                        ':': "\\:"}
