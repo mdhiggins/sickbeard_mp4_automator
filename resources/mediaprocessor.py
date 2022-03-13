@@ -61,7 +61,7 @@ class MediaProcessor:
             if info:
                 self.log.info("Processing %s." % inputfile)
 
-                output = self.process(inputfile, original=original, info=info, tagdata=tagdata)
+                output = self.process(inputfile, original=original, info=info, tagdata=tagdata, reportProgress=reportProgress)
 
                 if output:
                     if not language:
@@ -384,14 +384,10 @@ class MediaProcessor:
             if lang == 'und' and l != 'und':
                 lang = l
                 self.log.debug("Found language match %s." % (lang))
-            if suf in BaseCodec.DISPOSITIONS:
-                valid_external_sub.subtitle[0].disposition[suf] = True
+            dsuf = BaseCodec.ALTERNATES.get(suf, suf)
+            if dsuf in BaseCodec.DISPOSITIONS:
+                valid_external_sub.subtitle[0].disposition[dsuf] = True
                 self.log.debug("Found disposition match %s." % (suf))
-            # Alternate tags
-            for k in BaseCodec.ALTERNATES:
-                if suf in BaseCodec.ALTERNATES[k]:
-                    valid_external_sub.subtitle[0].disposition[k] = True
-                    self.log.debug("Found disposition match %s." % (k))
         if self.settings.sdl and lang == 'und':
             lang = self.settings.sdl
         valid_external_sub.subtitle[0].metadata['language'] = lang
@@ -508,20 +504,20 @@ class MediaProcessor:
 
     # Check and see if clues about the disposition are in the title
     def titleDispositionCheck(self, info):
+        DISPO_MAP = {
+            'comment': 'comment',
+            'hearing': 'hearing_impaired',
+            'sdh': 'hearing_impaired',
+            'visual': 'visual_impaired',
+            'forced': 'forced'
+        }
+
         for stream in info.streams:
             title = stream.metadata.get('title', '').lower()
-            if 'comment' in title:
-                self.log.debug("Found comment in stream title, setting comment disposition to True.")
-                stream.disposition['comment'] = True
-            if 'hearing' in title or 'sdh' in title:
-                self.log.debug("Found hearing in stream title, setting hearing_impaired disposition to True.")
-                stream.disposition['hearing_impaired'] = True
-            if 'visual' in title:
-                self.log.debug("Found visual in stream title, setting visual_impaired disposition to True.")
-                stream.disposition['visual_impaired'] = True
-            if 'forced' in title:
-                self.log.debug("Found foced in stream title, setting forced disposition to True.")
-                stream.disposition['forced'] = True
+            for k in DISPO_MAP:
+                if k in title:
+                    stream.disposition[DISPO_MAP[k]] = True
+                    self.log.debug("Found %s in stream title, setting %s disposition to True." % (k, DISPO_MAP[k]))
 
     # Get source audio tracks that meet criteria for being the same based on codec combination, language, and dispostion
     def mapStreamCombinations(self, audiostreams):
@@ -589,7 +585,7 @@ class MediaProcessor:
 
         if not info:
             self.log.error("FFPROBE returned no value for inputfile %s (exists: %s), either the file does not exist or is not a format FFPROBE can read." % (inputfile, os.path.exists(inputfile)))
-            return None, None, None, None
+            return None, None, None, None, None
 
         awl, swl = self.safeLanguage(info)
         self.titleDispositionCheck(info)
@@ -623,7 +619,7 @@ class MediaProcessor:
         # Custom
         try:
             if blockVideoCopy and blockVideoCopy(self, info.video, inputfile):
-                self.log.exception("Custom video stream copy check is preventing copying the stream.")
+                self.log.info("Custom video stream copy check is preventing copying the stream.")
                 vdebug = vdebug + ".custom"
                 vcodec = vcodecs[0]
         except KeyboardInterrupt:
@@ -810,7 +806,7 @@ class MediaProcessor:
         # Sort incoming streams so that things like first language preferences respect these options
         audio_streams = info.audio
         try:
-            self.sortStreams(audio_streams, self.settings.audio_sorting, awl, self.settings.acodec, info)
+            self.sortStreams(audio_streams, self.settings.audio_sorting, awl, self.settings.audio_sorting_codecs or self.settings.acodec, info)
         except:
             self.log.exception("Error sorting source audio streams [sort-streams].")
 
@@ -896,7 +892,7 @@ class MediaProcessor:
                     # Custom
                     try:
                         if blockAudioCopy and blockAudioCopy(self, a, inputfile):
-                            self.log.exception("Custom audio stream copy check is preventing copying the stream.")
+                            self.log.info("Custom audio stream copy check is preventing copying the stream.")
                             adebug = adebug + ".custom"
                             acodec = self.settings.ua[0]
                     except KeyboardInterrupt:
@@ -1038,16 +1034,23 @@ class MediaProcessor:
                     blocked_audio_languages.append(a.metadata['language'])
                     self.log.debug("Blocking further %s audio streams to prevent multiple streams of the same language [audio-first-stream-of-language]." % a.metadata['language'])
 
+        final_audio_sort = self.settings.audio_sorting_finalpass
+
         # Purge Duplicate Streams
         if self.purgeDuplicateStreams(acombinations, audio_settings, info):
+            final_audio_sort = True
+
+        # Final Sort
+        if final_audio_sort:
             try:
-                self.sortStreams(audio_settings, self.settings.audio_sorting, awl, self.settings.acodec, info)
+                self.log.debug("Triggering final audio track sort [audio-final-sort].")
+                self.sortStreams(audio_settings, self.settings.audio_sorting, awl, self.settings.audio_sorting_codecs or self.settings.acodec, info)
             except:
                 self.log.exception("Error sorting output stream options [sort-streams].")
 
         # Set Default Audio Stream
         try:
-            self.setDefaultAudioStream(audio_settings, awl, self.settings.acodec, info)
+            self.setDefaultAudioStream(audio_settings, awl, self.settings.audio_sorting_codecs or self.settings.acodec, info)
         except:
             self.log.exception("Unable to set the default audio stream.")
 
@@ -1193,7 +1196,7 @@ class MediaProcessor:
 
         # Sort Options
         try:
-            self.sortStreams(subtitle_settings, self.settings.sub_sorting, swl, self.settings.scodec + self.settings.scodec_image, info)
+            self.sortStreams(subtitle_settings, self.settings.sub_sorting, swl, self.settings.sub_sorting_codecs or (self.settings.scodec + self.settings.scodec_image, info))
         except:
             self.log.exception("Error sorting output stream options [sort-streams].")
 
@@ -1349,7 +1352,8 @@ class MediaProcessor:
     def setDefaultAudioStream(self, audio_settings, languages=None, codecs=None, info=None):
         if len(audio_settings) > 0:
             audio_streams = audio_settings[:]
-            self.sortStreams(audio_streams, self.settings.audio_default_sorting, languages, codecs, info)
+            self.log.debug("Sorting audio streams for default audio stream designation.")
+            self.sortStreams(audio_streams, self.settings.audio_sorting_default, languages, codecs, info)
             preferred_language_audio_streams = [x for x in audio_streams if x.get('language') == self.settings.adl] if self.settings.adl else audio_streams
             default_stream = audio_streams[0]
             default_streams = [x for x in audio_streams if '+default' in (x.get('disposition') or '')]
@@ -1392,7 +1396,7 @@ class MediaProcessor:
             else:
                 default_stream['disposition'] = "+default"
 
-            self.log.info("Default audio stream set to %s %s %s channel stream [audio-default-sorting: %s]." % (default_stream['language'], default_stream['codec'], default_stream['channels'], self.settings.audio_default_sorting))
+            self.log.info("Default audio stream set to %s %s %s channel stream [audio-default-sorting: %s]." % (default_stream['language'], default_stream['codec'], default_stream['channels'], self.settings.audio_sorting_default))
         else:
             self.log.debug("Audio output is empty, unable to set default audio streams.")
 
@@ -1413,28 +1417,30 @@ class MediaProcessor:
         else:
             self.log.debug("Subtitle output is empty or no default subtitle language is set, will not pass over subtitle output to set a default stream.")
 
-    def sortStreams(self, streams, keys, languages=None, _codecs=None, info=None):
+    def sortStreams(self, streams, keys, languages=None, codecs=None, info=None):
         def dumper(obj):
             try:
                 return obj.json
             except:
                 return obj.__dict__
 
-        codecs = _codecs[1:] if len(_codecs) > 1 else _codecs[:]
+        DISPO_PREFIX = "d."
+        ASCENDING_SUFFIX = ".a"
+        DESCENDING_SUFFIX = ".d"
 
         self.log.debug("Sorting streams with keys %s." % (keys))
         self.log.debug("Before sort:")
         self.log.debug(json.dumps(streams, default=dumper, indent=4))
 
-        sortDict = {
+        SORT_DICT = {
             'codec': lambda x: (codecs.index(self.getSourceStream(x['map'], info).codec if x.get('codec') == 'copy' else x.get('codec')) if (self.getSourceStream(x['map'], info).codec if x.get('codec') == 'copy' else x.get('codec')) in codecs else 999),
             'channels': lambda x: x.get('channels', 999),
             'language': lambda x: languages.index(x.get('language')) if x.get('language') in languages else 999,
             'bitrate': lambda x: x.get('bitrate', 999)
         }
 
-        sortObject = {
-            'codec': lambda x: codecs.index(x.get('codec')) if x.get('codec') in codecs else 999,
+        SORT_MEDIASTREAMINFO = {
+            'codec': lambda x: codecs.index(x.codec) if x.codec in codecs else 999,
             'channels': lambda x: x.audio_channels,
             'language': lambda x: languages.index(x.metadata.get('language')) if x.metadata.get('language') in languages else 999,
             'bitrate': lambda x: x.bitrate
@@ -1443,27 +1449,28 @@ class MediaProcessor:
         if self.settings.sort_streams and len(streams):
             for k in keys:
                 reverse = False
-                if k.endswith(".a"):
+                if k.endswith(ASCENDING_SUFFIX):
                     reverse = False
-                    k = k[:-2]
-                elif k.endswith(".d"):
+                    k = k[:-len(ASCENDING_SUFFIX)]
+                elif k.endswith(DESCENDING_SUFFIX):
                     reverse = True
-                    k = k[:-2]
+                    k = k[:-len(DESCENDING_SUFFIX)]
 
                 if isinstance(streams[0], dict):
-                    if k.startswith("d."):
-                        disposition = k[2:]
+                    if k.startswith(DISPO_PREFIX):
+                        disposition = k[len(DISPO_PREFIX):]
                         if disposition:
                             streams.sort(key=lambda x: '+%s' % (disposition) in x.get('disposition', ''), reverse=reverse)
-                    elif k in sortDict:
-                        streams.sort(key=sortDict[k], reverse=reverse)
+                    elif k in SORT_DICT:
+                        streams.sort(key=SORT_DICT[k], reverse=reverse)
                 else:
-                    if k.startswith("d."):
-                        disposition = k[2:]
-                        if disposition:
+                    if k.startswith(DISPO_PREFIX):
+                        disposition = k[len(DISPO_PREFIX):]
+                        disposition = BaseCodec.ALTERNATES.get(disposition, disposition)
+                        if disposition and disposition in BaseCodec.DISPOSITIONS:
                             streams.sort(key=lambda x: x.disposition.get(disposition), reverse=reverse)
-                    elif k in sortObject:
-                        streams.sort(key=sortObject[k], reverse=reverse)
+                    elif k in SORT_MEDIASTREAMINFO:
+                        streams.sort(key=SORT_MEDIASTREAMINFO[k], reverse=reverse)
 
         self.log.debug("After sort:")
         self.log.debug(json.dumps(streams, default=dumper, indent=4))

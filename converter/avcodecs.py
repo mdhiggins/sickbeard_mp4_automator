@@ -24,9 +24,13 @@ class BaseCodec(object):
     ]
 
     ALTERNATES = {
-        'comment': ['commentary'],
-        'forced': ['force'],
-        'hearing_impaired': ['sdh', 'hi', 'cc']
+        'commentary': 'comment',
+        'force': 'forced',
+        'sdh': 'hearing_impaired',
+        'hi': 'hearing_impaired',
+        'cc': 'hearing_impaired',
+        'lyric': 'lyrics',
+        'dubbed': 'dub'
     }
 
     encoder_options = {}

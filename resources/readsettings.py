@@ -174,8 +174,6 @@ class ReadSettings:
             'variable-bitrate': 0,
             'max-bitrate': 0,
             'max-channels': 0,
-            'sorting': 'language, channels.d, d.comment',
-            'default-sorting': 'channels.d, d.comment',
             'filter': '',
             'profile': '',
             'force-filter': False,
@@ -188,6 +186,12 @@ class ReadSettings:
             'ignored-dispositions': '',
             'unique-dispositions': False,
             'stream-codec-combinations': '',
+        },
+        'Audio.Sorting': {
+            'sorting': 'language, channels.d, d.comment',
+            'default-sorting': 'channels.d, d.comment',
+            'codecs': '',
+            'final-sort': False
         },
         'Universal Audio': {
             'codec': 'aac',
@@ -219,7 +223,10 @@ class ReadSettings:
             'ignored-dispositions': '',
             'unique-dispositions': False,
             'attachment-codec': '',
-            'sorting': 'language, d.comment, d.default.d, d.forced.d'
+        },
+        'Subtitle.Sorting': {
+            'sorting': 'language, d.comment, d.default.d, d.forced.d',
+            'codecs': ''
         },
         'Subtitle.CleanIt': {
             'enabled': False,
@@ -747,8 +754,6 @@ class ReadSettings:
         self.avbr = config.getint(section, "variable-bitrate")
         self.amaxbitrate = config.getint(section, 'max-bitrate')
         self.maxchannels = config.getint(section, 'max-channels')
-        self.audio_sorting = config.getlist(section, 'sorting')
-        self.audio_default_sorting = config.getlist(section, 'default-sorting')
         self.aprofile = config.get(section, "profile").lower()
         self.afilter = config.get(section, "filter")
         self.aforcefilter = config.getboolean(section, 'force-filter')
@@ -763,6 +768,12 @@ class ReadSettings:
         self.ignored_audio_dispositions = config.getlist(section, "ignored-dispositions")
         self.unique_audio_dispositions = config.getboolean(section, "unique-dispositions")
         self.stream_codec_combinations = sorted([x.split(":") for x in config.getlist(section, "stream-codec-combinations")], key=lambda x: len(x), reverse=True)
+
+        section = "Audio.Sorting"
+        self.audio_sorting = config.getlist(section, 'sorting')
+        self.audio_sorting_default = config.getlist(section, 'default-sorting')
+        self.audio_sorting_codecs = config.getlist(section, 'codecs')
+        self.audio_sorting_finalpass = config.getboolean(section, 'final-sort')
 
         section = "Audio.ChannelFilters"
         self.afilterchannels = {}
@@ -805,7 +816,10 @@ class ReadSettings:
         self.ignored_subtitle_dispositions = config.getlist(section, "ignored-dispositions")
         self.unique_subtitle_dispositions = config.getboolean(section, "unique-dispositions")
         self.attachmentcodec = config.getlist(section, 'attachment-codec')
+
+        section = "Subtitle.Sorting"
         self.sub_sorting = config.getlist(section, 'sorting')
+        self.sub_sorting_codecs = config.getlist(section, 'codecs')
 
         # CleanIt
         section = "Subtitle.CleanIt"
