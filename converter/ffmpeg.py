@@ -529,13 +529,13 @@ class FFMpeg(object):
 
     def encoder_formats(self, encoder):
         prefix = "Supported pixel formats:"
-        formatline = next(line.strip() for line in self._get_stdout([self.ffmpeg_path, '-hide_banner', '-h', 'encoder=%s' % encoder]).split('\n')[1:] if line and line.strip().startswith(prefix))
+        formatline = next((line.strip() for line in self._get_stdout([self.ffmpeg_path, '-hide_banner', '-h', 'encoder=%s' % encoder]).split('\n')[1:] if line and line.strip().startswith(prefix)), "")
         formats = formatline.split(":")
         return formats[1].strip().split(" ") if formats and len(formats) > 0 else []
 
     def decoder_formats(self, decoder):
         prefix = "Supported pixel formats:"
-        formatline = next(line.strip() for line in self._get_stdout([self.ffmpeg_path, '-hide_banner', '-h', 'decoder=%s' % decoder]).split('\n')[1:] if line and line.strip().startswith(prefix))
+        formatline = next((line.strip() for line in self._get_stdout([self.ffmpeg_path, '-hide_banner', '-h', 'decoder=%s' % decoder]).split('\n')[1:] if line and line.strip().startswith(prefix)), "")
         formats = formatline.split(":")
         return formats[1].strip().split(" ") if formats and len(formats) > 0 else []
 
