@@ -360,7 +360,7 @@ class MediaProcessor:
             if lang == 'und' and l != 'und':
                 lang = l
                 self.log.debug("Found language match %s." % (lang))
-            dsuf = BaseCodec.ALTERNATES.get(suf, suf)
+            dsuf = BaseCodec.DISPO_ALTS.get(suf, suf)
             if dsuf in BaseCodec.DISPOSITIONS:
                 valid_external_sub.subtitle[0].disposition[dsuf] = True
                 self.log.debug("Found disposition match %s." % (suf))
@@ -1352,7 +1352,7 @@ class MediaProcessor:
         dispodict = self.dispoStringToDict(disposition)
         truedispositions = [x for x in dispodict if dispodict[x]]
         for dispo in truedispositions:
-            if dispo in ignored:
+            if BaseCodec.DISPO_ALTS.get(dispo, dispo) in ignored:
                 self.log.debug("Ignoring stream because disposition %s is on the ignore list." % (dispo))
                 return False
         if unique:
@@ -1574,7 +1574,7 @@ class MediaProcessor:
                 else:
                     if k.startswith(DISPO_PREFIX):
                         disposition = k[len(DISPO_PREFIX):]
-                        disposition = BaseCodec.ALTERNATES.get(disposition, disposition)
+                        disposition = BaseCodec.DISPO_ALTS.get(disposition, disposition)
                         if disposition and disposition in BaseCodec.DISPOSITIONS:
                             sort.sort(key=lambda x: x.disposition.get(disposition), reverse=reverse)
                     elif k in SORT_MEDIASTREAMINFO:

@@ -23,7 +23,7 @@ class BaseCodec(object):
         # 'metadata',
     ]
 
-    ALTERNATES = {
+    DISPO_ALTS = {
         'commentary': 'comment',
         'force': 'forced',
         'sdh': 'hearing_impaired',
