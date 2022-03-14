@@ -108,7 +108,6 @@ class ReadSettings:
             'copy-to': '',
             'move-to': '',
             'delete-original': True,
-            'sort-streams': True,
             'process-same-extensions': False,
             'bypass-if-copying-all': False,
             'force-convert': False,
@@ -472,7 +471,6 @@ class ReadSettings:
         self.copyto = config.getdirectories(section, "copy-to", separator='|')
         self.moveto = config.getdirectory(section, "move-to")
         self.delete = config.getboolean(section, "delete-original")
-        self.sort_streams = config.getboolean(section, "sort-streams")
         self.process_same_extensions = config.getboolean(section, "process-same-extensions")
         self.bypass_copy_all = config.getboolean(section, "bypass-if-copying-all")
         self.force_convert = config.getboolean(section, "force-convert")
@@ -824,7 +822,13 @@ class ReadSettings:
     def migrateFromOld(self, config, configFile):
         try:
             write = False
-            if config.has_option("Audio", "prefer-more-channels"):
+            if config.has_option("Converter", "sort-streams"):
+                if not config.getboolean("Converter", "sort-streams"):
+                    config.remove_option("Converter", "sort-streams")
+                    config.set("Audio.Sorting", "sorting", "")
+                    config.set("Subtitle.Sorting", "sorting", "")
+                    write = True
+            elif config.has_option("Audio", "prefer-more-channels"):
                 asorting = config.get("Audio.Sorting", 'sorting').lower()
                 if config.getboolean("Audio", "prefer-more-channels"):
                     if "channels" in asorting and "channels.a" not in asorting and "channels.d" not in asorting:

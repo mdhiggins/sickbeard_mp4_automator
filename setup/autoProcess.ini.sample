@@ -15,7 +15,6 @@ ignored-extensions = nfo, ds_store
 copy-to = 
 move-to = 
 delete-original = True
-sort-streams = True
 process-same-extensions = False
 bypass-if-copying-all = False
 force-convert = False
