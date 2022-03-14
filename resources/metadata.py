@@ -2,14 +2,11 @@ import os
 import sys
 import requests
 import enum
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
 import tempfile
 import time
 import logging
 import tmdbsimple as tmdb
+from io import StringIO
 from mutagen.mp4 import MP4, MP4Cover, MP4StreamInfoError
 from resources.extensions import valid_poster_extensions, tmdb_api_key
 from resources.lang import getAlpha2BCode
