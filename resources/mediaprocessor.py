@@ -18,14 +18,13 @@ try:
 except ImportError:
     cleanit = None
 try:
-    from babelfish import Language
-except ImportError:
-    pass
-try:
     import subliminal
     from guessit import guessit
+    from babelfish import Language
 except ImportError:
-    pass
+    subliminal = None
+    guessit = None
+    Language = None
 
 # Custom Functions
 from resources.custom import *
@@ -154,9 +153,8 @@ class MediaProcessor:
                     self.log.exception("Unable to log options.")
 
                 ripped_subs = self.ripSubs(inputfile, ripsubopts)
-                if self.settings.cleanit:
-                    for rs in ripped_subs:
-                        self.cleanExternalSub(rs)
+                for rs in ripped_subs:
+                    self.cleanExternalSub(rs)
                 try:
                     outputfile, inputfile = self.convert(options, preopts, postopts, reportProgress, progressOutput)
                 except KeyboardInterrupt:
@@ -1094,7 +1092,7 @@ class MediaProcessor:
                     if image_based and self.settings.embedimgsubs and self.settings.scodec_image and len(self.settings.scodec_image) > 0:
                         scodec = 'copy' if s.codec in self.settings.scodec_image else self.settings.scodec_image[0]
                     elif not image_based and self.settings.embedsubs and self.settings.scodec and len(self.settings.scodec) > 0:
-                        if self.settings.cleanit:
+                        if self.settings.cleanit and cleanit:
                             try:
                                 rips = self.ripSubs(inputfile, [self.generateRipSubOpts(inputfile, s, 'srt')])
                                 if rips:
@@ -1538,7 +1536,7 @@ class MediaProcessor:
             filtered_subtitle_streams = [x for x in subtitle_streams if self.validLanguage(x.metadata.get('language'), swl)]
             filtered_subtitle_streams = sorted(filtered_subtitle_streams, key=lambda x: swl.index(x.metadata.get('language')) if x.metadata.get('language') in swl else 999)
             sub_candidates = []
-            if len(filtered_subtitle_streams) > 0 and not self.settings.cleanit:  # Don't burn embedded subtitles if we're cleaning, favor external
+            if len(filtered_subtitle_streams) > 0 and not (self.settings.cleanit and cleanit):  # Don't burn embedded subtitles if we're cleaning, favor external
                 first_index = sorted([x.index for x in subtitle_streams])[0]
 
                 # Filter subtitles to be burned based on setting
@@ -1614,7 +1612,7 @@ class MediaProcessor:
 
     # Process external subtitle file with CleanIt library
     def cleanExternalSub(self, path):
-        if cleanit:
+        if self.settings.cleanit and cleanit:
             self.log.debug("Cleaning subtitle with path %s [subtitles.cleanit]." % (path))
             sub = cleanit.Subtitle(path)
             cfg = cleanit.Config.from_path(self.settings.cleanit_config) if self.settings.cleanit_config else cleanit.Config()
@@ -1657,7 +1655,7 @@ class MediaProcessor:
 
     # Download subtitles using subliminal
     def downloadSubtitles(self, inputfile, existing_subtitle_streams, swl, original=None, tagdata=None):
-        if self.settings.downloadsubs:
+        if self.settings.downloadsubs and subliminal and guessit and Language:
             languages = set()
             for alpha3 in swl:
                 try:
