@@ -803,7 +803,13 @@ class MediaProcessor:
 
         # Sort incoming streams
         try:
-            audio_streams = self.sortStreams(info.audio, self.settings.audio_sorting, awl, self.settings.audio_sorting_codecs or self.settings.acodec, info)
+            audio_streams = self.sortStreams(
+                info.audio,
+                self.settings.audio_sorting,
+                awl,
+                self.settings.audio_sorting_codecs or self.settings.acodec,
+                info
+            )
         except:
             audio_streams = info.audio
             self.log.exception("Error sorting source audio streams [audio.sorting-sorting].")
@@ -1051,13 +1057,29 @@ class MediaProcessor:
         if final_audio_sort:
             try:
                 self.log.debug("Triggering final audio track sort [audio-final-sort].")
-                audio_settings = self.sortStreams(audio_settings, self.settings.audio_sorting, awl, self.settings.audio_sorting_codecs or self.settings.acodec, info, audio_streams, acombinations)
+                audio_settings = self.sortStreams(
+                    audio_settings,
+                    self.settings.audio_sorting,
+                    awl,
+                    self.settings.audio_sorting_codecs or self.settings.acodec, info, audio_streams,
+                    acombinations
+                )
             except:
                 self.log.exception("Error sorting output stream options [sort-streams].")
 
         # Set Default Audio Stream
         try:
-            self.setDefaultAudioStream(audio_settings, awl, self.settings.audio_sorting_codecs or self.settings.acodec, info)
+            self.setDefaultAudioStream(
+                self.sortStreams(
+                    audio_settings,
+                    self.settings.audio_sorting_default,
+                    awl,
+                    self.settings.audio_sorting_codecs or self.settings.acodec,
+                    info,
+                    audio_streams,
+                    acombinations
+                )
+            )
         except:
             self.log.exception("Unable to set the default audio stream.")
 
@@ -1224,7 +1246,13 @@ class MediaProcessor:
 
         # Sort Options
         try:
-            subtitle_settings = self.sortStreams(subtitle_settings, self.settings.sub_sorting, swl, self.settings.sub_sorting_codecs or (self.settings.scodec + self.settings.scodec_image), info)
+            subtitle_settings = self.sortStreams(
+                subtitle_settings,
+                self.settings.sub_sorting,
+                swl,
+                self.settings.sub_sorting_codecs or (self.settings.scodec + self.settings.scodec_image),
+                info
+            )
         except:
             self.log.exception("Error sorting output stream options [subtitle.sorting-sorting].")
 
@@ -1415,10 +1443,9 @@ class MediaProcessor:
         return opts, device
 
     # Using sorting and filtering to determine which audio track should be flagged as default, only one track will be selected
-    def setDefaultAudioStream(self, audio_settings, languages=None, codecs=None, info=None):
-        if len(audio_settings) > 0:
+    def setDefaultAudioStream(self, audio_streams):
+        if audio_streams:
             self.log.debug("Sorting audio streams for default audio stream designation.")
-            audio_streams = self.sortStreams(audio_settings, self.settings.audio_sorting_default, languages, codecs, info)
             preferred_language_audio_streams = [x for x in audio_streams if x.get('language') == self.settings.adl] if self.settings.adl else audio_streams
             default_stream = audio_streams[0]
             default_streams = [x for x in audio_streams if '+default' in (x.get('disposition') or '')]
