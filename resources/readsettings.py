@@ -833,13 +833,13 @@ class ReadSettings:
                 if config.getboolean("Audio", "prefer-more-channels"):
                     if "channels" in asorting and "channels.a" not in asorting and "channels.d" not in asorting:
                         asorting = asorting.replace("channels", "channels.d")
-                        self.log.debug("Replacing channels with channels.d based on legacy settings [prefer-more-channels: True].")
+                        self.log.debug("Replacing channels with channels.d based on deprecated settings [prefer-more-channels: True].")
                     else:
                         asorting = asorting.replace("channels.a", "channels.d")
-                        self.log.debug("Replacing channels.a with channels.d based on legacy settings [prefer-more-channels: True].")
+                        self.log.debug("Replacing channels.a with channels.d based on deprecated settings [prefer-more-channels: True].")
                 else:
                     asorting = asorting.replace("channels.d", "channels.a")
-                    self.log.debug("Replacing channels.d with channels.a based on legacy settings [prefer-more-channels: False].")
+                    self.log.debug("Replacing channels.d with channels.a based on deprecated settings [prefer-more-channels: False].")
                 config.remove_option("Audio", "prefer-more-channels")
                 config.set("Audio.Sorting", "sorting", asorting)
                 write = True
@@ -849,13 +849,13 @@ class ReadSettings:
                 if config.getboolean("Audio", "default-more-channels"):
                     if "channels" in adsorting and "channels.a" not in adsorting and "channels.d" not in adsorting:
                         adsorting = adsorting.replace("channels", "channels.d")
-                        self.log.debug("Replacing channels with channels.d based on legacy settings [default-more-channels: True].")
+                        self.log.debug("Replacing channels with channels.d based on deprecated settings [default-more-channels: True].")
                     else:
                         adsorting = adsorting.replace("channels.a", "channels.d")
-                        self.log.debug("Replacing channels.a with channels.d based on legacy settings [default-more-channels: True].")
+                        self.log.debug("Replacing channels.a with channels.d based on deprecated settings [default-more-channels: True].")
                 else:
                     adsorting = adsorting.replace("channels.d", "channels.a")
-                    self.log.debug("Replacing channels.d with channels.a based on legacy settings [default-more-channels: False].")
+                    self.log.debug("Replacing channels.d with channels.a based on deprecated settings [default-more-channels: False].")
                 config.remove_option("Audio", "default-more-channels")
                 config.set("Audio.Sorting", "default-sorting", adsorting)
                 write = True
