@@ -14,3 +14,7 @@ try:
     from config.custom import skipStream
 except ImportError:
     skipStream = None
+try:
+    from config.custom import skipUA
+except ImportError:
+    skipUA = None

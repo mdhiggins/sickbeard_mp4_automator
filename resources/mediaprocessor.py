@@ -792,7 +792,7 @@ class MediaProcessor:
         audio_settings = []
         blocked_audio_languages = []
         blocked_audio_dispositions = []
-        ua = (len(self.settings.ua) > 0)
+        ua = self.settings.ua and not (skipUA and skipUA(self, a, info, inputfile))
         acombinations = self.mapStreamCombinations(info.audio)
 
         self.settings.ua = self.ffprobeSafeCodecs(self.settings.ua)
