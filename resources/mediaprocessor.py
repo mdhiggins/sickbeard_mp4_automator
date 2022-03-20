@@ -792,12 +792,6 @@ class MediaProcessor:
         audio_settings = []
         blocked_audio_languages = []
         blocked_audio_dispositions = []
-        try:
-            ua = any(self.settings.ua) and not (skipUA and skipUA(self, a, info, inputfile))
-        except KeyboardInterrupt:
-            raise
-        except:
-            ua = any(self.settings.ua)
         acombinations = self.mapStreamCombinations(info.audio)
 
         self.settings.ua = self.ffprobeSafeCodecs(self.settings.ua)
@@ -837,6 +831,14 @@ class MediaProcessor:
                 continue
             if not self.validDisposition(a.metadata['language'], a.dispostr, self.settings.ignored_audio_dispositions, self.settings.unique_audio_dispositions, blocked_audio_dispositions):
                 continue
+
+            try:
+                ua = any(self.settings.ua) and not (skipUA and skipUA(self, a, info, inputfile))
+            except KeyboardInterrupt:
+                raise
+            except:
+                ua = any(self.settings.ua)
+                self.log.exception("Custom skipUA method threw an exception.")
 
             # Create friendly audio stream if the default audio stream has too many channels
             uadata = None
