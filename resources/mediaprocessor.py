@@ -792,7 +792,12 @@ class MediaProcessor:
         audio_settings = []
         blocked_audio_languages = []
         blocked_audio_dispositions = []
-        ua = self.settings.ua and not (skipUA and skipUA(self, a, info, inputfile))
+        try:
+            ua = any(self.settings.ua) and not (skipUA and skipUA(self, a, info, inputfile))
+        except KeyboardInterrupt:
+            raise
+        except:
+            ua = any(self.settings.ua)
         acombinations = self.mapStreamCombinations(info.audio)
 
         self.settings.ua = self.ffprobeSafeCodecs(self.settings.ua)
