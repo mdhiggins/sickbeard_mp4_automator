@@ -292,6 +292,9 @@ def processFile(inputfile, mp, info=None, relativePath=None, silent=False, tag=T
                 tagfailed = True
         if mp.settings.relocate_moov and not tagfailed:
             mp.QTFS(output['output'])
+        if mp.settings.temp_output and mp.settings.output_dir:
+            mp.settings.moveto = mp.parseFile(inputfile)[0]
+            mp.log.debug("Override move-to option to %s [temp-output]." % (mp.settings.moveto))
         output_files = mp.replicate(output['output'], relativePath=relativePath)
         print(json.dumps(output, indent=4))
         for sub in [x for x in output['external_subs'] if os.path.exists(x)]:
