@@ -805,20 +805,7 @@ class MediaProcessor:
         self.settings.acodec = self.ffprobeSafeCodecs(self.settings.acodec)
         self.log.debug("Pool of audio codecs is %s." % (self.settings.acodec))
 
-        # Sort incoming streams
-        try:
-            audio_streams = self.sortStreams(
-                info.audio,
-                self.settings.audio_sorting,
-                awl,
-                self.settings.audio_sorting_codecs or self.settings.acodec,
-                info
-            )
-        except:
-            audio_streams = info.audio
-            self.log.exception("Error sorting source audio streams [audio.sorting-sorting].")
-
-        for a in audio_streams:
+        for a in info.audio:
             self.log.info("Audio detected for stream %s - %s %s %d channel." % (a.index, a.codec, a.metadata['language'], a.audio_channels))
 
             # Custom skip
@@ -1058,26 +1045,22 @@ class MediaProcessor:
                 blocked_audio_languages.append(a.metadata['language'])
                 self.log.debug("Blocking further %s audio streams to prevent multiple streams of the same language [audio-first-stream-of-language]." % a.metadata['language'])
 
-        final_audio_sort = self.settings.audio_sorting_finalpass
-
         # Purge Duplicate Streams
-        if self.purgeDuplicateStreams(acombinations, audio_settings, info, self.settings.acodec, self.settings.ua) and not final_audio_sort:
-            self.log.debug("Forcing final audio sort as streams were purged [stream-codec-combinations].")
-            final_audio_sort = True
+        self.purgeDuplicateStreams(acombinations, audio_settings, info, self.settings.acodec, self.settings.ua)
 
-        # Final Sort
-        if final_audio_sort:
-            try:
-                self.log.debug("Triggering final audio track sort [audio-final-sort].")
-                audio_settings = self.sortStreams(
-                    audio_settings,
-                    self.settings.audio_sorting,
-                    awl,
-                    self.settings.audio_sorting_codecs or self.settings.acodec, info, audio_streams,
-                    acombinations
-                )
-            except:
-                self.log.exception("Error sorting output stream options [sort-streams].")
+        # Audio Sort
+        try:
+            self.log.debug("Triggering audio track sort [audio.sorting-sorting].")
+            audio_settings = self.sortStreams(
+                audio_settings,
+                self.settings.audio_sorting,
+                awl,
+                self.settings.audio_sorting_codecs or self.settings.acodec,
+                info,
+                acombinations
+            )
+        except:
+            self.log.exception("Error sorting output stream options [audio.sorting-default-sorting].")
 
         # Set Default Audio Stream
         try:
@@ -1088,7 +1071,6 @@ class MediaProcessor:
                     awl,
                     self.settings.audio_sorting_codecs or self.settings.acodec,
                     info,
-                    audio_streams,
                     acombinations
                 )
             )
@@ -1523,11 +1505,11 @@ class MediaProcessor:
             self.log.debug("Subtitle output is empty or no default subtitle language is set, will not pass over subtitle output to set a default stream.")
 
     # Returns the sorted source index from a map value, adjusted for stream-codec-combinations
-    def getSourceIndexFromMap(self, m, sources, combinations):
+    def getSourceIndexFromMap(self, m, info, combinations):
         m = self.minResolvedMap(m, combinations)
-        source = next((s for s in sources if s.index == m), None)
+        source = next((s for s in info.streams if s.index == m), None)
         if source:
-            return sources.index(source)
+            return info.streams.index(source)
         return 999
 
     # Returns a modified map value based on stream-codec-combinations used for sorting
@@ -1538,7 +1520,7 @@ class MediaProcessor:
         return m
 
     # Sort streams
-    def sortStreams(self, streams, keys, languages, codecs, info, sources=[], combinations=[]):
+    def sortStreams(self, streams, keys, languages, codecs, info, combinations=[]):
         DISPO_PREFIX = "d."
         ASCENDING_SUFFIX = ".a"
         DESCENDING_SUFFIX = ".d"
@@ -1551,8 +1533,7 @@ class MediaProcessor:
             'channels': lambda x: x.get('channels', 999),
             'language': lambda x: languages.index(x.get('language')) if x.get('language') in languages else 999,
             'bitrate': lambda x: x.get('bitrate', 999),
-            'map': lambda x: x.get('map', 999),
-            'smamap': lambda x: self.getSourceIndexFromMap(x['map'], sources, combinations)
+            'map': lambda x: self.getSourceIndexFromMap(x['map'], info, combinations)
         }
 
         SORT_MEDIASTREAMINFO = {

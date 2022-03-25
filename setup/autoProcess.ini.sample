@@ -94,10 +94,9 @@ unique-dispositions = False
 stream-codec-combinations = 
 
 [Audio.Sorting]
-sorting = language, channels.d, d.comment
-default-sorting = channels.d, d.comment
+sorting = language, channels.d, map, d.comment
+default-sorting = channels.d, map, d.comment
 codecs = 
-final-sort = False
 
 [Universal Audio]
 codec = aac

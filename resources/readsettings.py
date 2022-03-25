@@ -187,10 +187,9 @@ class ReadSettings:
             'stream-codec-combinations': '',
         },
         'Audio.Sorting': {
-            'sorting': 'language, channels.d, d.comment',
-            'default-sorting': 'channels.d, d.comment',
+            'sorting': 'language, channels.d, map, d.comment',
+            'default-sorting': 'channels.d, map, d.comment',
             'codecs': '',
-            'final-sort': False
         },
         'Universal Audio': {
             'codec': 'aac',
@@ -601,7 +600,6 @@ class ReadSettings:
         self.audio_sorting = config.getlist(section, 'sorting')
         self.audio_sorting_default = config.getlist(section, 'default-sorting')
         self.audio_sorting_codecs = config.getlist(section, 'codecs')
-        self.audio_sorting_finalpass = config.getboolean(section, 'final-sort')
 
         section = "Audio.ChannelFilters"
         self.afilterchannels = {}
@@ -861,6 +859,22 @@ class ReadSettings:
                 config.remove_option("Audio", "default-more-channels")
                 config.set("Audio.Sorting", "default-sorting", adsorting)
                 write = True
+
+            if config.has_option("Audio.Sorting", "final-sort") and config.has_option("Audio.Sorting", "sorting") and config.getboolean("Audio.Sorting", "final-sort"):
+                config.remove_option("Audio.Sorting", "final-sort")
+                asort = config.getlist("Audio.Sorting", "sorting")
+                if "map" not in asort:
+                    asort.append("map")
+                    config.set("Audio.Sorting", "sorting", "".join("%s, " % x for x in asort)[:-2])
+                    self.log.debug("Final-sort is deprecated, adding to sorting list [audio.sorting-final-sort: True].")
+                else:
+                    self.log.debug("Final-sort is deprecated, removing [audio.sorting-final-sort: True].")
+                write = True
+            elif config.has_option("Audio.Sorting", "final-sort"):
+                config.remove_option("Audio.Sorting", "final-sort")
+                self.log.debug("Final-sort is deprecated, removing [audio.sorting-final-sort: False].")
+                write = True
+
             if write:
                 self.writeConfig(config, configFile)
         except:
