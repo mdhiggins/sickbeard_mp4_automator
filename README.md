@@ -44,10 +44,11 @@ Two official Docker containers are maintained for Radarr and Sonarr with SMA inc
 General Configuration
 --------------
 1. Download or compile FFmpeg 
-2. Rename `setup\autoProcess.ini.sample` to `autoProcess.ini` and place inside your `config` directory (or attempt to run the script which will generate a new config file if absent)
-3. Set the [configuration options](https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/autoProcess-Settings) to your desired output and include the path of your new FFmpeg / FFprobe binaries
-4. Run [manual.py](#manual-script-usage) and test out a conversion
-5. Configure direct integration using the instructions below
+2. Install [requirements/dependencies](#dependencies)
+3. Rename `setup\autoProcess.ini.sample` to `autoProcess.ini` and place inside your `config` directory (or attempt to run the script which will generate a new config file if absent)
+4. Set the [configuration options](https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/autoProcess-Settings) to your desired output and include the path of your new FFmpeg / FFprobe binaries
+5. Run [manual.py](#manual-script-usage) and test out a conversion
+6. Configure direct integration using the instructions below
 
 Sonarr Setup
 --------------
