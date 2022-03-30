@@ -152,6 +152,7 @@ Deluge Daemon Setup
         - Ex: `sampleuser:samplepass:10`
 2. Start/Restart deluged
     - *deluged* not <i>deluge</i>
+    - If you're running Deluge on Windows and not setting up the daemon as a service, you can trigger the daemon to run in the background by disabling *Classic Mode* in your Deluge preferences under the *Interface* section
 3. Access the WebUI
     - Default port is `8112`
     - Default password is `deluge`
@@ -327,6 +328,6 @@ This project makes use of, integrates with, or was inspired by the following pro
 - http://github.com/Diaoul/subliminal
 - http://sonarr.tv/
 - http://radarr.video/
-
+- https://github.com/ratoaq2/cleanit
 
 ## Enjoy
