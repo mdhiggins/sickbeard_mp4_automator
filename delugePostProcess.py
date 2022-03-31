@@ -10,6 +10,21 @@ from resources.log import getLogger
 from deluge_client import DelugeRPCClient
 import shutil
 
+import ssl
+import socket
+import warnings
+
+warnings.filterwarnings("ignore", category=DeprecationWarning) 
+
+# Fix for python 3.10 SSL issues
+class SMADelugeRPCClient(DelugeRPCClient):
+    def _create_socket(self, ssl_version=None):
+        if ssl_version is not None:
+            self._socket = ssl.wrap_socket(socket.socket(socket.AF_INET, socket.SOCK_STREAM), ssl_version=ssl_version, ciphers="AES256-SHA")
+        else:
+            self._socket = ssl.wrap_socket(socket.socket(socket.AF_INET, socket.SOCK_STREAM), ciphers="AES256-SHA")
+        self._socket.settimeout(self.timeout)
+
 log = getLogger("DelugePostProcess")
 
 log.info("Deluge post processing started.")
@@ -33,7 +48,7 @@ try:
     log.debug("Torrent: %s." % torrent_name)
     log.debug("Hash: %s." % torrent_id)
 
-    client = DelugeRPCClient(host=settings.deluge['host'], port=int(settings.deluge['port']), username=settings.deluge['user'], password=settings.deluge['pass'])
+    client = SMADelugeRPCClient(host=settings.deluge['host'], port=int(settings.deluge['port']), username=settings.deluge['user'], password=settings.deluge['pass'])
     client.connect()
 
     if client.connected:
