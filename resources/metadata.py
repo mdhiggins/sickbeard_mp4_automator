@@ -40,13 +40,14 @@ class Metadata:
         MediaType.TV: 'us-tv|Not Rated|000'
     }
     HD = None
-    tmdbid = None
-    tvdbid = None
-    imdbid = None
-    season = None
-    episode = None
 
     def __init__(self, mediatype, tmdbid=None, imdbid=None, tvdbid=None, season=None, episode=None, original=None, language=None, logger=None):
+        self.tmdbid = None
+        self.tvdbid = None
+        self.imdbid = None
+        self.season = None
+        self.episode = None
+
         tmdb.API_KEY = tmdb_api_key
         self.log = logger or logging.getLogger(__name__)
 

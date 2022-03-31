@@ -31,13 +31,13 @@ from resources.custom import *
 
 
 class MediaProcessor:
-    deletesubs = set()
     default_channel_bitrate = 128
 
     def __init__(self, settings, logger=None):
         self.log = logger or logging.getLogger(__name__)
         self.settings = settings
         self.converter = Converter(settings.ffmpeg, settings.ffprobe)
+        self.deletesubs = set()
 
     def fullprocess(self, inputfile, mediatype, reportProgress=False, original=None, info=None, tmdbid=None, tvdbid=None, imdbid=None, season=None, episode=None, language=None, tagdata=None):
         try:
