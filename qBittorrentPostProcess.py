@@ -194,11 +194,14 @@ try:
 
     if delete_dir:
         if os.path.exists(delete_dir):
-            try:
-                os.rmdir(delete_dir)
-                log.debug("Successfully removed tempoary directory %s." % delete_dir)
-            except:
-                log.exception("Unable to delete temporary directory")
+            if os.listdir(delete_dir):
+                try:
+                    os.rmdir(delete_dir)
+                    log.debug("Successfully removed tempoary directory %s." % delete_dir)
+                except:
+                    log.exception("Unable to delete temporary directory")
+            else:
+                log.debug("Temporary directory %s is not empty, will not delete." % delete_dir)
 except:
     log.exception("Unexpected exception.")
     sys.exit(1)

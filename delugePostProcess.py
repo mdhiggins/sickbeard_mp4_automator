@@ -14,7 +14,8 @@ import ssl
 import socket
 import warnings
 
-warnings.filterwarnings("ignore", category=DeprecationWarning) 
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+
 
 # Fix for python 3.10 SSL issues
 class SMADelugeRPCClient(DelugeRPCClient):
@@ -24,6 +25,7 @@ class SMADelugeRPCClient(DelugeRPCClient):
         else:
             self._socket = ssl.wrap_socket(socket.socket(socket.AF_INET, socket.SOCK_STREAM), ciphers="AES256-SHA")
         self._socket.settimeout(self.timeout)
+
 
 log = getLogger("DelugePostProcess")
 
@@ -178,19 +180,22 @@ try:
     elif settings.deluge['bypass'].startswith(category):
         log.info("Bypassing any further processing as per category.")
 
-    if delete_dir:
-        if os.path.exists(delete_dir):
-            try:
-                os.rmdir(delete_dir)
-                log.debug("Successfully removed tempoary directory %s." % delete_dir)
-            except:
-                log.exception("Unable to delete temporary directory.")
-
     if remove:
         try:
             client.call('core.remove_torrent', torrent_id, True)
         except:
             log.exception("Unable to remove torrent from deluge.")
+
+    if delete_dir:
+        if os.path.exists(delete_dir):
+            if os.listdir(delete_dir):
+                try:
+                    os.rmdir(delete_dir)
+                    log.debug("Successfully removed tempoary directory %s." % delete_dir)
+                except:
+                    log.exception("Unable to delete temporary directory.")
+            else:
+                log.debug("Temporary directory %s is not empty, will not delete." % delete_dir)
 except:
     log.exception("Unexpected exception.")
     sys.exit(1)
