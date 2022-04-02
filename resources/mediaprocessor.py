@@ -1844,6 +1844,11 @@ class MediaProcessor:
                 dispo += "." + k
         input_dir, filename, input_extension = self.parseFile(inputfile)
         output_dir = self.settings.output_dir or input_dir
+        if not os.path.exists(output_dir):
+            try:
+                os.makedirs(output_dir)
+            except:
+                self.log.exception("Unable to make output directory %s." % (output_dir))
         outputfile = os.path.join(output_dir, filename + "." + language + dispo + "." + extension)
 
         i = 2
@@ -1906,6 +1911,11 @@ class MediaProcessor:
             output_dir = input_dir
         else:
             output_dir = self.settings.output_dir or input_dir
+        if not os.path.exists(output_dir):
+            try:
+                os.makedirs(output_dir)
+            except:
+                self.log.exception("Unable to make output directory %s." % (output_dir))
         output_extension = temp_extension or self.settings.output_extension
 
         self.log.debug("Input directory: %s." % input_dir)
