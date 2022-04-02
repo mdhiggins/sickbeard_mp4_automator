@@ -51,7 +51,7 @@ def processEpisode(dirName, settings, nzbGet=False, importMode=None, logger=None
 
     webroot = settings.Sonarr['webroot']
     url = protocol + host + ":" + str(port) + webroot + "/api/v3/command"
-    payload = {'name': 'downloadedepisodesscan', 'path': dirName}
+    payload = {'name': 'DownloadedEpisodesScan', 'path': dirName}
     if importMode:
         payload["importMode"] = importMode
     headers = {
@@ -86,7 +86,7 @@ def accessAPI(url, payload, headers, log, requests, nzbGet, sleep=10, retry=0, m
             rstate = rstate[0]
         except:
             pass
-        log.info("%sSonarr response: %s." % (infoprefix, rstate['status']))
+        log.info("%sSonarr response DownloadedEpisodesScan command: ID %s %s." % (infoprefix, rstate['id'], rstate['status']))
         if rstate['body']['path'] != payload['path']:
             if retry > maxretry:
                 log.error("Sonarr returned path %s that does not match the directory that was requested to be scanned %s. Maximum number of retries exceeded (%d)." % (rstate['body']['path'], payload['path'], maxretry))

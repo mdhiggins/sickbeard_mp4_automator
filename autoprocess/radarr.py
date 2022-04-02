@@ -75,7 +75,7 @@ def processMovie(dirName, settings, nzbGet=False, importMode=None, logger=None, 
             rstate = rstate[0]
         except:
             pass
-        log.info("%sRadarr response: %s." % (infoprefix, rstate['status']))
+        log.info("%sRadarr response DownloadedMoviesScan command: ID %s %s." % (infoprefix, rstate['id'], rstate['status']))
         return True
     except:
         log.exception("%sUpdate to Radarr failed, check if Radarr is running, autoProcess.ini settings and make sure your Radarr settings are correct (apikey?), or check install of python modules requests." % errorprefix)
