@@ -14,6 +14,8 @@ import ssl
 import socket
 import warnings
 
+PY310_OR_LATER = sys.version_info[0] >= 3 and sys.version_info[1] >= 10
+
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
@@ -30,6 +32,8 @@ class SMADelugeRPCClient(DelugeRPCClient):
 log = getLogger("DelugePostProcess")
 
 log.info("Deluge post processing started.")
+
+DRPCClient = SMADelugeRPCClient if PY310_OR_LATER else DelugeRPCClient
 
 try:
     settings = ReadSettings()
@@ -50,7 +54,7 @@ try:
     log.debug("Torrent: %s." % torrent_name)
     log.debug("Hash: %s." % torrent_id)
 
-    client = SMADelugeRPCClient(host=settings.deluge['host'], port=int(settings.deluge['port']), username=settings.deluge['user'], password=settings.deluge['pass'])
+    client = DRPCClient(host=settings.deluge['host'], port=int(settings.deluge['port']), username=settings.deluge['user'], password=settings.deluge['pass'])
     client.connect()
 
     if client.connected:
