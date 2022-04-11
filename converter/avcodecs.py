@@ -1220,6 +1220,18 @@ class H264QSVCodec(H264Codec):
     ffmpeg_codec_name = 'h264_qsv'
     scale_filter = 'scale_qsv'
 
+    def _codec_specific_parse_options(self, safe, stream=0):
+        safe = super(H264QSVCodec, self)._codec_specific_parse_options(safe, stream)
+        if 'crf' in safe:
+            safe['gq'] = safe['crf']
+            del safe['crf']
+            gq = safe['gq']
+            if gq < 1 or gq > 51:
+                del safe['gq']
+            elif 'bitrate' in safe:
+                del safe['bitrate']
+        return safe
+
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         optlist = []
         if 'level' in safe:
@@ -1232,6 +1244,13 @@ class H264QSVCodec(H264Codec):
         if 'level' in safe:
             optlist.extend(['-level', '%0.0f' % (safe['level'] * 10)])
             del safe['level']
+
+        if 'gq' in safe:
+            optlist.extend(['-global_quality', str(safe['gq'])])
+            if 'maxrate' in safe:
+                optlist.extend(['-maxrate:v', str(safe['maxrate'])])
+            if 'bufsize' in safe:
+                optlist.extend(['-bufsize', str(safe['bufsize'])])
 
         optlist.extend(super(H264QSVCodec, self)._codec_specific_produce_ffmpeg_list(safe, stream))
         optlist.extend(['-look_ahead', '0'])
@@ -1377,6 +1396,18 @@ class H265QSVCodec(H265Codec):
     ffmpeg_codec_name = 'hevc_qsv'
     scale_filter = 'scale_qsv'
 
+    def _codec_specific_parse_options(self, safe, stream=0):
+        safe = super(H265QSVCodec, self)._codec_specific_parse_options(safe, stream)
+        if 'crf' in safe:
+            safe['gq'] = safe['crf']
+            del safe['crf']
+            gq = safe['gq']
+            if gq < 1 or gq > 51:
+                del safe['gq']
+            elif 'bitrate' in safe:
+                del safe['bitrate']
+        return safe
+
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         optlist = []
         if 'level' in safe:
@@ -1389,6 +1420,13 @@ class H265QSVCodec(H265Codec):
         if 'level' in safe:
             optlist.extend(['-level', '%0.0f' % (safe['level'] * 10)])
             del safe['level']
+
+        if 'gq' in safe:
+            optlist.extend(['-global_quality', str(safe['gq'])])
+            if 'maxrate' in safe:
+                optlist.extend(['-maxrate:v', str(safe['maxrate'])])
+            if 'bufsize' in safe:
+                optlist.extend(['-bufsize', str(safe['bufsize'])])
 
         optlist.extend(super(H265QSVCodec, self)._codec_specific_produce_ffmpeg_list(safe, stream))
         return optlist
