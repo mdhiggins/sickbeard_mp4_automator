@@ -10,3 +10,4 @@ subtitle_codec_extensions = {'srt': 'srt',
                              'dvd_subtitle': 'mks'}
 bad_post_files = ['resources', '.DS_Store']
 bad_post_extensions = ['.txt', '.log', '.pyc', '.md']
+bad_sub_extensions = ['txt', 'html', 'nfo', 'url', 'exe', 'md', 'py', 'pyc']

@@ -8,7 +8,7 @@ import logging
 import re
 from converter import Converter, FFMpegConvertError, ConverterError
 from converter.avcodecs import BaseCodec
-from resources.extensions import subtitle_codec_extensions
+from resources.extensions import subtitle_codec_extensions, bad_sub_extensions
 from resources.metadata import Metadata, MediaType
 from resources.postprocess import PostProcessor
 from resources.lang import getAlpha3TCode
@@ -339,6 +339,9 @@ class MediaProcessor:
 
     # Determine if a file can be read by FFPROBE and is a subtitle only
     def isValidSubtitleSource(self, inputfile):
+        _, _, extension = self.parseFile(inputfile)
+        if extension in bad_sub_extensions:
+            return None
         try:
             info = self.converter.probe(inputfile)
             if info:
@@ -433,7 +436,7 @@ class MediaProcessor:
         else:
             parsed = self.converter.parse_options(dump["output"])
             input_dir, filename, input_extension = self.parseFile(inputfile)
-            outputfile, output_extension = self.getOutputFile(input_dir, filename, input_extension)
+            outputfile, _ = self.getOutputFile(input_dir, filename, input_extension)
             cmds = self.converter.ffmpeg.generateCommands(outputfile, parsed, dump["preopts"], dump["postopts"])
             dump["ffmpeg_commands"] = []
             dump["ffmpeg_commands"].append(" ".join("\"%s\"" % item if " " in item and "\"" not in item else item for item in cmds))
@@ -452,7 +455,7 @@ class MediaProcessor:
     # Generate a dict of data about a source file
     def generateSourceDict(self, inputfile):
         output = {}
-        input_dir, filename, input_extension = self.parseFile(inputfile)
+        _, _, input_extension = self.parseFile(inputfile)
         output['extension'] = input_extension
         probe = self.isValidSource(inputfile)
         # probe = self.converter.probe(inputfile)
@@ -1262,6 +1265,17 @@ class MediaProcessor:
                 }
                 attachments.append(attachment)
 
+        # Chapters
+        metadata_map = []
+        metadata_file = self.scanForExternalMetadata(inputfile)
+        if metadata_file:
+            self.log.info("Adding metadata file %s to sources and mapping metadata." % (metadata_file))
+            sources.append(metadata_file)
+            metadata_map = ['-map_chapters', str(sources.index(metadata_file)), '-map_metadata', str(sources.index(metadata_file))]
+            if self.settings.strip_metadata:
+                self.log.debug("Setting strip-metadata to False since metadata will be coming from external metadata file [strip-metadata].")
+                self.settings.strip_metadata = False
+
         # Collect all options
         options = {
             'source': sources,
@@ -1276,7 +1290,7 @@ class MediaProcessor:
             options['sub-encoding'] = self.settings.subencoding
 
         preopts = []
-        postopts = ['-threads', str(self.settings.threads), '-metadata:g', 'encoding_tool=SMA']
+        postopts = ['-threads', str(self.settings.threads), '-metadata:g', 'encoding_tool=SMA'] + metadata_map
 
         # FFMPEG allows TrueHD experimental
         if options.get('format') in ['mp4'] and any(a for a in options['audio'] if self.getCodecFromOptions(a, info) == 'truehd'):
@@ -1791,6 +1805,16 @@ class MediaProcessor:
             except:
                 self.log.exception("Unable to download subtitles.")
         return []
+
+    # Scan for external chapters file
+    def scanForExternalMetadata(self, inputfile, suffix="metadata.txt"):
+        input_dir, filename, _ = self.parseFile(inputfile)
+        for dirName, _, fileList in os.walk(input_dir):
+            for fname in fileList:
+                if fname.startswith(filename) and fname.endswith(suffix):
+                    self.log.debug("Found valid external metadata file %s." % (fname))
+                    return os.path.join(dirName, fname)
+        return None
 
     # Generic permission setter
     def setPermissions(self, path):
