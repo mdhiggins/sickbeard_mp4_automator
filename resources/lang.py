@@ -1,12 +1,10 @@
-import sys
 from babelfish import Language
-
-UNDEFINED = 'und'
+from converter.avcodecs import BaseCodec
 
 
 def getAlpha3TCode(code, default=None):
-    lang = default or UNDEFINED
-    if not code or code == UNDEFINED:
+    lang = default or BaseCodec.UNDEFINED
+    if not code or code == BaseCodec.UNDEFINED:
         return lang
 
     code = code.strip().lower().replace('.', '')
@@ -31,8 +29,8 @@ def getAlpha3TCode(code, default=None):
 
 
 def getAlpha2BCode(code, default=None):
-    lang = default or UNDEFINED
-    if not code or code == UNDEFINED:
+    lang = default or BaseCodec.UNDEFINED
+    if not code or code == BaseCodec.UNDEFINED:
         return lang
 
     code = code.strip().lower().replace('.', '')

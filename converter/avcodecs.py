@@ -32,6 +32,7 @@ class BaseCodec(object):
         'lyric': 'lyrics',
         'dubbed': 'dub'
     }
+    UNDEFINED = "und"
 
     encoder_options = {}
     codec_name = None
@@ -198,7 +199,7 @@ class AudioCodec(BaseCodec):
         if 'language' in safe:
             lang = str(safe['language'])
         else:
-            lang = 'und'  # Never leave blank if not specified, always set to und for undefined
+            lang = BaseCodec.UNDEFINED  # Never leave blank if not specified, always set to und for undefined
         optlist.extend(['-metadata:s:a:' + stream, "language=" + lang])
         optlist.extend(['-disposition:a:' + stream, self.safe_disposition(safe.get('disposition'))])
 
@@ -268,7 +269,7 @@ class SubtitleCodec(BaseCodec):
         if 'language' in safe:
             lang = str(safe['language'])
         else:
-            lang = 'und'  # Never leave blank if not specified, always set to und for undefined
+            lang = BaseCodec.UNDEFINED  # Never leave blank if not specified, always set to und for undefined
         optlist.extend(['-metadata:s:s:' + stream, "language=" + lang])
         optlist.extend(['-disposition:s:' + stream, self.safe_disposition(safe.get('disposition'))])
 
@@ -590,7 +591,7 @@ class AudioCopyCodec(BaseCodec):
         if 'language' in safe:
             lang = str(safe['language'])
         else:
-            lang = 'und'
+            lang = BaseCodec.UNDEFINED
         optlist.extend(['-metadata:s:a:' + stream, "language=" + lang])
         optlist.extend(['-disposition:a:' + stream, self.safe_disposition(safe.get('disposition'))])
         return optlist
@@ -684,7 +685,7 @@ class SubtitleCopyCodec(BaseCodec):
         if 'language' in safe:
             lang = str(safe['language'])
         else:
-            lang = 'und'
+            lang = BaseCodec.UNDEFINED
         optlist.extend(['-metadata:s:s:' + stream, "language=" + lang])
         optlist.extend(['-disposition:s:' + stream, self.safe_disposition(safe.get('disposition'))])
 

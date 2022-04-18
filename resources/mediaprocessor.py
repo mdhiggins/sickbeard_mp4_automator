@@ -361,18 +361,18 @@ class MediaProcessor:
         _, filename, _ = self.parseFile(inputfile)
         _, subname, _ = self.parseFile(valid_external_sub.path)
         subname = subname[len(filename + os.path.extsep):]
-        lang = 'und'
+        lang = BaseCodec.UNDEFINED
         for suf in subname.lower().split(os.path.extsep):
             self.log.debug("Processing subtitle file suffix %s." % (suf))
             l = getAlpha3TCode(suf)
-            if lang == 'und' and l != 'und':
+            if lang == BaseCodec.UNDEFINED and l != BaseCodec.UNDEFINED:
                 lang = l
                 self.log.debug("Found language match %s." % (lang))
             dsuf = BaseCodec.DISPO_ALTS.get(suf, suf)
             if dsuf in BaseCodec.DISPOSITIONS:
                 valid_external_sub.subtitle[0].disposition[dsuf] = True
                 self.log.debug("Found disposition match %s." % (suf))
-        if self.settings.sdl and lang == 'und':
+        if self.settings.sdl and lang == BaseCodec.UNDEFINED:
             lang = self.settings.sdl
         valid_external_sub.subtitle[0].metadata['language'] = lang
         return valid_external_sub
@@ -1044,7 +1044,7 @@ class MediaProcessor:
                 })
 
             # Remove the language if we only want the first stream from a given language
-            if self.settings.audio_first_language_stream:
+            if self.settings.audio_first_language_stream and a.metadata['language'] != BaseCodec.UNDEFINED:
                 blocked_audio_languages.append(a.metadata['language'])
                 self.log.debug("Blocking further %s audio streams to prevent multiple streams of the same language [audio-first-stream-of-language]." % a.metadata['language'])
 
