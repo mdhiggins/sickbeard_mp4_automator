@@ -65,7 +65,7 @@ class Converter(object):
 
     @staticmethod
     def decoder(decoder):
-        return next(x() for x in decoder_list if x.decoder_name == decoder) or BaseDecoder()
+        return next((x() for x in decoder_list if x.decoder_name == decoder), BaseDecoder())
 
     @staticmethod
     def encoder(encoder):
