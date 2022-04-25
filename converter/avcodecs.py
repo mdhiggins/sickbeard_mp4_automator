@@ -1074,6 +1074,7 @@ class H264Codec(VideoCodec):
             optlist.extend(['-vf', '%s=%s:trunc(ow/a/2)*2' % (self.scale_filter, safe['wscale'])])
         elif 'hscale' in safe:
             optlist.extend(['-vf', '%s=trunc((oh*a)/2)*2:%s' % (self.scale_filter, safe['hscale'])])
+        optlist.extend(['-tag:v', 'avc1'])
         return optlist
 
 

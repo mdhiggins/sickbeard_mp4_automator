@@ -1235,6 +1235,7 @@ class MediaProcessor:
         if vfilter:
             self.log.debug("Found valid subtitle stream to burn into video, video cannot be copied [burn-subtitles].")
             video_settings['codec'] = vcodecs[0]
+            vcodec = vcodecs[0]
             if video_settings.get('filter'):
                 video_settings['filter'] = "%s, %s" % (video_settings['filter'], vfilter)
             else:
