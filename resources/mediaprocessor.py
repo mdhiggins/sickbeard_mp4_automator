@@ -261,14 +261,17 @@ class MediaProcessor:
         return output.strip() if output else None
 
     # Get title for audio stream based on disposition
-    def audioStreamTitle(self, codec, channels, source):
+    def audioStreamTitle(self, codec, channels, stream):
         if streamTitle:
             try:
-                customTitle = streamTitle(self, codec, source, channels=channels)
+                customTitle = streamTitle(self, stream, codec, channels=channels)
                 if customTitle is not None:
                     return customTitle
             except:
                 self.log.exception("Custom stremaTitle exception")
+
+        if self.settings.keep_titles and stream.metadata.get('title'):
+            return stream.metadata.get('title')
 
         output = "Audio"
         if channels == 1:
@@ -278,7 +281,7 @@ class MediaProcessor:
         elif channels > 2:
             output = "%d.1 Channel" % (channels - 1)
 
-        disposition = source.disposition
+        disposition = stream.disposition
         if disposition.get("comment"):
             output += " (Commentary)"
         if disposition.get("hearing_impaired"):
@@ -290,20 +293,20 @@ class MediaProcessor:
         return output.strip() if output else None
 
     # Get title for subtitle stream based on disposition
-    def subtitleStreamTitle(self, codec, imageBased, source):
+    def subtitleStreamTitle(self, codec, imageBased, stream):
         if streamTitle:
             try:
-                customTitle = streamTitle(self, codec, source, imageBased=imageBased)
+                customTitle = streamTitle(self, stream, codec, imageBased=imageBased)
                 if customTitle is not None:
                     return customTitle
             except:
                 self.log.exception("Custom stremaTitle exception")
 
-        if self.settings.keep_titles and source.metadata.get('title'):
-            return source.metadata.get('title')
+        if self.settings.keep_titles and stream.metadata.get('title'):
+            return stream.metadata.get('title')
 
         output = ""
-        disposition = source.disposition
+        disposition = stream.disposition
         if disposition.get("forced"):
             output += "Forced "
         if disposition.get("hearing_impaired"):
