@@ -293,10 +293,10 @@ class MediaProcessor:
         return output.strip() if output else None
 
     # Get title for subtitle stream based on disposition
-    def subtitleStreamTitle(self, codec, imageBased, stream):
+    def subtitleStreamTitle(self, codec, imageBased, stream, path=None):
         if streamTitle:
             try:
-                customTitle = streamTitle(self, stream, codec, imageBased=imageBased)
+                customTitle = streamTitle(self, stream, codec, imageBased=imageBased, path=path)
                 if customTitle is not None:
                     return customTitle
             except:
@@ -1224,7 +1224,7 @@ class MediaProcessor:
                 'map': 0,
                 'codec': scodec,
                 'disposition': sdisposition,
-                'title': self.subtitleStreamTitle(scodec, image_based, external_sub.subtitle[0]),
+                'title': self.subtitleStreamTitle(scodec, image_based, external_sub.subtitle[0], path=external_sub.path),
                 'language': external_sub.subtitle[0].metadata['language'],
                 'debug': 'subtitle.embed-subs'})
 
