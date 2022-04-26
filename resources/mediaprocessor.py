@@ -261,9 +261,14 @@ class MediaProcessor:
         return output.strip() if output else None
 
     # Get title for audio stream based on disposition
-    def audioStreamTitle(self, channels, disposition, title=None):
-        if self.settings.keep_titles and title:
-            return title
+    def audioStreamTitle(self, codec, channels, source):
+        if streamTitle:
+            try:
+                customTitle = streamTitle(self, codec, source, channels=channels)
+                if customTitle is not None:
+                    return customTitle
+            except:
+                self.log.exception("Custom stremaTitle exception")
 
         output = "Audio"
         if channels == 1:
@@ -273,6 +278,7 @@ class MediaProcessor:
         elif channels > 2:
             output = "%d.1 Channel" % (channels - 1)
 
+        disposition = source.disposition
         if disposition.get("comment"):
             output += " (Commentary)"
         if disposition.get("hearing_impaired"):
@@ -284,11 +290,20 @@ class MediaProcessor:
         return output.strip() if output else None
 
     # Get title for subtitle stream based on disposition
-    def subtitleStreamTitle(self, disposition, title=None):
-        if self.settings.keep_titles and title:
-            return title
+    def subtitleStreamTitle(self, codec, imageBased, source):
+        if streamTitle:
+            try:
+                customTitle = streamTitle(self, codec, source, imageBased=imageBased)
+                if customTitle is not None:
+                    return customTitle
+            except:
+                self.log.exception("Custom stremaTitle exception")
+
+        if self.settings.keep_titles and source.metadata.get('title'):
+            return source.metadata.get('title')
 
         output = ""
+        disposition = source.disposition
         if disposition.get("forced"):
             output += "Forced "
         if disposition.get("hearing_impaired"):
@@ -882,7 +897,7 @@ class MediaProcessor:
                     'filter': ua_filter,
                     'language': a.metadata['language'],
                     'disposition': ua_disposition,
-                    'title': self.audioStreamTitle(2, a.disposition, a.metadata.get('title')),
+                    'title': self.audioStreamTitle(self.settings.ua[0], 2, a),
                     'debug': 'universal-audio'
                 }
 
@@ -1018,7 +1033,7 @@ class MediaProcessor:
                 'language': a.metadata['language'],
                 'disposition': adisposition,
                 'bsf': absf,
-                'title': self.audioStreamTitle(audio_channels, a.disposition, a.metadata.get('title')),
+                'title': self.audioStreamTitle(acodec, audio_channels, a),
                 'debug': adebug
             })
 
@@ -1039,7 +1054,7 @@ class MediaProcessor:
                     'channels': a.audio_channels,
                     'language': a.metadata['language'],
                     'disposition': adisposition,
-                    'title': self.audioStreamTitle(a.audio_channels, a.disposition, a.metadata.get('title')),
+                    'title': self.audioStreamTitle(a.codec, a.audio_channels, a),
                     'debug': 'audio-copy-original'
                 })
 
@@ -1142,7 +1157,7 @@ class MediaProcessor:
                         'codec': scodec,
                         'language': s.metadata['language'],
                         'disposition': s.dispostr,
-                        'title': self.subtitleStreamTitle(s.disposition, s.metadata.get('title')),
+                        'title': self.subtitleStreamTitle(scodec, image_based, s),
                         'debug': 'subtitle.embed-subs'
                     })
                     if self.settings.sub_first_language_stream:
@@ -1206,7 +1221,7 @@ class MediaProcessor:
                 'map': 0,
                 'codec': scodec,
                 'disposition': sdisposition,
-                'title': self.subtitleStreamTitle(external_sub.subtitle[0].disposition),
+                'title': self.subtitleStreamTitle(scodec, image_based, external_sub.subtitle[0]),
                 'language': external_sub.subtitle[0].metadata['language'],
                 'debug': 'subtitle.embed-subs'})
 

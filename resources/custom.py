@@ -18,3 +18,7 @@ try:
     from config.custom import skipUA
 except ImportError:
     skipUA = None
+try:
+    from config.custom import streamTitle
+except ImportError:
+    streamTitle = None
