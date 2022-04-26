@@ -238,12 +238,23 @@ class MediaProcessor:
                 stream.disposition[dispo] = False
 
     # Get title for video stream based on disposition
-    def videoStreamTitle(self, width=0, height=0, hdr=False, swidth=0, sheight=0):
-        output = "Video"
-
+    def videoStreamTitle(self, stream, codec, width=0, height=0, hdr=False, swidth=0, sheight=0):
         if not width and not height:
             width = swidth
             height = sheight
+
+        if streamTitle:
+            try:
+                customTitle = streamTitle(self, stream, codec, width=width, height=height)
+                if customTitle is not None:
+                    return customTitle
+            except:
+                self.log.exception("Custom streamTitle exception")
+
+        if self.settings.keep_titles and stream.metadata.get('title'):
+            return stream.metadata.get('title')
+
+        output = "Video"
 
         if width >= 7600 or height >= 4300:
             output = "8K"
@@ -268,7 +279,7 @@ class MediaProcessor:
                 if customTitle is not None:
                     return customTitle
             except:
-                self.log.exception("Custom stremaTitle exception")
+                self.log.exception("Custom streamTitle exception")
 
         if self.settings.keep_titles and stream.metadata.get('title'):
             return stream.metadata.get('title')
@@ -300,7 +311,7 @@ class MediaProcessor:
                 if customTitle is not None:
                     return customTitle
             except:
-                self.log.exception("Custom stremaTitle exception")
+                self.log.exception("Custom streamTitle exception")
 
         if self.settings.keep_titles and stream.metadata.get('title'):
             return stream.metadata.get('title')
@@ -805,7 +816,7 @@ class MediaProcessor:
             'filter': vfilter,
             'params': vparams,
             'framedata': vframedata,
-            'title': self.videoStreamTitle(width=vwidth, hdr=vHDR, swidth=info.video.video_width, sheight=info.video.video_height),
+            'title': self.videoStreamTitle(info.video, vcodec, width=vwidth, hdr=vHDR, swidth=info.video.video_width, sheight=info.video.video_height),
             'debug': vdebug,
         }
 
