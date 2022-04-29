@@ -1054,15 +1054,12 @@ class MediaProcessor:
             # Add the universal audio stream
             if uadata:
                 self.log.info("Creating %s audio stream from source audio stream %d [universal-audio]." % (uadata.get('codec'), a.index))
-                uaposition = len(audio_settings) if self.settings.ua_last else aposition
-                audio_settings.insert(uaposition, uadata)
-                aposition = aposition if self.settings.ua_last else (aposition + 1)
+                audio_settings.append(uadata)
 
             # Copy the original stream
             if self.settings.audio_copyoriginal and acodec != 'copy':
                 self.log.info("Copying audio stream from source stream %d format %s [audio-copy-original]." % (a.index, a.codec))
-                aposition = aposition if self.settings.audio_copyoriginal_before else (aposition + 1)
-                audio_settings.insert(aposition, {
+                audio_settings.append({
                     'map': a.index,
                     'codec': 'copy',
                     'channels': a.audio_channels,

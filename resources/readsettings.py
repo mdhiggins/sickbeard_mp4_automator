@@ -180,7 +180,6 @@ class ReadSettings:
             'sample-rates': '',
             'sample-format': '',
             'copy-original': False,
-            'copy-original-before': False,
             'aac-adtstoasc': False,
             'ignored-dispositions': '',
             'unique-dispositions': False,
@@ -196,7 +195,6 @@ class ReadSettings:
             'channel-bitrate': 128,
             'variable-bitrate': 0,
             'first-stream-only': False,
-            'move-after': False,
             'filter': '',
             'profile': '',
             'force-filter': False,
@@ -588,7 +586,6 @@ class ReadSettings:
         self.audio_samplerates = [int(x) for x in config.getlist(section, "sample-rates") if x.isdigit()]
         self.audio_sampleformat = config.get(section, 'sample-format')
         self.audio_copyoriginal = config.getboolean(section, "copy-original")
-        self.audio_copyoriginal_before = config.getboolean(section, "copy-original-before")
         self.audio_first_language_stream = config.getboolean(section, "first-stream-of-language")
         self.allow_language_relax = config.getboolean(section, "allow-language-relax")
         self.aac_adtstoasc = config.getboolean(section, 'aac-adtstoasc')
@@ -619,7 +616,6 @@ class ReadSettings:
         self.ua_bitrate = config.getint(section, "channel-bitrate")
         self.ua_vbr = config.getint(section, "variable-bitrate")
         self.ua_first_only = config.getboolean(section, "first-stream-only")
-        self.ua_last = config.getboolean(section, "move-after")
         self.ua_profile = config.get(section, "profile").lower()
         self.ua_filter = config.get(section, "filter")
         self.ua_forcefilter = config.getboolean(section, 'force-filter')
@@ -873,6 +869,14 @@ class ReadSettings:
             elif config.has_option("Audio.Sorting", "final-sort"):
                 config.remove_option("Audio.Sorting", "final-sort")
                 self.log.debug("Final-sort is deprecated, removing [audio.sorting-final-sort: False].")
+                write = True
+
+            if config.has_option("Audio", "copy-original-before"):
+                config.remove_option("Audio", "copy-original-before")
+                write = True
+
+            if config.has_option("Universal Audio", "move-after"):
+                config.remove_option("Universal Audio", "move-after")
                 write = True
 
             if write:
