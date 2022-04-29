@@ -1574,7 +1574,9 @@ class MediaProcessor:
             'channels': lambda x: x.get('channels', 999),
             'language': lambda x: languages.index(x.get('language')) if x.get('language') in languages else 999,
             'bitrate': lambda x: x.get('bitrate', 999),
-            'map': lambda x: self.getSourceIndexFromMap(x['map'], info, combinations)
+            'map': lambda x: self.getSourceIndexFromMap(x['map'], info, combinations),
+            'ua': lambda x: "universal-audio" in x.get('debug', ''),
+            'original': lambda x: "audio-copy-original" in x.get('debug', '')
         }
 
         SORT_MEDIASTREAMINFO = {
