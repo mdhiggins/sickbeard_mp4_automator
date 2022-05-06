@@ -306,6 +306,9 @@ class VideoCodec(BaseCodec):
     MPEG-1, MPEG-2.
     """
 
+    CRF_MIN = 0
+    CRF_MAX = 51
+
     encoder_options = {
         'codec': str,
         'title': str,
@@ -400,7 +403,7 @@ class VideoCodec(BaseCodec):
 
         if 'crf' in safe:
             crf = safe['crf']
-            if crf < 0 or crf > 51:
+            if crf < self.CRF_MIN or crf > self.CRF_MAX:
                 del safe['crf']
 
         if 'field_order' in safe:
@@ -1786,6 +1789,59 @@ class Vp9Codec(VideoCodec):
         return optlist
 
 
+class AV1Codec(VideoCodec):
+    """
+    Libaom-AV1 Codec
+    """
+    codec_name = 'av1'
+    ffmpeg_codec_name = 'libaom-av1'
+    ffprobe_codec_name = 'av1'
+    encoder_options = VideoCodec.encoder_options.copy()
+    encoder_options.update({
+        'preset': int,  # present range 0-13
+        'framedata': dict  # dynamic params for framedata
+    })
+
+    CRF_MAX = 63
+
+    def parse_options(self, opt, stream=0):
+        if 'preset' in opt:
+            p = opt['preset']
+            if p < 0 or p > 13:
+                del opt['preset']
+        return super(AV1Codec, self).parse_options(opt, stream)
+
+    def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
+        optlist = []
+
+        if 'preset' in safe:
+            optlist.extend(['-preset', str(safe['preset'])])
+        if 'framedata' in safe:
+            if 'color_space' in safe['framedata']:
+                optlist.extend(['-colorspace', str(safe['framedata']['color_space'])])
+            if 'color_transfer' in safe['framedata']:
+                optlist.extend(['-color_trc', str(safe['framedata']['color_transfer'])])
+            if 'color_primaries' in safe['framedata']:
+                optlist.extend(['-color_primaries', str(safe['framedata']['color_primaries'])])
+        return optlist
+
+
+class SVTAV1Codec(AV1Codec):
+    """
+    SVT-AV1 Codec
+    """
+    codec_name = 'svtav1'
+    ffmpeg_codec_name = 'libsvtav1'
+
+
+class RAV1ECodec(AV1Codec):
+    """
+    RAV1E Codec
+    """
+    codec_name = 'rav1e'
+    ffmpeg_codec_name = 'librav1e'
+
+
 class Vp9QSVCodec(Vp9Codec):
     """
     Google VP9 QSV video codec.
@@ -1973,7 +2029,8 @@ video_codec_list = [
     Vp9Codec, Vp9QSVCodec, Vp9QSVAltCodec,
     FlvCodec,
     Mpeg1Codec,
-    Mpeg2Codec
+    Mpeg2Codec,
+    AV1Codec, SVTAV1Codec, RAV1ECodec
 ]
 
 subtitle_codec_list = [
