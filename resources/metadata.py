@@ -152,7 +152,7 @@ class Metadata:
                     tmdbid = find.tv_results[0].get('id')
         return tmdbid
 
-    def writeTags(self, path, converter, artwork=True, thumbnail=False, width=None, height=None, streaming=0):
+    def writeTags(self, path, inputfile, converter, artwork=True, thumbnail=False, width=None, height=None, streaming=0):
         self.log.info("Tagging file: %s." % path)
         if width and height:
             try:
@@ -185,7 +185,7 @@ class Metadata:
 
                 coverpath = None
                 if artwork:
-                    coverpath = self.getArtwork(path, thumbnail=thumbnail)
+                    coverpath = self.getArtwork(path, inputfile, thumbnail=thumbnail)
 
                 try:
                     conv = converter.tag(path, metadata, coverpath, streaming)
@@ -245,7 +245,7 @@ class Metadata:
             video["----:com.apple.iTunes:iTunEXTC"] = self.rating.encode("UTF-8", errors="ignore")  # iTunes content rating
 
         if artwork:
-            coverpath = self.getArtwork(path, thumbnail=thumbnail)
+            coverpath = self.getArtwork(path, inputfile, thumbnail=thumbnail)
             if coverpath is not None:
                 cover = open(coverpath, 'rb').read()
                 if coverpath.endswith('png'):
@@ -343,15 +343,19 @@ class Metadata:
             f.write(requests.get(url, allow_redirects=True, timeout=30).content)
         return (fn, f)
 
-    def getArtwork(self, path, thumbnail=False):
+    def getArtwork(self, path, inputfile, thumbnail=False):
         # Check for artwork in the same directory as the source
         poster = None
-        base, ext = os.path.splitext(path)
-        for e in valid_poster_extensions:
-            path = base + os.extsep + e
-            if (os.path.exists(path)):
-                poster = path
-                self.log.info("Local artwork detected, using %s." % path)
+        base, _ = os.path.splitext(inputfile)
+        base2, _ = os.path.splitext(path)
+        for b in [base, base2]:
+            for e in valid_poster_extensions:
+                path = b + os.extsep + e
+                if (os.path.exists(path)):
+                    poster = path
+                    self.log.info("Local artwork detected, using %s." % path)
+                    break
+            if poster:
                 break
 
         if not poster:

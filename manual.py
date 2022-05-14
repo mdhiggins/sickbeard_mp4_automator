@@ -284,7 +284,7 @@ def processFile(inputfile, mp, info=None, relativePath=None, silent=False, tag=T
         tagfailed = False
         if tagdata:
             try:
-                tagdata.writeTags(output['output'], mp.converter, mp.settings.artwork, mp.settings.thumbnail, width=output['x'], height=output['y'], streaming=output['rsi'])
+                tagdata.writeTags(output['output'], inputfile, mp.converter, mp.settings.artwork, mp.settings.thumbnail, width=output['x'], height=output['y'], streaming=output['rsi'])
             except KeyboardInterrupt:
                 raise
             except:
