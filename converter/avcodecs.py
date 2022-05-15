@@ -121,6 +121,7 @@ class AudioCodec(BaseCodec):
         'map': int,
         'disposition': str,
         'profile': str,
+        'bsf': str,
     }
 
     def parse_options(self, opt, stream=0):
@@ -196,6 +197,8 @@ class AudioCodec(BaseCodec):
         else:
             optlist.extend(['-metadata:s:a:' + stream, "title="])
             optlist.extend(['-metadata:s:a:' + stream, "handler_name="])
+        if 'bsf' in safe:
+            optlist.extend(['-bsf:a', safe['bsf']])
         if 'language' in safe:
             lang = str(safe['language'])
         else:
@@ -325,7 +328,8 @@ class VideoCodec(BaseCodec):
         'filter': str,
         'pix_fmt': str,
         'field_order': str,
-        'map': int
+        'map': int,
+        'bsf': str,
     }
 
     def _aspect_corrections(self, sw, sh, w, h, mode):
@@ -489,6 +493,8 @@ class VideoCodec(BaseCodec):
             optlist.extend(['-s', '%dx%d' % (w, h)])
             if ow and oh:
                 optlist.extend(['-aspect', '%d:%d' % (ow, oh)])
+        if 'bsf' in safe:
+            optlist.extend(['-bsf:v', safe['bsf']])
         if 'title' in safe:
             optlist.extend(['-metadata:s:v', "title=" + str(safe['title'])])
             optlist.extend(['-metadata:s:v', "handler_name=" + str(safe['title'])])
@@ -608,6 +614,7 @@ class VideoCopyCodec(BaseCodec):
     encoder_options = {'map': int,
                        'source': str,
                        'fps': float,
+                       'bsf': str,
                        'title': str}
 
     def parse_options(self, opt, stream=0):
@@ -632,6 +639,8 @@ class VideoCopyCodec(BaseCodec):
             optlist.extend(['-map', s + ':' + str(safe['map'])])
         if 'fps' in safe:
             optlist.extend(['-r:v', str(safe['fps'])])
+        if 'bsf' in safe:
+            optlist.extend(['-bsf:v', safe['bsf']])
         if 'title' in safe:
             optlist.extend(['-metadata:s:v', "title=" + str(safe['title'])])
             optlist.extend(['-metadata:s:v', "handler_name=" + str(safe['title'])])
@@ -1654,7 +1663,10 @@ class NVEncH265CodecPatched(NVEncH265Codec):
     def _codec_specific_parse_options(self, safe, stream=0):
         safe = super(NVEncH265CodecPatched, self)._codec_specific_parse_options(safe, stream)
         if 'framedata' in safe:
-            safe['bsfv'] = self.safe_framedata(safe['framedata'])
+            if 'bsf' in safe:
+                safe['bsf'] = safe['bsf'] + "," + self.safe_framedata(safe['framedata'])
+            else:
+                safe['bsf'] = self.safe_framedata(safe['framedata'])
             del safe['framedata']
         return safe
 
@@ -1692,12 +1704,6 @@ class NVEncH265CodecPatched(NVEncH265Codec):
                     max_content = max_average if max_content < max_average else max_content
                     metadata += "max_cll=\"%d|%d\":" % (max_content, max_average)
         return metadata[:-1]
-
-    def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
-        optlist = super(NVEncH265CodecPatched, self)._codec_specific_produce_ffmpeg_list(safe, stream)
-        if 'bsfv' in safe:
-            optlist.extend(['-bsf:v', safe['bsfv']])
-        return optlist
 
 
 class H264CuvidDecoder(BaseDecoder):

@@ -126,6 +126,7 @@ ignore-embedded-subs = False
 ignored-dispositions = 
 unique-dispositions = False
 attachment-codec = 
+remove-bitstream-subs = False
 
 [Subtitle.Sorting]
 sorting = language, d.comment, d.default.d, d.forced.d

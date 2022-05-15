@@ -785,6 +785,11 @@ class MediaProcessor:
             self.log.debug("Pix_fmt is changing, will not preserve framedata")
             vframedata = None
 
+        vbsf = None
+        if self.settings.removebvs and self.hasBitstreamVideoSubs(info.video.framedata):
+            self.log.debug("Found side data type with closed captioning [remove-bitstream-subs]")
+            vbsf = "filter_units=remove_types=6"
+
         self.log.debug("Video codec: %s." % vcodec)
         self.log.debug("Video bitrate: %s." % vbitrate)
         self.log.debug("Video CRF: %s." % vcrf)
@@ -816,6 +821,7 @@ class MediaProcessor:
             'filter': vfilter,
             'params': vparams,
             'framedata': vframedata,
+            'bsf': vbsf,
             'title': self.videoStreamTitle(info.video, vcodec, width=vwidth, hdr=vHDR, swidth=info.video.video_width, sheight=info.video.video_height),
             'debug': vdebug,
         }
@@ -2004,6 +2010,13 @@ class MediaProcessor:
             return False
         except:
             return False
+
+    def hasBitstreamVideoSubs(self, framedata):
+        if 'side_data_list' in framedata:
+            for side_data in framedata['side_data_list']:
+                if "closed captions" in side_data.get('side_data_type', '').lower():
+                    return True
+        return False
 
     # Framedata normalization
     def normalizeFramedata(self, framedata, hdr):

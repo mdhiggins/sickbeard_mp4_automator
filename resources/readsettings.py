@@ -219,6 +219,7 @@ class ReadSettings:
             'ignored-dispositions': '',
             'unique-dispositions': False,
             'attachment-codec': '',
+            'remove-bitstream-subs': False,
         },
         'Subtitle.Sorting': {
             'sorting': 'language, d.comment, d.default.d, d.forced.d',
@@ -638,6 +639,7 @@ class ReadSettings:
         self.ignored_subtitle_dispositions = config.getlist(section, "ignored-dispositions")
         self.unique_subtitle_dispositions = config.getboolean(section, "unique-dispositions")
         self.attachmentcodec = config.getlist(section, 'attachment-codec')
+        self.removebvs = config.getlist(section, 'remove-bitstream-subs')
 
         section = "Subtitle.Sorting"
         self.sub_sorting = config.getlist(section, 'sorting')
