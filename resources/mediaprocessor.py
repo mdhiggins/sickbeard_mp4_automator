@@ -2254,18 +2254,17 @@ class MediaProcessor:
 
     # Process a file with QTFastStart, removing the original file
     def QTFS(self, inputfile):
-        input_dir, filename, input_extension = self.parseFile(inputfile)
-        temp_ext = '.QTFS'
+        TEMP_EXT = '.QTFS'
         # Relocate MOOV atom to the very beginning. Can double the time it takes to convert a file but makes streaming faster
-        if os.path.isfile(inputfile) and self.settings.relocate_moov:
+        if os.path.isfile(inputfile) and self.settings.relocate_moov and self.settings.output_format not in ['mkv']:
             from qtfaststart import processor, exceptions
 
             self.log.info("Relocating MOOV atom to start of file.")
 
             try:
-                outputfile = inputfile.decode(sys.getfilesystemencoding()) + temp_ext
+                outputfile = inputfile.decode(sys.getfilesystemencoding()) + TEMP_EXT
             except:
-                outputfile = inputfile + temp_ext
+                outputfile = inputfile + TEMP_EXT
 
             # Clear out the temp file if it exists
             if os.path.exists(outputfile):
@@ -2282,8 +2281,9 @@ class MediaProcessor:
                     self.log.error("Error cleaning up QTFS temp files.")
                     return False
             except exceptions.FastStartException:
-                self.log.warning("QT FastStart did not run - perhaps moov atom was at the start already or file is in the wrong format.")
+                self.log.debug("QT FastStart did not run - perhaps moov atom was at the start already or file is in the wrong format.")
                 return inputfile
+        return inputfile
 
     # Makes additional copies of the input file in each directory specified in the copy_to option
     def replicate(self, inputfile, relativePath=None):
