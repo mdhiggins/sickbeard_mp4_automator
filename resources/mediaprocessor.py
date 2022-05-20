@@ -499,15 +499,13 @@ class MediaProcessor:
     def safeLanguage(self, info):
         awl = self.settings.awl
         swl = self.settings.swl
-        overrideLang = (len(awl) > 0)
 
         # Loop through audio streams and clean up language metadata by standardizing undefined languages and applying the ADL setting
         for a in info.audio:
             a.metadata['language'] = getAlpha3TCode(a.metadata.get('language'), self.settings.adl)
-            if len(awl) > 0 and a.metadata.get('language') in awl and self.validDisposition(a.metadata['language'], a.dispostr, self.settings.ignored_audio_dispositions, False, []):
-                overrideLang = False
 
-        if overrideLang and self.settings.allow_language_relax:
+        # if overrideLang and self.settings.allow_language_relax:
+        if len(awl) > 0 and self.settings.allow_language_relax and not any(a.metadata.get('language') in awl and self.validDisposition(a.dispostr, self.settings.ignored_audio_dispositions) for a in info.audio):
             awl = []
             self.log.info("No audio streams detected in any appropriate language, relaxing restrictions [allow-audio-language-relax].")
 
@@ -623,12 +621,12 @@ class MediaProcessor:
             self.log.error("FFPROBE returned no value for inputfile %s (exists: %s), either the file does not exist or is not a format FFPROBE can read." % (inputfile, os.path.exists(inputfile)))
             return None, None, None, None, None
 
-        # Ensure we have adequate language tracks present, assigned undefined languages to default, relax language parameters if needed
-        awl, swl = self.safeLanguage(info)
-
         # Update disposition information using titles, requires PyMediaInfo
         self.titleDispositionCheck(info)
         self.cleanDispositions(info)
+
+        # Ensure we have adequate language tracks present, assigned undefined languages to default, relax language parameters if needed
+        awl, swl = self.safeLanguage(info)
 
         try:
             self.log.info("Input Data")
@@ -859,7 +857,7 @@ class MediaProcessor:
             # Proceed if no whitelist is set, or if the language is in the whitelist
             if not self.validLanguage(a.metadata['language'], awl, blocked_audio_languages):
                 continue
-            if not self.validDisposition(a.metadata['language'], a.dispostr, self.settings.ignored_audio_dispositions, self.settings.unique_audio_dispositions, blocked_audio_dispositions):
+            if not self.validDisposition(a.dispostr, self.settings.ignored_audio_dispositions, self.settings.unique_audio_dispositions, a.metadata['language'], blocked_audio_dispositions):
                 continue
 
             try:
@@ -1135,7 +1133,7 @@ class MediaProcessor:
 
                 if not self.validLanguage(s.metadata['language'], swl, blocked_subtitle_languages):
                     continue
-                if not self.validDisposition(s.metadata['language'], s.dispostr, self.settings.ignored_subtitle_dispositions, self.settings.unique_subtitle_dispositions, blocked_subtitle_dispositions):
+                if not self.validDisposition(s.dispostr, self.settings.ignored_subtitle_dispositions, self.settings.unique_subtitle_dispositions, s.metadata['language'], blocked_subtitle_dispositions):
                     continue
 
                 try:
@@ -1226,7 +1224,7 @@ class MediaProcessor:
 
             if not self.validLanguage(external_sub.subtitle[0].metadata['language'], swl, blocked_subtitle_languages):
                 continue
-            if not self.validDisposition(external_sub.subtitle[0].metadata['language'], sdisposition, self.settings.ignored_subtitle_dispositions, self.settings.unique_subtitle_dispositions, blocked_subtitle_dispositions):
+            if not self.validDisposition(sdisposition, self.settings.ignored_subtitle_dispositions, self.settings.unique_subtitle_dispositions, external_sub.subtitle[0].metadata['language'], blocked_subtitle_dispositions):
                 continue
 
             if external_sub.path not in sources:
@@ -1389,7 +1387,7 @@ class MediaProcessor:
         return ((len(whitelist) < 1 or language in whitelist) and language not in blocked)
 
     # Complex valid disposition checker supporting unique dispositions, language combinations etc for the main option generator
-    def validDisposition(self, language, disposition, ignored, unique, existing, append=True):
+    def validDisposition(self, disposition, ignored, unique=False, language='', existing=[], append=True):
         dispodict = self.dispoStringToDict(disposition)
         truedispositions = [x for x in dispodict if dispodict[x]]
         for dispo in truedispositions:
