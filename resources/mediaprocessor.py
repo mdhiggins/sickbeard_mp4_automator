@@ -504,7 +504,7 @@ class MediaProcessor:
         # Loop through audio streams and clean up language metadata by standardizing undefined languages and applying the ADL setting
         for a in info.audio:
             a.metadata['language'] = getAlpha3TCode(a.metadata.get('language'), self.settings.adl)
-            if len(awl) > 0 and a.metadata.get('language') in awl and self.validDisposition(a.metadata['language'], a.dispostr, self.settings.ignored_audio_dispositions, self.settings.unique_audio_dispositions, []):
+            if len(awl) > 0 and a.metadata.get('language') in awl and self.validDisposition(a.metadata['language'], a.dispostr, self.settings.ignored_audio_dispositions, False, []):
                 overrideLang = False
 
         if overrideLang and self.settings.allow_language_relax:
