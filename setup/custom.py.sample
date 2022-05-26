@@ -34,14 +34,14 @@ def skipUA(mp, stream, info, path):
     # Custom function that skips over creating a universal audio stream
     return False
 
-def streamTitle(mp, stream, codec, channels=0, imageBased=False, path=None, width=0, height=0):
+def streamTitle(mp, stream, options, imageBased=False, path=None):
     # Custom function to define steam title, return None to use script default function, return "" to set blank
-    # source.disposition contains the disposition dictionary
-    # source.metadata.get('title') contains the original stream title
-    # source.type to check between audio and subtitle
+    # stream.disposition contains the disposition dictionary
+    # stream.metadata.get('title') contains the original stream title
+    # stream.type to check between audio and subtitle
     mp.log.info("Initiating custom stream title method.")
     if stream.type == "audio":
-        return "Surround" if channels > 2 else "Stereo"
+        return "Surround" if options.get("channels") > 2 else "Stereo"
     if stream.type == "video":
         return None
     if stream.type == "subtitle":

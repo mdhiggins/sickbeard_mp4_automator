@@ -238,14 +238,16 @@ class MediaProcessor:
                 stream.disposition[dispo] = False
 
     # Get title for video stream based on disposition
-    def videoStreamTitle(self, stream, codec, width=0, height=0, hdr=False, swidth=0, sheight=0):
+    def videoStreamTitle(self, stream, options, hdr=False):
+        width = options.get("width")
+        height = options.get("height")
         if not width and not height:
-            width = swidth
-            height = sheight
+            width = stream.video_width
+            height = stream.video_height
 
         if streamTitle:
             try:
-                customTitle = streamTitle(self, stream, codec, width=width, height=height)
+                customTitle = streamTitle(self, stream, options, hdr=hdr)
                 if customTitle is not None:
                     return customTitle
             except:
@@ -272,10 +274,10 @@ class MediaProcessor:
         return output.strip() if output else None
 
     # Get title for audio stream based on disposition
-    def audioStreamTitle(self, codec, channels, stream):
+    def audioStreamTitle(self, stream, options):
         if streamTitle:
             try:
-                customTitle = streamTitle(self, stream, codec, channels=channels)
+                customTitle = streamTitle(self, stream, options)
                 if customTitle is not None:
                     return customTitle
             except:
@@ -284,6 +286,7 @@ class MediaProcessor:
         if self.settings.keep_titles and stream.metadata.get('title'):
             return stream.metadata.get('title')
 
+        channels = options.get("channels", 0)
         output = "Audio"
         if channels == 1:
             output = "Mono"
@@ -304,10 +307,10 @@ class MediaProcessor:
         return output.strip() if output else None
 
     # Get title for subtitle stream based on disposition
-    def subtitleStreamTitle(self, codec, imageBased, stream, path=None):
+    def subtitleStreamTitle(self, stream, options, imageBased=False, path=None):
         if streamTitle:
             try:
-                customTitle = streamTitle(self, stream, codec, imageBased=imageBased, path=path)
+                customTitle = streamTitle(self, stream, options, imageBased=imageBased, path=path)
                 if customTitle is not None:
                     return customTitle
             except:
@@ -820,9 +823,9 @@ class MediaProcessor:
             'params': vparams,
             'framedata': vframedata,
             'bsf': vbsf,
-            'title': self.videoStreamTitle(info.video, vcodec, width=vwidth, hdr=vHDR, swidth=info.video.video_width, sheight=info.video.video_height),
             'debug': vdebug,
         }
+        video_settings['title'] = self.videoStreamTitle(info.video, video_settings, hdr=vHDR)
 
         ###############################################################
         # Audio streams
@@ -915,9 +918,9 @@ class MediaProcessor:
                     'filter': ua_filter,
                     'language': a.metadata['language'],
                     'disposition': ua_disposition,
-                    'title': self.audioStreamTitle(self.settings.ua[0], 2, a),
                     'debug': 'universal-audio'
                 }
+                uadata['title'] = self.audioStreamTitle(a, uadata)
 
             adebug = "audio"
             # If the universal audio option is enabled and the source audio channel is only stereo, the additional universal stream will be skipped and a single channel will be made regardless of codec preference to avoid multiple stereo channels
@@ -1037,8 +1040,7 @@ class MediaProcessor:
             absf = 'aac_adtstoasc' if acodec == 'copy' and a.codec == 'aac' and self.settings.aac_adtstoasc else None
 
             self.log.info("Creating %s audio stream from source stream %d." % (acodec, a.index))
-            aposition = len(audio_settings)
-            audio_settings.append({
+            audio_setting = {
                 'map': a.index,
                 'codec': acodec,
                 'channels': audio_channels,
@@ -1051,9 +1053,10 @@ class MediaProcessor:
                 'language': a.metadata['language'],
                 'disposition': adisposition,
                 'bsf': absf,
-                'title': self.audioStreamTitle(acodec, audio_channels, a),
                 'debug': adebug
-            })
+            }
+            audio_setting['title'] = self.audioStreamTitle(a, audio_setting)
+            audio_settings.append(audio_setting)
 
             # Add the universal audio stream
             if uadata:
@@ -1063,15 +1066,16 @@ class MediaProcessor:
             # Copy the original stream
             if self.settings.audio_copyoriginal and acodec != 'copy':
                 self.log.info("Copying audio stream from source stream %d format %s [audio-copy-original]." % (a.index, a.codec))
-                audio_settings.append({
+                audio_setting = {
                     'map': a.index,
                     'codec': 'copy',
                     'channels': a.audio_channels,
                     'language': a.metadata['language'],
                     'disposition': adisposition,
-                    'title': self.audioStreamTitle(a.codec, a.audio_channels, a),
                     'debug': 'audio-copy-original'
-                })
+                }
+                audio_setting['title'] = self.audioStreamTitle(a, audio_setting)
+                audio_settings.append(audio_setting)
 
             # Remove the language if we only want the first stream from a given language
             if self.settings.audio_first_language_stream and a.metadata['language'] != BaseCodec.UNDEFINED:
@@ -1167,14 +1171,15 @@ class MediaProcessor:
 
                 if scodec:
                     self.log.info("Creating %s subtitle stream from source stream %d." % (scodec, s.index))
-                    subtitle_settings.append({
+                    subtitle_setting = {
                         'map': s.index,
                         'codec': scodec,
                         'language': s.metadata['language'],
                         'disposition': s.dispostr,
-                        'title': self.subtitleStreamTitle(scodec, image_based, s),
                         'debug': 'subtitle.embed-subs'
-                    })
+                    }
+                    subtitle_setting['title'] = self.subtitleStreamTitle(s, subtitle_setting, image_based)
+                    subtitle_settings.append(subtitle_setting)
                     if self.settings.sub_first_language_stream:
                         blocked_subtitle_languages.append(s.metadata['language'])
                 else:
@@ -1231,15 +1236,15 @@ class MediaProcessor:
                 sources.append(external_sub.path)
 
             self.log.info("Creating %s subtitle stream by importing %s-based subtitle %s [embed-subs]." % (scodec, "Image" if image_based else "Text", os.path.basename(external_sub.path)))
-            subtitle_settings.append({
+            subtitle_setting = {
                 'source': sources.index(external_sub.path),
                 'map': 0,
                 'codec': scodec,
                 'disposition': sdisposition,
-                'title': self.subtitleStreamTitle(scodec, image_based, external_sub.subtitle[0], path=external_sub.path),
                 'language': external_sub.subtitle[0].metadata['language'],
-                'debug': 'subtitle.embed-subs'})
-
+                'debug': 'subtitle.embed-subs'}
+            subtitle_setting['title'] = self.subtitleStreamTitle(external_sub.subtitle[0], subtitle_setting, image_based, path=external_sub.path)
+            subtitle_settings.append(subtitle_setting)
             self.log.debug("Path: %s." % external_sub.path)
             self.log.debug("Codec: %s." % self.settings.scodec[0])
             self.log.debug("Langauge: %s." % external_sub.subtitle[0].metadata['language'])
