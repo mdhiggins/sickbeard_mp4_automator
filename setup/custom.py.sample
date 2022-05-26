@@ -34,7 +34,7 @@ def skipUA(mp, stream, info, path):
     # Custom function that skips over creating a universal audio stream
     return False
 
-def streamTitle(mp, stream, options, imageBased=False, path=None):
+def streamTitle(mp, stream, options, hdr=False, imageBased=False, path=None):
     # Custom function to define steam title, return None to use script default function, return "" to set blank
     # stream.disposition contains the disposition dictionary
     # stream.metadata.get('title') contains the original stream title
