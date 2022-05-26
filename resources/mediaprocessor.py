@@ -372,7 +372,7 @@ class MediaProcessor:
     # Determine if a file can be read by FFPROBE and is a subtitle only
     def isValidSubtitleSource(self, inputfile):
         _, _, extension = self.parseFile(inputfile)
-        if extension in bad_sub_extensions:
+        if extension in bad_sub_extensions or extension in self.settings.ignored_extensions:
             return None
         try:
             info = self.converter.probe(inputfile)
@@ -1699,6 +1699,7 @@ class MediaProcessor:
                     self.log.debug("Already loaded %s, skipping." % (fname))
                     continue
                 if fname.startswith(filename):  # filename in fname:
+                    _, _, extension = self.parseFile(filename)
                     valid_external_sub = self.isValidSubtitleSource(os.path.join(dirName, fname))
                     if valid_external_sub:
                         self.log.debug("Potential subtitle candidate identified %s." % (fname))
