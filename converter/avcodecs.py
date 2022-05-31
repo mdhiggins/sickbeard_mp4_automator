@@ -774,12 +774,12 @@ class AacCodec(AudioCodec):
     ffprobe_codec_name = 'aac'
     aac_experimental_enable = ['-strict', 'experimental']
 
-    def parse_options(self, opt, stream=0):
-        if 'channels' in opt:
-            c = opt['channels']
+    def _codec_specific_parse_options(self, safe, stream=0):
+        if 'channels' in safe:
+            c = safe['channels']
             if c > 6:
-                opt['channels'] = 6
-        return super(AacCodec, self).parse_options(opt, stream)
+                safe['channels'] = 6
+        return safe
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         return self.aac_experimental_enable
@@ -837,12 +837,12 @@ class FAacCodec(AudioCodec):
     ffmpeg_codec_name = 'libfaac'
     ffprobe_codec_name = 'aac'
 
-    def parse_options(self, opt, stream=0):
-        if 'channels' in opt:
-            c = opt['channels']
+    def _codec_specific_parse_options(self, safe, stream=0):
+        if 'channels' in safe:
+            c = safe['channels']
             if c > 6:
-                opt['channels'] = 6
-        return super(FAacCodec, self).parse_options(opt, stream)
+                safe['channels'] = 6
+        return safe
 
 
 class Ac3Codec(AudioCodec):
@@ -853,12 +853,12 @@ class Ac3Codec(AudioCodec):
     ffmpeg_codec_name = 'ac3'
     ffprobe_codec_name = 'ac3'
 
-    def parse_options(self, opt, stream=0):
-        if 'channels' in opt:
-            c = opt['channels']
+    def _codec_specific_parse_options(self, safe, stream=0):
+        if 'channels' in safe:
+            c = safe['channels']
             if c > 6:
-                opt['channels'] = 6
-        return super(Ac3Codec, self).parse_options(opt, stream)
+                safe['channels'] = 6
+        return safe
 
 
 class EAc3Codec(AudioCodec):
@@ -869,16 +869,16 @@ class EAc3Codec(AudioCodec):
     ffmpeg_codec_name = 'eac3'
     ffprobe_codec_name = 'eac3'
 
-    def parse_options(self, opt, stream=0):
-        if 'channels' in opt:
-            c = opt['channels']
+    def _codec_specific_parse_options(self, safe, stream=0):
+        if 'channels' in safe:
+            c = safe['channels']
             if c > 8:
-                opt['channels'] = 6
-        if 'bitrate' in opt:
-            br = opt['bitrate']
+                safe['channels'] = 6
+        if 'bitrate' in safe:
+            br = safe['bitrate']
             if br > 640:
-                opt['bitrate'] = 640
-        return super(EAc3Codec, self).parse_options(opt, stream)
+                safe['bitrate'] = 640
+        return safe
 
 
 class TrueHDCodec(AudioCodec):
@@ -890,12 +890,12 @@ class TrueHDCodec(AudioCodec):
     ffprobe_codec_name = 'truehd'
     truehd_experimental_enable = ['-strict', 'experimental']
 
-    def parse_options(self, opt, stream=0):
-        if 'channels' in opt:
-            c = opt['channels']
+    def _codec_specific_parse_options(self, safe, stream=0):
+        if 'channels' in safe:
+            c = safe['channels']
             if c > 8:
-                opt['channels'] = 8
-        return super(TrueHDCodec, self).parse_options(opt, stream)
+                safe['channels'] = 8
+        return safe
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         return self.truehd_experimental_enable
@@ -923,12 +923,12 @@ class DtsCodec(AudioCodec):
     ffprobe_codec_name = 'dts'
     dts_experimental_enable = ['-strict', 'experimental']
 
-    def parse_options(self, opt, stream=0):
-        if 'channels' in opt:
-            c = opt['channels']
+    def _codec_specific_parse_options(self, safe, stream=0):
+        if 'channels' in safe:
+            c = safe['channels']
             if c > 6:
-                opt['channels'] = 6
-        return super(DtsCodec, self).parse_options(opt, stream)
+                safe['channels'] = 6
+        return safe
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         return self.dts_experimental_enable
@@ -1810,12 +1810,12 @@ class AV1Codec(VideoCodec):
 
     CRF_MAX = 63
 
-    def parse_options(self, opt, stream=0):
-        if 'preset' in opt:
-            p = opt['preset']
+    def _codec_specific_parse_options(self, safe, stream=0):
+        if 'preset' in safe:
+            p = safe['preset']
             if p < 0 or p > 13:
-                del opt['preset']
-        return super(AV1Codec, self).parse_options(opt, stream)
+                del safe['preset']
+        return safe
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
         optlist = []
