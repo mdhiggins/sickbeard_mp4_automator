@@ -24,7 +24,7 @@ Integration
 
 Dependencies
 --------------
-- [Python 3](https://www.python.org/) (Python 2.7 unofficially supported)
+- [Python 3](https://www.python.org/)
 - [FFmpeg](https://ffmpeg.org/)
 - [Python Packages](https://github.com/mdhiggins/sickbeard_mp4_automator/wiki/Dependencies)
 
