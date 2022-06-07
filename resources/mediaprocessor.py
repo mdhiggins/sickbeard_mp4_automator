@@ -508,7 +508,7 @@ class MediaProcessor:
             a.metadata['language'] = getAlpha3TCode(a.metadata.get('language'), self.settings.adl)
 
         # if overrideLang and self.settings.allow_language_relax:
-        if len(awl) > 0 and self.settings.allow_language_relax and not any(a.metadata.get('language') in awl and self.validDisposition(a.dispostr, self.settings.ignored_audio_dispositions) for a in info.audio):
+        if len(awl) > 0 and self.settings.allow_language_relax and not any(a.metadata.get('language') in awl and self.validDisposition(a, self.settings.ignored_audio_dispositions) for a in info.audio):
             awl = []
             self.log.info("No audio streams detected in any appropriate language, relaxing restrictions [allow-audio-language-relax].")
 
@@ -860,7 +860,7 @@ class MediaProcessor:
             # Proceed if no whitelist is set, or if the language is in the whitelist
             if not self.validLanguage(a.metadata['language'], awl, blocked_audio_languages):
                 continue
-            if not self.validDisposition(a.dispostr, self.settings.ignored_audio_dispositions, self.settings.unique_audio_dispositions, a.metadata['language'], blocked_audio_dispositions):
+            if not self.validDisposition(a, self.settings.ignored_audio_dispositions, self.settings.unique_audio_dispositions, a.metadata['language'], blocked_audio_dispositions):
                 continue
 
             try:
@@ -1137,7 +1137,7 @@ class MediaProcessor:
 
                 if not self.validLanguage(s.metadata['language'], swl, blocked_subtitle_languages):
                     continue
-                if not self.validDisposition(s.dispostr, self.settings.ignored_subtitle_dispositions, self.settings.unique_subtitle_dispositions, s.metadata['language'], blocked_subtitle_dispositions):
+                if not self.validDisposition(s, self.settings.ignored_subtitle_dispositions, self.settings.unique_subtitle_dispositions, s.metadata['language'], blocked_subtitle_dispositions):
                     continue
 
                 try:
@@ -1229,7 +1229,7 @@ class MediaProcessor:
 
             if not self.validLanguage(external_sub.subtitle[0].metadata['language'], swl, blocked_subtitle_languages):
                 continue
-            if not self.validDisposition(sdisposition, self.settings.ignored_subtitle_dispositions, self.settings.unique_subtitle_dispositions, external_sub.subtitle[0].metadata['language'], blocked_subtitle_dispositions):
+            if not self.validDisposition(external_sub.subtitle[0], self.settings.ignored_subtitle_dispositions, self.settings.unique_subtitle_dispositions, external_sub.subtitle[0].metadata['language'], blocked_subtitle_dispositions):
                 continue
 
             if external_sub.path not in sources:
@@ -1392,15 +1392,14 @@ class MediaProcessor:
         return ((len(whitelist) < 1 or language in whitelist) and language not in blocked)
 
     # Complex valid disposition checker supporting unique dispositions, language combinations etc for the main option generator
-    def validDisposition(self, disposition, ignored, unique=False, language='', existing=[], append=True):
-        dispodict = self.dispoStringToDict(disposition)
-        truedispositions = [x for x in dispodict if dispodict[x]]
+    def validDisposition(self, stream, ignored, unique=False, language='', existing=[], append=True):
+        truedispositions = [x for x in stream.disposition if stream.disposition[x]]
         for dispo in truedispositions:
             if BaseCodec.DISPO_ALTS.get(dispo, dispo) in ignored:
                 self.log.debug("Ignoring stream because disposition %s is on the ignore list." % (dispo))
                 return False
         if unique:
-            search = "%s.%s" % (language, disposition)
+            search = "%s.%s" % (language, stream.dispostr)
             if search in existing:
                 self.log.debug("Invalid disposition, stream fitting this disposition profile already exists, ignoring.")
                 return False
@@ -1414,7 +1413,7 @@ class MediaProcessor:
     def dispoStringToDict(self, dispostr):
         dispo = {}
         if dispostr:
-            d = re.findall('([+-][a-zA-Z]*)', dispostr)
+            d = re.findall('([+-][a-zA-Z_]*)', dispostr)
             for x in d:
                 dispo[x[1:]] = x.startswith('+')
         return dispo
