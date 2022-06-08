@@ -239,11 +239,11 @@ class MediaProcessor:
 
     # Get title for video stream based on disposition
     def videoStreamTitle(self, stream, options, hdr=False):
-        width = options.get("width")
-        height = options.get("height")
+        width = options.get("width", 0)
+        height = options.get("height", 0)
         if not width and not height:
-            width = stream.video_width
-            height = stream.video_height
+            width = stream.video_width or 0
+            height = stream.video_height or 0
 
         if streamTitle:
             try:
