@@ -90,7 +90,7 @@ class SMAConfigParser(ConfigParser, object):
 
 
 class ReadSettings:
-    defaults = {
+    DEFAULTS = {
         'Converter': {
             'ffmpeg': 'ffmpeg' if os.name != 'nt' else 'ffmpeg.exe',
             'ffprobe': 'ffprobe' if os.name != 'nt' else 'ffprobe.exe',
@@ -350,6 +350,7 @@ class ReadSettings:
     RESOURCE_DIRECTORY = "./resources"
     RELATIVE_TO_ROOT = "../"
     ENV_CONFIG_VAR = "SMA_CONFIG"
+    DYNAMIC_SECTIONS = ["Audio.ChannelFilters", "Subtitle.Subliminal.Auth"]
 
     @property
     def CONFIG_RELATIVEPATH(self):
@@ -434,13 +435,15 @@ class ReadSettings:
             write = True
 
         # Make sure all sections and all keys for each section are present
-        for s in self.defaults:
+        for s in self.DEFAULTS:
             if not config.has_section(s):
                 config.add_section(s)
                 write = True
-            for k in self.defaults[s]:
+            if s in self.DYNAMIC_SECTIONS:
+                continue
+            for k in self.DEFAULTS[s]:
                 if not config.has_option(s, k):
-                    config.set(s, k, str(self.defaults[s][k]))
+                    config.set(s, k, str(self.DEFAULTS[s][k]))
                     write = True
 
         # If any keys are missing from the config file, write them
