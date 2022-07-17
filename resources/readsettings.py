@@ -606,13 +606,13 @@ class ReadSettings:
         self.afilterchannels = {}
         if config.has_section(section):
             for key, value in config.items(section):
-                try:
-                    channels = key.split("-", 1)
-                    channels = [int(x) for x in channels]
-                    self.afilterchannels[channels[0]] = {channels[1]: config.get(section, key)}
-                except:
-                    self.log.exception("Unable to parse %s %s, skipping." % (section, key))
-                    continue
+                if value:
+                    try:
+                        channels = [int(x) for x in key.split("-", 1)]
+                        self.afilterchannels[channels[0]] = {channels[1]: config.get(section, key)}
+                    except:
+                        self.log.exception("Unable to parse %s %s, skipping." % (section, key))
+                        continue
 
         # Universal Audio
         section = "Universal Audio"
@@ -665,18 +665,18 @@ class ReadSettings:
         self.subproviders_auth = {}
         if config.has_section(section):
             for key, value in config.items(section):
-                try:
-                    rawcredentials = config.get(section, key)
-                    credentials = rawcredentials.split(":", 1)
-                    if len(credentials) < 2:
-                        if rawcredentials:
-                            self.log.error("Unable to parse %s %s, skipping." % (section, key))
+                if value:
+                    try:
+                        rawcredentials = config.get(section, key)
+                        credentials = [x.strip() for x in rawcredentials.split(":", 1)]
+                        if len(credentials) < 2:
+                            if rawcredentials:
+                                self.log.error("Unable to parse %s %s, skipping." % (section, key))
+                            continue
+                        self.subproviders_auth[key.strip()] = {'username': credentials[0], 'password': credentials[1]}
+                    except:
+                        self.log.exception("Unable to parse %s %s, skipping." % (section, key))
                         continue
-                    credentials = [x.strip() for x in credentials]
-                    self.subproviders_auth[key.strip()] = {'username': credentials[0], 'password': credentials[1]}
-                except:
-                    self.log.exception("Unable to parse %s %s, skipping." % (section, key))
-                    continue
 
         # Sonarr
         section = "Sonarr"
