@@ -400,6 +400,7 @@ class MediaProcessor:
             if lang == BaseCodec.UNDEFINED and l != BaseCodec.UNDEFINED:
                 lang = l
                 self.log.debug("Found language match %s." % (lang))
+                continue
             dsuf = BaseCodec.DISPO_ALTS.get(suf, suf)
             if dsuf in BaseCodec.DISPOSITIONS:
                 valid_external_sub.subtitle[0].disposition[dsuf] = True
