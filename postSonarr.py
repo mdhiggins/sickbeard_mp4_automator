@@ -181,7 +181,12 @@ log = getLogger("SonarrPostProcess")
 log.info("Sonarr extra script post processing started.")
 
 if os.environ.get('sonarr_eventtype') == "Test":
+    log.info("Successful postSonarr.py SMA test, exiting.")
     sys.exit(0)
+
+if os.environ.get('sonarr_eventtype') != "Download":
+    log.error("Invalid event type %s, script only works for On Download/On Import and On Upgrade." % (os.environ.get('sonarr_eventtype')))
+    sys.exit(1)
 
 settings = ReadSettings()
 

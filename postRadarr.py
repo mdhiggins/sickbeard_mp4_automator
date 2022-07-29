@@ -165,7 +165,12 @@ log = getLogger("RadarrPostProcess")
 log.info("Radarr extra script post processing started.")
 
 if os.environ.get('radarr_eventtype') == "Test":
+    log.info("Successful postRadarr.py SMA test, exiting.")
     sys.exit(0)
+
+if os.environ.get('radarr_eventtype') != "Download":
+    log.error("Invalid event type %s, script only works for On Download/On Import and On Upgrade." % (os.environ.get('radarr_eventtype')))
+    sys.exit(1)
 
 settings = ReadSettings()
 
