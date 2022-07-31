@@ -188,11 +188,11 @@ if os.environ.get('sonarr_eventtype') != "Download":
     log.error("Invalid event type %s, script only works for On Download/On Import and On Upgrade." % (os.environ.get('sonarr_eventtype')))
     sys.exit(1)
 
-settings = ReadSettings()
-
-log.debug(os.environ)
-
 try:
+    settings = ReadSettings()
+
+    log.debug(os.environ)
+
     inputfile = os.environ.get('sonarr_episodefile_path')
     original = os.environ.get('sonarr_episodefile_scenename')
     tvdb_id = int(os.environ.get('sonarr_series_tvdbid'))

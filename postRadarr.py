@@ -160,6 +160,7 @@ def restoreSubs(subs, log):
             log.exception("Unable to restore %s, deleting." % (k))
 
 
+
 log = getLogger("RadarrPostProcess")
 
 log.info("Radarr extra script post processing started.")
@@ -172,11 +173,11 @@ if os.environ.get('radarr_eventtype') != "Download":
     log.error("Invalid event type %s, script only works for On Download/On Import and On Upgrade." % (os.environ.get('radarr_eventtype')))
     sys.exit(1)
 
-settings = ReadSettings()
-
-log.debug(os.environ)
-
 try:
+    settings = ReadSettings()
+
+    log.debug(os.environ)
+
     inputfile = os.environ.get('radarr_moviefile_path')
     original = os.environ.get('radarr_moviefile_scenename')
     imdbid = os.environ.get('radarr_movie_imdbid')
