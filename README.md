@@ -246,6 +246,7 @@ optional arguments:
                         options that come from output_dir and move-to
   -nt, --notag          Overrides and disables tagging when using the
                         automated option
+  -to, --tagonly        Only tag without conversion
   -nd, --nodelete       Overrides and disables deleting of original files
   -pr, --preserverelative
                         Preserves relative directories when processing

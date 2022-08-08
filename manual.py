@@ -253,7 +253,7 @@ def addtoProcessedArchive(files, processedList, processedArchive):
     log.debug("Adding %s to processed archive %s" % (files, processedArchive))
 
 
-def processFile(inputfile, mp, info=None, relativePath=None, silent=False, tag=True, tmdbid=None, tvdbid=None, imdbid=None, season=None, episode=None, original=None, processedList=None, processedArchive=None):
+def processFile(inputfile, mp, info=None, relativePath=None, silent=False, tag=True, tagonly=False, tmdbid=None, tvdbid=None, imdbid=None, season=None, episode=None, original=None, processedList=None, processedArchive=None):
     if checkAlreadyProcessed(inputfile, processedList):
         log.debug("%s is already processed and will be skipped based on archive %s." % (inputfile, processedArchive))
         return
@@ -265,7 +265,7 @@ def processFile(inputfile, mp, info=None, relativePath=None, silent=False, tag=T
         return
 
     language = mp.settings.taglanguage or None
-    tagdata = getInfo(inputfile, mp.settings, silent=silent, tag=tag, tmdbid=tmdbid, tvdbid=tvdbid, imdbid=imdbid, season=season, episode=episode, language=language, original=original)
+    tagdata = getInfo(inputfile, mp.settings, silent=silent, tag=tag or tagonly, tmdbid=tmdbid, tvdbid=tvdbid, imdbid=imdbid, season=season, episode=episode, language=language, original=original)
 
     if not tagdata:
         log.info("Processing file %s" % inputfile)
@@ -273,6 +273,18 @@ def processFile(inputfile, mp, info=None, relativePath=None, silent=False, tag=T
         log.info("Processing %s" % (tagdata.title))
     elif tagdata.mediatype == MediaType.TV:
         log.info("Processing %s Season %02d Episode %02d - %s" % (tagdata.showname, int(tagdata.season), int(tagdata.episode), tagdata.title))
+
+    if tagonly:
+        if tagdata:
+            try:
+                tagdata.writeTags(inputfile, inputfile, mp.converter, mp.settings.artwork, mp.settings.thumbnail)
+                if mp.settings.relocate_moov:
+                    mp.QTFS(inputfile)
+            except KeyboardInterrupt:
+                raise
+            except:
+                log.exception("There was an error tagging the file")
+        return
 
     output = mp.process(inputfile, True, info=info, original=original, tagdata=tagdata)
     if output:
@@ -314,7 +326,7 @@ def processFile(inputfile, mp, info=None, relativePath=None, silent=False, tag=T
         log.error("There was an error processing file %s, no output data received" % inputfile)
 
 
-def walkDir(dir, settings, silent=False, preserveRelative=False, tmdbid=None, imdbid=None, tvdbid=None, tag=True, optionsOnly=False, processedList=None, processedArchive=None):
+def walkDir(dir, settings, silent=False, preserveRelative=False, tmdbid=None, imdbid=None, tvdbid=None, tag=True, tagonly=False, optionsOnly=False, processedList=None, processedArchive=None):
     files = []
     error = []
     mp = MediaProcessor(settings, logger=log)
@@ -330,7 +342,7 @@ def walkDir(dir, settings, silent=False, preserveRelative=False, tmdbid=None, im
                 displayOptions(filepath, settings)
                 continue
             try:
-                processFile(filepath, mp, info=info, relativePath=relative, silent=silent, tag=tag, tmdbid=tmdbid, tvdbid=tvdbid, imdbid=imdbid, processedList=processedList, processedArchive=processedArchive)
+                processFile(filepath, mp, info=info, relativePath=relative, silent=silent, tag=tag, tagonly=tagonly, tmdbid=tmdbid, tvdbid=tvdbid, imdbid=imdbid, processedList=processedList, processedArchive=processedArchive)
             except SkipFileException:
                 log.debug("Skipping file %s." % filepath)
             except KeyboardInterrupt:
@@ -381,6 +393,7 @@ def main():
     parser.add_argument('-nc', '--nocopy', action='store_true', help="Overrides and disables the custom copying of file options that come from output_dir and move-to")
     parser.add_argument('-nd', '--nodelete', action='store_true', help="Overrides and disables deleting of original files")
     parser.add_argument('-nt', '--notag', action="store_true", help="Overrides and disables tagging when using the automated option")
+    parser.add_argument('-to', '--tagonly', action="store_true", help="Only tag without conversion")
     parser.add_argument('-np', '--nopost', action="store_true", help="Overrides and disables the execution of additional post processing scripts")
     parser.add_argument('-pr', '--preserverelative', action='store_true', help="Preserves relative directories when processing multiple files using the copy-to or move-to functionality")
     parser.add_argument('-pse', '--processsameextensions', action='store_true', help="Overrides process-same-extensions setting in autoProcess.ini enabling the reprocessing of files")
@@ -449,7 +462,9 @@ def main():
         settings.process_same_extensions = True
         settings.force_convert = True
         log.info("Force conversion of files enabled. As a result conversion of mp4 files is also enabled")
-    if (args['notag']):
+    if (args['tagonly']):
+        log.info("Tag only enabled")
+    elif (args['notag']):
         settings.tagfile = False
         log.info("No-tagging enabled")
     if (args['nopost']):
@@ -470,7 +485,7 @@ def main():
         path = getValue("Enter path to file")
 
     if os.path.isdir(path):
-        walkDir(path, settings, silent=silent, tmdbid=args.get('tmdbid'), tvdbid=args.get('tvdbid'), imdbid=args.get('imdbid'), preserveRelative=args['preserverelative'], tag=settings.tagfile, optionsOnly=args['optionsonly'], processedList=processedList, processedArchive=processedArchive)
+        walkDir(path, settings, silent=silent, tmdbid=args.get('tmdbid'), tvdbid=args.get('tvdbid'), imdbid=args.get('imdbid'), preserveRelative=args['preserverelative'], tag=settings.tagfile, tagonly=args.get('tagonly', False), optionsOnly=args['optionsonly'], processedList=processedList, processedArchive=processedArchive)
     elif (os.path.isfile(path)):
         mp = MediaProcessor(settings, logger=log)
         info = mp.isValidSource(path)
@@ -479,7 +494,7 @@ def main():
                 displayOptions(path, settings)
                 return
             try:
-                processFile(path, mp, info=info, silent=silent, tag=settings.tagfile, tmdbid=args.get('tmdbid'), tvdbid=args.get('tvdbid'), imdbid=args.get('imdbid'), season=args.get('season'), episode=args.get('episode'), original=args.get('original'), processedList=processedList, processedArchive=processedArchive)
+                processFile(path, mp, info=info, silent=silent, tag=settings.tagfile, tagonly=args.get('tagonly', False), tmdbid=args.get('tmdbid'), tvdbid=args.get('tvdbid'), imdbid=args.get('imdbid'), season=args.get('season'), episode=args.get('episode'), original=args.get('original'), processedList=processedList, processedArchive=processedArchive)
             except SkipFileException:
                 log.debug("Skipping file %s" % path)
 
