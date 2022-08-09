@@ -72,11 +72,6 @@ class MediaProcessor:
                     # Reverse Ouput
                     output['output'] = self.restoreFromOutput(inputfile, output['output'])
 
-                    # Moveto original location if temp-output enabled
-                    if self.settings.temp_output and self.settings.output_dir:
-                        self.settings.moveto = self.parseFile(inputfile)[0]
-                        self.log.debug("Override move-to option to %s [temp-output]." % (self.settings.moveto))
-
                     # Copy to additional locations
                     output_files = self.replicate(output['output'])
                     for sub in [x for x in output['external_subs'] if os.path.exists(x)]:
@@ -1876,7 +1871,7 @@ class MediaProcessor:
         if self.settings.output_dir and outputfile.startswith(self.settings.output_dir):
             input_dir, filename, input_extension = self.parseFile(inputfile)
             newoutputfile, _ = self.getOutputFile(input_dir, filename, input_extension, ignore_output_dir=True)
-            self.log.info("Output file is in output_dir %s, moving back to original directory %s." % (self.settings.output_dir, outputfile))
+            self.log.info("Output file is in output_dir %s, moving back to original directory %s." % (self.settings.output_dir, newoutputfile))
             shutil.move(outputfile, newoutputfile)
             return newoutputfile
         return outputfile
