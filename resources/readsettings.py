@@ -453,6 +453,9 @@ class ReadSettings:
 
         self.readConfig(config)
 
+        self._cofig = config
+        self._configFile = configFile
+
     def readConfig(self, config):
         # Main converter settings
         section = "Converter"
