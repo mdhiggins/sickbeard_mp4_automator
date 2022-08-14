@@ -1868,11 +1868,25 @@ class MediaProcessor:
 
     # Undo output dir
     def restoreFromOutput(self, inputfile, outputfile):
-        if self.settings.output_dir and outputfile.startswith(self.settings.output_dir):
+        if self.settings.output_dir and outputfile.startswith(self.settings.output_dir) and not self.settings.moveto:
             input_dir, filename, input_extension = self.parseFile(inputfile)
             newoutputfile, _ = self.getOutputFile(input_dir, filename, input_extension, ignore_output_dir=True)
             self.log.info("Output file is in output_dir %s, moving back to original directory %s." % (self.settings.output_dir, newoutputfile))
-            shutil.move(outputfile, newoutputfile)
+            try:
+                shutil.move(outputfile, newoutputfile)
+            except KeyboardInterrupt:
+                raise
+            except:
+                self.log.exception("First attempt to move the file has failed.")
+                try:
+                    if os.path.exists(newoutputfile):
+                        self.removeFile(newoutputfile, 0, 0)
+                    shutil.move(outputfile.decode(sys.getfilesystemencoding()), newoutputfile)
+                except KeyboardInterrupt:
+                    raise
+                except:
+                    self.log.exception("Unable to move %s to %s" % (outputfile, newoutputfile))
+                    return outputfile
             return newoutputfile
         return outputfile
 
@@ -2308,8 +2322,8 @@ class MediaProcessor:
                 except:
                     self.log.exception("First attempt to copy the file has failed.")
                     try:
-                        if os.path.exists(inputfile):
-                            self.removeFile(inputfile, 0, 0)
+                        if os.path.exists(os.path.join(d, os.path.split(inputfile)[1])):
+                            self.removeFile(os.path.join(d, os.path.split(inputfile)[1]), 0, 0)
                         try:
                             shutil.copy(inputfile.decode(sys.getfilesystemencoding()), d)
                         except KeyboardInterrupt:
@@ -2337,8 +2351,8 @@ class MediaProcessor:
             except:
                 self.log.exception("First attempt to move the file has failed.")
                 try:
-                    if os.path.exists(inputfile):
-                        self.removeFile(inputfile, 0, 0)
+                    if os.path.exists(os.path.join(moveto, os.path.basename(inputfile))):
+                        self.removeFile(os.path.join(moveto, os.path.basename(inputfile)), 0, 0)
                     shutil.move(inputfile.decode(sys.getfilesystemencoding()), moveto)
                     self.log.info("%s moved to %s." % (inputfile, moveto))
                     files[0] = os.path.join(moveto, os.path.basename(inputfile))
@@ -2352,7 +2366,7 @@ class MediaProcessor:
 
     # Robust file removal function, with options to retry in the event the file is in use, and replace a deleted file
     def removeFile(self, filename, retries=2, delay=10, replacement=None):
-        for i in range(retries + 1):
+        for _ in range(retries + 1):
             try:
                 # Make sure file isn't read-only
                 os.chmod(filename, int("0777", 8))
