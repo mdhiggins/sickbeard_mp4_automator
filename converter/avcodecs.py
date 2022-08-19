@@ -32,6 +32,19 @@ class BaseCodec(object):
         'lyric': 'lyrics',
         'dubbed': 'dub'
     }
+
+    DISPO_STRINGS = {
+        "comment": "Commentary",
+        "hearing_impaired": "Hearing Impaired",
+        "visual_impaired": "Visual Impaired",
+        "dub": "Dub",
+        "forced": "Forced",
+        "lyrics": "Lyrics",
+        "Karaoke": "Karaoke",
+        "original": "Original",
+        "captions": "Captions",
+    }
+
     UNDEFINED = "und"
 
     encoder_options = {}

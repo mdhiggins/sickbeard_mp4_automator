@@ -291,14 +291,9 @@ class MediaProcessor:
             output = "%d.1 Channel" % (channels - 1)
 
         disposition = stream.disposition
-        if disposition.get("comment"):
-            output += " (Commentary)"
-        if disposition.get("hearing_impaired"):
-            output += " (Hearing Impaired)"
-        if disposition.get("visual_impaired"):
-            output += " (Visual Impaired)"
-        if disposition.get("dub"):
-            output += " (Dub)"
+        for dispo in BaseCodec.DISPO_STRINGS:
+            if disposition.get(dispo):
+                output += " (%s)" % BaseCodec.DISPO_STRINGS[dispo]
         return output.strip() if output else None
 
     # Get title for subtitle stream based on disposition
@@ -316,16 +311,10 @@ class MediaProcessor:
 
         output = ""
         disposition = stream.disposition
-        if disposition.get("forced"):
-            output += "Forced "
-        if disposition.get("hearing_impaired"):
-            output += "Hearing Impaired "
-        if disposition.get("comment"):
-            output += "Commentary "
-        if disposition.get("visual_impaired"):
-            output += "Visual Impaired "
-        if disposition.get("dub"):
-            output += "Dub "
+        disposition = stream.disposition
+        for dispo in BaseCodec.DISPO_STRINGS:
+            if disposition.get(dispo):
+                output += "%s " % BaseCodec.DISPO_STRINGS[dispo]
         return output.strip() if output else None
 
     # Determine if a file can be read by FFPROBE
