@@ -311,7 +311,6 @@ class MediaProcessor:
 
         output = ""
         disposition = stream.disposition
-        disposition = stream.disposition
         for dispo in BaseCodec.DISPO_STRINGS:
             if disposition.get(dispo):
                 output += "%s " % BaseCodec.DISPO_STRINGS[dispo]
