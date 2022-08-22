@@ -1662,7 +1662,7 @@ class MediaProcessor:
                     self.log.debug("Found %d potential sources from the included subs for burning [burn-subtitle]." % len(sub_candidates))
                     sub_candidates = self.sortStreams(
                         sub_candidates,
-                        self.settings.sub_sorting,
+                        self.settings.burn_sorting,
                         swl,
                         self.settings.sub_sorting_codecs or (self.settings.scodec + self.settings.scodec_image),
                         info
@@ -1693,7 +1693,7 @@ class MediaProcessor:
                 if len(sub_candidates) > 0:
                     sub_candidates = self.sortStreams(
                         sub_candidates,
-                        self.settings.sub_sorting,
+                        self.settings.burn_sorting,
                         swl,
                         self.settings.sub_sorting_codecs or (self.settings.scodec + self.settings.scodec_image),
                         info
