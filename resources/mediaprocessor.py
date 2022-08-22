@@ -395,10 +395,17 @@ class MediaProcessor:
 
     # Default audio language based on encoder options
     def getDefaultAudioLanguage(self, options):
-        for a in options.get("audio", []):
-            if "+default" in a.get("disposition", "").lower():
-                self.log.debug("Default audio language is %s." % a.get("language"))
-                return a.get("language")
+        if isinstance(options, dict):
+            for a in options.get("audio", []):
+                if "+default" in a.get("disposition", "").lower():
+                    self.log.debug("Default audio language is %s." % a.get("language"))
+                    return a.get("language")
+        else:
+            for a in options.audio:
+                if a.disposition.get("default"):
+                    self.log.debug("Default audio language is %s." % a.metadata.get("language"))
+                    return a.metadata.get("language")
+        return None
 
     # Get values for width and height to be passed to the tagging classes for proper HD tags
     def getDimensions(self, inputfile):
@@ -494,7 +501,13 @@ class MediaProcessor:
         # if overrideLang and self.settings.allow_language_relax:
         if len(awl) > 0 and self.settings.allow_language_relax and not any(a.metadata.get('language') in awl and self.validDisposition(a, self.settings.ignored_audio_dispositions) for a in info.audio):
             awl = []
-            self.log.info("No audio streams detected in any appropriate language, relaxing restrictions [allow-audio-language-relax].")
+            dlang = self.getDefaultAudioLanguage(info)
+            if self.settings.relax_to_default and dlang:
+                self.log.info("No audio streams detected in any appropriate language, relaxing to %s [allow-audio-language-relax, relax-to-default]." % (dlang))
+                awl = [dlang]
+            else:
+                self.log.info("No audio streams detected in any appropriate language, relaxing to any language [allow-audio-language-relax].")
+                awl = []
 
         # Prep subtitle streams by cleaning up languages and setting SDL
         for s in info.subtitle:
@@ -1247,7 +1260,7 @@ class MediaProcessor:
 
         # Burn subtitles
         try:
-            vfilter = self.burnSubtitleFilter(inputfile, info.subtitle, swl, valid_external_subs)
+            vfilter = self.burnSubtitleFilter(inputfile, info, swl, valid_external_subs)
         except:
             vfilter = None
             self.log.exception("Encountered an error while trying to determine which subtitle stream for subtitle burn [burn-subtitle].")
@@ -1623,8 +1636,9 @@ class MediaProcessor:
         return output
 
     # Generate filter string to burn subtitles
-    def burnSubtitleFilter(self, inputfile, subtitle_streams, swl, valid_external_subs=None):
+    def burnSubtitleFilter(self, inputfile, info, swl, valid_external_subs=None):
         if self.settings.burn_subtitles:
+            subtitle_streams = info.subtitle
             filtered_subtitle_streams = [x for x in subtitle_streams if self.validLanguage(x.metadata.get('language'), swl)]
             filtered_subtitle_streams = sorted(filtered_subtitle_streams, key=lambda x: swl.index(x.metadata.get('language')) if x.metadata.get('language') in swl else 999)
             sub_candidates = []
@@ -1646,6 +1660,13 @@ class MediaProcessor:
 
                 if len(sub_candidates) > 0:
                     self.log.debug("Found %d potential sources from the included subs for burning [burn-subtitle]." % len(sub_candidates))
+                    sub_candidates = self.sortStreams(
+                        sub_candidates,
+                        self.settings.sub_sorting,
+                        swl,
+                        self.settings.sub_sorting_codecs or (self.settings.scodec + self.settings.scodec_image),
+                        info
+                    )
                     burn_sub = sub_candidates[0]
                     relative_index = burn_sub.index - first_index
                     self.log.info("Burning subtitle %d %s into video steram [burn-subtitles]." % (burn_sub.index, burn_sub.metadata['language']))
@@ -1670,6 +1691,13 @@ class MediaProcessor:
                         sub_candidates.remove(x)
 
                 if len(sub_candidates) > 0:
+                    sub_candidates = self.sortStreams(
+                        sub_candidates,
+                        self.settings.sub_sorting,
+                        swl,
+                        self.settings.sub_sorting_codecs or (self.settings.scodec + self.settings.scodec_image),
+                        info
+                    )
                     burn_sub = sub_candidates[0]
                     self.log.info("Burning external subtitle %s %s into video steram [burn-subtitles, embed-subs]." % (os.path.basename(burn_sub.path), burn_sub.subtitle[0].metadata['language']))
                     return "subtitles='%s'" % (self.raw(os.path.abspath(burn_sub.path)))

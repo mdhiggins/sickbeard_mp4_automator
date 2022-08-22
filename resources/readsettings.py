@@ -169,6 +169,7 @@ class ReadSettings:
             'default-language': '',
             'first-stream-of-language': False,
             'allow-language-relax': True,
+            'relax-to-default': False,
             'channel-bitrate': 128,
             'variable-bitrate': 0,
             'max-bitrate': 0,
@@ -222,7 +223,8 @@ class ReadSettings:
         },
         'Subtitle.Sorting': {
             'sorting': 'language, d.comment, d.default.d, d.forced.d',
-            'codecs': ''
+            'codecs': '',
+            'burn-sorting': 'language, d.comment, d.default.d, d.forced.d',
         },
         'Subtitle.CleanIt': {
             'enabled': False,
@@ -593,6 +595,7 @@ class ReadSettings:
         self.audio_copyoriginal = config.getboolean(section, "copy-original")
         self.audio_first_language_stream = config.getboolean(section, "first-stream-of-language")
         self.allow_language_relax = config.getboolean(section, "allow-language-relax")
+        self.relax_to_default = config.getboolean(section, "relax-to-default")
         self.aac_adtstoasc = config.getboolean(section, 'aac-adtstoasc')
         self.ignored_audio_dispositions = config.getlist(section, "ignored-dispositions")
         self.unique_audio_dispositions = config.getboolean(section, "unique-dispositions")
@@ -648,6 +651,7 @@ class ReadSettings:
         section = "Subtitle.Sorting"
         self.sub_sorting = config.getlist(section, 'sorting')
         self.sub_sorting_codecs = config.getlist(section, 'codecs')
+        self.burn_sorting = config.getlist(section, 'burn-sorting')
 
         # CleanIt
         section = "Subtitle.CleanIt"

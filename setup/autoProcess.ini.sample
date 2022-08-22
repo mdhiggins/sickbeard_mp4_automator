@@ -76,6 +76,7 @@ languages =
 default-language = 
 first-stream-of-language = False
 allow-language-relax = True
+relax-to-default = False
 channel-bitrate = 128
 variable-bitrate = 0
 max-bitrate = 0
@@ -129,6 +130,7 @@ remove-bitstream-subs = False
 
 [Subtitle.Sorting]
 sorting = language, d.comment, d.default.d, d.forced.d
+burn-sorting = language, d.comment, d.default.d, d.forced.d
 codecs = 
 
 [Subtitle.CleanIt]
