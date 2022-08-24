@@ -182,6 +182,7 @@ class ReadSettings:
             'copy-original': False,
             'aac-adtstoasc': False,
             'ignored-dispositions': '',
+            'force-default': False,
             'unique-dispositions': False,
             'stream-codec-combinations': '',
         },
@@ -217,6 +218,7 @@ class ReadSettings:
             'filename-dispositions': 'forced',
             'ignore-embedded-subs': False,
             'ignored-dispositions': '',
+            'force-default': False,
             'unique-dispositions': False,
             'attachment-codec': '',
             'remove-bitstream-subs': False,
@@ -598,6 +600,7 @@ class ReadSettings:
         self.relax_to_default = config.getboolean(section, "relax-to-default")
         self.aac_adtstoasc = config.getboolean(section, 'aac-adtstoasc')
         self.ignored_audio_dispositions = config.getlist(section, "ignored-dispositions")
+        self.force_audio_defaults = config.getboolean(section, "force-default")
         self.unique_audio_dispositions = config.getboolean(section, "unique-dispositions")
         self.stream_codec_combinations = sorted([x.split(":") for x in config.getlist(section, "stream-codec-combinations")], key=lambda x: len(x), reverse=True)
 
@@ -644,6 +647,7 @@ class ReadSettings:
         self.filename_dispositions = config.getlist(section, "filename-dispositions")
         self.ignore_embedded_subs = config.getboolean(section, 'ignore-embedded-subs')
         self.ignored_subtitle_dispositions = config.getlist(section, "ignored-dispositions")
+        self.force_subtitle_defaults = config.getboolean(section, "force-default")
         self.unique_subtitle_dispositions = config.getboolean(section, "unique-dispositions")
         self.attachmentcodec = config.getlist(section, 'attachment-codec')
         self.removebvs = config.getlist(section, 'remove-bitstream-subs')

@@ -89,6 +89,7 @@ sample-format =
 copy-original = False
 aac-adtstoasc = False
 ignored-dispositions = 
+force-default = False
 unique-dispositions = False
 stream-codec-combinations = 
 
@@ -124,6 +125,7 @@ embed-only-internal-subs = False
 filename-dispositions = forced
 ignore-embedded-subs = False
 ignored-dispositions = 
+force-default = False
 unique-dispositions = False
 attachment-codec = 
 remove-bitstream-subs = False

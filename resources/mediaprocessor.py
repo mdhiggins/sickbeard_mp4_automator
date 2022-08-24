@@ -854,11 +854,13 @@ class MediaProcessor:
             except:
                 self.log.exception("Custom audio stream skip check error for stream %s." % (a.index))
 
-            # Proceed if no whitelist is set, or if the language is in the whitelist
-            if not self.validLanguage(a.metadata['language'], awl, blocked_audio_languages):
-                continue
-            if not self.validDisposition(a, self.settings.ignored_audio_dispositions, self.settings.unique_audio_dispositions, a.metadata['language'], blocked_audio_dispositions):
-                continue
+            if self.settings.force_audio_defaults and a.disposition.get('default'):
+                self.log.debug("Audio stream %s is flagged as default, forcing inclusion [Audio.force-default]." % (s.index))
+            else:
+                if not self.validLanguage(a.metadata['language'], awl, blocked_audio_languages):
+                    continue
+                if not self.validDisposition(a, self.settings.ignored_audio_dispositions, self.settings.unique_audio_dispositions, a.metadata['language'], blocked_audio_dispositions):
+                    continue
 
             try:
                 ua = any(self.settings.ua) and not (skipUA and skipUA(self, a, info, inputfile))
@@ -1132,10 +1134,13 @@ class MediaProcessor:
                 except:
                     self.log.exception("Custom subtitle stream skip check error for stream %s." % (s.index))
 
-                if not self.validLanguage(s.metadata['language'], swl, blocked_subtitle_languages):
-                    continue
-                if not self.validDisposition(s, self.settings.ignored_subtitle_dispositions, self.settings.unique_subtitle_dispositions, s.metadata['language'], blocked_subtitle_dispositions):
-                    continue
+                if self.settings.force_subtitle_defaults and s.disposition.get('default'):
+                    self.log.debug("Subtitle stream %s is flagged as default, forcing inclusion [Subtitle.force-default]." % (s.index))
+                else:
+                    if not self.validLanguage(s.metadata['language'], swl, blocked_subtitle_languages):
+                        continue
+                    if not self.validDisposition(s, self.settings.ignored_subtitle_dispositions, self.settings.unique_subtitle_dispositions, s.metadata['language'], blocked_subtitle_dispositions):
+                        continue
 
                 try:
                     image_based = self.isImageBasedSubtitle(inputfile, s.index)
@@ -1221,13 +1226,16 @@ class MediaProcessor:
                 scodec = self.settings.scodec[0]
 
             if not scodec:
-                self.log.info("Skipping external subtitle file %s, no appropriate codecs found or embed disabled." % os.path.basename(external_sub.path))
+                self.log.info("Skipping external subtitle file %s, no appropriate codecs found or embed disabled." % (os.path.basename(external_sub.path)))
                 continue
 
-            if not self.validLanguage(external_sub.subtitle[0].metadata['language'], swl, blocked_subtitle_languages):
-                continue
-            if not self.validDisposition(external_sub.subtitle[0], self.settings.ignored_subtitle_dispositions, self.settings.unique_subtitle_dispositions, external_sub.subtitle[0].metadata['language'], blocked_subtitle_dispositions):
-                continue
+            if self.settings.force_subtitle_defaults and s.disposition.get('default'):
+                self.log.debug("External subtitle %s is flagged as default, forcing inclusion [Subtitle.force-default]." % (os.path.basename(external_sub.path)))
+            else:
+                if not self.validLanguage(external_sub.subtitle[0].metadata['language'], swl, blocked_subtitle_languages):
+                    continue
+                if not self.validDisposition(external_sub.subtitle[0], self.settings.ignored_subtitle_dispositions, self.settings.unique_subtitle_dispositions, external_sub.subtitle[0].metadata['language'], blocked_subtitle_dispositions):
+                    continue
 
             if external_sub.path not in sources:
                 sources.append(external_sub.path)
@@ -1639,7 +1647,7 @@ class MediaProcessor:
     def burnSubtitleFilter(self, inputfile, info, swl, valid_external_subs=None):
         if self.settings.burn_subtitles:
             subtitle_streams = info.subtitle
-            filtered_subtitle_streams = [x for x in subtitle_streams if self.validLanguage(x.metadata.get('language'), swl)]
+            filtered_subtitle_streams = [x for x in subtitle_streams if self.validLanguage(x.metadata.get('language'), swl) or (self.settings.force_subtitle_defaults and x.disposition.get('default'))]
             filtered_subtitle_streams = sorted(filtered_subtitle_streams, key=lambda x: swl.index(x.metadata.get('language')) if x.metadata.get('language') in swl else 999)
             sub_candidates = []
             if len(filtered_subtitle_streams) > 0 and not (self.settings.cleanit and cleanit):  # Don't burn embedded subtitles if we're cleaning, favor external
@@ -1720,7 +1728,8 @@ class MediaProcessor:
                         self.log.debug("Potential subtitle candidate identified %s." % (fname))
                         valid_external_sub = self.processExternalSub(valid_external_sub, inputfile)
                         lang = valid_external_sub.subtitle[0].metadata['language']
-                        if self.validLanguage(lang, swl) and valid_external_sub:
+                        default = valid_external_sub.subtitle[0].disposition['default']
+                        if (self.validLanguage(lang, swl) or (self.settings.force_subtitle_defaults and default)) and valid_external_sub:
                             self.log.debug("Valid external %s subtitle file detected %s." % (lang, fname))
                             valid_external_subs.append(valid_external_sub)
                         else:
