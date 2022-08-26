@@ -855,7 +855,7 @@ class MediaProcessor:
                 self.log.exception("Custom audio stream skip check error for stream %s." % (a.index))
 
             if self.settings.force_audio_defaults and a.disposition.get('default'):
-                self.log.debug("Audio stream %s is flagged as default, forcing inclusion [Audio.force-default]." % (s.index))
+                self.log.debug("Audio stream %s is flagged as default, forcing inclusion [Audio.force-default]." % (a.index))
             else:
                 if not self.validLanguage(a.metadata['language'], awl, blocked_audio_languages):
                     continue
