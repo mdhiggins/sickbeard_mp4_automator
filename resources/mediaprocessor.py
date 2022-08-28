@@ -1879,14 +1879,22 @@ class MediaProcessor:
                     except:
                         self.log.exception("Error importing original file data for subliminal, will attempt to proceed.")
 
-                subtitles = subliminal.download_best_subtitles([video], languages, hearing_impaired=self.settings.hearing_impaired, providers=self.settings.subproviders, provider_configs=self.settings.subproviders_auth)
-                saves = subliminal.save_subtitles(video, subtitles[video])
-                paths = [subliminal.subtitle.get_subtitle_path(video.name, x.language) for x in saves]
-                for path in paths:
-                    self.log.info("Downloaded new subtitle %s." % path)
+                if self.settings.subliminal_forced:
+                    subtitles = subliminal.list_subtitles([video], languages, providers=self.settings.subproviders, provider_configs=self.settings.subproviders_auth)
+                    subliminal.download_subtitles([s for s in subtitles[video] if ".forced" in s.info], providers=self.settings.subproviders, provider_configs=self.settings.subproviders_auth)
+                    saves = subliminal.save_subtitles(video, [s for s in subtitles[video] if ".forced" in s.info])
+                else:
+                    subtitles = subliminal.download_best_subtitles([video], languages, hearing_impaired=self.settings.hearing_impaired, providers=self.settings.subproviders, provider_configs=self.settings.subproviders_auth)
+                    saves = subliminal.save_subtitles(video, subtitles[video])
+                paths = [(subliminal.subtitle.get_subtitle_path(video.name, x.language), x) for x in saves]
+                for path, sub in paths:
+                    self.log.info("Downloaded new subtitle %s from source %s." % (path, sub.info))
                     self.setPermissions(path)
+                    if ".forced" in sub.info and ".forced" not in path:
+                        base, ext = os.path.splitext(path)
+                        os.rename(path, "%s.forced%s" % (base, ext))
 
-                return paths
+                return [p for p, _ in paths]
             except KeyboardInterrupt:
                 raise
             except:
