@@ -18,6 +18,10 @@ try:
 except ImportError:
     cleanit = None
 try:
+    from ffsubsync import ffsubsync
+except ImportError:
+    ffsubsync = None
+try:
     import subliminal
     from guessit import guessit
     from babelfish import Language
@@ -1155,7 +1159,7 @@ class MediaProcessor:
                 if image_based and self.settings.embedimgsubs and self.settings.scodec_image and len(self.settings.scodec_image) > 0:
                     scodec = 'copy' if s.codec in self.settings.scodec_image else self.settings.scodec_image[0]
                 elif not image_based and self.settings.embedsubs and self.settings.scodec and len(self.settings.scodec) > 0:
-                    if self.settings.cleanit and cleanit:
+                    if (self.settings.cleanit and cleanit) or (self.settings.ffsubsync and ffsubsync):
                         try:
                             rips = self.ripSubs(inputfile, [self.generateRipSubOpts(inputfile, s, 'srt')])
                             if rips:
@@ -1163,8 +1167,9 @@ class MediaProcessor:
                                 new_sub = self.isValidSubtitleSource(new_sub_path)
                                 new_sub = self.processExternalSub(new_sub, inputfile)
                                 if new_sub:
-                                    self.log.info("Subtitle %s extracted for cleaning [subtitles.cleanit]." % (new_sub_path))
+                                    self.log.info("Subtitle %s extracted for cleaning/syncing [subtitles.cleanit, subtitles.ffsubsync]." % (new_sub_path))
                                     self.cleanExternalSub(new_sub.path)
+                                    self.syncExternalSub(new_sub.path, inputfile)
                                     valid_external_subs.append(new_sub)
                                 continue
                         except:
@@ -1749,6 +1754,25 @@ class MediaProcessor:
             rules = cfg.select_rules(tags=self.settings.cleanit_tags)
             if sub.clean(rules):
                 sub.save()
+
+    # FFSubsync
+    def syncExternalSub(self, path, inputfile):
+        if self.settings.ffsubsync and ffsubsync:
+            self.log.debug("Syncing subtitle with path %s [subtitles.ffsubsync]." % (path))
+            syncedsub = path + ".sync"
+            try:
+                unparsed_args = [inputfile, '-i', path, '-o', syncedsub, '--ffmpegpath', os.path.dirname(self.settings.ffmpeg)]
+                parser = ffsubsync.make_parser()
+                self.args = parser.parse_args(args=unparsed_args)
+                if os.path.isfile(syncedsub):
+                    os.remove(syncedsub)
+                result = ffsubsync.run(self.args)
+                self.log.debug(result)
+                if os.path.exists(syncedsub):
+                    os.remove(path)
+                    os.rename(syncedsub, path)
+            except Exception:
+                self.log.exception("Exception syncing subtitle %s." % (path))
 
     # Custom method to allow additional video data to be passed to subliminal for better subtitle accuracy
     @staticmethod

@@ -233,6 +233,9 @@ class ReadSettings:
             'config-path': '',
             'tags': '',
         },
+        'Subtitle.FFSubsync': {
+            'enabled': False,
+        },
         'Subtitle.Subliminal': {
             'download-subs': False,
             'download-hearing-impaired-subs': False,
@@ -663,7 +666,11 @@ class ReadSettings:
         self.cleanit_config = config.get(section, "config-path")
         self.cleanit_tags = config.getlist(section, "tags")
 
-        # Sublmininal
+        # FFSubsync
+        section = "Subtitle.FFSubsync"
+        self.ffsubsync = config.getboolean(section, "enabled")
+
+        # Subliminal
         section = "Subtitle.Subliminal"
         self.downloadsubs = config.getboolean(section, "download-subs")
         self.hearing_impaired = config.getboolean(section, 'download-hearing-impaired-subs')

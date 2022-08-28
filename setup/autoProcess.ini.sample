@@ -140,6 +140,9 @@ enabled = False
 config-path = 
 tags = 
 
+[Subtitle.FFSubsync]
+enabled = False
+
 [Subtitle.Subliminal]
 download-subs = False
 download-hearing-impaired-subs = False
