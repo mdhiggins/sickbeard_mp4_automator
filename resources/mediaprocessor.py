@@ -49,6 +49,15 @@ class MediaProcessor:
             if info:
                 self.log.info("Processing %s." % inputfile)
 
+                try:
+                    tag = Metadata(mediatype, tvdbid=tvdbid, tmdbid=tmdbid, imdbid=imdbid, season=season, episode=episode, original=original, language=language)
+                    tmdbid = tag.tmdbid
+                except KeyboardInterrupt:
+                    raise
+                except:
+                    self.log.exception("Unable to get metadata.")
+                    tag = None
+
                 output = self.process(inputfile, original=original, info=info, tagdata=tagdata, reportProgress=reportProgress)
 
                 if output:
@@ -57,17 +66,15 @@ class MediaProcessor:
                     self.log.debug("Tag language setting is %s, using language %s for tagging." % (self.settings.taglanguage or None, language))
                     # Tag with metadata
                     tagfailed = False
-                    try:
-                        tag = Metadata(mediatype, tvdbid=tvdbid, tmdbid=tmdbid, imdbid=imdbid, season=season, episode=episode, original=original, language=language)
-                        tmdbid = tag.tmdbid
-                        if self.settings.tagfile:
+                    if self.settings.tagfile and tag:
+                        try:
                             self.log.info("Tagging %s with TMDB ID %s." % (inputfile, tag.tmdbid))
                             tag.writeTags(output['output'], inputfile, self.converter, self.settings.artwork, self.settings.thumbnail, output['x'], output['y'], streaming=output['rsi'])
-                    except KeyboardInterrupt:
-                        raise
-                    except:
-                        self.log.exception("Unable to tag file")
-                        tagfailed = True
+                        except KeyboardInterrupt:
+                            raise
+                        except:
+                            self.log.exception("Unable to tag file")
+                            tagfailed = True
 
                     # QTFS
                     if self.settings.relocate_moov and not tagfailed:
@@ -449,10 +456,10 @@ class MediaProcessor:
         return min_video_bitrate
 
     # Generate a JSON formatter dataset with the input and output information and ffmpeg command for a theoretical conversion
-    def jsonDump(self, inputfile, original=None):
+    def jsonDump(self, inputfile, original=None, tagdata=None):
         dump = {}
         dump["input"], info = self.generateSourceDict(inputfile)
-        dump["output"], dump["preopts"], dump["postopts"], dump["ripsubopts"], dump["downloadedsubs"] = self.generateOptions(inputfile, info=info, original=original)
+        dump["output"], dump["preopts"], dump["postopts"], dump["ripsubopts"], dump["downloadedsubs"] = self.generateOptions(inputfile, info=info, original=original, tagdata=tagdata)
         if self.canBypassConvert(inputfile, info, dump["output"]):
             dump["output"] = dump["input"]
             dump["output"]["bypassConvert"] = True
@@ -494,9 +501,31 @@ class MediaProcessor:
         return output, probe
 
     # Pass over audio and subtitle streams to ensure the language properties are safe, return any adjustments made to SWL/AWL if relax is enabled
-    def safeLanguage(self, info):
+    def safeLanguage(self, info, tmdbid=None, mediatype=None):
         awl = self.settings.awl
+        original_language = None
+        if self.settings.audio_original_language and tmdbid:
+            try:
+                original_language = Metadata.getDefaultLanguage(tmdbid, mediatype)
+                if original_language not in awl:
+                    self.log.debug("Appending %s to allowed audio languages [include-original-language]." % (original_language))
+                    awl.append(original_language)
+            except KeyboardInterrupt:
+                raise
+            except:
+                self.log.exception("Exception while trying to determine original language [include-original-language].")
+
         swl = self.settings.swl
+        if self.settings.subtitle_original_language and tmdbid:
+            try:
+                original_language = original_language or Metadata.getDefaultLanguage(tmdbid, mediatype)
+                if original_language not in swl:
+                    self.log.debug("Appending %s to allowed subtitle languages [include-original-language]." % (original_language))
+                    swl.append(original_language)
+            except KeyboardInterrupt:
+                raise
+            except:
+                self.log.exception("Exception while trying to determine original language [include-original-language].")
 
         # Loop through audio streams and clean up language metadata by standardizing undefined languages and applying the ADL setting
         for a in info.audio:
@@ -630,7 +659,7 @@ class MediaProcessor:
         self.cleanDispositions(info)
 
         # Ensure we have adequate language tracks present, assigned undefined languages to default, relax language parameters if needed
-        awl, swl = self.safeLanguage(info)
+        awl, swl = self.safeLanguage(info, tagdata.tmdbid, tagdata.mediatype)
 
         try:
             self.log.info("Input Data")

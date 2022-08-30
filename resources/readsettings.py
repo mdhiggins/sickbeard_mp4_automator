@@ -167,6 +167,7 @@ class ReadSettings:
             'codec': 'ac3',
             'languages': '',
             'default-language': '',
+            'include-original-language': True,
             'first-stream-of-language': False,
             'allow-language-relax': True,
             'relax-to-default': False,
@@ -208,6 +209,7 @@ class ReadSettings:
             'codec-image-based': '',
             'languages': '',
             'default-language': '',
+            'include-original-language': True,
             'first-stream-of-language': False,
             'encoding': '',
             'burn-subtitles': False,
@@ -589,6 +591,7 @@ class ReadSettings:
         self.acodec = config.getlist(section, "codec")
         self.awl = config.getlist(section, 'languages')
         self.adl = config.get(section, 'default-language').lower()
+        self.audio_original_language = config.getboolean(section, 'include-original-language')
         self.abitrate = config.getint(section, "channel-bitrate")
         self.avbr = config.getint(section, "variable-bitrate")
         self.amaxbitrate = config.getint(section, 'max-bitrate')
@@ -641,6 +644,7 @@ class ReadSettings:
         self.scodec_image = config.getlist(section, 'codec-image-based')
         self.swl = config.getlist(section, 'languages')
         self.sdl = config.get(section, 'default-language').lower()
+        self.subtitle_original_language = config.getboolean(section, 'include-original-language')
         self.sub_first_language_stream = config.getboolean(section, "first-stream-of-language")
         self.subencoding = config.get(section, 'encoding')
         self.burn_subtitles = config.getboolean(section, "burn-subtitles")

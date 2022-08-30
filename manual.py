@@ -357,9 +357,9 @@ def walkDir(dir, settings, silent=False, preserveRelative=False, tmdbid=None, im
             log.error(e)
 
 
-def displayOptions(path, settings):
+def displayOptions(path, settings, tagdata=None):
     mp = MediaProcessor(settings)
-    log.info(mp.jsonDump(path))
+    log.info(mp.jsonDump(path, tagdata=tagdata))
 
 
 def showCodecs():

@@ -9,7 +9,7 @@ import tmdbsimple as tmdb
 from io import StringIO
 from mutagen.mp4 import MP4, MP4Cover, MP4StreamInfoError
 from resources.extensions import valid_poster_extensions, tmdb_api_key
-from resources.lang import getAlpha2BCode
+from resources.lang import getAlpha2BCode, getAlpha3TCode
 
 
 class TMDBIDError(Exception):
@@ -47,6 +47,7 @@ class Metadata:
         self.imdbid = None
         self.season = None
         self.episode = None
+        self.original_language = None
 
         tmdb.API_KEY = tmdb_api_key
         self.log = logger or logging.getLogger(__name__)
@@ -56,7 +57,7 @@ class Metadata:
         self.log.debug("IMDBID: %s" % imdbid)
         self.log.debug("TVDBID: %s" % tvdbid)
 
-        self.tmdbid = self.resolveTmdbID(mediatype, tmdbid=tmdbid, tvdbid=tvdbid, imdbid=imdbid)
+        self.tmdbid = Metadata.resolveTmdbID(mediatype, self.log, tmdbid=tmdbid, tvdbid=tvdbid, imdbid=imdbid)
         self.log.debug("Using TMDB ID: %s" % self.tmdbid)
 
         if not self.tmdbid:
@@ -84,6 +85,7 @@ class Metadata:
                 self.log.error("Unable to retrieve rating.")
                 self.rating = None
 
+            self.original_language = self.moviedata['original_language']
             self.title = self.moviedata['title']
             self.genre = self.moviedata['genres']
             self.tagline = self.moviedata['tagline']
@@ -113,6 +115,7 @@ class Metadata:
                 self.log.error("Unable to retrieve rating.")
                 self.rating = None
 
+            self.original_language = self.showdata['original_language']
             self.showname = self.showdata['name']
             self.genre = self.showdata['genres']
             self.network = self.showdata['networks']
@@ -122,14 +125,15 @@ class Metadata:
             self.imdbid = self.externalids.get('imdb_id') or imdbid
             self.tvdbid = self.externalids.get('tvdb_id') or tvdbid
 
-    def resolveTmdbID(self, mediatype, tmdbid=None, tvdbid=None, imdbid=None):
+    @staticmethod
+    def resolveTmdbID(mediatype, log, tmdbid=None, tvdbid=None, imdbid=None):
         find = None
 
         if tmdbid:
             try:
                 return int(tmdbid)
             except ValueError:
-                self.log.error("Invalid TMDB ID provided.")
+                log.error("Invalid TMDB ID provided.")
 
         if mediatype == MediaType.Movie:
             if imdbid:
@@ -151,6 +155,26 @@ class Metadata:
                 if find and len(find.tv_results) > 0:
                     tmdbid = find.tv_results[0].get('id')
         return tmdbid
+
+    @staticmethod
+    def getDefaultLanguage(tmdbid, mediatype):
+        if mediatype not in [MediaType.TV, MediaType.Movie]:
+            return None
+
+        if not tmdbid:
+            return None
+
+        tmdb.API_KEY = tmdb_api_key
+        if mediatype == MediaType.Movie:
+            query = tmdb.Movies(tmdbid)
+        elif mediatype == MediaType.TV:
+            query = tmdb.TV(tmdbid)
+
+        if query:
+            info = query.info()
+            return getAlpha3TCode(info['original_language'])
+
+        return None
 
     def writeTags(self, path, inputfile, converter, artwork=True, thumbnail=False, width=None, height=None, streaming=0):
         self.log.info("Tagging file: %s." % path)
