@@ -209,7 +209,7 @@ class ReadSettings:
             'codec-image-based': '',
             'languages': '',
             'default-language': '',
-            'include-original-language': True,
+            'include-original-language': False,
             'first-stream-of-language': False,
             'encoding': '',
             'burn-subtitles': False,
