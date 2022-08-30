@@ -10,4 +10,3 @@ python-dateutil
 stevedore
 qtfaststart
 cleanit
-ffsubsync
