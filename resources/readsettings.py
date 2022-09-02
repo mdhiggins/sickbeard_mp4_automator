@@ -240,8 +240,8 @@ class ReadSettings:
         },
         'Subtitle.Subliminal': {
             'download-subs': False,
-            'download-hearing-impaired-subs': False,
-            'forced-only': False,
+            'download-forced-subs': False,
+            'include-hearing-impaired-subs': False,
             'providers': '',
         },
         'Subtitle.Subliminal.Auth': {
@@ -678,8 +678,8 @@ class ReadSettings:
         # Subliminal
         section = "Subtitle.Subliminal"
         self.downloadsubs = config.getboolean(section, "download-subs")
-        self.hearing_impaired = config.getboolean(section, "download-hearing-impaired-subs")
-        self.subliminal_forced = config.getboolean(section, "forced-only")
+        self.downloadforcedsubs = config.getboolean(section, "download-forced-subs")
+        self.hearing_impaired = config.getboolean(section, "include-hearing-impaired-subs")
         self.subproviders = config.getlist(section, 'providers')
 
         # Subliminal Auth Information

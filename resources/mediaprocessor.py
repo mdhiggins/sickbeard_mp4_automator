@@ -1838,7 +1838,7 @@ class MediaProcessor:
 
     # Download subtitles using subliminal
     def downloadSubtitles(self, inputfile, existing_subtitle_streams, swl, original=None, tagdata=None):
-        if self.settings.downloadsubs and subliminal and guessit and Language:
+        if (self.settings.downloadsubs or self.settings.downloadforcedsubs) and subliminal and guessit and Language:
             languages = set()
             for alpha3 in swl:
                 try:
@@ -1864,7 +1864,6 @@ class MediaProcessor:
                 pass
 
             try:
-                options = None
                 video = MediaProcessor.custom_scan_video(os.path.abspath(inputfile), tagdata)
 
                 if self.settings.ignore_embedded_subs:
@@ -1908,21 +1907,24 @@ class MediaProcessor:
                     except:
                         self.log.exception("Error importing original file data for subliminal, will attempt to proceed.")
 
-                if self.settings.subliminal_forced:
-                    subtitles = subliminal.list_subtitles([video], languages, providers=self.settings.subproviders, provider_configs=self.settings.subproviders_auth)
-                    subliminal.download_subtitles([s for s in subtitles[video] if ".forced" in s.info], providers=self.settings.subproviders, provider_configs=self.settings.subproviders_auth)
-                    saves = subliminal.save_subtitles(video, [s for s in subtitles[video] if ".forced" in s.info])
-                else:
+                paths = []
+                if self.settings.downloadforcedsubs:
+                    forced_subtitles = [s for s in subliminal.list_subtitles([video], languages, providers=self.settings.subproviders, provider_configs=self.settings.subproviders_auth)[video] if ".forced" in s.info.lower()]
+                    self.log.debug("Found %d potential forced subtitles." % (len(forced_subtitles)))
+                    subliminal.download_subtitles(forced_subtitles, providers=self.settings.subproviders, provider_configs=self.settings.subproviders_auth)
+                    saves = subliminal.save_subtitles(video, forced_subtitles)
+                    paths.extend([(subliminal.subtitle.get_subtitle_path(video.name, x.language), x) for x in saves])
+                    for path, sub in paths:
+                        if ".forced" in sub.info and ".forced" not in path:
+                            base, ext = os.path.splitext(path)
+                            os.rename(path, "%s.forced%s" % (base, ext))
+                if self.settings.downloadsubs:
                     subtitles = subliminal.download_best_subtitles([video], languages, hearing_impaired=self.settings.hearing_impaired, providers=self.settings.subproviders, provider_configs=self.settings.subproviders_auth)
                     saves = subliminal.save_subtitles(video, subtitles[video])
-                paths = [(subliminal.subtitle.get_subtitle_path(video.name, x.language), x) for x in saves]
+                    paths.extend([(subliminal.subtitle.get_subtitle_path(video.name, x.language), x) for x in saves])
                 for path, sub in paths:
                     self.log.info("Downloaded new subtitle %s from source %s." % (path, sub.info))
                     self.setPermissions(path)
-                    if ".forced" in sub.info and ".forced" not in path:
-                        base, ext = os.path.splitext(path)
-                        os.rename(path, "%s.forced%s" % (base, ext))
-
                 return [p for p, _ in paths]
             except KeyboardInterrupt:
                 raise

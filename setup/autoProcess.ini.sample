@@ -147,7 +147,8 @@ enabled = False
 
 [Subtitle.Subliminal]
 download-subs = False
-download-hearing-impaired-subs = False
+download-forced-subs = False
+include-hearing-impaired-subs = False
 providers = 
 
 [Subtitle.Subliminal.Auth]
