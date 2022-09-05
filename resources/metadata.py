@@ -85,7 +85,7 @@ class Metadata:
                 self.log.error("Unable to retrieve rating.")
                 self.rating = None
 
-            self.original_language = self.moviedata['original_language']
+            self.original_language = getAlpha3TCode(self.moviedata['original_language'])
             self.title = self.moviedata['title']
             self.genre = self.moviedata['genres']
             self.tagline = self.moviedata['tagline']
@@ -115,7 +115,7 @@ class Metadata:
                 self.log.error("Unable to retrieve rating.")
                 self.rating = None
 
-            self.original_language = self.showdata['original_language']
+            self.original_language = getAlpha3TCode(self.showdata['original_language'])
             self.showname = self.showdata['name']
             self.genre = self.showdata['genres']
             self.network = self.showdata['networks']
