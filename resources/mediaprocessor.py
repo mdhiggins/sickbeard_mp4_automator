@@ -501,27 +501,29 @@ class MediaProcessor:
         return output, probe
 
     # Pass over audio and subtitle streams to ensure the language properties are safe, return any adjustments made to SWL/AWL if relax is enabled
-    def safeLanguage(self, info, tmdbid=None, mediatype=None):
+    def safeLanguage(self, info, tagdata=None):
         awl = self.settings.awl
         original_language = None
-        if self.settings.audio_original_language and tmdbid:
+        if self.settings.audio_original_language and tagdata:
             try:
-                original_language = Metadata.getDefaultLanguage(tmdbid, mediatype)
+                original_language = tagdata.original_language
                 if original_language not in awl:
                     self.log.debug("Appending %s to allowed audio languages [include-original-language]." % (original_language))
                     awl.append(original_language)
+                    self.settings.adl = self.settings.adl or original_language
             except KeyboardInterrupt:
                 raise
             except:
                 self.log.exception("Exception while trying to determine original language [include-original-language].")
 
         swl = self.settings.swl
-        if self.settings.subtitle_original_language and tmdbid:
+        if self.settings.subtitle_original_language and tagdata:
             try:
-                original_language = original_language or Metadata.getDefaultLanguage(tmdbid, mediatype)
+                original_language = tagdata.original_language
                 if original_language not in swl:
                     self.log.debug("Appending %s to allowed subtitle languages [include-original-language]." % (original_language))
                     swl.append(original_language)
+                    self.settings.sdl = self.settings.sdl or original_language
             except KeyboardInterrupt:
                 raise
             except:
@@ -659,7 +661,7 @@ class MediaProcessor:
         self.cleanDispositions(info)
 
         # Ensure we have adequate language tracks present, assigned undefined languages to default, relax language parameters if needed
-        awl, swl = self.safeLanguage(info, tagdata.tmdbid if tagdata else None, tagdata.mediatype if tagdata else None)
+        awl, swl = self.safeLanguage(info, tagdata)
 
         try:
             self.log.info("Input Data")
