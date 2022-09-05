@@ -50,13 +50,13 @@ class MediaProcessor:
                 self.log.info("Processing %s." % inputfile)
 
                 try:
-                    tag = Metadata(mediatype, tvdbid=tvdbid, tmdbid=tmdbid, imdbid=imdbid, season=season, episode=episode, original=original, language=language)
-                    tmdbid = tag.tmdbid
+                    tagdata = tagdata or Metadata(mediatype, tvdbid=tvdbid, tmdbid=tmdbid, imdbid=imdbid, season=season, episode=episode, original=original, language=language)
+                    tmdbid = tagdata.tmdbid
                 except KeyboardInterrupt:
                     raise
                 except:
                     self.log.exception("Unable to get metadata.")
-                    tag = None
+                    tagdata = None
 
                 output = self.process(inputfile, original=original, info=info, tagdata=tagdata, reportProgress=reportProgress)
 
@@ -66,10 +66,10 @@ class MediaProcessor:
                     self.log.debug("Tag language setting is %s, using language %s for tagging." % (self.settings.taglanguage or None, language))
                     # Tag with metadata
                     tagfailed = False
-                    if self.settings.tagfile and tag:
+                    if self.settings.tagfile and tagdata:
                         try:
-                            self.log.info("Tagging %s with TMDB ID %s." % (inputfile, tag.tmdbid))
-                            tag.writeTags(output['output'], inputfile, self.converter, self.settings.artwork, self.settings.thumbnail, output['x'], output['y'], streaming=output['rsi'])
+                            self.log.info("Tagging %s with TMDB ID %s." % (inputfile, tagdata.tmdbid))
+                            tagdata.writeTags(output['output'], inputfile, self.converter, self.settings.artwork, self.settings.thumbnail, output['x'], output['y'], streaming=output['rsi'])
                         except KeyboardInterrupt:
                             raise
                         except:
@@ -659,7 +659,7 @@ class MediaProcessor:
         self.cleanDispositions(info)
 
         # Ensure we have adequate language tracks present, assigned undefined languages to default, relax language parameters if needed
-        awl, swl = self.safeLanguage(info, tagdata.tmdbid, tagdata.mediatype)
+        awl, swl = self.safeLanguage(info, tagdata.tmdbid if tagdata else None, tagdata.mediatype if tagdata else None)
 
         try:
             self.log.info("Input Data")
