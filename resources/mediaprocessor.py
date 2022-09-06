@@ -1385,7 +1385,7 @@ class MediaProcessor:
                     self.log.warning("===========WARNING===========")
                     self.log.warning("The encoder you have chosen %s is not defined and is not supported by SMA, conversion will likely fail. Please check that this is defined in ./converter/avcodecs.py and if not open a Github feature request to add support." % (o['codec']))
                     self.log.warning("===========WARNING===========")
-                elif ffcodec not in encoders:
+                elif ffcodec not in encoders and ffcodec != 'copy':
                     self.log.warning("===========WARNING===========")
                     self.log.warning("The encoder you have chosen %s (%s) is not listed as supported in your FFMPEG build, conversion will likely fail, please use a build of FFMPEG that supports %s or choose a different encoder." % (o['codec'], ffcodec, ffcodec))
                     ffpcodec = Converter.codec_name_to_ffprobe_codec_name(o['codec'])
