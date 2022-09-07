@@ -169,8 +169,6 @@ class ReadSettings:
             'default-language': '',
             'include-original-language': True,
             'first-stream-of-language': False,
-            'allow-language-relax': True,
-            'relax-to-default': False,
             'channel-bitrate': 128,
             'variable-bitrate': 0,
             'max-bitrate': 0,
@@ -241,6 +239,7 @@ class ReadSettings:
         'Subtitle.Subliminal': {
             'download-subs': False,
             'download-forced-subs': False,
+            'dynamic-download': False,
             'include-hearing-impaired-subs': False,
             'providers': '',
         },
@@ -603,8 +602,6 @@ class ReadSettings:
         self.audio_sampleformat = config.get(section, 'sample-format')
         self.audio_copyoriginal = config.getboolean(section, "copy-original")
         self.audio_first_language_stream = config.getboolean(section, "first-stream-of-language")
-        self.allow_language_relax = config.getboolean(section, "allow-language-relax")
-        self.relax_to_default = config.getboolean(section, "relax-to-default")
         self.aac_adtstoasc = config.getboolean(section, 'aac-adtstoasc')
         self.ignored_audio_dispositions = config.getlist(section, "ignored-dispositions")
         self.force_audio_defaults = config.getboolean(section, "force-default")
@@ -679,6 +676,7 @@ class ReadSettings:
         section = "Subtitle.Subliminal"
         self.downloadsubs = config.getboolean(section, "download-subs")
         self.downloadforcedsubs = config.getboolean(section, "download-forced-subs")
+        self.dynamicdownloadsubs = config.getboolean(section, "dynamic-download")
         self.hearing_impaired = config.getboolean(section, "include-hearing-impaired-subs")
         self.subproviders = config.getlist(section, 'providers')
 

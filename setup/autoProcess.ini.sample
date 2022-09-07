@@ -76,8 +76,6 @@ languages =
 default-language = 
 include-original-language = True
 first-stream-of-language = False
-allow-language-relax = True
-relax-to-default = False
 channel-bitrate = 128
 variable-bitrate = 0
 max-bitrate = 0
@@ -148,6 +146,7 @@ enabled = False
 [Subtitle.Subliminal]
 download-subs = False
 download-forced-subs = False
+dynamic-download = False
 include-hearing-impaired-subs = False
 providers = 
 

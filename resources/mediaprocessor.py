@@ -500,7 +500,7 @@ class MediaProcessor:
             output['error'] = "Invalid input, unable to read"
         return output, probe
 
-    # Pass over audio and subtitle streams to ensure the language properties are safe, return any adjustments made to SWL/AWL if relax is enabled
+    # Pass over audio and subtitle streams to ensure the language properties are safe, return any adjustments made to SWL/AWL
     def safeLanguage(self, info, tagdata=None):
         awl = self.settings.awl
         original_language = None
@@ -529,20 +529,18 @@ class MediaProcessor:
             except:
                 self.log.exception("Exception while trying to determine original language [include-original-language].")
 
+        if self.settings.dynamicdownloadsubs and original_language and any(a.metadata.get('language') == original_language and self.validDisposition(a, self.settings.ignored_audio_dispositions) for a in info.audio):
+            self.settings.downloadforcedsubs = (self.settings.adl == original_language)
+            self.settings.downloadsubs = (self.settings.adl != original_language)
+            self.log.debug("Dynamic subtitle download based on original language %s, forced sub downloading %s and full sub downloading %s [Subliminal.dynamic-download]." % (original_language, self.settings.downloadforcedsubs, self.settings.downloadsubs))
+
         # Loop through audio streams and clean up language metadata by standardizing undefined languages and applying the ADL setting
         for a in info.audio:
             a.metadata['language'] = getAlpha3TCode(a.metadata.get('language'), self.settings.adl)
 
-        # if overrideLang and self.settings.allow_language_relax:
-        if len(awl) > 0 and self.settings.allow_language_relax and not any(a.metadata.get('language') in awl and self.validDisposition(a, self.settings.ignored_audio_dispositions) for a in info.audio):
+        if len(awl) > 0 and not any(a.metadata.get('language') in awl and self.validDisposition(a, self.settings.ignored_audio_dispositions) for a in info.audio):
+            self.log.debug("No valid audio tracks found, relaxing audio language restrictions.")
             awl = []
-            dlang = self.getDefaultAudioLanguage(info)
-            if self.settings.relax_to_default and dlang:
-                self.log.info("No audio streams detected in any appropriate language, relaxing to %s [allow-audio-language-relax, relax-to-default]." % (dlang))
-                awl = [dlang]
-            else:
-                self.log.info("No audio streams detected in any appropriate language, relaxing to any language [allow-audio-language-relax].")
-                awl = []
 
         # Prep subtitle streams by cleaning up languages and setting SDL
         for s in info.subtitle:
@@ -1128,7 +1126,8 @@ class MediaProcessor:
                 awl,
                 self.settings.audio_sorting_codecs or self.settings.acodec,
                 info,
-                acombinations
+                acombinations,
+                tagdata
             )
         except:
             self.log.exception("Error sorting output stream options [audio.sorting-default-sorting].")
@@ -1142,7 +1141,8 @@ class MediaProcessor:
                     awl,
                     self.settings.audio_sorting_codecs or self.settings.acodec,
                     info,
-                    acombinations
+                    acombinations,
+                    tagdata
                 )
             )
         except:
@@ -1304,7 +1304,7 @@ class MediaProcessor:
 
         # Burn subtitles
         try:
-            vfilter = self.burnSubtitleFilter(inputfile, info, swl, valid_external_subs)
+            vfilter = self.burnSubtitleFilter(inputfile, info, swl, valid_external_subs, tagdata)
         except:
             vfilter = None
             self.log.exception("Encountered an error while trying to determine which subtitle stream for subtitle burn [burn-subtitle].")
@@ -1325,7 +1325,8 @@ class MediaProcessor:
                 self.settings.sub_sorting,
                 swl,
                 self.settings.sub_sorting_codecs or (self.settings.scodec + self.settings.scodec_image),
-                info
+                info,
+                tagdata=tagdata
             )
         except:
             self.log.exception("Error sorting output stream options [subtitle.sorting-sorting].")
@@ -1614,18 +1615,20 @@ class MediaProcessor:
         return m
 
     # Sort streams
-    def sortStreams(self, streams, keys, languages, codecs, info, combinations=[]):
+    def sortStreams(self, streams, keys, languages, codecs, info, combinations=[], tagdata=None):
         DISPO_PREFIX = "d."
         ASCENDING_SUFFIX = ".a"
         DESCENDING_SUFFIX = ".d"
 
         output = streams[:]
         self.log.debug("Sorting streams with keys %s." % (keys))
+        original_language = tagdata.original_language
 
         SORT_DICT = {
             'codec': lambda x: (codecs.index(self.getCodecFromOptions(x, info)) if (self.getCodecFromOptions(x, info)) in codecs else 999),
             'channels': lambda x: x.get('channels', 999),
             'language': lambda x: languages.index(x.get('language')) if x.get('language') in languages else 999,
+            'original-language': lambda x: x.get('language') == original_language,
             'bitrate': lambda x: x.get('bitrate', 999),
             'map': lambda x: self.getSourceIndexFromMap(x['map'], info, combinations),
             'ua': lambda x: "universal-audio" in x.get('debug', ''),
@@ -1636,6 +1639,7 @@ class MediaProcessor:
             'codec': lambda x: codecs.index(x.codec) if x.codec in codecs else 999,
             'channels': lambda x: x.audio_channels,
             'language': lambda x: languages.index(x.metadata.get('language')) if x.metadata.get('language') in languages else 999,
+            'original-language': lambda x: x.metadata.get('language') == original_language,
             'bitrate': lambda x: x.bitrate
         }
 
@@ -1680,7 +1684,7 @@ class MediaProcessor:
         return output
 
     # Generate filter string to burn subtitles
-    def burnSubtitleFilter(self, inputfile, info, swl, valid_external_subs=None):
+    def burnSubtitleFilter(self, inputfile, info, swl, valid_external_subs=None, tagdata=None):
         if self.settings.burn_subtitles:
             subtitle_streams = info.subtitle
             filtered_subtitle_streams = [x for x in subtitle_streams if self.validLanguage(x.metadata.get('language'), swl) or (self.settings.force_subtitle_defaults and x.disposition.get('default'))]
@@ -1709,7 +1713,8 @@ class MediaProcessor:
                         self.settings.burn_sorting,
                         swl,
                         self.settings.sub_sorting_codecs or (self.settings.scodec + self.settings.scodec_image),
-                        info
+                        info,
+                        tagdata=tagdata
                     )
                     burn_sub = sub_candidates[0]
                     relative_index = burn_sub.index - first_index
