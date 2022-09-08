@@ -239,7 +239,6 @@ class ReadSettings:
         'Subtitle.Subliminal': {
             'download-subs': False,
             'download-forced-subs': False,
-            'dynamic-download': False,
             'include-hearing-impaired-subs': False,
             'providers': '',
         },
@@ -676,7 +675,6 @@ class ReadSettings:
         section = "Subtitle.Subliminal"
         self.downloadsubs = config.getboolean(section, "download-subs")
         self.downloadforcedsubs = config.getboolean(section, "download-forced-subs")
-        self.dynamicdownloadsubs = config.getboolean(section, "dynamic-download")
         self.hearing_impaired = config.getboolean(section, "include-hearing-impaired-subs")
         self.subproviders = config.getlist(section, 'providers')
 

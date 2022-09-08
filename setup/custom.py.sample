@@ -4,7 +4,7 @@ Samples of the included functions are provided as a reference
 '''
 
 
-def validation(mp, info, path):
+def validation(mp, info, path, tagdata):
     # Custom function that skips HDR files that are missing proper HDR metadata / framedata
     mp.log.info("Initiating custom validation method.")
     if mp.isHDR(info.video):
@@ -26,13 +26,15 @@ def blockAudioCopy(mp, stream, path):
     return False
 
 
-def skipStream(mp, stream, info, path):
+def skipStream(mp, stream, info, path, tagdata):
     # Custom function that skips over a stream
     return False
 
-def skipUA(mp, stream, info, path):
+
+def skipUA(mp, stream, info, path, tagdata):
     # Custom function that skips over creating a universal audio stream
     return False
+
 
 def streamTitle(mp, stream, options, hdr=False, imageBased=False, path=None):
     # Custom function to define steam title, return None to use script default function, return "" to set blank

@@ -45,7 +45,7 @@ class MediaProcessor:
 
     def fullprocess(self, inputfile, mediatype, reportProgress=False, original=None, info=None, tmdbid=None, tvdbid=None, imdbid=None, season=None, episode=None, language=None, tagdata=None):
         try:
-            info = self.isValidSource(inputfile)
+            info = self.isValidSource(inputfile, tagdata=tagdata)
             if info:
                 self.log.info("Processing %s." % inputfile)
 
@@ -127,7 +127,7 @@ class MediaProcessor:
         ripped_subs = []
         downloaded_subs = []
 
-        info = info or self.isValidSource(inputfile)
+        info = info or self.isValidSource(inputfile, tagdata=tagdata)
 
         if info:
             try:
@@ -328,7 +328,7 @@ class MediaProcessor:
         return output.strip() if output else None
 
     # Determine if a file can be read by FFPROBE
-    def isValidSource(self, inputfile):
+    def isValidSource(self, inputfile, tagdata=None):
         try:
             extension = self.parseFile(inputfile)[2]
             if extension in self.settings.ignored_extensions:
@@ -349,7 +349,7 @@ class MediaProcessor:
                 return None
             if validation:
                 try:
-                    if not validation(self, info, inputfile):
+                    if not validation(self, info, inputfile, tagdata):
                         self.log.debug("Failed custom validation check, file is not valid.")
                         return None
                 except KeyboardInterrupt:
@@ -458,7 +458,7 @@ class MediaProcessor:
     # Generate a JSON formatter dataset with the input and output information and ffmpeg command for a theoretical conversion
     def jsonDump(self, inputfile, original=None, tagdata=None):
         dump = {}
-        dump["input"], info = self.generateSourceDict(inputfile)
+        dump["input"], info = self.generateSourceDict(inputfile, tagdata)
         dump["output"], dump["preopts"], dump["postopts"], dump["ripsubopts"], dump["downloadedsubs"] = self.generateOptions(inputfile, info=info, original=original, tagdata=tagdata)
         if self.canBypassConvert(inputfile, info, dump["output"]):
             dump["output"] = dump["input"]
@@ -487,12 +487,11 @@ class MediaProcessor:
         return json.dumps(dump, sort_keys=False, indent=4).replace("\\\\", "\\").replace("\\\"", "\"")
 
     # Generate a dict of data about a source file
-    def generateSourceDict(self, inputfile):
+    def generateSourceDict(self, inputfile, tagdata=None):
         output = {}
         _, _, input_extension = self.parseFile(inputfile)
         output['extension'] = input_extension
-        probe = self.isValidSource(inputfile)
-        # probe = self.converter.probe(inputfile)
+        probe = self.isValidSource(inputfile, tagdata)
         self.titleDispositionCheck(probe)
         if probe:
             output.update(probe.json)
@@ -528,11 +527,6 @@ class MediaProcessor:
                 raise
             except:
                 self.log.exception("Exception while trying to determine original language [include-original-language].")
-
-        if self.settings.dynamicdownloadsubs and original_language and any(a.metadata.get('language') == original_language and self.validDisposition(a, self.settings.ignored_audio_dispositions) for a in info.audio):
-            self.settings.downloadforcedsubs = (self.settings.adl == original_language)
-            self.settings.downloadsubs = (self.settings.adl != original_language)
-            self.log.debug("Dynamic subtitle download based on original language %s, forced sub downloading %s and full sub downloading %s [Subliminal.dynamic-download]." % (original_language, self.settings.downloadforcedsubs, self.settings.downloadsubs))
 
         # Loop through audio streams and clean up language metadata by standardizing undefined languages and applying the ADL setting
         for a in info.audio:
@@ -879,7 +873,7 @@ class MediaProcessor:
 
             # Custom skip
             try:
-                if skipStream and skipStream(self, a, info, inputfile):
+                if skipStream and skipStream(self, a, info, inputfile, tagdata):
                     self.log.info("Audio stream %s will be skipped, custom skipStream function returned True." % (a.index))
                     continue
             except KeyboardInterrupt:
@@ -896,7 +890,7 @@ class MediaProcessor:
                     continue
 
             try:
-                ua = any(self.settings.ua) and not (skipUA and skipUA(self, a, info, inputfile))
+                ua = any(self.settings.ua) and not (skipUA and skipUA(self, a, info, inputfile, tagdata))
             except KeyboardInterrupt:
                 raise
             except:
@@ -1161,7 +1155,7 @@ class MediaProcessor:
                 self.log.info("Subtitle detected for stream %s - %s %s." % (s.index, s.codec, s.metadata['language']))
                 # Custom skip
                 try:
-                    if skipStream and skipStream(self, s, info, inputfile):
+                    if skipStream and skipStream(self, s, info, inputfile, tagdata):
                         self.log.info("Subtitle stream %s will be skipped, custom skipStream function returned True." % (s.index))
                         continue
                 except KeyboardInterrupt:
