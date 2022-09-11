@@ -1186,7 +1186,8 @@ class MediaProcessor:
                 elif not image_based and self.settings.embedsubs and self.settings.scodec and len(self.settings.scodec) > 0:
                     if (self.settings.cleanit and cleanit) or (self.settings.ffsubsync and ffsubsync):
                         try:
-                            rips = self.ripSubs(inputfile, [self.generateRipSubOpts(inputfile, s, 'srt')])
+                            scodec = 'copy' if s.codec in self.settings.scodec else self.settings.scodec[0]
+                            rips = self.ripSubs(inputfile, [self.generateRipSubOpts(inputfile, s, scodec)])
                             if rips:
                                 new_sub_path = rips[0]
                                 new_sub = self.isValidSubtitleSource(new_sub_path)
