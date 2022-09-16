@@ -146,7 +146,6 @@ enabled = False
 [Subtitle.Subliminal]
 download-subs = False
 download-forced-subs = False
-dynamic-download = False
 include-hearing-impaired-subs = False
 providers = 
 
