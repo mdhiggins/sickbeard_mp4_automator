@@ -1617,7 +1617,7 @@ class MediaProcessor:
 
         output = streams[:]
         self.log.debug("Sorting streams with keys %s." % (keys))
-        original_language = tagdata.original_language
+        original_language = tagdata.original_language if tagdata else None
 
         SORT_DICT = {
             'codec': lambda x: (codecs.index(self.getCodecFromOptions(x, info)) if (self.getCodecFromOptions(x, info)) in codecs else 999),
