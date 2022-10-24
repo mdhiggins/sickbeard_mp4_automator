@@ -810,6 +810,9 @@ class MediaProcessor:
             self.log.debug("Pix_fmt is changing, will not preserve framedata")
             vframedata = None
 
+        if self.isDolbyVision(info.video.framedata):
+            postopts.extend(['-strict', 'unofficial'])
+
         vbsf = None
         if self.settings.removebvs and self.hasBitstreamVideoSubs(info.video.framedata):
             self.log.debug("Found side data type with closed captioning [remove-bitstream-subs]")
@@ -2148,6 +2151,16 @@ class MediaProcessor:
             return framedata
         except:
             return framedata
+
+    def isDolbyVision(self, framedata):
+        try:
+            if 'side_data_list' in framedata:
+                for side_data in framedata['side_data_list']:
+                    if side_data.get('side_data_type', '').lower() == "dolby vision metadata":
+                        return True
+        except:
+            return False
+        return False
 
     # Check if video stream meets criteria to be considered HDR
     def isHDR(self, videostream):
