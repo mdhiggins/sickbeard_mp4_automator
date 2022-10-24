@@ -14,6 +14,14 @@ from converter.avcodecs import BaseCodec, video_codec_list
 
 console_encoding = locale.getdefaultlocale()[1] or 'UTF-8'
 
+STRICT = {
+    "very": 2,
+    "strict": 1,
+    "normal": 0,
+    "unofficial": -1,
+    "experimental": -2
+}
+
 
 class FFMpegError(Exception):
     pass
@@ -624,6 +632,7 @@ class FFMpeg(object):
         return info
 
     def generateCommands(self, outfile, opts, preopts=None, postopts=None):
+        print()
         cmds = [self.ffmpeg_path]
         if preopts:
             cmds.extend(preopts)
@@ -631,11 +640,37 @@ class FFMpeg(object):
         cmds.extend(opts)
         if postopts:
             cmds.extend(postopts)
+
+        self.minstrict(cmds)
+
         if outfile:
             cmds.extend(['-y', outfile])
         else:
             cmds.extend(['-f', 'null', '-'])
         return cmds
+
+    def minstrict(self, cmds):
+        """
+        Ensure that only one -strict parameter ends up in the final
+        command and use the least strict option specified
+        """
+        if cmds.count("-strict") > 1:
+            strictmin = max(STRICT.values())
+            indices = []
+            for index, cmd in enumerate(cmds):
+                if cmd == '-strict':
+                    svalue = cmds[index + 1]
+                    try:
+                        svalue = int(svalue)
+                    except:
+                        svalue = STRICT.get(svalue, strictmin)
+                    strictmin = min((svalue, strictmin))
+                    indices.extend([index, index + 1])
+            indices = sorted(indices, reverse=True)
+            for idx in indices:
+                if idx < len(cmds):
+                    cmds.pop(idx)
+            cmds.extend(['-strict', str(strictmin)])
 
     def convert(self, outfile, opts, timeout=10, preopts=None, postopts=None):
         """
