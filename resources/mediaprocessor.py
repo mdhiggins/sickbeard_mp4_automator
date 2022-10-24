@@ -810,9 +810,6 @@ class MediaProcessor:
             self.log.debug("Pix_fmt is changing, will not preserve framedata")
             vframedata = None
 
-        if self.isDolbyVision(info.video.framedata):
-            postopts.extend(['-strict', 'unofficial'])
-
         vbsf = None
         if self.settings.removebvs and self.hasBitstreamVideoSubs(info.video.framedata):
             self.log.debug("Found side data type with closed captioning [remove-bitstream-subs]")
@@ -1372,6 +1369,9 @@ class MediaProcessor:
         if options.get('format') in ['mp4'] and any(a for a in options['audio'] if self.getCodecFromOptions(a, info) == 'truehd'):
             self.log.debug("Adding experimental flag for mp4 with trueHD as a trueHD stream is being copied.")
             postopts.extend(['-strict', 'experimental'])
+
+        if self.isDolbyVision(info.video.framedata):
+            postopts.extend(['-strict', 'unofficial'])
 
         if len(options['subtitle']) > 0:
             self.log.debug("Subtitle streams detected, adding fix_sub_duration option to preopts.")
