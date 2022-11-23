@@ -100,6 +100,7 @@ class ReadSettings:
             'hwdevices': '',
             'hwaccel-output-format': '',
             'output-directory': '',
+            'output-directory-space-ratio': 0.0,
             'output-format': 'mp4',
             'output-extension': 'mp4',
             'temp-extension': '',
@@ -475,6 +476,7 @@ class ReadSettings:
         self.hwdevices = config.getdict(section, "hwdevices", lower=False, replace=[])
         self.hwoutputfmt = config.getdict(section, "hwaccel-output-format")
         self.output_dir = config.getdirectory(section, "output-directory")
+        self.output_dir_ratio = config.getfloat(section, "output-directory-space-ratio")
         self.output_format = config.get(section, "output-format")
         self.output_extension = config.getextension(section, "output-extension")
         self.temp_extension = config.getextension(section, "temp-extension")

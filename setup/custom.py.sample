@@ -36,7 +36,7 @@ def skipUA(mp, stream, info, path, tagdata):
     return False
 
 
-def streamTitle(mp, stream, options, hdr=False, imageBased=False, path=None):
+def streamTitle(mp, stream, options, hdr=False, imageBased=False, path=None, tagdata=None):
     # Custom function to define steam title, return None to use script default function, return "" to set blank
     # stream.disposition contains the disposition dictionary
     # stream.metadata.get('title') contains the original stream title

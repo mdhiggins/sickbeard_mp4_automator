@@ -129,6 +129,8 @@ class MediaProcessor:
 
         info = info or self.isValidSource(inputfile, tagdata=tagdata)
 
+        self.settings.output_dir = self.settings.output_dir if self.outputDirHasFreeSpace(inputfile) else None
+
         if info:
             try:
                 options, preopts, postopts, ripsubopts, downloaded_subs = self.generateOptions(inputfile, info=info, original=original, tagdata=tagdata)
@@ -244,7 +246,7 @@ class MediaProcessor:
                 stream.disposition[dispo] = False
 
     # Get title for video stream based on disposition
-    def videoStreamTitle(self, stream, options, hdr=False):
+    def videoStreamTitle(self, stream, options, hdr=False, tagdata=None):
         width = options.get("width", 0)
         height = options.get("height", 0)
         if not width and not height:
@@ -253,7 +255,7 @@ class MediaProcessor:
 
         if streamTitle:
             try:
-                customTitle = streamTitle(self, stream, options, hdr=hdr)
+                customTitle = streamTitle(self, stream, options, hdr=hdr, tagdata=tagdata)
                 if customTitle is not None:
                     return customTitle
             except:
@@ -280,10 +282,10 @@ class MediaProcessor:
         return output.strip() if output else None
 
     # Get title for audio stream based on disposition
-    def audioStreamTitle(self, stream, options):
+    def audioStreamTitle(self, stream, options, tagdata=None):
         if streamTitle:
             try:
-                customTitle = streamTitle(self, stream, options)
+                customTitle = streamTitle(self, stream, options, tagdata=tagdata)
                 if customTitle is not None:
                     return customTitle
             except:
@@ -308,10 +310,10 @@ class MediaProcessor:
         return output.strip() if output else None
 
     # Get title for subtitle stream based on disposition
-    def subtitleStreamTitle(self, stream, options, imageBased=False, path=None):
+    def subtitleStreamTitle(self, stream, options, imageBased=False, path=None, tagdata=None):
         if streamTitle:
             try:
-                customTitle = streamTitle(self, stream, options, imageBased=imageBased, path=path)
+                customTitle = streamTitle(self, stream, options, imageBased=imageBased, path=path, tagdata=None)
                 if customTitle is not None:
                     return customTitle
             except:
@@ -849,7 +851,7 @@ class MediaProcessor:
             'bsf': vbsf,
             'debug': vdebug,
         }
-        video_settings['title'] = self.videoStreamTitle(info.video, video_settings, hdr=vHDR)
+        video_settings['title'] = self.videoStreamTitle(info.video, video_settings, hdr=vHDR, tagdata=tagdata)
 
         ###############################################################
         # Audio streams
@@ -946,7 +948,7 @@ class MediaProcessor:
                     'disposition': ua_disposition,
                     'debug': 'universal-audio'
                 }
-                uadata['title'] = self.audioStreamTitle(a, uadata)
+                uadata['title'] = self.audioStreamTitle(a, uadata, tagdata=tagdata)
 
             adebug = "audio"
             # If the universal audio option is enabled and the source audio channel is only stereo, the additional universal stream will be skipped and a single channel will be made regardless of codec preference to avoid multiple stereo channels
@@ -1081,7 +1083,7 @@ class MediaProcessor:
                 'bsf': absf,
                 'debug': adebug
             }
-            audio_setting['title'] = self.audioStreamTitle(a, audio_setting)
+            audio_setting['title'] = self.audioStreamTitle(a, audio_setting, tagdata=tagdata)
             audio_settings.append(audio_setting)
 
             # Add the universal audio stream
@@ -1100,7 +1102,7 @@ class MediaProcessor:
                     'disposition': adisposition,
                     'debug': 'audio-copy-original'
                 }
-                audio_setting['title'] = self.audioStreamTitle(a, audio_setting)
+                audio_setting['title'] = self.audioStreamTitle(a, audio_setting, tagdata=tagdata)
                 audio_settings.append(audio_setting)
 
             # Remove the language if we only want the first stream from a given language
@@ -1211,7 +1213,7 @@ class MediaProcessor:
                         'disposition': s.dispostr,
                         'debug': 'subtitle.embed-subs'
                     }
-                    subtitle_setting['title'] = self.subtitleStreamTitle(s, subtitle_setting, image_based)
+                    subtitle_setting['title'] = self.subtitleStreamTitle(s, subtitle_setting, image_based, tagdata=tagdata)
                     subtitle_settings.append(subtitle_setting)
                     if self.settings.sub_first_language_stream:
                         blocked_subtitle_languages.append(s.metadata['language'])
@@ -1279,7 +1281,7 @@ class MediaProcessor:
                 'disposition': sdisposition,
                 'language': external_sub.subtitle[0].metadata['language'],
                 'debug': 'subtitle.embed-subs'}
-            subtitle_setting['title'] = self.subtitleStreamTitle(external_sub.subtitle[0], subtitle_setting, image_based, path=external_sub.path)
+            subtitle_setting['title'] = self.subtitleStreamTitle(external_sub.subtitle[0], subtitle_setting, image_based, path=external_sub.path, tagdata=tagdata)
             subtitle_settings.append(subtitle_setting)
             self.log.debug("Path: %s." % external_sub.path)
             self.log.debug("Codec: %s." % self.settings.scodec[0])
@@ -2466,6 +2468,19 @@ class MediaProcessor:
         for filename in files:
             self.log.debug("Final output file: %s." % filename)
         return files
+
+    def outputDirHasFreeSpace(self, inputfile):
+        if self.settings.output_dir and self.settings.output_dir_ratio:
+            try:
+                needed = os.path.getsize(inputfile) * self.settings.output_dir_ratio
+                usage = shutil.disk_usage(self.settings.output_dir)
+                enough = usage.free > needed
+                if not enough:
+                    self.log.info("Output-directory does not have enough free space (%s needed) [output-directory-space-ratio]." % needed)
+                return enough
+            except:
+                self.log.exception("Unable to check free space on output directory %s [output-directory-space-ratio]." % self.settings.output_dir)
+        return True
 
     # Robust file removal function, with options to retry in the event the file is in use, and replace a deleted file
     def removeFile(self, filename, retries=2, delay=10, replacement=None):
