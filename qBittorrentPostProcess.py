@@ -19,7 +19,7 @@ log = getLogger("qBittorrentPostProcess")
 
 log.info("qBittorrent post processing started.")
 
-if len(sys.argv) != 7:
+if len(sys.argv) < 6:
     log.error("Not enough command line parameters present, are you launching this from qBittorrent?")
     log.error("#Args: %L %T %R %F %N %I Category, Tracker, RootPath, ContentPath , TorrentName, InfoHash")
     log.error("Length was %s" % str(len(sys.argv)))
@@ -29,10 +29,16 @@ if len(sys.argv) != 7:
 try:
     settings = ReadSettings()
     label = sys.argv[1].lower().strip()
-    root_path = str(sys.argv[3])
-    content_path = str(sys.argv[4])
-    name = sys.argv[5]
-    torrent_hash = sys.argv[6]
+    if len(sys.argv) == 6:
+        root_path = str(sys.argv[3])
+        content_path = str(sys.argv[3])
+        name = sys.argv[4]
+        torrent_hash = sys.argv[5]
+    else:
+        root_path = str(sys.argv[3])
+        content_path = str(sys.argv[4])
+        name = sys.argv[5]
+        torrent_hash = sys.argv[6]
     categories = [settings.qBittorrent['sb'], settings.qBittorrent['sonarr'], settings.qBittorrent['radarr'], settings.qBittorrent['sr'], settings.qBittorrent['bypass']]
     path_mapping = settings.qBittorrent['path-mapping']
 
