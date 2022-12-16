@@ -863,6 +863,7 @@ class MediaProcessor:
         blocked_audio_languages = []
         blocked_audio_dispositions = []
         acombinations = self.mapStreamCombinations(info.audio)
+        allowua = any(self.settings.ua)
 
         self.settings.ua = self.ffprobeSafeCodecs(self.settings.ua)
         self.log.debug("Pool universal audio codecs is %s." % (self.settings.ua))
@@ -892,11 +893,11 @@ class MediaProcessor:
                     continue
 
             try:
-                ua = any(self.settings.ua) and not (skipUA and skipUA(self, a, info, inputfile, tagdata))
+                ua = allowua and not (skipUA and skipUA(self, a, info, inputfile, tagdata))
             except KeyboardInterrupt:
                 raise
             except:
-                ua = any(self.settings.ua)
+                ua = allowua
                 self.log.exception("Custom skipUA method threw an exception.")
 
             # Create friendly audio stream if the default audio stream has too many channels
@@ -1063,7 +1064,7 @@ class MediaProcessor:
             # If the ua_first_only option is enabled, disable the ua option after the first audio stream is processed
             if ua and self.settings.ua_first_only:
                 self.log.debug("Not creating any additional universal audio streams [universal-audio-first-stream-only].")
-                ua = False
+                allowua = False
 
             absf = 'aac_adtstoasc' if acodec == 'copy' and a.codec == 'aac' and self.settings.aac_adtstoasc else None
 
