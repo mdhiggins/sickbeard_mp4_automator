@@ -46,26 +46,15 @@ def rescanAndWait(baseURL, headers, seriesid, log, retries=6, delay=10):
     return command['status'].lower() in ['complete', 'completed']
 
 
-def renameSeriesRequest(baseURL, headers, seriesid, log):
+def renameRequest(baseURL, headers, fileid, seriesid, log):
     url = baseURL + "/api/v3/command"
     log.debug("Queueing rename command to Sonarr via %s." % url)
 
-    payload = {'name': 'RenameSeries', 'seriesIds': [seriesid]}
-    log.debug(str(payload))
-    r = requests.post(url, json=payload, headers=headers)
-    rstate = r.json()
-    try:
-        rstate = rstate[0]
-    except:
-        pass
-    return rstate
+    if fileid:
+        payload = {'name': 'RenameFiles', 'files': [fileid], 'seriesId': seriesid}
+    else:
+        payload = {'name': 'RenameSeries', 'seriesIds': [seriesid]}
 
-
-def renameFileRequest(baseURL, headers, fileid, seriesid, log):
-    url = baseURL + "/api/v3/command"
-    log.debug("Queueing rename command to Sonarr via %s." % url)
-
-    payload = {'name': 'RenameFiles', 'files': [fileid], 'seriesId': seriesid}
     log.debug(str(payload))
     r = requests.post(url, json=payload, headers=headers)
     rstate = r.json()
@@ -259,7 +248,7 @@ try:
                 if downloadedEpisodesScanInProgress(baseURL, headers, episodefile_sourcefolder, log):
                     log.info("DownloadedEpisodesScan command is in process for this episode, cannot wait for rescan but will queue.")
                     rescanAndWait(baseURL, headers, seriesid, log, retries=0)
-                    renameFileRequest(baseURL, headers, episodefile_id, seriesid, log)
+                    renameRequest(baseURL, headers, None, seriesid, log)
                 elif rescanAndWait(baseURL, headers, seriesid, log):
                     log.info("Rescan command completed.")
 
@@ -314,7 +303,7 @@ try:
 
                     # Now a final rename step to ensure all release / codec information is accurate
                     try:
-                        rename = renameFileRequest(baseURL, headers, sonarrepinfo['episodeFileId'], seriesid, log)
+                        rename = renameRequest(baseURL, headers, sonarrepinfo['episodeFileId'], seriesid, log)
                         log.info("Sonarr response RenameFiles command: ID %d %s." % (rename['id'], rename['status']))
                     except:
                         log.exception("Failed to trigger Sonarr rename.")

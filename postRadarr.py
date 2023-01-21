@@ -50,7 +50,10 @@ def renameRequest(baseURL, headers, fileid, movieid, log):
     url = baseURL + "/api/v3/command"
     log.debug("Queueing rename command to Radarr via %s." % url)
 
-    payload = {'name': 'RenameFiles', 'files': [fileid], 'movieId': movieid}
+    if fileid:
+        payload = {'name': 'RenameFiles', 'files': [fileid], 'movieId': movieid}
+    else:
+        payload = {'name': 'RenameMovies', 'movieIds': [movieid]}
     log.debug(str(payload))
     r = requests.post(url, json=payload, headers=headers)
     rstate = r.json()
@@ -160,7 +163,6 @@ def restoreSubs(subs, log):
             log.exception("Unable to restore %s, deleting." % (k))
 
 
-
 log = getLogger("RadarrPostProcess")
 
 log.info("Radarr extra script post processing started.")
@@ -241,7 +243,7 @@ try:
                 if downloadedMoviesScanInProgress(baseURL, headers, moviefile_sourcefolder, log):
                     log.info("DownloadedMoviesScan command is in process for this movie, cannot wait for rescan but will queue.")
                     rescanAndWait(baseURL, headers, movieid, log, retries=0)
-                    renameRequest(baseURL, headers, moviefileid, movieid, log)
+                    renameRequest(baseURL, headers, None, movieid, log)
                 elif rescanAndWait(baseURL, headers, movieid, log):
                     log.info("Rescan command completed successfully.")
 
