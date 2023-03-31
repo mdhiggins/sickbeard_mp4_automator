@@ -214,7 +214,7 @@ try:
         except:
             log.exception("Error renaming inputfile.")
 
-    success = mp.fullprocess(inputfile, MediaType.Movie, original=original, tmdbid=tmdbid, imdbid=imdbid)
+    success = mp.fullprocess(inputfile, MediaType.Movie, original=original, tmdbid=tmdbid, imdbid=imdbid, post=False)
 
     if success and not settings.Radarr['rescan']:
         log.info("File processed successfully and rescan API update disabled.")
@@ -244,6 +244,7 @@ try:
                     log.info("DownloadedMoviesScan command is in process for this movie, cannot wait for rescan but will queue.")
                     rescanAndWait(baseURL, headers, movieid, log, retries=0)
                     renameRequest(baseURL, headers, None, movieid, log)
+                    mp.post(success, MediaType.Movie, tmdbid=tmdbid, imdbid=imdbid)
                 elif rescanAndWait(baseURL, headers, movieid, log):
                     log.info("Rescan command completed successfully.")
 
@@ -300,6 +301,7 @@ try:
                         log.info("Radarr response Rename command: ID %d %s." % (rename['id'], rename['status']))
                     except:
                         log.exception("Failed to trigger Radarr rename.")
+                    mp.post(success, MediaType.Movie, tmdbid=tmdbid, imdbid=imdbid)
                 else:
                     log.error("Rescan command timed out.")
                     sys.exit(1)

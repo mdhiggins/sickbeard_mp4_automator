@@ -43,7 +43,7 @@ class MediaProcessor:
         self.converter = Converter(settings.ffmpeg, settings.ffprobe)
         self.deletesubs = set()
 
-    def fullprocess(self, inputfile, mediatype, reportProgress=False, original=None, info=None, tmdbid=None, tvdbid=None, imdbid=None, season=None, episode=None, language=None, tagdata=None):
+    def fullprocess(self, inputfile, mediatype, reportProgress=False, original=None, info=None, tmdbid=None, tvdbid=None, imdbid=None, season=None, episode=None, language=None, tagdata=None, post=True):
         try:
             info = self.isValidSource(inputfile, tagdata=tagdata)
             if info:
@@ -91,20 +91,9 @@ class MediaProcessor:
                     for file in output_files:
                         self.setPermissions(file)
 
-                    # Run any post process scripts
-                    if self.settings.postprocess:
-                        postprocessor = PostProcessor(output_files, self.log, wait=self.settings.waitpostprocess)
-                        postprocessor.setEnv(mediatype, tmdbid, season, episode)
-                        postprocessor.run_scripts()
+                    if post:
+                        self.post(output_files, mediatype, tmdbid=tmdbid, season=season, episode=episode)
 
-                    # Refresh Plex
-                    if self.settings.Plex.get('refresh', False):
-                        try:
-                            plex.refreshPlex(self.settings, mediatype, self.log)
-                        except KeyboardInterrupt:
-                            raise
-                        except:
-                            self.log.exception("Error refreshing Plex.")
                     return output_files
             else:
                 self.log.info("File %s is not valid" % inputfile)
@@ -113,6 +102,32 @@ class MediaProcessor:
         except:
             self.log.exception("Error processing")
         return False
+
+    def post(self, output_files, mediatype, tvdbid=None, tmdbid=None, imdbid=None, season=None, episode=None):
+        if self.settings.postprocess:
+            if not tmdbid:
+                try:
+                    tagdata = Metadata(mediatype, tvdbid=tvdbid, tmdbid=tmdbid, imdbid=imdbid, season=season, episode=episode)
+                    tmdbid = tagdata.tmdbid
+                except KeyboardInterrupt:
+                    raise
+                except:
+                    self.log.exception("Unable to get metadata.")
+                    tagdata = None
+
+            # Run any post process scripts
+            postprocessor = PostProcessor(output_files, self.log, wait=self.settings.waitpostprocess)
+            postprocessor.setEnv(mediatype, tmdbid, season, episode)
+            postprocessor.run_scripts()
+
+        # Refresh Plex
+        if self.settings.Plex.get('refresh', False):
+            try:
+                plex.refreshPlex(self.settings, mediatype, self.log)
+            except KeyboardInterrupt:
+                raise
+            except:
+                self.log.exception("Error refreshing Plex.")
 
     # Process a file from start to finish, with checking to make sure formats are compatible with selected settings
     def process(self, inputfile, reportProgress=False, original=None, info=None, progressOutput=None, tagdata=None):
