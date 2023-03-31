@@ -249,7 +249,7 @@ try:
                     log.info("DownloadedEpisodesScan command is in process for this episode, cannot wait for rescan but will queue.")
                     rescanAndWait(baseURL, headers, seriesid, log, retries=0)
                     renameRequest(baseURL, headers, None, seriesid, log)
-                    mp.post(inputfile, success, MediaType.TV, tvdbid=tvdb_id, imdbid=imdb_id, season=season, episode=episode)
+                    mp.post(success, MediaType.TV, tvdbid=tvdb_id, imdbid=imdb_id, season=season, episode=episode)
                 elif rescanAndWait(baseURL, headers, seriesid, log):
                     log.info("Rescan command completed.")
 
@@ -309,7 +309,7 @@ try:
                     except:
                         log.exception("Failed to trigger Sonarr rename.")
 
-                    mp.post(inputfile, success, MediaType.TV, tvdbid=tvdb_id, imdbid=imdb_id, season=season, episode=episode)
+                    mp.post(success, MediaType.TV, tvdbid=tvdb_id, imdbid=imdb_id, season=season, episode=episode)
                 else:
                     log.error("Rescan command timed out.")
                     sys.exit(1)

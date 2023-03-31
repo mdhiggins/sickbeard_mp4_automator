@@ -92,7 +92,7 @@ class MediaProcessor:
                         self.setPermissions(file)
 
                     if post:
-                        self.post(inputfile, output_files, mediatype, tmdbid=tmdbid, season=season, episode=episode)
+                        self.post(output_files, mediatype, tmdbid=tmdbid, season=season, episode=episode)
 
                     return output_files
             else:
@@ -103,7 +103,7 @@ class MediaProcessor:
             self.log.exception("Error processing")
         return False
 
-    def post(self, inputfile, output_files, mediatype, tvdbid=None, tmdbid=None, imdbid=None, season=None, episode=None):
+    def post(self, output_files, mediatype, tvdbid=None, tmdbid=None, imdbid=None, season=None, episode=None):
         if self.settings.postprocess:
             if not tmdbid:
                 try:
@@ -120,7 +120,7 @@ class MediaProcessor:
             postprocessor.setEnv(mediatype, tmdbid, season, episode)
             postprocessor.run_scripts()
 
-        refreshpath = os.path.dirname(inputfile)
+        refreshpath = os.path.dirname(output_files[0])
 
         # Refresh Plex
         if self.settings.Plex.get('refresh', False):
