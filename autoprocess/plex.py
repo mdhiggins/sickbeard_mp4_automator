@@ -20,10 +20,10 @@ def refreshPlex(settings, path=None, logger=None):
 
     plex: PlexServer = None
     try:
-        plex = PlexServer("https://" + settings.address + ':' + str(settings.port), settings.token)
+        plex = PlexServer("https://" + host + ':' + str(port), token)
     except:
         try:
-            plex = PlexServer("http://" + settings.address + ':' + str(settings.port), settings.token)
+            plex = PlexServer("http://" + host + ':' + str(port), token)
         except:
             log.exception("Unable to connect to Plex server")
             plex = None
