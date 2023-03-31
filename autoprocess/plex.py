@@ -3,16 +3,11 @@ import logging
 import os
 from resources.metadata import MediaType
 from plexapi.server import PlexServer
-from plexapi.library import Library, LibrarySection
+from plexapi.library import LibrarySection
 from typing import List
 
-MEDIATYPESOURCE = {
-    MediaType.Movie: 'movie',
-    MediaType.TV: 'show'
-}
 
-
-def refreshPlex(settings, source_type, path=None, logger=None):
+def refreshPlex(settings, path=None, logger=None):
     log: logging.Logger = logger or logging.getLogger(__name__)
 
     host: str = settings.Plex['host']
@@ -35,8 +30,7 @@ def refreshPlex(settings, source_type, path=None, logger=None):
 
     if plex:
         log.info("Connected to Plex server %s using server settings" % (plex.friendlyName))
-        library: Library = plex.library
-        sections: List(LibrarySection) = [s for s in library.sections if s.type == MEDIATYPESOURCE.get(source_type)]
+        sections: List(LibrarySection) = plex.library.sections
 
         section: LibrarySection
         for section in sections:

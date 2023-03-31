@@ -125,7 +125,7 @@ class MediaProcessor:
         # Refresh Plex
         if self.settings.Plex.get('refresh', False):
             try:
-                plex.refreshPlex(self.settings, mediatype, refreshpath, self.log)
+                plex.refreshPlex(self.settings, refreshpath, self.log)
             except KeyboardInterrupt:
                 raise
             except:
