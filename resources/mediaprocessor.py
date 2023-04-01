@@ -122,12 +122,10 @@ class MediaProcessor:
             postprocessor.setEnv(mediatype, tmdbid, season, episode)
             postprocessor.run_scripts()
 
-        refreshpath = os.path.dirname(output_files[0])
-
         # Refresh Plex
         if self.settings.Plex.get('refresh', False):
             try:
-                plex.refreshPlex(self.settings, refreshpath, self.log)
+                plex.refreshPlex(self.settings, output_files[0], self.log)
             except KeyboardInterrupt:
                 raise
             except:

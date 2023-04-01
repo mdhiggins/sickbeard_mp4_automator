@@ -253,8 +253,13 @@ output-directory =
 path-mapping = 
 
 [Plex]
+username = 
+password = 
+servername = 
 host = localhost
 port = 32400
 refresh = False
 token = 
-
+ssl = True
+ignore-certs = False
+path-mapping = 

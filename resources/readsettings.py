@@ -346,10 +346,16 @@ class ReadSettings:
             'path-mapping': '',
         },
         'Plex': {
+            'username': '',
+            'password': '',
+            'servername': '',
             'host': 'localhost',
             'port': 32400,
             'refresh': False,
             'token': '',
+            'ssl': True,
+            'ignore-certs': False,
+            'path-mapping': ''
         },
     }
 
@@ -823,10 +829,16 @@ class ReadSettings:
         # Plex
         section = "Plex"
         self.Plex = {}
+        self.Plex['username'] = config.get(section, "username")
+        self.Plex['password'] = config.get(section, "password")
+        self.Plex['servername'] = config.get(section, "servername")
         self.Plex['host'] = config.get(section, "host")
         self.Plex['port'] = config.getint(section, "port")
         self.Plex['refresh'] = config.getboolean(section, "refresh")
         self.Plex['token'] = config.get(section, "token")
+        self.Plex['ssl'] = config.getboolean(section, "ssl")
+        self.Plex['ignore-certs'] = config.getboolean(section, 'ignore-certs')
+        self.Plex['path-mapping'] = config.getdict(section, "path-mapping", dictseparator="=", lower=False, replace=[])
 
     def writeConfig(self, config, cfgfile):
         if not os.path.isdir(os.path.dirname(cfgfile)):
