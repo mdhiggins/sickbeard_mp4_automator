@@ -45,8 +45,8 @@ def getPlexServer(settings: ReadSettings, logger: logging.Logger = None) -> Tupl
         log.error("No plex server settings specified, please update your configuration file.")
         return None, None
 
-    plex = None
-    session = None
+    plex: PlexServer = None
+    session: requests.Session = None
 
     if settings.plex.get('ignore_certs'):
         session = requests.Session()
