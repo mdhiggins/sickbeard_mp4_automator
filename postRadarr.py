@@ -30,7 +30,7 @@ def rescanAndWait(baseURL, headers, movieid, log, retries=6, delay=10):
 
     # Then wait for it to finish
     url = baseURL + "/api/v3/command/" + str(rstate['id'])
-    log.debug("Requesting command status from Sonarr via %s." % url)
+    log.debug("Requesting command status from Radarr via %s." % url)
     r = requests.get(url, headers=headers)
     command = r.json()
 
