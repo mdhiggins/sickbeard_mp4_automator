@@ -82,6 +82,8 @@ class MediaProcessor:
 
                     # Reverse Ouput
                     output['output'] = self.restoreFromOutput(inputfile, output['output'])
+                    for i, sub in enumerate(output['external_subs']):
+                        output['external_subs'][i] = self.restoreFromOutput(inputfile, sub)
 
                     # Copy to additional locations
                     output_files = self.replicate(output['output'])
@@ -1981,10 +1983,15 @@ class MediaProcessor:
 
     # Undo output dir
     def restoreFromOutput(self, inputfile, outputfile):
-        if self.settings.output_dir and outputfile.startswith(self.settings.output_dir) and not self.settings.moveto:
-            input_dir, filename, input_extension = self.parseFile(inputfile)
-            newoutputfile, _ = self.getOutputFile(input_dir, filename, input_extension, ignore_output_dir=True)
-            self.log.info("Output file is in output_dir %s, moving back to original directory %s." % (self.settings.output_dir, newoutputfile))
+        if self.settings.output_dir and not self.settings.moveto and os.path.commonpath([self.settings.output_dir, outputfile]) == self.settings.output_dir:
+            input_dir, _, _ = self.parseFile(inputfile)
+            outputfilename = os.path.split(outputfile)[1]
+            try:
+                newoutputfile = os.path.join(input_dir.decode(sys.getfilesystemencoding()), outputfilename.decode(sys.getfilesystemencoding()))
+            except:
+                newoutputfile = os.path.join(input_dir, outputfilename)
+            self.log.info("Output file is in output_dir %s, moving back to original directory %s." % (self.settings.output_dir, input_dir))
+            self.log.debug("New outputfile %s." % (newoutputfile))
             try:
                 shutil.move(outputfile, newoutputfile)
             except KeyboardInterrupt:
@@ -1994,7 +2001,7 @@ class MediaProcessor:
                 try:
                     if os.path.exists(newoutputfile):
                         self.removeFile(newoutputfile, 0, 0)
-                    shutil.move(outputfile.decode(sys.getfilesystemencoding()), newoutputfile)
+                    shutil.move(outputfile, newoutputfile)
                 except KeyboardInterrupt:
                     raise
                 except:

@@ -311,6 +311,8 @@ def processFile(inputfile, mp, info=None, relativePath=None, silent=False, tag=T
 
         # Reverse Ouput
         output['output'] = mp.restoreFromOutput(inputfile, output['output'])
+        for i, sub in enumerate(output['external_subs']):
+            output['external_subs'][i] = mp.restoreFromOutput(inputfile, sub)
 
         output_files = mp.replicate(output['output'], relativePath=relativePath)
         print(json.dumps(output, indent=4))
