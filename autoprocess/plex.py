@@ -8,7 +8,6 @@ from plexapi.library import LibrarySection
 from resources.log import getLogger
 from resources.readsettings import ReadSettings
 from typing import List, Tuple, Dict
-from ssl import CERT_NONE
 
 
 def refreshPlex(settings: ReadSettings, path: str = None, pathMapping: Dict = {}, logger: logging.Logger = None):
