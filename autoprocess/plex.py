@@ -30,7 +30,7 @@ def refreshPlex(settings, path=None, logger=None):
 
     if plex:
         log.info("Connected to Plex server %s using server settings" % (plex.friendlyName))
-        sections: List(LibrarySection) = plex.library.sections
+        sections: List(LibrarySection) = plex.library.sections()
 
         section: LibrarySection
         for section in sections:
