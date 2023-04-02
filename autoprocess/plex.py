@@ -16,7 +16,7 @@ def refreshPlex(settings: ReadSettings, path: str = None, logger: logging.Logger
     log.info("Starting Plex refresh.")
 
     targetpath = os.path.dirname(path)
-    pathMapping = settings.plex.get('path-mapping', {})
+    pathMapping = settings.Plex.get('path-mapping', {})
 
     # Path Mapping
     for k in pathMapping:
@@ -47,49 +47,49 @@ def refreshPlex(settings: ReadSettings, path: str = None, logger: logging.Logger
 def getPlexServer(settings: ReadSettings, logger: logging.Logger = None) -> Tuple[PlexServer, dict]:
     log = logger or getLogger(__name__)
 
-    if not settings.plex.get('username') and not settings.plex.get('host'):
+    if not settings.Plex.get('username') and not settings.Plex.get('host'):
         log.error("No plex server settings specified, please update your configuration file.")
         return None, None
 
     plex: PlexServer = None
     session: requests.Session = None
 
-    if settings.plex.get('ignore_certs'):
+    if settings.Plex.get('ignore_certs'):
         session = requests.Session()
         session.verify = False
         requests.packages.urllib3.disable_warnings()
 
     log.info("Connecting to Plex server...")
-    if settings.plex.get('username') and settings.plex.get('servername'):
+    if settings.Plex.get('username') and settings.Plex.get('servername'):
         try:
             account = None
-            if settings.plex.get('token'):
+            if settings.Plex.get('token'):
                 try:
-                    account = MyPlexAccount(username=settings.plex.get('username'), token=settings.plex.get('token'), session=session)
+                    account = MyPlexAccount(username=settings.Plex.get('username'), token=settings.Plex.get('token'), session=session)
                 except:
                     log.debug("Unable to connect using token, falling back to password.")
                     account = None
-            if settings.plex.get('username') and not account:
+            if settings.Plex.get('username') and not account:
                 try:
-                    account = MyPlexAccount(username=settings.plex.get('username'), password=settings.plex.get('password'), session=session)
+                    account = MyPlexAccount(username=settings.Plex.get('username'), password=settings.Plex.get('password'), session=session)
                 except:
                     log.debug("Unable to connect using username/password.")
                     account = None
             if account:
-                plex = account.resource(settings.plex.get('servername')).connect()
+                plex = account.resource(settings.Plex.get('servername')).connect()
             if plex:
                 log.info("Connected to Plex server %s using plex.tv account." % (plex.friendlyName))
         except:
             log.exception("Error connecting to plex.tv account.")
 
-    if not plex and settings.plex.get('host') and settings.plex.get('port') and settings.plex.get('token'):
-        protocol = "https://" if settings.plex.get('ssl') else "http://"
+    if not plex and settings.Plex.get('host') and settings.Plex.get('port') and settings.Plex.get('token'):
+        protocol = "https://" if settings.Plex.get('ssl') else "http://"
         try:
-            plex = PlexServer(protocol + settings.plex.get('host') + ':' + str(settings.plex.get('port')), settings.plex.get('token'), session=session)
+            plex = PlexServer(protocol + settings.Plex.get('host') + ':' + str(settings.Plex.get('port')), settings.Plex.get('token'), session=session)
             log.info("Connected to Plex server %s using server settings." % (plex.friendlyName))
         except:
             log.exception("Error connecting to Plex server.")
-    elif plex and settings.plex.get('host') and settings.plex.get('token'):
+    elif plex and settings.Plex.get('host') and settings.Plex.get('token'):
         log.debug("Connected to server using plex.tv account, ignoring manual server settings.")
 
     return plex
