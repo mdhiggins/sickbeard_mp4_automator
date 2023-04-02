@@ -31,9 +31,12 @@ def refreshPlex(settings: ReadSettings, path: str = None, pathMapping: Dict = {}
 
         section: LibrarySection
         for section in sections:
-            if any(location for location in section.locations if os.path.commonprefix([targetpath, location]) == location):
-                section.update(path=targetpath)
-                log.info("Refreshing %s with path %s" % (section.title, path))
+            location: str
+            for location in section.locations:
+                log.debug("Checking section %s path %s." % (section.title, location))
+                if os.path.commonprefix([targetpath, location]) == location:
+                    section.update(path=targetpath)
+                    log.info("Refreshing %s with path %s" % (section.title, path))
     else:
         log.error("Unable to establish Plex server connection.")
 
