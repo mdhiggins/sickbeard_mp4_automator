@@ -10,10 +10,13 @@ from resources.readsettings import ReadSettings
 from typing import List, Tuple, Dict
 
 
-def refreshPlex(settings: ReadSettings, path: str = None, pathMapping: Dict = {}, logger: logging.Logger = None):
+def refreshPlex(settings: ReadSettings, path: str = None, logger: logging.Logger = None):
     log = logger or getLogger(__name__)
 
+    log.info("Starting Plex refresh.")
+
     targetpath = os.path.dirname(path)
+    pathMapping = settings.plex.get('path-mapping', {})
 
     # Path Mapping
     for k in pathMapping:
@@ -22,9 +25,9 @@ def refreshPlex(settings: ReadSettings, path: str = None, pathMapping: Dict = {}
             log.debug("PathMapping match found, replacing %s with %s, final directory is %s." % (k, pathMapping[k], targetpath))
             break
 
-    log.info("Checking if any sections contain the path %s." % (targetpath))
-
     plex = getPlexServer(settings, log)
+
+    log.info("Checking if any sections contain the path %s." % (targetpath))
 
     if plex:
         sections: List[LibrarySection] = plex.library.sections()
