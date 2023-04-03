@@ -11,7 +11,7 @@ from resources.mediaprocessor import MediaProcessor
 
 
 # Sonarr API functions
-def rescanAndWait(baseURL, headers, seriesid, log, retries=6, delay=10):
+def rescanRequest(baseURL, headers, seriesid, log):
     url = baseURL + "/api/v3/command"
     log.debug("Queueing rescan command to Sonarr via %s." % url)
 
@@ -27,10 +27,12 @@ def rescanAndWait(baseURL, headers, seriesid, log, retries=6, delay=10):
         pass
     log.debug(str(rstate))
     log.info("Sonarr response from RescanSeries command: ID %d %s." % (rstate['id'], rstate['status']))
+    return rstate
 
-    # Then wait for it to finish
-    url = baseURL + "/api/v3/command/" + str(rstate['id'])
-    log.debug("Requesting command status from Sonarr for command ID %d." % rstate['id'])
+
+def waitForCommand(baseURL, headers, commandID, log, retries=6, delay=10):
+    url = baseURL + "/api/v3/command/" + str(commandID)
+    log.debug("Requesting command status from Sonarr for command ID %d." % commandID)
     r = requests.get(url, headers=headers)
     command = r.json()
 
@@ -62,6 +64,8 @@ def renameRequest(baseURL, headers, fileid, seriesid, log):
         rstate = rstate[0]
     except:
         pass
+    log.debug(str(rstate))
+    log.info("Sonarr response from Rename command: ID %d %s." % (rstate['id'], rstate['status']))
     return rstate
 
 
@@ -221,105 +225,113 @@ try:
 
     success = mp.fullprocess(inputfile, MediaType.TV, tvdbid=tvdb_id, imdbid=imdb_id, season=season, episode=episode, original=original, post=False)
 
+    if not success:
+        log.error("Processing returned False.")
+        sys.exit(1)
+
     if success and not settings.Sonarr['rescan']:
         log.info("File processed successfully and rescan API update disabled.")
-    elif success:
-        # Update Sonarr to continue monitored status
-        try:
-            host = settings.Sonarr['host']
-            port = settings.Sonarr['port']
-            webroot = settings.Sonarr['webroot']
-            apikey = settings.Sonarr['apikey']
-            ssl = settings.Sonarr['ssl']
-            protocol = "https://" if ssl else "http://"
-            baseURL = protocol + host + ":" + str(port) + webroot
+        sys.exit(0)
 
-            log.debug("Sonarr baseURL: %s." % baseURL)
-            log.debug("Sonarr apikey: %s." % apikey)
+    # Update Sonarr to continue monitored status
+    try:
+        host = settings.Sonarr['host']
+        port = settings.Sonarr['port']
+        webroot = settings.Sonarr['webroot']
+        apikey = settings.Sonarr['apikey']
+        ssl = settings.Sonarr['ssl']
+        protocol = "https://" if ssl else "http://"
+        baseURL = protocol + host + ":" + str(port) + webroot
 
-            if apikey != '':
-                headers = {
-                    'X-Api-Key': apikey,
-                    'User-Agent': "SMA - postSonarr"
-                }
+        log.debug("Sonarr baseURL: %s." % baseURL)
+        log.debug("Sonarr apikey: %s." % apikey)
 
-                subs = backupSubs(success[0], mp, log)
+        if not apikey:
+            log.error("Your Sonarr API Key is blank. Update autoProcess.ini to enable status updates.")
+            sys.exit(1)
 
-                if downloadedEpisodesScanInProgress(baseURL, headers, episodefile_sourcefolder, log):
-                    log.info("DownloadedEpisodesScan command is in process for this episode, cannot wait for rescan but will queue.")
-                    rescanAndWait(baseURL, headers, seriesid, log, retries=0)
-                    renameRequest(baseURL, headers, None, seriesid, log)
-                    mp.post(success, MediaType.TV, tvdbid=tvdb_id, imdbid=imdb_id, season=season, episode=episode)
-                elif rescanAndWait(baseURL, headers, seriesid, log):
-                    log.info("Rescan command completed.")
+        headers = {
+            'X-Api-Key': apikey,
+            'User-Agent': "SMA - postSonarr"
+        }
 
-                    sonarrepinfo = getEpisode(baseURL, headers, episodeid, log)
-                    if not sonarrepinfo:
-                        log.error("No valid episode information found, aborting.")
-                        sys.exit(1)
+        subs = backupSubs(success[0], mp, log)
 
-                    if not sonarrepinfo.get('hasFile'):
-                        log.warning("Rescanned episode does not have a file, attempting second rescan.")
-                        if rescanAndWait(baseURL, headers, seriesid, log):
-                            sonarrepinfo = getEpisode(baseURL, headers, episodeid, log)
-                            if not sonarrepinfo:
-                                log.error("No valid episode information found, aborting.")
-                                sys.exit(1)
-                            if not sonarrepinfo.get('hasFile'):
-                                log.warning("Rescanned episode still does not have a file, will not set to monitored to prevent endless loop.")
-                                sys.exit(1)
-                            else:
-                                log.info("File found after second rescan.")
-                        else:
-                            log.error("Rescan command timed out.")
-                            restoreSubs(subs, log)
-                            sys.exit(1)
+        if downloadedEpisodesScanInProgress(baseURL, headers, episodefile_sourcefolder, log):
+            log.info("DownloadedEpisodesScan command is in process for this episode, cannot wait for rescan but will queue.")
+            rescanRequest(baseURL, headers, seriesid, log)
+            renameRequest(baseURL, headers, None, seriesid, log)
+            mp.post(success, MediaType.TV, tvdbid=tvdb_id, imdbid=imdb_id, season=season, episode=episode)
+            sys.exit(0)
 
-                    if len(subs) > 0:
-                        log.debug("Restoring %d subs and triggering a final rescan." % (len(subs)))
-                        restoreSubs(subs, log)
-                        rescanAndWait(baseURL, headers, seriesid, log)
+        rescanCommand = rescanRequest(baseURL, headers, seriesid, log)
+        if not waitForCommand(baseURL, headers, rescanCommand['id'], log):
+            log.error("Rescan command timed out.")
+            sys.exit(1)
 
-                    # Then set that episode to monitored
-                    try:
-                        sonarrepinfo['monitored'] = True
-                        sonarrepinfo = updateEpisode(baseURL, headers, sonarrepinfo, episodeid, log)
-                        log.info("Sonarr monitoring information updated for episode %s." % sonarrepinfo['title'])
-                    except:
-                        log.exception("Failed to restore monitored status to episode.")
+        log.info("Rescan command completed.")
 
-                    if scenename or releasegroup:
-                        log.debug("Trying to restore scene information.")
-                        try:
-                            mf = getEpisodeFile(baseURL, headers, sonarrepinfo['episodeFileId'], log)
-                            mf['sceneName'] = scenename
-                            mf['releaseGroup'] = releasegroup
-                            mf = updateEpisodeFile(baseURL, headers, mf, sonarrepinfo['episodeFileId'], log)
-                            if scenename:
-                                log.debug("Restored sceneName to %s." % mf.get('sceneName'))
-                            if releasegroup:
-                                log.debug("Restored releaseGroup to %s." % mf.get('releaseGroup'))
-                        except:
-                            log.exception("Unable to restore scene information.")
+        sonarrepinfo = getEpisode(baseURL, headers, episodeid, log)
+        if not sonarrepinfo:
+            log.error("No valid episode information found, aborting.")
+            sys.exit(1)
 
-                    # Now a final rename step to ensure all release / codec information is accurate
-                    try:
-                        rename = renameRequest(baseURL, headers, sonarrepinfo['episodeFileId'], seriesid, log)
-                        log.info("Sonarr response RenameFiles command: ID %d %s." % (rename['id'], rename['status']))
-                    except:
-                        log.exception("Failed to trigger Sonarr rename.")
-
-                    mp.post(success, MediaType.TV, tvdbid=tvdb_id, imdbid=imdb_id, season=season, episode=episode)
-                else:
-                    log.error("Rescan command timed out.")
+        if not sonarrepinfo.get('hasFile'):
+            log.warning("Rescanned episode does not have a file, attempting second rescan.")
+            rescanAgain = rescanRequest(baseURL, headers, seriesid, log)
+            if waitForCommand(baseURL, headers, rescanAgain['id'], log):
+                sonarrepinfo = getEpisode(baseURL, headers, episodeid, log)
+                if not sonarrepinfo:
+                    log.error("No valid episode information found, aborting.")
                     sys.exit(1)
+                if not sonarrepinfo.get('hasFile'):
+                    log.warning("Rescanned episode still does not have a file, will not set to monitored to prevent endless loop.")
+                    sys.exit(1)
+                else:
+                    log.info("File found after second rescan.")
             else:
-                log.error("Your Sonarr API Key is blank. Update autoProcess.ini to enable status updates.")
+                log.error("Rescan command timed out.")
+                restoreSubs(subs, log)
+                sys.exit(1)
+
+        if len(subs) > 0:
+            log.debug("Restoring %d subs and triggering a final rescan." % (len(subs)))
+            restoreSubs(subs, log)
+            rescanFinal = rescanCommand(baseURL, headers, seriesid, log)
+            waitForCommand(baseURL, headers, rescanFinal['id'], log)
+
+        # Then set that episode to monitored
+        try:
+            sonarrepinfo['monitored'] = True
+            sonarrepinfo = updateEpisode(baseURL, headers, sonarrepinfo, episodeid, log)
+            log.info("Sonarr monitoring information updated for episode %s." % sonarrepinfo['title'])
         except:
-            log.exception("Sonarr monitor status update failed.")
-    else:
-        log.info("Processing returned False.")
-        sys.exit(1)
+            log.exception("Failed to restore monitored status to episode.")
+
+        if scenename or releasegroup:
+            log.debug("Trying to restore scene information.")
+            try:
+                mf = getEpisodeFile(baseURL, headers, sonarrepinfo['episodeFileId'], log)
+                mf['sceneName'] = scenename
+                mf['releaseGroup'] = releasegroup
+                mf = updateEpisodeFile(baseURL, headers, mf, sonarrepinfo['episodeFileId'], log)
+                if scenename:
+                    log.debug("Restored sceneName to %s." % mf.get('sceneName'))
+                if releasegroup:
+                    log.debug("Restored releaseGroup to %s." % mf.get('releaseGroup'))
+            except:
+                log.exception("Unable to restore scene information.")
+
+        # Now a final rename step to ensure all release / codec information is accurate
+        try:
+            renameCommand = renameRequest(baseURL, headers, sonarrepinfo['episodeFileId'], seriesid, log)
+            waitForCommand(baseURL, headers, renameCommand['id'], log)
+        except:
+            log.exception("Failed to trigger Sonarr rename.")
+        mp.post(success, MediaType.TV, tvdbid=tvdb_id, imdbid=imdb_id, season=season, episode=episode)
+
+    except:
+        log.exception("Sonarr monitor status update failed.")
 except:
     log.exception("Error processing file.")
     sys.exit(1)
