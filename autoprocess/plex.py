@@ -7,7 +7,7 @@ from plexapi.server import PlexServer
 from plexapi.library import LibrarySection
 from resources.log import getLogger
 from resources.readsettings import ReadSettings
-from typing import List, Tuple, Dict
+from typing import List, Tuple
 
 
 def refreshPlex(settings: ReadSettings, path: str = None, logger: logging.Logger = None):
@@ -19,7 +19,7 @@ def refreshPlex(settings: ReadSettings, path: str = None, logger: logging.Logger
     pathMapping = settings.Plex.get('path-mapping', {})
 
     # Path Mapping
-    for k in pathMapping:
+    for k in sorted(pathMapping.keys(), reverse=True):
         if os.path.commonprefix([targetpath, k]) == k:
             targetpath = os.path.join(pathMapping[k], os.path.relpath(targetpath, k))
             log.debug("PathMapping match found, replacing %s with %s, final directory is %s." % (k, pathMapping[k], targetpath))
