@@ -19,8 +19,10 @@ def refreshPlex(settings: ReadSettings, path: str = None, logger: logging.Logger
     pathMapping = settings.Plex.get('path-mapping', {})
 
     # Path Mapping
+    targetdirs = targetpath.split(os.sep)
     for k in sorted(pathMapping.keys(), reverse=True):
-        if os.path.commonprefix([targetpath, k]) == k:
+        mapdirs = k.split(os.sep)
+        if mapdirs == targetdirs[:len(mapdirs)]:
             targetpath = os.path.join(pathMapping[k], os.path.relpath(targetpath, k))
             log.debug("PathMapping match found, replacing %s with %s, final directory is %s." % (k, pathMapping[k], targetpath))
             break
