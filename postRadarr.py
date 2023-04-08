@@ -253,7 +253,7 @@ try:
 
         if downloadedMoviesScanInProgress(baseURL, headers, moviefile_sourcefolder, log):
             log.info("DownloadedMoviesScan command is in process for this movie, cannot wait for rescan but will queue.")
-            rescanRequest(baseURL, headers, movieid, log, retries=0)
+            rescanRequest(baseURL, headers, movieid, log)
             renameRequest(baseURL, headers, None, movieid, log)
             mp.post(success, MediaType.Movie, tmdbid=tmdbid, imdbid=imdbid)
             sys.exit(0)
