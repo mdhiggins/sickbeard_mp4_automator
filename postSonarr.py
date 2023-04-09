@@ -325,7 +325,9 @@ try:
         # Now a final rename step to ensure all release / codec information is accurate
         try:
             renameCommand = renameRequest(baseURL, headers, sonarrepinfo['episodeFileId'], seriesid, log)
-            waitForCommand(baseURL, headers, renameCommand['id'], log)
+            if waitForCommand(baseURL, headers, renameCommand['id'], log):
+                finalEpisodeFile = getEpisodeFile(baseURL, headers, sonarrepinfo['episodeFileId'], log)
+                success[0] = finalEpisodeFile.get("path", success[0])
         except:
             log.exception("Failed to trigger Sonarr rename.")
         mp.post(success, MediaType.TV, tvdbid=tvdb_id, imdbid=imdb_id, season=season, episode=episode)

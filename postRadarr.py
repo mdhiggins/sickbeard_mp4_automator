@@ -317,7 +317,9 @@ try:
         # Now a final rename step to ensure all release / codec information is accurate
         try:
             renameCommand = renameRequest(baseURL, headers, movieinfo['movieFile']['id'], movieid, log)
-            waitForCommand(baseURL, headers, renameCommand['id'], log)
+            if waitForCommand(baseURL, headers, renameCommand['id'], log):
+                finalMovieFile = getMovieFile(baseURL, headers, movieinfo['movieFile']['id'], log)
+                success[0] = finalMovieFile.get("path", success[0])
         except:
             log.exception("Failed to trigger Radarr rename.")
         mp.post(success, MediaType.Movie, tmdbid=tmdbid, imdbid=imdbid)
