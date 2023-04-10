@@ -80,11 +80,11 @@ def downloadedMoviesScanInProgress(baseURL, headers, moviefile_sourcefolder, log
             try:
                 if c['body']['path'] == moviefile_sourcefolder and c['status'] == 'started':
                     log.debug("Found a matching path scan in progress %s." % (moviefile_sourcefolder))
-                    return True
+                    return c['id']
             except:
                 pass
     log.debug("No commands in progress for %s." % (moviefile_sourcefolder))
-    return False
+    return None
 
 
 def getMovie(baseURL, headers, movieid, log):
@@ -251,8 +251,9 @@ try:
 
         subs = backupSubs(success[0], mp, log)
 
-        if downloadedMoviesScanInProgress(baseURL, headers, moviefile_sourcefolder, log):
-            log.info("DownloadedMoviesScan command is in process for this movie, cannot wait for rescan but will queue.")
+        inProcess = downloadedMoviesScanInProgress(baseURL, headers, moviefile_sourcefolder, log)
+        if inProcess and not waitForCommand(baseURL, headers, inProcess, log):
+            log.info("DownloadedMoviesScan command is in process for this movie, timed out for rescan but will queue.")
             rescanRequest(baseURL, headers, movieid, log)
             renameRequest(baseURL, headers, None, movieid, log)
             mp.post(success, MediaType.Movie, tmdbid=tmdbid, imdbid=imdbid)

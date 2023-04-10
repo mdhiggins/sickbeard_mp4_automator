@@ -81,11 +81,11 @@ def downloadedEpisodesScanInProgress(baseURL, headers, episodefile_sourcefolder,
             try:
                 if c['body']['path'] == episodefile_sourcefolder and c['status'] == 'started':
                     log.debug("Found a matching path scan in progress %s." % (episodefile_sourcefolder))
-                    return True
+                    return c['id']
             except:
                 pass
     log.debug("No commands in progress for %s." % (episodefile_sourcefolder))
-    return False
+    return None
 
 
 def getEpisode(baseURL, headers, episodeid, log):
@@ -257,8 +257,9 @@ try:
 
         subs = backupSubs(success[0], mp, log)
 
-        if downloadedEpisodesScanInProgress(baseURL, headers, episodefile_sourcefolder, log):
-            log.info("DownloadedEpisodesScan command is in process for this episode, cannot wait for rescan but will queue.")
+        inProcess = downloadedEpisodesScanInProgress(baseURL, headers, episodefile_sourcefolder, log)
+        if inProcess and not waitForCommand(baseURL, headers, inProcess, log):
+            log.info("DownloadedEpisodesScan command is in process for this episode, timed out for rescan but will queue.")
             rescanRequest(baseURL, headers, seriesid, log)
             renameRequest(baseURL, headers, None, seriesid, log)
             mp.post(success, MediaType.TV, tvdbid=tvdb_id, imdbid=imdb_id, season=season, episode=episode)
