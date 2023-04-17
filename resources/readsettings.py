@@ -83,10 +83,13 @@ class SMAConfigParser(ConfigParser, object):
     def getextensions(self, section, option, separator=",", vars=None):
         return self.getlist(section, option, vars, separator, replace=[' ', '.'])
 
-    def getint(self, section, option, vars=None):
+    def getint(self, section, option, vars=None, fallback=0):
         if sys.version[0] == '2':
-            return int(super(SMAConfigParser, self).get(section, option, vars=vars))
-        return super(SMAConfigParser, self).getint(section, option, vars=vars)
+            return int(super(SMAConfigParser, self).get(section, option, vars=vars, fallback=fallback))
+        return super(SMAConfigParser, self).getint(section, option, vars=vars, fallback=fallback)
+
+    def getboolean(self, section, option, vars=None, fallback=False):
+        return super(SMAConfigParser, self).getboolean(section, option, vars=vars, fallback=fallback)
 
 
 class ReadSettings:
