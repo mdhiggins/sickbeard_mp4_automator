@@ -17,10 +17,12 @@ def processMovie(dirName, settings, nzbGet=False, importMode=None, logger=None, 
     log.info("%sRadarr notifier started." % infoprefix)
 
     # Path Mapping
-    for k in pathMapping:
-        if dirName.startswith(k):
-            dirName = dirName.replace(k, pathMapping[k], 1)
-            log.info("PathMapping match found, replacing %s with %s, final API directory is %s." % (k, pathMapping[k], dirName))
+    targetdirs = dirName.split(os.sep)
+    for k in sorted(pathMapping.keys(), reverse=True):
+        mapdirs = k.split(os.sep)
+        if mapdirs == targetdirs[:len(mapdirs)]:
+            dirName = os.path.join(pathMapping[k], os.path.relpath(dirName, k))
+            log.debug("PathMapping match found, replacing %s with %s, final directory is %s." % (k, pathMapping[k], dirName))
             break
 
     # Import Requests
