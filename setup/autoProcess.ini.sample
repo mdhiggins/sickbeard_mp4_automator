@@ -162,6 +162,7 @@ ssl = False
 webroot = 
 force-rename = False
 rescan = True
+in-progress-check = True
 block-reprocess = False
 
 [Radarr]
@@ -172,6 +173,7 @@ ssl = False
 webroot = 
 force-rename = False
 rescan = True
+in-progress-check = True
 block-reprocess = False
 
 [Sickbeard]

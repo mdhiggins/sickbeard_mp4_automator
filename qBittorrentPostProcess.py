@@ -79,10 +79,10 @@ try:
             qb.pause(torrent_hash)
 
     if settings.qBittorrent['convert']:
-        # Check for custom qBittorrent output_dir
-        if settings.qBittorrent['output_dir']:
-            settings.output_dir = settings.qBittorrent['output_dir']
-            log.debug("Overriding output_dir to %s." % settings.qBittorrent['output_dir'])
+        # Check for custom qBittorrent output directory
+        if settings.qBittorrent['output-dir']:
+            settings.output_dir = settings.qBittorrent['output-dir']
+            log.debug("Overriding output_dir to %s." % settings.qBittorrent['output-dir'])
 
         # Perform conversion.
         log.info("Performing conversion")

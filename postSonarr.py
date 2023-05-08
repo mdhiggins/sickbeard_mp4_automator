@@ -257,7 +257,7 @@ try:
 
         subs = backupSubs(success[0], mp, log)
 
-        inProcess = downloadedEpisodesScanInProgress(baseURL, headers, episodefile_sourcefolder, log)
+        inProcess = settings.Sonarr['in-progress-check'] and downloadedEpisodesScanInProgress(baseURL, headers, episodefile_sourcefolder, log)
         if inProcess and not waitForCommand(baseURL, headers, inProcess, log):
             log.info("DownloadedEpisodesScan command is in process for this episode, timed out for rescan but will queue.")
             rescanRequest(baseURL, headers, seriesid, log)

@@ -114,10 +114,10 @@ try:
                 log.debug("Sending action %s to uTorrent" % settings.uTorrent['actionbefore'])
 
     if settings.uTorrent['convert']:
-        # Check for custom uTorrent output_dir
-        if settings.uTorrent['output_dir']:
-            settings.output_dir = settings.uTorrent['output_dir']
-            log.debug("Overriding output_dir to %s." % settings.uTorrent['output_dir'])
+        # Check for custom uTorrent output directory
+        if settings.uTorrent['output-dir']:
+            settings.output_dir = settings.uTorrent['output-dir']
+            log.debug("Overriding output_dir to %s." % settings.uTorrent['output-dir'])
 
         # Perform conversion.
         log.info("Performing conversion")

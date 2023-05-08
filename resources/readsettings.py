@@ -258,6 +258,7 @@ class ReadSettings:
             'webroot': '',
             'force-rename': False,
             'rescan': True,
+            'in-progress-check': True,
             'block-reprocess': False,
         },
         'Radarr': {
@@ -268,6 +269,7 @@ class ReadSettings:
             'webroot': '',
             'force-rename': False,
             'rescan': True,
+            'in-progress-check': True,
             'block-reprocess': False,
         },
         'Sickbeard': {
@@ -721,6 +723,7 @@ class ReadSettings:
             self.Sonarr['webroot'] = self.Sonarr['webroot'][:-1]
         self.Sonarr['rename'] = config.getboolean(section, "force-rename")
         self.Sonarr['rescan'] = config.getboolean(section, "rescan")
+        self.Sonarr['in-progress-check'] = config.getboolean(section, "in-progress-check")
         self.Sonarr['blockreprocess'] = config.getboolean(section, "block-reprocess")
 
         # Radarr
@@ -737,6 +740,7 @@ class ReadSettings:
             self.Radarr['webroot'] = self.Radarr['webroot'][:-1]
         self.Radarr['rename'] = config.getboolean(section, "force-rename")
         self.Radarr['rescan'] = config.getboolean(section, "rescan")
+        self.Radarr['in-progress-check'] = config.getboolean(section, "in-progress-check")
         self.Radarr['blockreprocess'] = config.getboolean(section, "block-reprocess")
 
         # Sickbeard
@@ -770,7 +774,7 @@ class ReadSettings:
         self.SAB['sonarr'] = config.get(section, "Sonarr-category").lower()
         self.SAB['radarr'] = config.get(section, "Radarr-category").lower()
         self.SAB['bypass'] = config.get(section, "Bypass-category").lower()
-        self.SAB['output_dir'] = config.getdirectory(section, "output-directory")
+        self.SAB['output-dir'] = config.getdirectory(section, "output-directory")
         self.SAB['path-mapping'] = config.getdict(section, "path-mapping", dictseparator="=", lower=False, replace=[])
 
         # Deluge
@@ -786,7 +790,7 @@ class ReadSettings:
         self.deluge['port'] = config.getint(section, "port")
         self.deluge['user'] = config.get(section, "username")
         self.deluge['pass'] = config.get(section, "password")
-        self.deluge['output_dir'] = config.getdirectory(section, "output-directory")
+        self.deluge['output-dir'] = config.getdirectory(section, "output-directory")
         self.deluge['remove'] = config.getboolean(section, "remove")
         self.deluge['path-mapping'] = config.getdict(section, "path-mapping", dictseparator="=", lower=False, replace=[])
 
@@ -799,7 +803,7 @@ class ReadSettings:
         self.qBittorrent['radarr'] = config.get(section, "radarr-label").lower()
         self.qBittorrent['bypass'] = config.get(section, "bypass-label").lower()
         self.qBittorrent['convert'] = config.getboolean(section, "convert")
-        self.qBittorrent['output_dir'] = config.getdirectory(section, "output-directory")
+        self.qBittorrent['output-dir'] = config.getdirectory(section, "output-directory")
         self.qBittorrent['actionbefore'] = config.get(section, "action-before")
         self.qBittorrent['actionafter'] = config.get(section, "action-after")
         self.qBittorrent['host'] = config.get(section, "host")
@@ -818,7 +822,7 @@ class ReadSettings:
         self.uTorrent['radarr'] = config.get(section, "radarr-label").lower()
         self.uTorrent['bypass'] = config.get(section, "bypass-label").lower()
         self.uTorrent['convert'] = config.getboolean(section, "convert")
-        self.uTorrent['output_dir'] = config.getdirectory(section, "output-directory")
+        self.uTorrent['output-dir'] = config.getdirectory(section, "output-directory")
         self.uTorrent['webui'] = config.getboolean(section, "webui")
         self.uTorrent['actionbefore'] = config.get(section, "action-before")
         self.uTorrent['actionafter'] = config.get(section, "action-after")

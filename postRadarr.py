@@ -251,7 +251,7 @@ try:
 
         subs = backupSubs(success[0], mp, log)
 
-        inProcess = downloadedMoviesScanInProgress(baseURL, headers, moviefile_sourcefolder, log)
+        inProcess = settings.Radarr['in-progress-check'] and downloadedMoviesScanInProgress(baseURL, headers, moviefile_sourcefolder, log)
         if inProcess and not waitForCommand(baseURL, headers, inProcess, log):
             log.info("DownloadedMoviesScan command is in process for this movie, timed out for rescan but will queue.")
             rescanRequest(baseURL, headers, movieid, log)

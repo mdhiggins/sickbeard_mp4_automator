@@ -52,10 +52,10 @@ try:
 
     if settings.SAB['convert']:
         log.info("Performing conversion")
-        # Check for custom uTorrent output_dir
-        if settings.SAB['output_dir']:
-            settings.output_dir = settings.SAB['output_dir']
-            log.debug("Overriding output_dir to %s." % settings.SAB['output_dir'])
+        # Check for custom SAB output directory
+        if settings.SAB['output-dir']:
+            settings.output_dir = settings.SAB['output-dir']
+            log.debug("Overriding output_dir to %s." % settings.SAB['output-dir'])
 
         mp = MediaProcessor(settings)
         ignore = []

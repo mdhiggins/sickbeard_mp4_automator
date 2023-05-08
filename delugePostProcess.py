@@ -110,10 +110,10 @@ try:
 
     try:
         if settings.deluge['convert']:
-            # Check for custom Deluge output_dir
-            if settings.deluge['output_dir']:
-                settings.output_dir = settings.deluge['output_dir']
-                log.debug("Overriding output_dir to %s." % settings.deluge['output_dir'])
+            # Check for custom Deluge output directory
+            if settings.deluge['output-dir']:
+                settings.output_dir = settings.deluge['output-dir']
+                log.debug("Overriding output_dir to %s." % settings.deluge['output-dir'])
 
             # Perform conversion.
             settings.delete = False
