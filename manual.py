@@ -409,6 +409,7 @@ def main():
     parser.add_argument('-oo', '--optionsonly', action="store_true", help="Display generated conversion options only, do not perform conversion")
     parser.add_argument('-cl', '--codeclist', action="store_true", help="Print a list of supported codecs and their paired FFMPEG encoders")
     parser.add_argument('-o', '--original', help="Specify the original source/release filename")
+    parser.add_argument('-ms', '--minsize', help="Specify the minimum file size")
     parser.add_argument('-pa', '--processedarchive', help="Specify a processed list/archive so already processed files are skipped", nargs='?', const="archive.json")
 
     args = vars(parser.parse_args())
@@ -480,6 +481,12 @@ def main():
     if (args['optionsonly']):
         logging.getLogger("resources.mediaprocessor").setLevel(logging.CRITICAL)
         log.info("Options only mode enabled")
+    if (args['minsize']):
+        try:
+            settings.minimum_size = int(args['minsize'])
+            log.info("Minimum size set to %d mb" % (int(args['minsize'])))
+        except TypeError:
+            log.error("Invalid minsize")
 
     # Establish the path we will be working with
     if (args['input']):
