@@ -1125,6 +1125,14 @@ class NVEncH264Codec(H264Codec):
     })
 
     def _codec_specific_parse_options(self, safe, stream=0):
+        if 'width' in safe and safe['width']:
+            safe['width'] = 2 * round(safe['width'] / 2)
+            safe['nvenc_wscale'] = safe['width']
+            del(safe['width'])
+        if 'height' in safe and safe['height']:
+            if safe['height'] % 2 == 0:
+                safe['nvenc_hscale'] = safe['height']
+            del(safe['height'])
         if 'crf' in safe:
             safe['qp'] = safe['crf']
             del safe['crf']
@@ -1151,6 +1159,12 @@ class NVEncH264Codec(H264Codec):
                 optlist.extend(['-vf', 'hwdownload,format=nv12,hwupload'])
         elif 'decode_device' in safe:
             optlist.extend(['-vf', 'hwdownload,format=nv12,hwupload'])
+        if 'nvenc_wscale' in safe and 'nvenc_hscale' in safe:
+            optlist.extend(['-vf', '%s=%s=w=%s:h=%s' % (self.scale_filter, safe['nvenc_wscale'], safe['nvenc_hscale'])])
+        elif 'nvenc_wscale' in safe:
+            optlist.extend(['-vf', '%s=w=%s:h=trunc(ow/a/2)*2' % (self.scale_filter, safe['nvenc_wscale'])])
+        elif 'nvenc_hscale' in safe:
+            optlist.extend(['-vf', '%s=w=trunc((oh*a)/2)*2:h=%s' % (self.scale_filter, safe['nvenc_hscale'])])
         return optlist
 
 
@@ -1617,6 +1631,14 @@ class NVEncH265Codec(H265Codec):
     })
 
     def _codec_specific_parse_options(self, safe, stream=0):
+        if 'width' in safe and safe['width']:
+            safe['width'] = 2 * round(safe['width'] / 2)
+            safe['nvenc_wscale'] = safe['width']
+            del(safe['width'])
+        if 'height' in safe and safe['height']:
+            if safe['height'] % 2 == 0:
+                safe['nvenc_hscale'] = safe['height']
+            del(safe['height'])
         if 'crf' in safe:
             safe['qp'] = safe['crf']
             del safe['crf']
@@ -1642,6 +1664,12 @@ class NVEncH265Codec(H265Codec):
                 optlist.extend(['-vf', 'hwdownload,format=nv12,hwupload'])
         elif 'decode_device' in safe:
             optlist.extend(['-vf', 'hwdownload,format=nv12,hwupload'])
+        if 'nvenc_wscale' in safe and 'nvenc_hscale' in safe:
+            optlist.extend(['-vf', '%s=%s=w=%s:h=%s' % (self.scale_filter, safe['nvenc_wscale'], safe['nvenc_hscale'])])
+        elif 'nvenc_wscale' in safe:
+            optlist.extend(['-vf', '%s=w=%s:h=trunc(ow/a/2)*2' % (self.scale_filter, safe['nvenc_wscale'])])
+        elif 'nvenc_hscale' in safe:
+            optlist.extend(['-vf', '%s=w=trunc((oh*a)/2)*2:h=%s' % (self.scale_filter, safe['nvenc_hscale'])])
         return optlist
 
 
