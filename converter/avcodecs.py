@@ -1263,6 +1263,14 @@ class H264QSVCodec(H264Codec):
 
     def _codec_specific_parse_options(self, safe, stream=0):
         safe = super(H264QSVCodec, self)._codec_specific_parse_options(safe, stream)
+        if 'width' in safe and safe['width']:
+            safe['width'] = 2 * round(safe['width'] / 2)
+            safe['qsv_wscale'] = safe['width']
+            del(safe['width'])
+        if 'height' in safe and safe['height']:
+            if safe['height'] % 2 == 0:
+                safe['qsv_hscale'] = safe['height']
+            del(safe['height'])
         if 'crf' in safe:
             safe['gq'] = safe['crf']
             del safe['crf']
@@ -1292,6 +1300,19 @@ class H264QSVCodec(H264Codec):
                 optlist.extend(['-maxrate:v', str(safe['maxrate'])])
             if 'bufsize' in safe:
                 optlist.extend(['-bufsize', str(safe['bufsize'])])
+
+        if 'device' in safe:
+            optlist.extend(['-filter_hw_device', safe['device']])
+            if 'decode_device' in safe and safe['decode_device'] != safe['device']:
+                optlist.extend(['-vf', 'hwdownload,format=nv12,hwupload'])
+        elif 'decode_device' in safe:
+            optlist.extend(['-vf', 'hwdownload,format=nv12,hwupload'])
+        if 'qsv_wscale' in safe and 'qsv_hscale' in safe:
+            optlist.extend(['-vf', '%s=%s=w=%s:h=%s' % (self.scale_filter, safe['qsv_wscale'], safe['qsv_hscale'])])
+        elif 'qsv_wscale' in safe:
+            optlist.extend(['-vf', '%s=w=%s:h=trunc(ow/a/2)*2' % (self.scale_filter, safe['qsv_wscale'])])
+        elif 'qsv_hscale' in safe:
+            optlist.extend(['-vf', '%s=w=trunc((oh*a)/2)*2:h=%s' % (self.scale_filter, safe['qsv_hscale'])])
 
         optlist.extend(super(H264QSVCodec, self)._codec_specific_produce_ffmpeg_list(safe, stream))
         optlist.extend(['-look_ahead', '0'])
@@ -1439,6 +1460,14 @@ class H265QSVCodec(H265Codec):
 
     def _codec_specific_parse_options(self, safe, stream=0):
         safe = super(H265QSVCodec, self)._codec_specific_parse_options(safe, stream)
+        if 'width' in safe and safe['width']:
+            safe['width'] = 2 * round(safe['width'] / 2)
+            safe['qsv_wscale'] = safe['width']
+            del(safe['width'])
+        if 'height' in safe and safe['height']:
+            if safe['height'] % 2 == 0:
+                safe['qsv_hscale'] = safe['height']
+            del(safe['height'])
         if 'crf' in safe:
             safe['gq'] = safe['crf']
             del safe['crf']
@@ -1469,6 +1498,18 @@ class H265QSVCodec(H265Codec):
             if 'bufsize' in safe:
                 optlist.extend(['-bufsize', str(safe['bufsize'])])
 
+        if 'device' in safe:
+            optlist.extend(['-filter_hw_device', safe['device']])
+            if 'decode_device' in safe and safe['decode_device'] != safe['device']:
+                optlist.extend(['-vf', 'hwdownload,format=nv12,hwupload'])
+        elif 'decode_device' in safe:
+            optlist.extend(['-vf', 'hwdownload,format=nv12,hwupload'])
+        if 'qsv_wscale' in safe and 'qsv_hscale' in safe:
+            optlist.extend(['-vf', '%s=%s=w=%s:h=%s' % (self.scale_filter, safe['qsv_wscale'], safe['qsv_hscale'])])
+        elif 'qsv_wscale' in safe:
+            optlist.extend(['-vf', '%s=w=%s:h=trunc(ow/a/2)*2' % (self.scale_filter, safe['qsv_wscale'])])
+        elif 'qsv_hscale' in safe:
+            optlist.extend(['-vf', '%s=w=trunc((oh*a)/2)*2:h=%s' % (self.scale_filter, safe['qsv_hscale'])])
         optlist.extend(super(H265QSVCodec, self)._codec_specific_produce_ffmpeg_list(safe, stream))
         return optlist
 
