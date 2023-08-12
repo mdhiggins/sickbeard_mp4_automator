@@ -667,7 +667,7 @@ class MediaProcessor:
             self.log.error("FFPROBE returned no value for inputfile %s (exists: %s), either the file does not exist or is not a format FFPROBE can read." % (inputfile, os.path.exists(inputfile)))
             return None, None, None, None, None
 
-        # Update disposition information using titles, requires PyMediaInfo
+        # Update disposition information using titles
         self.titleDispositionCheck(info)
         self.cleanDispositions(info)
 
