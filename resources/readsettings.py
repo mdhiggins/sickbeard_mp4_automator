@@ -698,7 +698,7 @@ class ReadSettings:
             for key, value in config.items(section, raw=True):
                 if value:
                     try:
-                        rawcredentials = config.get(section, key)
+                        rawcredentials = config.get(section, key, raw=True)
                         credentials = [x.strip() for x in rawcredentials.split(":", 1)]
                         if len(credentials) < 2:
                             if rawcredentials:
