@@ -698,10 +698,9 @@ class ReadSettings:
             for key, value in config.items(section, raw=True):
                 if value:
                     try:
-                        rawcredentials = config.get(section, key, raw=True)
-                        credentials = [x.strip() for x in rawcredentials.split(":", 1)]
+                        credentials = [x.strip() for x in value.split(":", 1)]
                         if len(credentials) < 2:
-                            if rawcredentials:
+                            if value:
                                 self.log.error("Unable to parse %s %s, skipping." % (section, key))
                             continue
                         self.subproviders_auth[key.strip()] = {'username': credentials[0], 'password': credentials[1]}
