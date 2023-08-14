@@ -695,7 +695,7 @@ class ReadSettings:
         section = "Subtitle.Subliminal.Auth"
         self.subproviders_auth = {}
         if config.has_section(section):
-            for key, value in config.items(section):
+            for key, value in config.items(section, raw=True):
                 if value:
                     try:
                         rawcredentials = config.get(section, key)
