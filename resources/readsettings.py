@@ -700,8 +700,7 @@ class ReadSettings:
                     try:
                         credentials = [x.strip() for x in value.split(":", 1)]
                         if len(credentials) < 2:
-                            if value:
-                                self.log.error("Unable to parse %s %s, skipping." % (section, key))
+                            self.log.error("Unable to parse %s %s, skipping." % (section, key))
                             continue
                         self.subproviders_auth[key.strip()] = {'username': credentials[0], 'password': credentials[1]}
                     except:
