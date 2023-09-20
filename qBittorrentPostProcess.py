@@ -40,7 +40,7 @@ try:
         name = sys.argv[5]
         torrent_hash = sys.argv[6]
 
-    if root_path == ".":
+    if not root_path:
         root_path = os.path.dirname(content_path)
     categories = [settings.qBittorrent['sb'], settings.qBittorrent['sonarr'], settings.qBittorrent['radarr'], settings.qBittorrent['sr'], settings.qBittorrent['bypass']]
     path_mapping = settings.qBittorrent['path-mapping']
