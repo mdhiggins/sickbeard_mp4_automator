@@ -50,6 +50,7 @@ class Metadata:
         self.original_language = None
 
         tmdb.API_KEY = tmdb_api_key
+        tmdb.REQUESTS_TIMEOUT = 30
         self.log = logger or logging.getLogger(__name__)
 
         self.log.debug("Input IDs:")
@@ -82,7 +83,7 @@ class Metadata:
             except KeyboardInterrupt:
                 raise
             except:
-                self.log.error("Unable to retrieve rating.")
+                self.log.exception("Unable to retrieve rating.")
                 self.rating = None
 
             self.original_language = getAlpha3TCode(self.moviedata['original_language'])
