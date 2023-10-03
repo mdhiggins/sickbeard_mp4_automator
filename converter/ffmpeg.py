@@ -254,7 +254,10 @@ class MediaStreamInfo(object):
 
         if key.startswith('TAG:'):
             key = key.split('TAG:')[1].lower()
-            value = val.lower().strip()
+            if key in ["title"]:
+                value = val.strip()
+            else:
+                value = val.lower().strip()
             self.metadata[key] = value
 
         if key.startswith('DISPOSITION:'):
