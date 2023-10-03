@@ -1115,6 +1115,7 @@ class MediaProcessor:
                 audio_setting = {
                     'map': a.index,
                     'codec': 'copy',
+                    'bitrate': (a.bitrate / 1000),
                     'channels': a.audio_channels,
                     'language': a.metadata['language'],
                     'disposition': adisposition,
