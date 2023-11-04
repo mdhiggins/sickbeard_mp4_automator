@@ -525,7 +525,7 @@ class MediaProcessor:
         if self.settings.audio_original_language and tagdata:
             try:
                 original_language = tagdata.original_language
-                if original_language not in awl:
+                if awl and original_language not in awl:
                     self.log.debug("Appending %s to allowed audio languages [include-original-language]." % (original_language))
                     awl.append(original_language)
                     self.settings.adl = self.settings.adl or original_language
