@@ -538,7 +538,7 @@ class MediaProcessor:
         if self.settings.subtitle_original_language and tagdata:
             try:
                 original_language = tagdata.original_language
-                if original_language not in swl:
+                if swl and original_language not in swl:
                     self.log.debug("Appending %s to allowed subtitle languages [include-original-language]." % (original_language))
                     swl.append(original_language)
                     self.settings.sdl = self.settings.sdl or original_language
