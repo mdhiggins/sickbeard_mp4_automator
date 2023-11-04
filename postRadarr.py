@@ -76,13 +76,13 @@ def downloadedMoviesScanInProgress(baseURL, headers, moviefile_sourcefolder, log
     log.debug(commands)
     log.debug(moviefile_sourcefolder)
     for c in commands:
-        if c.get('name') == "DownloadedMoviesScan":
-            try:
+        try:
+            if c.get('name') == "DownloadedMoviesScan":
                 if c['body']['path'] == moviefile_sourcefolder and c['status'] == 'started':
                     log.debug("Found a matching path scan in progress %s." % (moviefile_sourcefolder))
                     return c['id']
-            except:
-                pass
+        except:
+            pass
     log.debug("No commands in progress for %s." % (moviefile_sourcefolder))
     return None
 

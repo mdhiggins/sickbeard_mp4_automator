@@ -77,13 +77,13 @@ def downloadedEpisodesScanInProgress(baseURL, headers, episodefile_sourcefolder,
     log.debug(commands)
     log.debug(episodefile_sourcefolder)
     for c in commands:
-        if c.get('name') == "DownloadedEpisodesScan":
-            try:
+        try:
+            if c.get('name') == "DownloadedEpisodesScan":
                 if c['body']['path'] == episodefile_sourcefolder and c['status'] == 'started':
                     log.debug("Found a matching path scan in progress %s." % (episodefile_sourcefolder))
                     return c['id']
-            except:
-                pass
+        except:
+            pass
     log.debug("No commands in progress for %s." % (episodefile_sourcefolder))
     return None
 
