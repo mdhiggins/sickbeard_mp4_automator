@@ -1814,7 +1814,7 @@ class MediaProcessor:
     def syncExternalSub(self, path, inputfile):
         if self.settings.ffsubsync and ffsubsync:
             self.log.debug("Syncing subtitle with path %s [subtitles.ffsubsync]." % (path))
-            syncedsub = path + ".sync"
+            syncedsub = path + ".sync.srt"
             try:
                 unparsed_args = [inputfile, '-i', path, '-o', syncedsub, '--ffmpegpath', os.path.dirname(self.settings.ffmpeg)]
                 parser = ffsubsync.make_parser()
