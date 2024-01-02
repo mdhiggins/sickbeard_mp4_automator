@@ -1187,7 +1187,7 @@ class MediaProcessor:
                 if self.settings.force_subtitle_defaults and s.disposition.get('default'):
                     self.log.debug("Subtitle stream %s is flagged as default, forcing inclusion [Subtitle.force-default]." % (s.index))
                 else:
-                    if not self.validLanguage(s.metadata['language'], swl, blocked_subtitle_languages):
+                    if not self.validLanguage(s.metadata['language'], swl, [] if s.disposition['forced'] else blocked_subtitle_languages):
                         continue
                     if not self.validDisposition(s, self.settings.ignored_subtitle_dispositions, self.settings.unique_subtitle_dispositions, s.metadata['language'], blocked_subtitle_dispositions):
                         continue
@@ -1284,7 +1284,7 @@ class MediaProcessor:
             if self.settings.force_subtitle_defaults and s.disposition.get('default'):
                 self.log.debug("External subtitle %s is flagged as default, forcing inclusion [Subtitle.force-default]." % (os.path.basename(external_sub.path)))
             else:
-                if not self.validLanguage(external_sub.subtitle[0].metadata['language'], swl, blocked_subtitle_languages):
+                if not self.validLanguage(external_sub.subtitle[0].metadata['language'], swl, [] if external_sub.subtitle[0].disposition['forced'] else blocked_subtitle_languages):
                     continue
                 if not self.validDisposition(external_sub.subtitle[0], self.settings.ignored_subtitle_dispositions, self.settings.unique_subtitle_dispositions, external_sub.subtitle[0].metadata['language'], blocked_subtitle_dispositions):
                     continue
@@ -1796,6 +1796,7 @@ class MediaProcessor:
                             self.log.debug("Ignoring %s external subtitle stream due to language %s." % (fname, lang))
             break
         self.log.info("Scanned for external subtitles and found %d results in your approved languages." % (len(valid_external_subs)))
+        valid_external_subs.sort(key= lambda x: x.path, reverse=True)
         valid_external_subs.sort(key=lambda x: swl.index(x.subtitle[0].metadata['language']) if x.subtitle[0].metadata['language'] in swl else 999)
 
         return valid_external_subs
