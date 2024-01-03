@@ -1234,7 +1234,7 @@ class MediaProcessor:
                     }
                     subtitle_setting['title'] = self.subtitleStreamTitle(s, subtitle_setting, image_based, tagdata=tagdata)
                     subtitle_settings.append(subtitle_setting)
-                    if self.settings.sub_first_language_stream:
+                    if self.settings.sub_first_language_stream and not s.disposition['forced']:
                         blocked_subtitle_languages.append(s.metadata['language'])
                 else:
                     if image_based and not self.settings.embedimgsubs and self.settings.scodec_image and len(self.settings.scodec_image) > 0:
@@ -1243,7 +1243,7 @@ class MediaProcessor:
                         scodec = 'copy' if s.codec in self.settings.scodec else self.settings.scodec[0]
                     if scodec:
                         ripsubopts.append(self.generateRipSubOpts(inputfile, s, scodec))
-                        if self.settings.sub_first_language_stream:
+                        if self.settings.sub_first_language_stream and not s.disposition['forced']:
                             blocked_subtitle_languages.append(s.metadata['language'])
 
         # Attempt to download subtitles if they are missing using subliminal
