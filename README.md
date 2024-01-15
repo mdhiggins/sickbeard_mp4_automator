@@ -75,7 +75,7 @@ Radarr Setup
 3. Setup the postRadarr.py script via Settings > Connect > Connections > + (Add)
     - `name` - postRadarr
     - `On Grab` - No
-    - `On Download` / `On Import` - Yes
+    - `On Download` \ `On Import` - Yes
     - `On Upgrade` - Yes
     - `On Rename` - No
     - `On Movie Delete` - No
