@@ -453,9 +453,9 @@ class FFMpeg(object):
     CODECS_LINE_RE = re.compile(
         r'^ ([A-Z.]{6}) ([^ \=]+) +(.+)$', re.M)
     CODECS_DECODERS_RE = re.compile(
-        r' \(decoders: ([^)]+) \)')
+        r' \(decoders: ([^)]+)\)')
     CODECS_ENCODERS_RE = re.compile(
-        r' \(encoders: ([^)]+) \)')
+        r' \(encoders: ([^)]+)\)')
     DECODER_SYNONYMS = {
         'mpeg1video': 'mpeg1',
         'mpeg2video': 'mpeg2'}
