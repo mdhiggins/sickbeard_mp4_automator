@@ -1664,6 +1664,7 @@ class NVEncH265Codec(H265Codec):
     codec_name = 'h265_nvenc'
     ffmpeg_codec_name = 'hevc_nvenc'
     scale_filter = 'scale_npp'
+    default_fmt = 'nv12'
     max_depth = 10
     encoder_options = H265Codec.encoder_options.copy()
     encoder_options.update({
@@ -1688,6 +1689,9 @@ class NVEncH265Codec(H265Codec):
                 del safe['qp']
             elif 'bitrate' in safe:
                 del safe['bitrate']
+        if 'pix_fmt' in safe:
+            safe['nvenc_pix_fmt'] = safe['pix_fmt']
+            del safe['pix_fmt']
         return safe
 
     def _codec_specific_produce_ffmpeg_list(self, safe, stream=0):
@@ -1705,12 +1709,17 @@ class NVEncH265Codec(H265Codec):
                 optlist.extend(['-vf', 'hwdownload,format=nv12,hwupload'])
         elif 'decode_device' in safe:
             optlist.extend(['-vf', 'hwdownload,format=nv12,hwupload'])
+
+        fmtstr = ':format=%s,hwdownload' % (safe['nvenc_pix_fmt']) if 'nvenc_pix_fmt' in safe else ""
+
         if 'nvenc_wscale' in safe and 'nvenc_hscale' in safe:
-            optlist.extend(['-vf', '%s=w=%s:h=%s' % (self.scale_filter, safe['nvenc_wscale'], safe['nvenc_hscale'])])
+            optlist.extend(['-vf', '%s=w=%s:h=%s%s' % (self.scale_filter, safe['nvenc_wscale'], safe['nvenc_hscale'], fmtstr)])
         elif 'nvenc_wscale' in safe:
-            optlist.extend(['-vf', '%s=w=%s:h=trunc(ow/a/2)*2' % (self.scale_filter, safe['nvenc_wscale'])])
+            optlist.extend(['-vf', '%s=w=%s:h=trunc(ow/a/2)*2%s' % (self.scale_filter, safe['nvenc_wscale'], fmtstr)])
         elif 'nvenc_hscale' in safe:
-            optlist.extend(['-vf', '%s=w=trunc((oh*a)/2)*2:h=%s' % (self.scale_filter, safe['nvenc_hscale'])])
+            optlist.extend(['-vf', '%s=w=trunc((oh*a)/2)*2:h=%s%s' % (self.scale_filter, safe['nvenc_hscale'], fmtstr)])
+        elif fmtstr:
+            optlist.extend(['-vf', fmtstr[1:]])
         return optlist
 
 
@@ -1719,6 +1728,22 @@ class NVEncH265CodecAlt(NVEncH265Codec):
     Nvidia H.265/AVC video codec alternate.
     """
     codec_name = 'hevc_nvenc'
+
+
+class NVEncH265CodecCuda(NVEncH265Codec):
+    """
+    Nvidia H.265/AVC video codec using scale_cuda filter.
+    """
+    codec_name = 'h265_nvenc_cuda'
+    scale_filter = 'scale_cuda'
+
+
+class NVEncH265CodecCudaAlt(NVEncH265Codec):
+    """
+    Nvidia H.265/AVC video codec using scale_cuda filter.
+    """
+    codec_name = 'hevc_nvenc_cuda'
+    scale_filter = 'scale_cuda'
 
 
 class NVEncH265CodecPatched(NVEncH265Codec):
@@ -2111,7 +2136,7 @@ video_codec_list = [
     TheoraCodec,
     H263Codec,
     H264Codec, H264CodecAlt, H264QSVCodec, H264VAAPICodec, OMXH264Codec, VideotoolboxEncH264, NVEncH264Codec, H264V4l2m2mCodec,
-    H265Codec, H265QSVCodecAlt, H265QSVCodec, H265CodecAlt, H265QSVCodecPatched, H265VAAPICodec, H265VAAPICodecAlt, VideotoolboxEncH265, NVEncH265Codec, NVEncH265CodecAlt, NVEncH265CodecPatched, H265V4l2m2mCodec,
+    H265Codec, H265QSVCodecAlt, H265QSVCodec, H265CodecAlt, H265QSVCodecPatched, H265VAAPICodec, H265VAAPICodecAlt, VideotoolboxEncH265, NVEncH265Codec, NVEncH265CodecAlt, NVEncH265CodecPatched, H265V4l2m2mCodec, NVEncH265CodecCuda, NVEncH265CodecCudaAlt,
     DivxCodec,
     Vp8Codec,
     Vp9Codec, Vp9QSVCodec, Vp9QSVAltCodec,
