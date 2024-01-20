@@ -1738,12 +1738,11 @@ class NVEncH265CodecCuda(NVEncH265Codec):
     scale_filter = 'scale_cuda'
 
 
-class NVEncH265CodecCudaAlt(NVEncH265Codec):
+class NVEncH265CodecCudaAlt(NVEncH265CodecCuda):
     """
-    Nvidia H.265/AVC video codec using scale_cuda filter.
+    Nvidia H.265/AVC video codec using scale_cuda filter alternate.
     """
     codec_name = 'hevc_nvenc_cuda'
-    scale_filter = 'scale_cuda'
 
 
 class NVEncH265CodecPatched(NVEncH265Codec):
