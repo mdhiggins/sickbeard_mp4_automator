@@ -124,7 +124,7 @@ class ReadSettings:
             'regex-directory-replace': r'[^\w\-_\. ]',
         },
         'Permissions': {
-            'chmod': '0644',
+            'chmod': '0664',
             'uid': -1,
             'gid': -1,
         },
@@ -518,8 +518,8 @@ class ReadSettings:
         try:
             self.permissions['chmod'] = int(self.permissions['chmod'], 8)
         except:
-            self.log.exception("Invalid permissions, defaulting to 644.")
-            self.permissions['chmod'] = int("0644", 8)
+            self.log.exception("Invalid permissions, defaulting to 664.")
+            self.permissions['chmod'] = int("0664", 8)
         self.permissions['uid'] = config.getint(section, 'uid', vars=os.environ)
         self.permissions['gid'] = config.getint(section, 'gid', vars=os.environ)
 

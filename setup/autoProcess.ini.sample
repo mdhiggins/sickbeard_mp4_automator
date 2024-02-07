@@ -28,7 +28,7 @@ postopts =
 regex-directory-replace = [^\w\-_\. ]
 
 [Permissions]
-chmod = 0644
+chmod = 0664
 uid = -1
 gid = -1
 
