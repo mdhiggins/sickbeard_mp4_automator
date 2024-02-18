@@ -1400,29 +1400,33 @@ class MediaProcessor:
 
         if vcodec != 'copy':
             try:
-                opts, device = self.setAcceleration(info.video.codec, info.video.pix_fmt, codecs, pix_fmts)
+                # Set the opts necessary for decoding (potentially using hardware accelleration).
+                opts, device = self.set_decoder(info.video.codec, info.video.pix_fmt)
                 preopts.extend(opts)
+
+                # Additionally init the encoder hwdevice, if different from the decoder.
                 for k in self.settings.hwdevices:
                     if k in vcodec:
                         match = self.settings.hwdevices[k]
-                        self.log.debug("Found a matching device %s for encoder %s [hwdevices]." % (match, vcodec))
+                        self.log.debug(f"Found a matching device {match} for encoder {vcodec} [hwdevices].")
                         if not device:
-                            self.log.debug("No device was set by the decoder, setting device to %s for encoder %s [hwdevices]." % (match, vcodec))
+                            self.log.debug(f"No device was set by the decoder, setting device to {match} for encoder {vcodec} [hwdevices].")
                             preopts.extend(['-init_hw_device', '%s=sma:%s' % (k, match)])
                             options['video']['device'] = "sma"
                         elif device == match:
-                            self.log.debug("Device was already set by the decoder, using same device %s for encoder %s [hwdevices]." % (device, vcodec))
+                            self.log.debug(f"Device was already set by the decoder, using same device {device} for encoder {vcodec} [hwdevices].")
                             options['video']['device'] = "sma"
                         else:
-                            self.log.debug("Device was already set by the decoder but does not match encoder, using secondary device %s for encoder %s [hwdevices]." % (match, vcodec))
+                            self.log.debug(f"Device was already set by the decoder but does not match encoder, using secondary device {match} for encoder {vcodec} [hwdevices].")
                             preopts.extend(['-init_hw_device', '%s=sma2:%s' % (k, match)])
                             options['video']['device'] = "sma2"
                             options['video']['decode_device'] = "sma"
                         break
             except KeyboardInterrupt:
                 raise
-            except:
+            except Exception as e:
                 self.log.exception("Error when trying to determine hardware acceleration support.")
+                self.log.exception(e)
 
         preopts.extend(self.settings.preopts)
         postopts.extend(self.settings.postopts)
@@ -1490,64 +1494,73 @@ class MediaProcessor:
                 return False
         return True
 
-    # Hardware acceleration options now with bit depth safety checks
-    def setAcceleration(self, video_codec, pix_fmt, codecs=[], pix_fmts=[]):
+    def set_decoder(self, video_codec: str, pix_fmt: str):
+        """
+        Return the appropriate opts for decoding, using hardware accelleration if specified & available within ffmpeg.
+        """
         opts = []
-        pix_fmts = pix_fmts or self.converter.ffmpeg.pix_fmts
-        bit_depth = pix_fmts.get(pix_fmt, 0)
+        codecs = self.converter.ffmpeg.codecs  # Supported ffmpeg codecs.
+        pix_fmts = self.converter.ffmpeg.pix_fmts  # Supported ffmpeg pixel formats.
+        hwaccels = self.converter.ffmpeg.hwaccels  # Supported ffmpeg hwaccels.
+
+        bit_depth = pix_fmts.get(pix_fmt, 0)  # Target bit depth.
+
         device = None
-        # Look up which codecs and which decoders/encoders are available in this build of ffmpeg
-        codecs = codecs or self.converter.ffmpeg.codecs
 
-        # Lookup which hardware acceleration platforms are available in this build of ffmpeg
-        hwaccels = self.converter.ffmpeg.hwaccels
+        self.log.debug(f"Selected hwaccel options: {self.settings.hwaccels}.")
+        self.log.debug(f"Selected hwaccel decoder pairs: {self.settings.hwaccel_decoders}.")
+        self.log.debug(f"Supported ffmpeg hwaccels: {hwaccels}.")
+        self.log.debug(f"Input format: {pix_fmt} with bit depth {bit_depth}.")
 
-        self.log.debug("Selected hwaccel options:")
-        self.log.debug(self.settings.hwaccels)
-        self.log.debug("Selected hwaccel decoder pairs:")
-        self.log.debug(self.settings.hwaccel_decoders)
-        self.log.debug("FFMPEG hwaccels:")
-        self.log.debug(hwaccels)
-        self.log.debug("Input format %s bit depth %d." % (pix_fmt, bit_depth))
+        """
+        Find the first hwaccel platform that:
+            1. Is specified by settings.hwaccels.
+            2. Is included in this build of ffmpeg.
+            3. Is considered by ffmpeg to be a valid decoder for the input codec.
+            4. Is included in hwaccel_decoders.
+            5. Supports the given pixel format.
 
-        # Find the first of the specified hardware acceleration platform that is available in this build of ffmpeg.  The order of specified hardware acceleration platforms determines priority.
+        Given that all these criteria are met, opts will be extended to include -hwaccel and -vcodec. Additional
+        parameters (-hwaccel_output_format, -init_hw_device/-hwaccel_device) will be included if specified by their
+        corresponding setting.
+        """
         for hwaccel in self.settings.hwaccels:
             if hwaccel in hwaccels:
-                device = self.settings.hwdevices.get(hwaccel)
-                if device:
-                    self.log.debug("Setting hwaccel device to %s." % device)
-                    opts.extend(['-init_hw_device', '%s=sma:%s' % (hwaccel, device)])
-                    opts.extend(['-hwaccel_device', 'sma'])
+                target_decoder = self.converter.ffmpeg.hwaccel_decoder(video_codec,
+                                                                       self.settings.hwoutputfmt.get(hwaccel,
+                                                                                                     hwaccel))
+                self.log.debug(f"Target decoder: {target_decoder}")
 
-                self.log.info("%s hwaccel is supported by this ffmpeg build and will be used [hwaccels]." % hwaccel)
-                opts.extend(['-hwaccel', hwaccel])
-                if self.settings.hwoutputfmt.get(hwaccel):
-                    opts.extend(['-hwaccel_output_format', self.settings.hwoutputfmt[hwaccel]])
+                self.log.debug("Target decoder pixel formats:")
+                self.log.debug(self.converter.ffmpeg.decoder_formats(target_decoder))
 
-                # If there's a decoder for this acceleration platform, also use it
-                decoder = self.converter.ffmpeg.hwaccel_decoder(video_codec, self.settings.hwoutputfmt.get(hwaccel, hwaccel))
-                self.log.debug("Decoder: %s." % decoder)
-                if decoder in codecs[video_codec]['decoders'] and decoder in self.settings.hwaccel_decoders:
-                    if Converter.decoder(decoder).supportsBitDepth(bit_depth):
-                        self.log.info("%s decoder is also supported by this ffmpeg build and will also be used [hwaccel-decoders]." % decoder)
-                        opts.extend(['-vcodec', decoder])
-                        self.log.debug("Decoder formats:")
-                        self.log.debug(self.converter.ffmpeg.decoder_formats(decoder))
-                    else:
-                        self.log.debug("Decoder %s is supported but cannot support bit depth %d of format %s." % (decoder, bit_depth, pix_fmt))
-                break
-        if "-vcodec" not in opts:
-            # No matching decoder found for hwaccel, see if there's still a valid decoder that may not match
-            for decoder in self.settings.hwaccel_decoders:
-                if decoder in codecs[video_codec]['decoders'] and decoder in self.settings.hwaccel_decoders and decoder.startswith(video_codec):
-                    if Converter.decoder(decoder).supportsBitDepth(bit_depth):
-                        self.log.info("%s decoder is supported by this ffmpeg build and will also be used [hwaccel-decoders]." % decoder)
-                        opts.extend(['-vcodec', decoder])
-                        self.log.debug("Decoder formats:")
-                        self.log.debug(self.converter.ffmpeg.decoder_formats(decoder))
+                if target_decoder in codecs[video_codec][
+                    'decoders'] and target_decoder in self.settings.hwaccel_decoders:
+                    if Converter.decoder(target_decoder).supportsBitDepth(bit_depth):
+                        self.log.debug(
+                            f"Target decoder {target_decoder} is supported by this codec and included in hwaccel-decoders, using. [hwaccel-decoders]")
+
+                        # set hwaccel and hwaccel_output_format, if specified
+                        opts.extend(['-hwaccel', hwaccel])
+                        if self.settings.hwoutputfmt.get(hwaccel):
+                            opts.extend(['-hwaccel_output_format', self.settings.hwoutputfmt[hwaccel]])
+
+                        # set hw device, if specified
+                        device = self.settings.hwdevices.get(hwaccel)
+                        if device:
+                            self.log.debug("Setting hwaccel device to %s." % device)
+                            opts.extend(['-init_hw_device', '%s=sma:%s' % (hwaccel, device)])
+                            opts.extend(['-hwaccel_device', 'sma'])
+
+                        # set vcodec
+                        opts.extend(['-vcodec', target_decoder])
+
                         break
                     else:
-                        self.log.debug("Decoder %s is supported but cannot support bit depth %d of format %s." % (decoder, bit_depth, pix_fmt))
+                        self.log.debug(
+                            "Decoder %s is supported & included in hwaccel-decoders, but cannot support bit depth %d of format %s." % (
+                                target_decoder, bit_depth, pix_fmt))
+
         return opts, device
 
     # Using sorting and filtering to determine which audio track should be flagged as default, only one track will be selected
