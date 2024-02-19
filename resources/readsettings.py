@@ -100,6 +100,7 @@ class ReadSettings:
             'threads': 0,
             'hwaccels': '',
             'hwaccel-decoders': '',
+            'hwaccel-decoder-override': '',
             'hwdevices': '',
             'hwaccel-output-format': '',
             'output-directory': '',
@@ -484,6 +485,7 @@ class ReadSettings:
         self.threads = config.getint(section, 'threads')
         self.hwaccels = config.getlist(section, 'hwaccels')
         self.hwaccel_decoders = config.getlist(section, "hwaccel-decoders")
+        self.hwaccel_decoder_override = config.getdict(section, "hwaccel-decoder-override")
         self.hwdevices = config.getdict(section, "hwdevices", lower=False, replace=[])
         self.hwoutputfmt = config.getdict(section, "hwaccel-output-format")
         self.output_dir = config.getdirectory(section, "output-directory")
