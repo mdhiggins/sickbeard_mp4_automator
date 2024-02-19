@@ -237,3 +237,9 @@ pip-log.txt
 ## VS Code
 #################
 .vscode
+
+# PyCharm
+.idea
+
+# pyenv
+.python-version
