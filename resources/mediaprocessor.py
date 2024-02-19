@@ -1512,54 +1512,66 @@ class MediaProcessor:
         self.log.debug(f"Supported ffmpeg hwaccels: {hwaccels}.")
         self.log.debug(f"Input format: {pix_fmt} with bit depth {bit_depth}.")
 
-        """
-        Find the first hwaccel platform that:
-            1. Is specified by settings.hwaccels.
-            2. Is included in this build of ffmpeg.
-            3. Is considered by ffmpeg to be a valid decoder for the input codec.
-            4. Is included in hwaccel_decoders.
-            5. Supports the given pixel format.
+        def _add_hwaccel_opts(_hwaccel: str, _decoder: str):
+            # set hwaccel and hwaccel_output_format, if specified
+            opts.extend(['-hwaccel', _hwaccel])
+            if self.settings.hwoutputfmt.get(_hwaccel):
+                opts.extend(['-hwaccel_output_format', self.settings.hwoutputfmt[_hwaccel]])
 
-        Given that all these criteria are met, opts will be extended to include -hwaccel and -vcodec. Additional
-        parameters (-hwaccel_output_format, -init_hw_device/-hwaccel_device) will be included if specified by their
-        corresponding setting.
-        """
-        for hwaccel in self.settings.hwaccels:
-            if hwaccel in hwaccels:
-                target_decoder = self.converter.ffmpeg.hwaccel_decoder(video_codec,
-                                                                       self.settings.hwoutputfmt.get(hwaccel,
-                                                                                                     hwaccel))
-                self.log.debug(f"Target decoder: {target_decoder}")
+            # set hw device, if specified
+            nonlocal device
+            device = self.settings.hwdevices.get(_hwaccel)
+            if device:
+                self.log.debug("Setting hwaccel device to %s." % device)
+                opts.extend(['-init_hw_device', '%s=sma:%s' % (_hwaccel, device)])
+                opts.extend(['-hwaccel_device', 'sma'])
 
-                self.log.debug("Target decoder pixel formats:")
-                self.log.debug(self.converter.ffmpeg.decoder_formats(target_decoder))
+            # Set vcodec
+            opts.extend(['-vcodec', _decoder])
 
-                if target_decoder in codecs[video_codec][
-                    'decoders'] and target_decoder in self.settings.hwaccel_decoders:
-                    if Converter.decoder(target_decoder).supportsBitDepth(bit_depth):
-                        self.log.debug(
-                            f"Target decoder {target_decoder} is supported by this codec and included in hwaccel-decoders, using. [hwaccel-decoders]")
+        # If there's a manually specified hwaccel/decoder pairing for this codec, use it.
+        if video_codec in self.settings.hwaccel_decoder_override:
+            hwaccel, target_decoder = self.settings.hwaccel_decoder_override[video_codec].split('.')
 
-                        # set hwaccel and hwaccel_output_format, if specified
-                        opts.extend(['-hwaccel', hwaccel])
-                        if self.settings.hwoutputfmt.get(hwaccel):
-                            opts.extend(['-hwaccel_output_format', self.settings.hwoutputfmt[hwaccel]])
+            if target_decoder in codecs[video_codec]['decoders']:
+                self.log.debug(f"Detecting override for codec={video_codec}, setting hwaccel={hwaccel} and vcodec={target_decoder}. [hwaccel-decoders]")
 
-                        # set hw device, if specified
-                        device = self.settings.hwdevices.get(hwaccel)
-                        if device:
-                            self.log.debug("Setting hwaccel device to %s." % device)
-                            opts.extend(['-init_hw_device', '%s=sma:%s' % (hwaccel, device)])
-                            opts.extend(['-hwaccel_device', 'sma'])
+                _add_hwaccel_opts(hwaccel, target_decoder)
 
-                        # set vcodec
-                        opts.extend(['-vcodec', target_decoder])
+        else:
+            """
+            Find the first hwaccel platform that:
+                1. Is specified by settings.hwaccels.
+                2. Is included in this build of ffmpeg.
+                3. Is considered by ffmpeg to be a valid decoder for the input codec.
+                4. Is included in hwaccel_decoders.
+                5. Supports the given pixel format.
+    
+            Given that all these criteria are met, opts will be extended to include -hwaccel and -vcodec. Additional
+            parameters (-hwaccel_output_format, -init_hw_device/-hwaccel_device) will be included if specified by their
+            corresponding setting.
+            """
+            for hwaccel in self.settings.hwaccels:
+                if hwaccel in hwaccels:
+                    target_decoder = self.converter.ffmpeg.hwaccel_decoder(
+                        video_codec,
+                        self.settings.hwoutputfmt.get(hwaccel, hwaccel)
+                    )
 
-                        break
-                    else:
-                        self.log.debug(
-                            "Decoder %s is supported & included in hwaccel-decoders, but cannot support bit depth %d of format %s." % (
-                                target_decoder, bit_depth, pix_fmt))
+                    self.log.debug(f"Target decoder: {target_decoder}")
+                    self.log.debug(f"Target decoder pixel formats: {self.converter.ffmpeg.decoder_formats(target_decoder)}.")
+
+                    is_supported_decoder = target_decoder in codecs[video_codec]['decoders']
+
+                    if is_supported_decoder and target_decoder in self.settings.hwaccel_decoders:
+                        if Converter.decoder(target_decoder).supportsBitDepth(bit_depth):
+                            self.log.debug(
+                                f"Target decoder {target_decoder} is supported by this codec and included in hwaccel-decoders, using. [hwaccel-decoders]")
+
+                            _add_hwaccel_opts(hwaccel, target_decoder)
+                            break
+                        else:
+                            self.log.debug(f"Decoder {target_decoder} is supported & included in hwaccel-decoders, but cannot support bit depth {bit_depth} of format {pix_fmt}.")
 
         return opts, device
 
