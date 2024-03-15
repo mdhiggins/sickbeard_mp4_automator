@@ -1168,6 +1168,14 @@ class NVEncH264Codec(H264Codec):
         return optlist
 
 
+class NVEncH264CodecCuda(NVEncH264Codec):
+    """
+    Nvidia H.264/AVC video codec using scale_cuda filter.
+    """
+    codec_name = 'h264_nvenc_cuda'
+    scale_filter = 'scale_cuda'
+
+
 class VideotoolboxEncH264(H264Codec):
     """
     Videotoolbox H.264/AVC video codec.
@@ -2134,7 +2142,7 @@ video_codec_list = [
     VideoNullCodec, VideoCopyCodec,
     TheoraCodec,
     H263Codec,
-    H264Codec, H264CodecAlt, H264QSVCodec, H264VAAPICodec, OMXH264Codec, VideotoolboxEncH264, NVEncH264Codec, H264V4l2m2mCodec,
+    H264Codec, H264CodecAlt, H264QSVCodec, H264VAAPICodec, OMXH264Codec, VideotoolboxEncH264, NVEncH264Codec, NVEncH264CodecCuda, H264V4l2m2mCodec,
     H265Codec, H265QSVCodecAlt, H265QSVCodec, H265CodecAlt, H265QSVCodecPatched, H265VAAPICodec, H265VAAPICodecAlt, VideotoolboxEncH265, NVEncH265Codec, NVEncH265CodecAlt, NVEncH265CodecPatched, H265V4l2m2mCodec, NVEncH265CodecCuda, NVEncH265CodecCudaAlt,
     DivxCodec,
     Vp8Codec,
