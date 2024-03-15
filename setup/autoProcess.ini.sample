@@ -115,6 +115,7 @@ codec = mov_text
 codec-image-based = 
 languages = 
 default-language = 
+force-default = True
 include-original-language = False
 first-stream-of-language = False
 encoding = 

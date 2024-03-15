@@ -1603,7 +1603,7 @@ class MediaProcessor:
     # Ensure that at least one subtitle stream is default based on language data
     def setDefaultSubtitleStream(self, subtitle_settings):
         if len(subtitle_settings) > 0 and self.settings.sdl:
-            if len([x for x in subtitle_settings if '+default' in (x.get('disposition') or '')]) < 1:
+            if len([x for x in subtitle_settings if '+default' in (x.get('disposition') or '')]) < 1 and self.settings.sforcedefault:
                 default_stream = [x for x in subtitle_settings if x.get('language') == self.settings.sdl][0]
 
                 if default_stream.get('disposition'):

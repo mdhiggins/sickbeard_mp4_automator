@@ -211,6 +211,7 @@ class ReadSettings:
             'codec-image-based': '',
             'languages': '',
             'default-language': '',
+            'force-default': True,
             'include-original-language': False,
             'first-stream-of-language': False,
             'encoding': '',
@@ -653,6 +654,7 @@ class ReadSettings:
         self.scodec_image = config.getlist(section, 'codec-image-based')
         self.swl = config.getlist(section, 'languages')
         self.sdl = config.get(section, 'default-language').lower()
+        self.sforcedefault = config.getboolean(section, 'force-default')
         self.subtitle_original_language = config.getboolean(section, 'include-original-language')
         self.sub_first_language_stream = config.getboolean(section, "first-stream-of-language")
         self.subencoding = config.get(section, 'encoding')
