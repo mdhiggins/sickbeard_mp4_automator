@@ -1208,7 +1208,7 @@ class MediaProcessor:
                     if (self.settings.cleanit and cleanit) or (self.settings.ffsubsync and ffsubsync):
                         try:
                             scodec = 'copy' if s.codec in ['srt'] else 'srt'
-                            rips = self.ripSubs(inputfile, [self.generateRipSubOpts(inputfile, s, scodec)])
+                            rips = self.ripSubs(inputfile, [self.generateRipSubOpts(inputfile, s, scodec)], include_all=True)
                             if rips:
                                 new_sub_path = rips[0]
                                 new_sub = self.isValidSubtitleSource(new_sub_path)
@@ -2027,16 +2027,17 @@ class MediaProcessor:
             return codec
 
     # Get subtitle file name based on options
-    def getSubOutputFileFromOptions(self, inputfile, options, extension):
+    def getSubOutputFileFromOptions(self, inputfile, options, extension, include_all=False):
         language = options["language"]
-        return self.getSubOutputFile(inputfile, language, options['disposition'], extension)
+        return self.getSubOutputFile(inputfile, language, options['disposition'], extension, include_all)
 
     # Get subtitle file name based on language, disposition, and extension
-    def getSubOutputFile(self, inputfile, language, disposition, extension):
+    def getSubOutputFile(self, inputfile, language, disposition, extension, include_all):
         disposition = self.dispoStringToDict(disposition)
         dispo = ""
+        potentials = BaseCodec.DISPOSITIONS if include_all else self.settings.filename_dispositions
         for k in disposition:
-            if disposition[k] and k in self.settings.filename_dispositions:
+            if disposition[k] and k in potentials:
                 dispo += "." + k
         input_dir, filename, input_extension = self.parseFile(inputfile)
         output_dir = self.settings.output_dir or input_dir
@@ -2073,12 +2074,12 @@ class MediaProcessor:
         return options
 
     # Rip subtitle from container
-    def ripSubs(self, inputfile, ripsubopts):
+    def ripSubs(self, inputfile, ripsubopts, include_all=False):
         rips = []
         ripsubopts = ripsubopts if isinstance(ripsubopts, list) else [ripsubopts]
         for options in ripsubopts:
             extension = self.getSubExtensionFromCodec(options['format'])
-            outputfile = self.getSubOutputFileFromOptions(inputfile, options, extension)
+            outputfile = self.getSubOutputFileFromOptions(inputfile, options, extension, include_all)
 
             try:
                 self.log.info("Ripping %s subtitle from source stream %s into external file." % (options["language"], options['index']))
