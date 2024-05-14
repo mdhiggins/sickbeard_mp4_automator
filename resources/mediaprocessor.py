@@ -1394,10 +1394,6 @@ class MediaProcessor:
         if self.isDolbyVision(info.video.framedata):
             postopts.extend(['-strict', 'unofficial'])
 
-        if len(options['subtitle']) > 0:
-            self.log.debug("Subtitle streams detected, adding fix_sub_duration option to preopts.")
-            preopts.append('-fix_sub_duration')
-
         if vcodec != 'copy':
             try:
                 opts, device = self.setAcceleration(info.video.codec, info.video.pix_fmt, codecs, pix_fmts)
