@@ -321,13 +321,7 @@ def processFile(inputfile, mp, info=None, relativePath=None, silent=False, tag=T
         for file in output_files:
             mp.setPermissions(file)
         if mp.settings.postprocess:
-            postprocessor = PostProcessor(output_files, wait=mp.settings.waitpostprocess)
-            if tagdata:
-                if tagdata.mediatype == MediaType.Movie:
-                    postprocessor.setMovie(tagdata.tmdbid)
-                elif tagdata.mediatype == MediaType.TV:
-                    postprocessor.setTV(tagdata.tmdbid, tagdata.season, tagdata.episode)
-            postprocessor.run_scripts()
+            mp.post(output_files, mediatype, tmdbid=tmdbid, season=season, episode=episode)
         addtoProcessedArchive(output_files + [output['input']] if not output['input_deleted'] else output_files, processedList, processedArchive)
     else:
         log.error("There was an error processing file %s, no output data received" % inputfile)
