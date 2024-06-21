@@ -1962,6 +1962,14 @@ class RAV1ECodec(AV1Codec):
     ffmpeg_codec_name = 'librav1e'
 
 
+class AV1QSVCodec(AV1Codec):
+    """
+    QSV AV1 Codec
+    """
+    codec_name = 'av1qsv'
+    ffmpeg_codec_name = 'av1_qsv'
+
+
 class Vp9QSVCodec(Vp9Codec):
     """
     Google VP9 QSV video codec.
@@ -2150,7 +2158,7 @@ video_codec_list = [
     FlvCodec,
     Mpeg1Codec,
     Mpeg2Codec,
-    AV1Codec, SVTAV1Codec, RAV1ECodec
+    AV1Codec, SVTAV1Codec, RAV1ECodec, AV1QSVCodec
 ]
 
 subtitle_codec_list = [
