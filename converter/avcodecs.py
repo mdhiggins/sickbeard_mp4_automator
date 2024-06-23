@@ -1969,6 +1969,13 @@ class AV1QSVCodec(AV1Codec):
     codec_name = 'av1qsv'
     ffmpeg_codec_name = 'av1_qsv'
 
+class AV1VAAPICodec(AV1Codec):
+    """
+    AV1 VAAPI Codec
+    """
+    codec_name = 'av1vaapi'
+    ffmpeg_codec_name = 'av1_vaapi'
+
 
 class Vp9QSVCodec(Vp9Codec):
     """
@@ -2158,7 +2165,7 @@ video_codec_list = [
     FlvCodec,
     Mpeg1Codec,
     Mpeg2Codec,
-    AV1Codec, SVTAV1Codec, RAV1ECodec, AV1QSVCodec
+    AV1Codec, SVTAV1Codec, RAV1ECodec, AV1QSVCodec, AV1VAAPICodec
 ]
 
 subtitle_codec_list = [
