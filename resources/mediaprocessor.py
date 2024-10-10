@@ -320,6 +320,10 @@ class MediaProcessor:
         elif channels > 2:
             output = "%d.1 Channel" % (channels - 1)
 
+        if options.get("codec") == "copy":
+            if stream.profile and "atmos" in stream.profile.lower():
+                output += " Atmos"
+
         disposition = stream.disposition
         for dispo in BaseCodec.DISPO_STRINGS:
             if disposition.get(dispo):
