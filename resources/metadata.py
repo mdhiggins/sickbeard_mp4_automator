@@ -10,6 +10,7 @@ from io import StringIO
 from mutagen.mp4 import MP4, MP4Cover, MP4StreamInfoError
 from resources.extensions import valid_poster_extensions, tmdb_api_key
 from resources.lang import getAlpha2BCode, getAlpha3TCode
+from converter.ffmpeg import FFMpegConvertError
 
 
 class TMDBIDError(Exception):
@@ -228,6 +229,10 @@ class Metadata:
                 return True
             except KeyboardInterrupt:
                 raise
+            except FFMpegConvertError as e:
+                self.log.exception("Error tagging file using FFMPEG fallback method, FFMPEG error.")
+                self.log.error(e.cmd)
+                self.log.error(e.output)
             except:
                 self.log.exception("Unexpected tagging error using FFMPEG fallback method.")
                 return False
