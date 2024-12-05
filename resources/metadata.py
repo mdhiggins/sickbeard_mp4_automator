@@ -178,7 +178,7 @@ class Metadata:
 
         return None
 
-    def writeTags(self, path, inputfile, converter, artwork=True, thumbnail=False, width=None, height=None, streaming=0):
+    def writeTags(self, path, inputfile, converter, artwork=True, thumbnail=False, width=None, height=None, cues_to_front=False):
         self.log.info("Tagging file: %s." % path)
         if width and height:
             try:
@@ -214,7 +214,7 @@ class Metadata:
                     coverpath = self.getArtwork(path, inputfile, thumbnail=thumbnail)
 
                 try:
-                    conv = converter.tag(path, metadata, coverpath, streaming)
+                    conv = converter.tag(path, metadata, coverpath, cues_to_front=cues_to_front)
                 except KeyboardInterrupt:
                     raise
                 except:

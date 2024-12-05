@@ -69,7 +69,7 @@ class MediaProcessor:
                     if self.settings.tagfile and tagdata:
                         try:
                             self.log.info("Tagging %s with TMDB ID %s." % (inputfile, tagdata.tmdbid))
-                            tagdata.writeTags(output['output'], inputfile, self.converter, self.settings.artwork, self.settings.thumbnail, output['x'], output['y'], streaming=output['rsi'])
+                            tagdata.writeTags(output['output'], inputfile, self.converter, self.settings.artwork, self.settings.thumbnail, output['x'], output['y'], cues_to_front=output['cues_to_front'])
                         except KeyboardInterrupt:
                             raise
                         except:
@@ -233,12 +233,7 @@ class MediaProcessor:
             input_extension = self.parseFile(inputfile)[2]
             output_extension = self.parseFile(outputfile)[2]
 
-            rsi = 0
-            if self.settings.output_format in ['mkv'] and self.settings.relocate_moov:
-                self.log.debug("Relocate MOOV enabled but format is %s, adding reserve_index_space parameter.")
-                rsi = info.format.duration / (60 * 60)
-                rsi = int(rsi) if rsi == int(rsi) else int(rsi) + 1
-                rsi = rsi * 50
+            cues_to_front = self.settings.output_format in ['mkv'] and self.settings.relocate_moov
 
             return {'input': inputfile,
                     'input_extension': input_extension,
@@ -251,7 +246,7 @@ class MediaProcessor:
                     'external_subs': downloaded_subs + ripped_subs,
                     'x': dim['x'],
                     'y': dim['y'],
-                    'rsi': rsi
+                    'cues_to_front': cues_to_front,
                     }
         return None
 

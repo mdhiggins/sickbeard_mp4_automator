@@ -281,7 +281,7 @@ def processFile(inputfile, mp, info=None, relativePath=None, silent=False, tag=T
     if tagOnly:
         if tagdata:
             try:
-                tagdata.writeTags(inputfile, inputfile, mp.converter, mp.settings.artwork, mp.settings.thumbnail)
+                tagdata.writeTags(inputfile, inputfile, mp.converter, mp.settings.artwork, mp.settings.thumbnail, cues_to_front=(os.path.splitext(inputfile)[1].lower() in ['.mkv'] and mp.settings.relocate_moov))
                 if mp.settings.relocate_moov:
                     mp.QTFS(inputfile)
             except KeyboardInterrupt:
@@ -300,7 +300,7 @@ def processFile(inputfile, mp, info=None, relativePath=None, silent=False, tag=T
         tagfailed = False
         if tagdata:
             try:
-                tagdata.writeTags(output['output'], inputfile, mp.converter, mp.settings.artwork, mp.settings.thumbnail, width=output['x'], height=output['y'], streaming=output['rsi'])
+                tagdata.writeTags(output['output'], inputfile, mp.converter, mp.settings.artwork, mp.settings.thumbnail, width=output['x'], height=output['y'], cues_to_front=output['cues_to_front'])
             except KeyboardInterrupt:
                 raise
             except:
