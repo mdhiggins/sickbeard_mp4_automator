@@ -240,7 +240,7 @@ class Converter(object):
         if cues_to_front:
             opts.extend(['-cues_to_front', "true"])
 
-        for timecode, debug in self.ffmpeg.convert(outfile, opts):
+        for timecode, debug in self.ffmpeg.convert(outfile, opts, timeout=0):
             yield int((100.0 * timecode) / info.format.duration), debug
         os.remove(infile)
 
