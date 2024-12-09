@@ -22,7 +22,7 @@ def processEpisode(dirName, settings, nzbGet=False, importMode=None, logger=None
     for k in sorted(pathMapping.keys(), reverse=True):
         mapdirs = k.split(os.sep)
         if mapdirs == targetdirs[:len(mapdirs)]:
-            dirName = os.path.join(pathMapping[k], os.path.relpath(dirName, k))
+            dirName = os.path.normpath(os.path.join(pathMapping[k], os.path.relpath(dirName, k)))
             log.debug("PathMapping match found, replacing %s with %s, final directory is %s." % (k, pathMapping[k], dirName))
             break
 
