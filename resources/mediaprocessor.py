@@ -1169,6 +1169,13 @@ class MediaProcessor:
         blocked_subtitle_languages = []
         blocked_subtitle_dispositions = []
         valid_external_subs = []
+
+        self.settings.scodec = self.ffprobeSafeCodecs(self.settings.scodec)
+        self.log.debug("Pool of subtitle text based codecs is %s." % (self.settings.scodec))
+
+        self.settings.scodec_image = self.ffprobeSafeCodecs(self.settings.scodec_image)
+        self.log.debug("Pool of subtitle image based codecs is %s." % (self.settings.scodec_image))
+
         self.log.info("Reading subtitle streams.")
         if not self.settings.ignore_embedded_subs:
             for s in info.subtitle:
