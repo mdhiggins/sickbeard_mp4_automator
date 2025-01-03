@@ -854,6 +854,8 @@ class ReadSettings:
             fp = open(cfgfile, "w")
             config.write(fp)
             fp.close()
+        except OSError:
+            self.log.exception("Error writing to %s due to permissions." % (self.CONFIG_DEFAULT))
         except PermissionError:
             self.log.exception("Error writing to %s due to permissions." % (self.CONFIG_DEFAULT))
         except IOError:
