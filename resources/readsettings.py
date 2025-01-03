@@ -854,12 +854,8 @@ class ReadSettings:
             fp = open(cfgfile, "w")
             config.write(fp)
             fp.close()
-        except OSError:
+        except (OSError, PermissionError, IOError):
             self.log.exception("Error writing to %s due to permissions." % (self.CONFIG_DEFAULT))
-        except PermissionError:
-            self.log.exception("Error writing to %s due to permissions." % (self.CONFIG_DEFAULT))
-        except IOError:
-            self.log.exception("Error writing to %s." % (self.CONFIG_DEFAULT))
 
     def migrateFromOld(self, config, configFile):
         try:
