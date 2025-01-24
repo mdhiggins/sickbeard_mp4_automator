@@ -53,6 +53,8 @@ class PostProcessor:
 
     def run_scripts(self):
         self.log.debug("Running scripts.")
+        self.log.debug("Environment variables:")
+        self.log.debug(json.dumps(self.post_process_environment, indent=4))
         for script in self.scripts:
             try:
                 command = self.run_script_command(script)
