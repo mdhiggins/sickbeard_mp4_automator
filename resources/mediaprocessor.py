@@ -947,7 +947,7 @@ class MediaProcessor:
                 if self.settings.ua_bitrate == 0:
                     self.log.debug("Attempting to set universal audio stream bitrate based on source stream bitrate.")
                     try:
-                        ua_bitrate = ((a.bitrate / 1000) / a.audio_channels) * 2
+                        ua_bitrate = (((a.bitrate / 1000) if a.bitrate else 0)/ a.audio_channels) * 2
                     except:
                         self.log.warning("Unable to determine universal audio bitrate from source stream %s, defaulting to %d per channel." % (a.index, self.default_channel_bitrate))
                         ua_bitrate = 2 * self.default_channel_bitrate
@@ -1068,7 +1068,7 @@ class MediaProcessor:
             if self.settings.abitrate == 0:
                 self.log.debug("Attempting to set bitrate based on source stream bitrate.")
                 try:
-                    abitrate = ((a.bitrate / 1000) / a.audio_channels) * audio_channels
+                    abitrate = (((a.bitrate / 1000) if a.bitrate else 0) / a.audio_channels) * audio_channels
                 except:
                     self.log.warning("Unable to determine audio bitrate from source stream %s, defaulting to %d per channel." % (a.index, self.default_channel_bitrate))
                     abitrate = audio_channels * self.default_channel_bitrate
@@ -1124,7 +1124,7 @@ class MediaProcessor:
                 audio_setting = {
                     'map': a.index,
                     'codec': 'copy',
-                    'bitrate': (a.bitrate / 1000),
+                    'bitrate': (a.bitrate / 1000) if a.bitrate else None,
                     'channels': a.audio_channels,
                     'language': a.metadata['language'],
                     'disposition': adisposition,
