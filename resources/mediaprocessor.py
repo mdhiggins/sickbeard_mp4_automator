@@ -835,10 +835,7 @@ class MediaProcessor:
             self.log.debug("Found side data type with closed captioning [remove-bitstream-subs]")
             vbsf = "filter_units=remove_types=6"
         if hdrInput and not hdrOutput:
-            if vbsf:
-                vbsf += "|39"
-            else:
-                vbsf = "filter_units=remove_types=39"
+            vbsf = vbsf + "|39" if vbsf else "filter_units=remove_types=39"
 
         self.log.debug("Video codec: %s." % vcodec)
         self.log.debug("Video bitrate: %s." % vbitrate)
@@ -1336,18 +1333,16 @@ class MediaProcessor:
 
         # Burn subtitles
         try:
-            vfilter = self.burnSubtitleFilter(inputfile, info, swl, valid_external_subs, tagdata)
+            burnfilter = self.burnSubtitleFilter(inputfile, info, swl, valid_external_subs, tagdata)
         except:
-            vfilter = None
+            burnfilter = None
             self.log.exception("Encountered an error while trying to determine which subtitle stream for subtitle burn [burn-subtitle].")
-        if vfilter:
+        if burnfilter:
             self.log.debug("Found valid subtitle stream to burn into video, video cannot be copied [burn-subtitles].")
             video_settings['codec'] = vcodecs[0]
             vcodec = vcodecs[0]
-            if video_settings.get('filter'):
-                video_settings['filter'] = "%s, %s" % (video_settings['filter'], vfilter)
-            else:
-                video_settings['filter'] = vfilter
+            video_settings['filter'] = video_settings['filter'] + "," + burnfilter if video_settings.get('filter') else burnfilter
+            self.log.debug("Setting video filter to burn subtitle filter %s." % video_settings['filter'])
             video_settings['debug'] += ".burn-subtitles"
 
         # Sort Options
