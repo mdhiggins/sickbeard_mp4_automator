@@ -827,6 +827,8 @@ class MediaProcessor:
         if vpix_fmt and vframedata and "pix_fmt" in vframedata and vframedata["pix_fmt"] != vpix_fmt:
             self.log.debug("Pix_fmt is changing, will not preserve framedata")
             vframedata = None
+            # range_filter = "scale=in_range=full:out_range=limited"
+            # vfilter = vfilter + "," + range_filter if vfilter else range_filter
 
         hdrOutput = self.isHDROutput(vpix_fmt, bit_depth)
 
@@ -850,6 +852,7 @@ class MediaProcessor:
         self.log.debug("Video width: %s." % vwidth)
         self.log.debug("Video debug %s." % vdebug)
         self.log.debug("Video framedata: %s." % vframedata)
+        self.log.debug("Video filter: %s." % vfilter)
         self.log.debug("Video bit depth: %d." % bit_depth)
         self.log.debug("Video bsf: %s." % vbsf)
         self.log.info("Video codec parameters %s." % vparams)
@@ -2214,8 +2217,11 @@ class MediaProcessor:
 
     # Check if output pix_fmt is HDR
     def isHDROutput(self, pix_fmt, bit_depth):
-        hdr_pix_fmts = ["yuv420p10le", "yuv422p10le", "yuv444p10le", "yuv420p12le", "yuv422p12le", "yuv444p12le", "p010le"]
-        return pix_fmt in hdr_pix_fmts and bit_depth >= 10
+        if pix_fmt:
+            hdr_pix_fmts = ["yuv420p10le", "yuv422p10le", "yuv444p10le", "yuv420p12le", "yuv422p12le", "yuv444p12le", "p010le"]
+            return pix_fmt in hdr_pix_fmts and bit_depth >= 10
+        else:
+            return bit_depth >= 10
 
     # Run test conversion of subtitle to see if its image based, does not appear to be any other way to tell dynamically
     def isImageBasedSubtitle(self, inputfile, map):
