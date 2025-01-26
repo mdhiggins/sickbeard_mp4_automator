@@ -322,7 +322,7 @@ def processFile(inputfile, mp, info=None, relativePath=None, silent=False, tag=T
             mp.setPermissions(file)
         if mp.settings.postprocess:
             if tagdata:
-                mp.post(output_files, mediatype, tmdbid=tagdata.tmdbid, season=tagdata.season, episode=tagdata.episode)
+                mp.post(output_files, tagdata.mediatype, tmdbid=tagdata.tmdbid, season=tagdata.season, episode=tagdata.episode)
             else:
                 mp.post(output_files, mediatype, tmdbid=tmdbid, season=season, episode=episode)
         addtoProcessedArchive(output_files + [output['input']] if not output['input_deleted'] else output_files, processedList, processedArchive)
