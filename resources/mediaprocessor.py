@@ -1297,7 +1297,7 @@ class MediaProcessor:
                 self.log.info("Skipping external subtitle file %s, no appropriate codecs found or embed disabled." % (os.path.basename(external_sub.path)))
                 continue
 
-            if self.settings.force_subtitle_defaults and s.disposition.get('default'):
+            if self.settings.force_subtitle_defaults and external_sub.subtitle[0].disposition.get('default'):
                 self.log.debug("External subtitle %s is flagged as default, forcing inclusion [Subtitle.force-default]." % (os.path.basename(external_sub.path)))
             else:
                 if not self.validLanguage(external_sub.subtitle[0].metadata['language'], swl, [] if external_sub.subtitle[0].disposition['forced'] else blocked_subtitle_languages):
