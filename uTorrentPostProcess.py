@@ -60,7 +60,7 @@ try:
     label = sys.argv[1].lower().strip()
     kind = sys.argv[4].lower().strip()
     filename = sys.argv[5].strip()
-    categories = [settings.uTorrent['sb'], settings.uTorrent['sonarr'], settings.uTorrent['radarr'], settings.uTorrent['sr'], settings.uTorrent['bypass']]
+    categories = [settings.uTorrent['sb'], settings.uTorrent['sonarr'], settings.uTorrent['radarr'], settings.uTorrent['sr']] + settings.uTorrent['bypass']
     torrent_hash = sys.argv[6]
     try:
         name = sys.argv[7]
@@ -224,7 +224,7 @@ try:
     elif settings.uTorrent['sr'].startswith(label):
         log.info("Passing %s directory to Sickrage." % path)
         autoProcessTVSR.processEpisode(path, settings, pathMapping=path_mapping)
-    elif settings.uTorrent['bypass'].startswith(label):
+    elif [x for x in settings.uTorrent['bypass'] if x.startswith(label)]:
         log.info("Bypassing any further processing as per category.")
 
     # Run a uTorrent action after conversion.

@@ -31,7 +31,7 @@ def progressOutput(timecode, debug):
 
 try:
     settings = ReadSettings()
-    categories = [settings.SAB['sb'], settings.SAB['sonarr'], settings.SAB['radarr'], settings.SAB['sr'], settings.SAB['bypass']]
+    categories = [settings.SAB['sb'], settings.SAB['sonarr'], settings.SAB['radarr'], settings.SAB['sr']] + settings.SAB['bypass']
     category = str(sys.argv[5]).lower().strip()
     path = str(sys.argv[1])
     nzb = str(sys.argv[2])
@@ -96,7 +96,7 @@ try:
     elif settings.SAB['sr'].startswith(category):
         log.info("Passing %s directory to Sickrage." % path)
         autoProcessTVSR.processEpisode(path, settings, nzb, pathMapping=path_mapping)
-    elif settings.SAB['bypass'].startswith(category):
+    elif [x for x in settings.SAB['bypass'] if x.startswith(category)]:
         log.info("Bypassing any further processing as per category.")
 except:
     log.exception("Unexpected exception.")

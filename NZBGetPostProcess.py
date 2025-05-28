@@ -112,7 +112,7 @@ if 'NZBOP_SCRIPTDIR' in os.environ and not os.environ['NZBOP_VERSION'][0:5] < '1
     sickragecat = os.environ['NZBPO_SICKRAGE_CAT'].lower().strip()
     bypass = os.environ['NZBPO_BYPASS_CAT'].lower().strip()
 
-    categories = [sickbeardcat, sonarrcat, radarrcat, sickragecat, bypass]
+    categories = [sickbeardcat, sonarrcat, radarrcat, sickragecat] + bypass
 
     log.debug("Path: %s" % path)
     log.debug("NZB: %s" % nzb)
@@ -240,7 +240,7 @@ if 'NZBOP_SCRIPTDIR' in os.environ and not os.environ['NZBOP_VERSION'][0:5] < '1
         #DEBUG#print "Sickrage Processing Activated"
         autoProcessTVSR.processEpisode(path, settings, nzb, pathMapping=path_mapping)
         sys.exit(POSTPROCESS_SUCCESS)
-    elif (bypass.startswith(category)):
+    elif [x for x in bypass if x.startswith(category)]:
         #DEBUG#print "Bypass Further Processing"
         sys.exit(POSTPROCESS_NONE)
 

@@ -42,7 +42,7 @@ try:
 
     if not root_path:
         root_path = os.path.dirname(content_path)
-    categories = [settings.qBittorrent['sb'], settings.qBittorrent['sonarr'], settings.qBittorrent['radarr'], settings.qBittorrent['sr'], settings.qBittorrent['bypass']]
+    categories = [settings.qBittorrent['sb'], settings.qBittorrent['sonarr'], settings.qBittorrent['radarr'], settings.qBittorrent['sr']] + settings.qBittorrent['bypass']
     path_mapping = settings.qBittorrent['path-mapping']
 
     log.debug("Root Path: %s." % root_path)
@@ -183,7 +183,7 @@ try:
     elif settings.qBittorrent['sr'].startswith(label):
         log.info("Passing %s directory to Sickrage." % path)
         autoProcessTVSR.processEpisode(path, settings, pathMapping=path_mapping)
-    elif settings.qBittorrent['bypass'].startswith(label):
+    elif [x for x in settings.qBittorrent['bypass'] if x.startswith(label)]:
         log.info("Bypassing any further processing as per category.")
 
     # Run a qbittorrent action after conversion.
