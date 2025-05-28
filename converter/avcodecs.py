@@ -1718,7 +1718,7 @@ class NVEncH265Codec(H265Codec):
         elif 'decode_device' in safe:
             optlist.extend(['-vf', 'hwdownload,format=nv12,hwupload'])
 
-        fmtstr = ':format=%s,hwdownload' % (safe['nvenc_pix_fmt']) if 'nvenc_pix_fmt' in safe else ""
+        fmtstr = ':format=%s' % (safe['nvenc_pix_fmt']) if 'nvenc_pix_fmt' in safe else ""
 
         if 'nvenc_wscale' in safe and 'nvenc_hscale' in safe:
             optlist.extend(['-vf', '%s=w=%s:h=%s%s' % (self.scale_filter, safe['nvenc_wscale'], safe['nvenc_hscale'], fmtstr)])
@@ -1727,7 +1727,7 @@ class NVEncH265Codec(H265Codec):
         elif 'nvenc_hscale' in safe:
             optlist.extend(['-vf', '%s=w=trunc((oh*a)/2)*2:h=%s%s' % (self.scale_filter, safe['nvenc_hscale'], fmtstr)])
         elif fmtstr:
-            optlist.extend(['-vf', fmtstr[1:]])
+            optlist.extend(['-vf', '%s=%s' % (self.scale_filter, fmtstr[1:])])
         return optlist
 
 
