@@ -315,8 +315,8 @@ class MediaProcessor:
         elif channels > 2:
             output = "%d.1 Channel" % (channels - 1)
 
-        if options.get("codec") == "copy":
-            if stream.profile and "atmos" in stream.profile.lower():
+        if options.get("codec") == 'copy':
+            if self.isAudioStreamAtmos(stream):
                 output += " Atmos"
 
         disposition = stream.disposition
@@ -380,6 +380,10 @@ class MediaProcessor:
         except:
             self.log.exception("isValidSource unexpectedly threw an exception, returning None.")
             return None
+
+    # Determine if a sub is an Atmos track
+    def isAudioStreamAtmos(self, stream):
+        return stream.profile and "atmos" in stream.profile.lower()
 
     # Determine if a file can be read by FFPROBE and is a subtitle only
     def isValidSubtitleSource(self, inputfile):
@@ -631,7 +635,7 @@ class MediaProcessor:
     def duplicateStreamSort(self, options, info):
         options.sort(key=lambda x: x['bitrate'], reverse=True)
         options.sort(key=lambda x: self.getSourceStream(x['map'], info).disposition['default'], reverse=True)
-        options.sort(key=lambda x: x['codec'] == "copy", reverse=True)
+        options.sort(key=lambda x: x['codec'] == 'copy', reverse=True)
 
     # Get indexes for sublists
     def sublistIndexes(self, x, y):
@@ -695,7 +699,7 @@ class MediaProcessor:
         vcodecs = self.settings.hdr.get('codec', []) if hdrInput and len(self.settings.hdr.get('codec', [])) > 0 else self.settings.vcodec
         vcodecs = self.ffprobeSafeCodecs(vcodecs)
         self.log.debug("Pool of video codecs is %s." % (vcodecs))
-        vcodec = "copy" if info.video.codec in vcodecs else vcodecs[0]
+        vcodec = 'copy' if info.video.codec in vcodecs else vcodecs[0]
 
         # Custom
         try:
@@ -1076,6 +1080,11 @@ class MediaProcessor:
                 self.log.debug("Calculated bitrate of %d exceeds maximum bitrate %d, setting to max value [audio-max-bitrate]." % (abitrate, self.settings.amaxbitrate))
                 abitrate = self.settings.amaxbitrate
                 acodec = self.settings.acodec[0]
+
+            # Force copy if Atmos
+            if self.settings.audio_atmos_force_copy and self.isAudioStreamAtmos(a):
+                self.log.debug("Source audio stream contains Atmos data, forcing codec copy to preserve [audio-atmos-force-copy].")
+                acodec = 'copy'
 
             self.log.debug("Audio codec: %s." % acodec)
             self.log.debug("Channels: %s." % audio_channels)

@@ -86,6 +86,7 @@ profile =
 force-filter = False
 sample-rates = 
 sample-format = 
+atmos-force-copy = False
 copy-original = False
 aac-adtstoasc = False
 ignored-dispositions = 

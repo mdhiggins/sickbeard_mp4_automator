@@ -182,6 +182,7 @@ class ReadSettings:
             'force-filter': False,
             'sample-rates': '',
             'sample-format': '',
+            'atmos-force-copy': False,
             'copy-original': False,
             'aac-adtstoasc': False,
             'ignored-dispositions': '',
@@ -613,6 +614,7 @@ class ReadSettings:
         self.aforcefilter = config.getboolean(section, 'force-filter')
         self.audio_samplerates = [int(x) for x in config.getlist(section, "sample-rates") if x.isdigit()]
         self.audio_sampleformat = config.get(section, 'sample-format')
+        self.audio_atmos_force_copy = config.getboolean(section, 'atmos-force-copy')
         self.audio_copyoriginal = config.getboolean(section, "copy-original")
         self.audio_first_language_stream = config.getboolean(section, "first-stream-of-language")
         self.aac_adtstoasc = config.getboolean(section, 'aac-adtstoasc')
