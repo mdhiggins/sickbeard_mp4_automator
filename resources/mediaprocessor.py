@@ -1913,9 +1913,9 @@ class MediaProcessor:
                 video = MediaProcessor.custom_scan_video(os.path.abspath(inputfile), tagdata)
 
                 if self.settings.ignore_embedded_subs:
-                    video.subtitle_languages = set()
+                    video.subtitles = set()
                 else:
-                    video.subtitle_languages = set([Language(x.metadata['language']) for x in existing_subtitle_streams])
+                    video.subtitles = set([Language(x.metadata['language']) for x in existing_subtitle_streams])
 
                 if tagdata:
                     self.log.debug("Refining subliminal search using included metadata")
