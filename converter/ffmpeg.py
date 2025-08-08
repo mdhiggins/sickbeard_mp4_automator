@@ -162,6 +162,7 @@ class MediaStreamInfo(object):
             out['channels'] = self.audio_channels
             out['samplerate'] = self.audio_samplerate
             out['language'] = language
+            out['profile'] = self.profile
             out['disposition'] = self.dispostr
         elif self.type == 'video':
             out['pix_fmt'] = self.pix_fmt
