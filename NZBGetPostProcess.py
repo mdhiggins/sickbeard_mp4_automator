@@ -110,7 +110,7 @@ if 'NZBOP_SCRIPTDIR' in os.environ and not os.environ['NZBOP_VERSION'][0:5] < '1
     radarrcat = os.environ['NZBPO_RADARR_CAT'].lower().strip()
     sickbeardcat = os.environ['NZBPO_SICKBEARD_CAT'].lower().strip()
     sickragecat = os.environ['NZBPO_SICKRAGE_CAT'].lower().strip()
-    bypass = os.environ['NZBPO_BYPASS_CAT'].lower().strip()
+    bypass = [b.lower().strip() for b in os.environ['NZBPO_BYPASS_CAT'].split(',')]
 
     categories = [sickbeardcat, sonarrcat, radarrcat, sickragecat] + bypass
 
