@@ -71,7 +71,7 @@ class Converter(object):
     def encoder(encoder):
         return next((x() for x in video_codec_list + audio_codec_list + subtitle_codec_list + attachment_codec_list if x.codec_name == encoder), None)
 
-    def parse_options(self, opt, twopass=None, strip_metadata=False):
+    def parse_options(self, opt, twopass=None, strip_metadata=False, fix_sub_duration=True):
         """
         Parse format/codec options and prepare raw ffmpeg option list.
         """
@@ -114,7 +114,8 @@ class Converter(object):
 
                 sindex = opt['source'].index(x)
                 if any(s.get("source", 0) == sindex for s in opt["subtitle"]):
-                    source_options.append('-fix_sub_duration')
+                    if fix_sub_duration:
+                        source_options.append('-fix_sub_duration')
                     if 'sub-encoding' in opt:
                         source_options.extend(['-sub_charenc', opt['sub-encoding']])
                 source_options.extend(['-i', x])
@@ -244,7 +245,7 @@ class Converter(object):
             yield int((100.0 * timecode) / info.format.duration), debug
         os.remove(infile)
 
-    def convert(self, outfile, options, twopass=False, timeout=10, preopts=None, postopts=None, strip_metadata=False):
+    def convert(self, outfile, options, twopass=False, timeout=10, preopts=None, postopts=None, strip_metadata=False, fix_sub_duration=True):
         """
         Convert media file (infile) according to specified options, and
         save it to outfile. For two-pass encoding, specify the pass (1 or 2)
@@ -315,28 +316,31 @@ class Converter(object):
             raise ConverterError('Zero-length media')
 
         if twopass:
-            optlist1 = self.parse_options(options, 1, strip_metadata=strip_metadata)
+            optlist1 = self.parse_options(options, 1, strip_metadata=strip_metadata, fix_sub_duration=fix_sub_duration)
             for timecode, debug in self.ffmpeg.convert(outfile,
                                                        optlist1,
                                                        timeout=timeout,
                                                        preopts=preopts,
-                                                       postopts=postopts):
+                                                       postopts=postopts,
+                                                       fix_sub_duration=fix_sub_duration):
                 yield int((50.0 * timecode) / info.format.duration), debug
 
-            optlist2 = self.parse_options(options, 2, strip_metadata=strip_metadata)
+            optlist2 = self.parse_options(options, 2, strip_metadata=strip_metadata, fix_sub_duration=fix_sub_duration)
             for timecode, debug in self.ffmpeg.convert(outfile,
                                                        optlist2,
                                                        timeout=timeout,
                                                        preopts=preopts,
-                                                       postopts=postopts):
+                                                       postopts=postopts,
+                                                       fix_sub_duration=fix_sub_duration):
                 yield int(50.0 + (50.0 * timecode) / info.format.duration), debug
         else:
-            optlist = self.parse_options(options, twopass, strip_metadata=strip_metadata)
+            optlist = self.parse_options(options, twopass, strip_metadata=strip_metadata, fix_sub_duration=fix_sub_duration)
             for timecode, debug in self.ffmpeg.convert(outfile,
                                                        optlist,
                                                        timeout=timeout,
                                                        preopts=preopts,
-                                                       postopts=postopts):
+                                                       postopts=postopts,
+                                                       fix_sub_duration=fix_sub_duration):
                 yield int((100.0 * timecode) / info.format.duration), debug
 
     def probe(self, fname, posters_as_video=True):

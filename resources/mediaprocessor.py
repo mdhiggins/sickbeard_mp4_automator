@@ -2325,7 +2325,7 @@ class MediaProcessor:
             i += 1
 
         try:
-            conv = self.converter.convert(outputfile, options, timeout=None, preopts=preopts, postopts=postopts, strip_metadata=self.settings.strip_metadata)
+            conv = self.converter.convert(outputfile, options, timeout=None, preopts=preopts, postopts=postopts, strip_metadata=self.settings.strip_metadata, fix_sub_duration=self.settings.fix_sub_duration)
         except KeyboardInterrupt:
             raise
         except:
