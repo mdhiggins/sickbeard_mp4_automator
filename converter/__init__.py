@@ -321,8 +321,7 @@ class Converter(object):
                                                        optlist1,
                                                        timeout=timeout,
                                                        preopts=preopts,
-                                                       postopts=postopts,
-                                                       fix_sub_duration=fix_sub_duration):
+                                                       postopts=postopts):
                 yield int((50.0 * timecode) / info.format.duration), debug
 
             optlist2 = self.parse_options(options, 2, strip_metadata=strip_metadata, fix_sub_duration=fix_sub_duration)
@@ -330,8 +329,7 @@ class Converter(object):
                                                        optlist2,
                                                        timeout=timeout,
                                                        preopts=preopts,
-                                                       postopts=postopts,
-                                                       fix_sub_duration=fix_sub_duration):
+                                                       postopts=postopts):
                 yield int(50.0 + (50.0 * timecode) / info.format.duration), debug
         else:
             optlist = self.parse_options(options, twopass, strip_metadata=strip_metadata, fix_sub_duration=fix_sub_duration)
@@ -339,8 +337,7 @@ class Converter(object):
                                                        optlist,
                                                        timeout=timeout,
                                                        preopts=preopts,
-                                                       postopts=postopts,
-                                                       fix_sub_duration=fix_sub_duration):
+                                                       postopts=postopts):
                 yield int((100.0 * timecode) / info.format.duration), debug
 
     def probe(self, fname, posters_as_video=True):
