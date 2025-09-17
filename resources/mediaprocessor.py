@@ -2102,7 +2102,7 @@ class MediaProcessor:
 
             try:
                 self.log.info("Ripping %s subtitle from source stream %s into external file." % (options["language"], options['index']))
-                conv = self.converter.convert(outputfile, options, timeout=None)
+                conv = self.converter.convert(outputfile, options, timeout=None, fix_sub_duration=self.settings.fix_sub_duration)
                 _, cmds = next(conv)
                 self.log.debug("Subtitle extraction FFmpeg command:")
                 self.log.debug(self.printableFFMPEGCommand(cmds))
