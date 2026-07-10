@@ -455,6 +455,5 @@ The following features were added by [Shaun Kleyn](https://github.com/shaunkleyn
 
 - **Audio Compression** — Dynamic range compression via FFmpeg `compand` filter with idempotency protection (`COMPAND` tag prevents double-processing on re-runs)
 - **Audio Loudnorm Normalisation** — Two-pass EBU R128 loudness normalisation via FFmpeg `loudnorm` filter, with compression-aware measurement pass and `LOUDNORM` tag tracking
-- **Whisparr support** — Integration with the Whisparr media manager
 
 ## Enjoy
