@@ -22,6 +22,9 @@
 # Category for Radarr
 #RADARR_CAT=Radarr
 
+# Category for Whisparr
+#WHISPARR_CAT=Whisparr
+
 # Category for Sickbeard
 #SICKBEARD_CAT=Sickbeard
 
@@ -80,7 +83,7 @@ try:
     from resources.readsettings import ReadSettings
     from resources.mediaprocessor import MediaProcessor
     from resources.log import getLogger
-    from autoprocess import autoProcessTV, autoProcessTVSR, sonarr, radarr
+    from autoprocess import autoProcessTV, autoProcessTVSR, sonarr, radarr, whisparr
 except ImportError:
     print("[ERROR] Wrong path to sickbeard_mp4_automator: " + os.environ['NZBPO_MP4_FOLDER'])
     print("[ERROR] %s" % traceback.print_exc())
@@ -108,11 +111,12 @@ if 'NZBOP_SCRIPTDIR' in os.environ and not os.environ['NZBOP_VERSION'][0:5] < '1
 
     sonarrcat = os.environ['NZBPO_SONARR_CAT'].lower().strip()
     radarrcat = os.environ['NZBPO_RADARR_CAT'].lower().strip()
+    whisparrcat = os.environ['NZBPO_WHISPARR_CAT'].lower().strip()
     sickbeardcat = os.environ['NZBPO_SICKBEARD_CAT'].lower().strip()
     sickragecat = os.environ['NZBPO_SICKRAGE_CAT'].lower().strip()
-    bypass = os.environ['NZBPO_BYPASS_CAT'].lower().strip()
+    bypass = [b.lower().strip() for b in os.environ['NZBPO_BYPASS_CAT'].split(',')]
 
-    categories = [sickbeardcat, sonarrcat, radarrcat, sickragecat] + bypass
+    categories = [sickbeardcat, sonarrcat, radarrcat, whisparrcat, sickragecat] + bypass
 
     log.debug("Path: %s" % path)
     log.debug("NZB: %s" % nzb)
@@ -232,6 +236,13 @@ if 'NZBOP_SCRIPTDIR' in os.environ and not os.environ['NZBOP_VERSION'][0:5] < '1
     elif (radarrcat.startswith(category)):
         #DEBUG#print "Radarr Processing Activated"
         success = radarr.processMovie(path, settings, True, pathMapping=path_mapping)
+        if success:
+            sys.exit(POSTPROCESS_SUCCESS)
+        else:
+            sys.exit(POSTPROCESS_NONE)
+    elif (whisparrcat.startswith(category)):
+        #DEBUG#print "Whisparr Processing Activated"
+        success = whisparr.processMovie(path, settings, True, pathMapping=path_mapping)
         if success:
             sys.exit(POSTPROCESS_SUCCESS)
         else:

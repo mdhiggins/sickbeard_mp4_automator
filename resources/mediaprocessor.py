@@ -1823,7 +1823,7 @@ class MediaProcessor:
     # Process external subtitle file with CleanIt library
     def cleanExternalSub(self, path):
         if self.settings.cleanit and cleanit:
-            self.log.debug("Cleaning subtitle with path %s [subtitles.cleanit]." % (path))
+            self.log.info("Cleaning subtitle with path %s [subtitles.cleanit]." % (path))
             sub = cleanit.Subtitle(path)
             cfg = cleanit.Config.from_path(self.settings.cleanit_config) if self.settings.cleanit_config else cleanit.Config()
             rules = cfg.select_rules(tags=self.settings.cleanit_tags)
@@ -1833,7 +1833,7 @@ class MediaProcessor:
     # FFSubsync
     def syncExternalSub(self, path, inputfile):
         if self.settings.ffsubsync and ffsubsync:
-            self.log.debug("Syncing subtitle with path %s [subtitles.ffsubsync]." % (path))
+            self.log.info("FFsubsync syncing subtitle with path %s [subtitles.ffsubsync]." % (path))
             syncedsub = path + ".sync.srt"
             try:
                 unparsed_args = [inputfile, '-i', path, '-o', syncedsub, '--ffmpegpath', os.path.dirname(self.settings.ffmpeg)]
@@ -1913,9 +1913,9 @@ class MediaProcessor:
                 video = MediaProcessor.custom_scan_video(os.path.abspath(inputfile), tagdata)
 
                 if self.settings.ignore_embedded_subs:
-                    video.subtitle_languages = set()
+                    video.subtitles = set()
                 else:
-                    video.subtitle_languages = set([Language(x.metadata['language']) for x in existing_subtitle_streams])
+                    video.subtitles = [subliminal.Subtitle(Language(x.metadata['language'])) for x in existing_subtitle_streams]
 
                 if tagdata:
                     self.log.debug("Refining subliminal search using included metadata")
@@ -2102,7 +2102,7 @@ class MediaProcessor:
 
             try:
                 self.log.info("Ripping %s subtitle from source stream %s into external file." % (options["language"], options['index']))
-                conv = self.converter.convert(outputfile, options, timeout=None)
+                conv = self.converter.convert(outputfile, options, timeout=None, fix_sub_duration=False)
                 _, cmds = next(conv)
                 self.log.debug("Subtitle extraction FFmpeg command:")
                 self.log.debug(self.printableFFMPEGCommand(cmds))
@@ -2325,7 +2325,7 @@ class MediaProcessor:
             i += 1
 
         try:
-            conv = self.converter.convert(outputfile, options, timeout=None, preopts=preopts, postopts=postopts, strip_metadata=self.settings.strip_metadata)
+            conv = self.converter.convert(outputfile, options, timeout=None, preopts=preopts, postopts=postopts, strip_metadata=self.settings.strip_metadata, fix_sub_duration=self.settings.fix_sub_duration)
         except KeyboardInterrupt:
             raise
         except:

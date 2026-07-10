@@ -4,7 +4,7 @@ import os
 import re
 import sys
 import shutil
-from autoprocess import autoProcessTV, autoProcessTVSR, sonarr, radarr
+from autoprocess import autoProcessTV, autoProcessTVSR, sonarr, radarr, whisparr
 from resources.log import getLogger
 from resources.readsettings import ReadSettings
 from resources.mediaprocessor import MediaProcessor
@@ -42,7 +42,7 @@ try:
 
     if not root_path:
         root_path = os.path.dirname(content_path)
-    categories = [settings.qBittorrent['sb'], settings.qBittorrent['sonarr'], settings.qBittorrent['radarr'], settings.qBittorrent['sr']] + settings.qBittorrent['bypass']
+    categories = [settings.qBittorrent['sb'], settings.qBittorrent['sonarr'], settings.qBittorrent['radarr'], settings.qBittorrent['whisparr'], settings.qBittorrent['sr']] + settings.qBittorrent['bypass']
     path_mapping = settings.qBittorrent['path-mapping']
 
     log.debug("Root Path: %s." % root_path)
@@ -180,6 +180,9 @@ try:
     elif settings.qBittorrent['radarr'].startswith(label):
         log.info("Passing %s directory to Radarr." % path)
         radarr.processMovie(path, settings, pathMapping=path_mapping)
+    elif settings.qBittorrent['whisparr'].startswith(label):
+        log.info("Passing %s directory to Whisparr." % path)
+        whisparr.processMovie(path, settings, pathMapping=path_mapping)
     elif settings.qBittorrent['sr'].startswith(label):
         log.info("Passing %s directory to Sickrage." % path)
         autoProcessTVSR.processEpisode(path, settings, pathMapping=path_mapping)

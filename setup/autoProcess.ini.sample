@@ -131,6 +131,7 @@ ignored-dispositions =
 unique-dispositions = False
 attachment-codec = 
 remove-bitstream-subs = False
+fix-sub-duration = True
 
 [Subtitle.Sorting]
 sorting = language, d.comment, d.default.d, d.forced.d
@@ -172,6 +173,17 @@ port = 7878
 apikey = 
 ssl = False
 webroot = 
+force-rename = False
+rescan = True
+in-progress-check = True
+block-reprocess = False
+
+[Whisparr]
+host = localhost
+port = 6969
+apikey =
+ssl = False
+webroot =
 force-rename = False
 rescan = True
 in-progress-check = True

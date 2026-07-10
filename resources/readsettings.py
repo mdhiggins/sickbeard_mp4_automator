@@ -228,6 +228,7 @@ class ReadSettings:
             'unique-dispositions': False,
             'attachment-codec': '',
             'remove-bitstream-subs': False,
+            'fix-sub-duration': True,
         },
         'Subtitle.Sorting': {
             'sorting': 'language, d.comment, d.default.d, d.forced.d',
@@ -274,6 +275,17 @@ class ReadSettings:
             'in-progress-check': True,
             'block-reprocess': False,
         },
+        'Whisparr': {
+            'host': 'localhost',
+            'port': 6969,
+            'apikey': '',
+            'ssl': False,
+            'webroot': '',
+            'force-rename': False,
+            'rescan': True,
+            'in-progress-check': True,
+            'block-reprocess': False,
+        },
         'Sickbeard': {
             'host': 'localhost',
             'port': 8081,
@@ -298,6 +310,7 @@ class ReadSettings:
             'sickrage-category': 'sickrage',
             'sonarr-category': 'sonarr',
             'radarr-category': 'radarr',
+            'whisparr-category': 'whisparr',
             'bypass-category': 'bypass',
             'output-directory': '',
             'path-mapping': '',
@@ -307,6 +320,7 @@ class ReadSettings:
             'sickrage-label': 'sickrage',
             'sonarr-label': 'sonarr',
             'radarr-label': 'radarr',
+            'whisparr-label': 'whisparr',
             'bypass-label': 'bypass',
             'convert': True,
             'host': 'localhost',
@@ -322,6 +336,7 @@ class ReadSettings:
             'sickrage-label': 'sickrage',
             'sonarr-label': 'sonarr',
             'radarr-label': 'radarr',
+            'whisparr-label': 'whisparr',
             'bypass-label': 'bypass',
             'convert': True,
             'action-before': '',
@@ -339,6 +354,7 @@ class ReadSettings:
             'sickrage-label': 'sickrage',
             'sonarr-label': 'sonarr',
             'radarr-label': 'radarr',
+            'whisparr-label': 'whisparr',
             'bypass-label': 'bypass',
             'convert': True,
             'webui': False,
@@ -672,6 +688,7 @@ class ReadSettings:
         self.unique_subtitle_dispositions = config.getboolean(section, "unique-dispositions")
         self.attachmentcodec = config.getlist(section, 'attachment-codec')
         self.removebvs = config.getlist(section, 'remove-bitstream-subs')
+        self.fix_sub_duration = config.getboolean(section, 'fix-sub-duration')
 
         section = "Subtitle.Sorting"
         self.sub_sorting = config.getlist(section, 'sorting')
@@ -745,6 +762,23 @@ class ReadSettings:
         self.Radarr['in-progress-check'] = config.getboolean(section, "in-progress-check")
         self.Radarr['blockreprocess'] = config.getboolean(section, "block-reprocess")
 
+        # Whisparr
+        section = "Whisparr"
+        self.Whisparr = {}
+        self.Whisparr['host'] = config.get(section, "host")
+        self.Whisparr['port'] = config.getint(section, "port")
+        self.Whisparr['apikey'] = config.get(section, "apikey")
+        self.Whisparr['ssl'] = config.getboolean(section, "ssl")
+        self.Whisparr['webroot'] = config.get(section, "webroot")
+        if not self.Whisparr['webroot'].startswith("/"):
+            self.Whisparr['webroot'] = "/" + self.Whisparr['webroot']
+        if self.Whisparr['webroot'].endswith("/"):
+            self.Whisparr['webroot'] = self.Whisparr['webroot'][:-1]
+        self.Whisparr['rename'] = config.getboolean(section, "force-rename")
+        self.Whisparr['rescan'] = config.getboolean(section, "rescan")
+        self.Whisparr['in-progress-check'] = config.getboolean(section, "in-progress-check")
+        self.Whisparr['blockreprocess'] = config.getboolean(section, "block-reprocess")
+
         # Sickbeard
         section = "Sickbeard"
         self.Sickbeard = {}
@@ -775,6 +809,7 @@ class ReadSettings:
         self.SAB['sr'] = config.get(section, "Sickrage-category").lower()
         self.SAB['sonarr'] = config.get(section, "Sonarr-category").lower()
         self.SAB['radarr'] = config.get(section, "Radarr-category").lower()
+        self.SAB['whisparr'] = config.get(section, "Whisparr-category").lower()
         self.SAB['bypass'] = config.getlist(section, "Bypass-category")
         self.SAB['output-dir'] = config.getdirectory(section, "output-directory")
         self.SAB['path-mapping'] = config.getdict(section, "path-mapping", dictseparator="=", lower=False, replace=[])
@@ -786,6 +821,7 @@ class ReadSettings:
         self.deluge['sr'] = config.get(section, "sickrage-label").lower()
         self.deluge['sonarr'] = config.get(section, "sonarr-label").lower()
         self.deluge['radarr'] = config.get(section, "radarr-label").lower()
+        self.deluge['whisparr'] = config.get(section, "whisparr-label").lower()
         self.deluge['bypass'] = config.getlist(section, "bypass-label")
         self.deluge['convert'] = config.getboolean(section, "convert")
         self.deluge['host'] = config.get(section, "host")
@@ -803,6 +839,7 @@ class ReadSettings:
         self.qBittorrent['sr'] = config.get(section, "sickrage-label").lower()
         self.qBittorrent['sonarr'] = config.get(section, "sonarr-label").lower()
         self.qBittorrent['radarr'] = config.get(section, "radarr-label").lower()
+        self.qBittorrent['whisparr'] = config.get(section, "whisparr-label").lower()
         self.qBittorrent['bypass'] = config.getlist(section, "bypass-label")
         self.qBittorrent['convert'] = config.getboolean(section, "convert")
         self.qBittorrent['output-dir'] = config.getdirectory(section, "output-directory")
@@ -822,6 +859,7 @@ class ReadSettings:
         self.uTorrent['sr'] = config.get(section, "sickrage-label").lower()
         self.uTorrent['sonarr'] = config.get(section, "sonarr-label").lower()
         self.uTorrent['radarr'] = config.get(section, "radarr-label").lower()
+        self.uTorrent['whisparr'] = config.get(section, "whisparr-label").lower()
         self.uTorrent['bypass'] = config.getlist(section, "bypass-label")
         self.uTorrent['convert'] = config.getboolean(section, "convert")
         self.uTorrent['output-dir'] = config.getdirectory(section, "output-directory")

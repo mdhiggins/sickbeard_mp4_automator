@@ -2,7 +2,7 @@ import os
 import re
 import sys
 import shutil
-from autoprocess import autoProcessTV, autoProcessTVSR, sonarr, radarr
+from autoprocess import autoProcessTV, autoProcessTVSR, sonarr, radarr, whisparr
 from resources.log import getLogger
 from resources.readsettings import ReadSettings
 from resources.mediaprocessor import MediaProcessor
@@ -60,7 +60,7 @@ try:
     label = sys.argv[1].lower().strip()
     kind = sys.argv[4].lower().strip()
     filename = sys.argv[5].strip()
-    categories = [settings.uTorrent['sb'], settings.uTorrent['sonarr'], settings.uTorrent['radarr'], settings.uTorrent['sr']] + settings.uTorrent['bypass']
+    categories = [settings.uTorrent['sb'], settings.uTorrent['sonarr'], settings.uTorrent['radarr'], settings.uTorrent['whisparr'], settings.uTorrent['sr']] + settings.uTorrent['bypass']
     torrent_hash = sys.argv[6]
     try:
         name = sys.argv[7]
@@ -221,6 +221,9 @@ try:
     elif settings.uTorrent['radarr'].startswith(label):
         log.info("Passing %s directory to Radarr." % path)
         radarr.processMovie(path, settings, pathMapping=path_mapping)
+    elif settings.uTorrent['whisparr'].startswith(label):
+        log.info("Passing %s directory to Whisparr." % path)
+        whisparr.processMovie(path, settings, pathMapping=path_mapping)
     elif settings.uTorrent['sr'].startswith(label):
         log.info("Passing %s directory to Sickrage." % path)
         autoProcessTVSR.processEpisode(path, settings, pathMapping=path_mapping)

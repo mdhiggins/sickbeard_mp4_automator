@@ -3,7 +3,7 @@
 import os
 import sys
 import re
-from autoprocess import autoProcessTV, autoProcessTVSR, sonarr, radarr
+from autoprocess import autoProcessTV, autoProcessTVSR, sonarr, radarr, whisparr
 from resources.readsettings import ReadSettings
 from resources.mediaprocessor import MediaProcessor
 from resources.log import getLogger
@@ -37,7 +37,7 @@ DRPCClient = SMADelugeRPCClient if PY310_OR_LATER else DelugeRPCClient
 
 try:
     settings = ReadSettings()
-    categories = [settings.deluge['sb'], settings.deluge['sonarr'], settings.deluge['radarr'], settings.deluge['sr'], settings.deluge['bypass']]
+    categories = [settings.deluge['sb'], settings.deluge['sonarr'], settings.deluge['radarr'], settings.deluge['whisparr'], settings.deluge['sr'], settings.deluge['bypass']]
     remove = settings.deluge['remove']
 
     if len(sys.argv) < 4:
@@ -178,6 +178,9 @@ try:
     elif settings.deluge['radarr'].startswith(category):
         log.info("Passing %s directory to Radarr." % path)
         radarr.processMovie(path, settings, pathMapping=path_mapping)
+    elif settings.deluge['whisparr'].startswith(category):
+        log.info("Passing %s directory to Whisparr." % path)
+        whisparr.processMovie(path, settings, pathMapping=path_mapping)
     elif settings.deluge['sr'].startswith(category):
         log.info("Passing %s directory to Sickrage." % path)
         autoProcessTVSR.processEpisode(path, settings, pathMapping=path_mapping)

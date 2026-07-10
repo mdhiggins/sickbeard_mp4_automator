@@ -2,7 +2,7 @@
 
 import os
 import sys
-from autoprocess import autoProcessTV, autoProcessTVSR, sonarr, radarr
+from autoprocess import autoProcessTV, autoProcessTVSR, sonarr, radarr, whisparr
 from resources.log import getLogger
 from resources.readsettings import ReadSettings
 from resources.mediaprocessor import MediaProcessor
@@ -31,7 +31,7 @@ def progressOutput(timecode, debug):
 
 try:
     settings = ReadSettings()
-    categories = [settings.SAB['sb'], settings.SAB['sonarr'], settings.SAB['radarr'], settings.SAB['sr']] + settings.SAB['bypass']
+    categories = [settings.SAB['sb'], settings.SAB['sonarr'], settings.SAB['radarr'], settings.SAB['whisparr'], settings.SAB['sr']] + settings.SAB['bypass']
     category = str(sys.argv[5]).lower().strip()
     path = str(sys.argv[1])
     nzb = str(sys.argv[2])
@@ -93,6 +93,9 @@ try:
     elif settings.SAB['radarr'].startswith(category):
         log.info("Passing %s directory to Radarr." % path)
         radarr.processMovie(path, settings, pathMapping=path_mapping)
+    elif settings.SAB['whisparr'].startswith(category):
+        log.info("Passing %s directory to Whisparr." % path)
+        whisparr.processMovie(path, settings, pathMapping=path_mapping)
     elif settings.SAB['sr'].startswith(category):
         log.info("Passing %s directory to Sickrage." % path)
         autoProcessTVSR.processEpisode(path, settings, nzb, pathMapping=path_mapping)
