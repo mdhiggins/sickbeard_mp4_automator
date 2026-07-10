@@ -57,8 +57,11 @@ flowchart TD
     UA_CF1 --> UA_COMP
 
     UA_COMP{"Audio.Compression\nenabled?"}
-    UA_COMP -- Yes --> UA_COMPF[Apply compand filter\nSet COMPAND=1 tag]
     UA_COMP -- No --> UA_LOUD
+    UA_COMP -- Yes --> UA_ALREADY{"Source already compressed?\nCOMPAND tag or\ncomp in stream title"}
+    UA_ALREADY -- Yes --> UA_KEEP["Skip filter\nPreserve COMPAND=1 tag"]
+    UA_ALREADY -- No --> UA_COMPF[Apply compand filter\nSet COMPAND=1 tag]
+    UA_KEEP --> UA_LOUD
     UA_COMPF --> UA_LOUD
 
     UA_LOUD{"Audio.Loudnorm\nenabled?"}

@@ -633,6 +633,39 @@ class TestGenerateOptionsAudio(unittest.TestCase):
         ua_tracks = [a for a in result if 'universal-audio' in a.get('debug', '')]
         self.assertIsNone(ua_tracks[0].get('metadata'))
 
+    # ------------------------------------------------------------------
+    # UA double-compression guard
+    # ------------------------------------------------------------------
+
+    def test_ua_skips_compand_filter_when_source_already_compressed(self):
+        """UA must not apply compand when source stream is already compressed."""
+        settings = make_settings(ua=['aac'], acompression=True, loudnorm=False)
+        audio = make_audio_stream(codec='dts', channels=6,
+                                  metadata={'compand': '1'})
+        result = self._run(settings, audio)
+        ua_tracks = [a for a in result if 'universal-audio' in a.get('debug', '')]
+        self.assertNotIn(FAKE_COMPAND_FILTER,
+                         ua_tracks[0].get('filter') or '')
+
+    def test_ua_preserves_compand_tag_when_source_already_compressed(self):
+        """UA must still carry COMPAND=1 when compression is skipped for already-compressed source."""
+        settings = make_settings(ua=['aac'], acompression=True, loudnorm=False)
+        audio = make_audio_stream(codec='dts', channels=6,
+                                  metadata={'compand': '1'})
+        result = self._run(settings, audio)
+        ua_tracks = [a for a in result if 'universal-audio' in a.get('debug', '')]
+        self.assertEqual(ua_tracks[0].get('metadata', {}).get('COMPAND'), '1')
+
+    def test_ua_still_applies_loudnorm_when_source_already_compressed(self):
+        """UA loudnorm must run even when UA compression is skipped."""
+        settings = make_settings(ua=['aac'], acompression=True, loudnorm=True)
+        audio = make_audio_stream(codec='dts', channels=6,
+                                  metadata={'compand': '1'})
+        result = self._run(settings, audio)
+        ua_tracks = [a for a in result if 'universal-audio' in a.get('debug', '')]
+        self.assertIn(FAKE_LOUDNORM_FILTER,
+                      ua_tracks[0].get('filter', ''))
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

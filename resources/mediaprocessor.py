@@ -1064,8 +1064,11 @@ class MediaProcessor:
                         ua_bitrate = 2 * self.default_channel_bitrate
 
                 if self.settings.acompression:
-                    ua_filter = '%s,%s' % (ua_filter, self.settings.acompression_filter) if ua_filter else self.settings.acompression_filter
-                    self.log.info("Compression filter applied to UA audio from source stream %d [Audio.Compression]." % a.index)
+                    if self.isAudioCompressedProcessed(a):
+                        self.log.info("UA audio from source stream %d already compressed, skipping compression [Audio.Compression]." % a.index)
+                    else:
+                        ua_filter = '%s,%s' % (ua_filter, self.settings.acompression_filter) if ua_filter else self.settings.acompression_filter
+                        self.log.info("Compression filter applied to UA audio from source stream %d [Audio.Compression]." % a.index)
 
                 if self.settings.loudnorm:
                     ua_loudnorm_filter = self.getLoudNormFilter(inputfile, audio_stream_index, pre_filter=ua_filter)
