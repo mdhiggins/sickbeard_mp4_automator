@@ -6,6 +6,7 @@ import sys
 import shutil
 import logging
 import re
+import subprocess
 from converter import Converter, FFMpegConvertError, ConverterError
 from converter.avcodecs import BaseCodec
 from resources.extensions import subtitle_codec_extensions, bad_sub_extensions
@@ -42,6 +43,7 @@ class MediaProcessor:
         self.settings = settings
         self.converter = Converter(settings.ffmpeg, settings.ffprobe)
         self.deletesubs = set()
+        self._loudnorm_cache = {}
 
     def fullprocess(self, inputfile, mediatype, reportProgress=False, original=None, info=None, tmdbid=None, tvdbid=None, imdbid=None, season=None, episode=None, language=None, tagdata=None, post=True):
         try:
@@ -384,6 +386,111 @@ class MediaProcessor:
     # Determine if a sub is an Atmos track
     def isAudioStreamAtmos(self, stream):
         return stream.profile and "atmos" in stream.profile.lower()
+
+    def isAudioLoudnormProcessed(self, stream):
+        metadata = stream.metadata or {}
+        if metadata.get('loudnorm') or metadata.get('dynaudnorm'):
+            return True
+        title = metadata.get('title', '').lower()
+        return 'norm' in title
+
+    def isAudioCompressedProcessed(self, stream):
+        metadata = stream.metadata or {}
+        if metadata.get('compand'):
+            return True
+        title = metadata.get('title', '').lower()
+        return 'comp' in title
+
+    def getLoudNormValues(self, inputfile, audio_index, pre_filter=None):
+        cache_key = (inputfile, audio_index, pre_filter)
+        if cache_key in self._loudnorm_cache:
+            return self._loudnorm_cache[cache_key]
+
+        if not self.settings.ffmpeg:
+            self.log.error("FFmpeg path not set, cannot run loudnorm analysis.")
+            self._loudnorm_cache[cache_key] = None
+            return None
+
+        loudnorm_measure = 'loudnorm=I=%s:TP=%s:LRA=%s:print_format=json' % (
+            self.settings.loudnorm_i, self.settings.loudnorm_tp, self.settings.loudnorm_lra)
+        filter_str = '%s,%s' % (pre_filter, loudnorm_measure) if pre_filter else loudnorm_measure
+        cmd = [self.settings.ffmpeg, '-hide_banner', '-i', inputfile,
+               '-map', '0:a:%d' % audio_index,
+               '-af', filter_str,
+               '-f', 'null', '-']
+
+        self.log.info("Running loudnorm analysis on audio stream %d." % audio_index)
+        self.log.debug("Loudnorm command: %s" % ' '.join(str(x) for x in cmd))
+
+        try:
+            proc = subprocess.run(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+        except Exception:
+            self.log.exception("Loudnorm analysis subprocess failed.")
+            self._loudnorm_cache[cache_key] = None
+            return None
+
+        if proc.returncode != 0:
+            self.log.error("Loudnorm analysis returned exit code %d." % proc.returncode)
+            self._loudnorm_cache[cache_key] = None
+            return None
+
+        json_lines = []
+        in_json = False
+        for line in proc.stderr.splitlines():
+            try:
+                decoded = line.decode('utf-8', errors='replace')
+            except AttributeError:
+                decoded = line
+            if '{' in decoded:
+                in_json = True
+            if in_json:
+                json_lines.append(decoded)
+            if '}' in decoded and in_json:
+                break
+
+        values = {}
+        if json_lines:
+            try:
+                values = json.loads('\n'.join(json_lines))
+            except Exception:
+                for line in json_lines:
+                    line = line.replace('\t', '').replace(',', '').strip()
+                    if ':' in line and not line.startswith('{') and not line.startswith('}'):
+                        try:
+                            last_quote = line.find('"', 1)
+                            prop = line[1:last_quote]
+                            values[prop] = json.loads('{' + line + '}')[prop]
+                        except Exception:
+                            self.log.warning("Error parsing loudnorm line: %s" % line)
+
+        self.log.debug("Loudnorm measured values: %s" % values)
+        result = values if values else None
+        self._loudnorm_cache[cache_key] = result
+        return result
+
+    def getLoudNormFilter(self, inputfile, audio_index, pre_filter=None):
+        i = self.settings.loudnorm_i
+        tp = self.settings.loudnorm_tp
+        lra = self.settings.loudnorm_lra
+
+        if self.settings.loudnorm_linear:
+            values = self.getLoudNormValues(inputfile, audio_index, pre_filter=pre_filter)
+            if values:
+                return (
+                    'loudnorm=I=%s:TP=%s:LRA=%s'
+                    ':measured_I=%s:measured_TP=%s:measured_LRA=%s:measured_thresh=%s'
+                    ':offset=%s:linear=true' % (
+                        i, tp, lra,
+                        values.get('input_i', '-70'),
+                        values.get('input_tp', '-9'),
+                        values.get('input_lra', '0'),
+                        values.get('input_thresh', '-80'),
+                        values.get('target_offset', '0'),
+                    )
+                )
+            self.log.warning("Loudnorm first pass failed for audio stream %d, falling back to single-pass dynamic normalization." % audio_index)
+
+        return 'loudnorm=I=%s:TP=%s:LRA=%s:linear=false' % (i, tp, lra)
 
     # Determine if a file can be read by FFPROBE and is a subtitle only
     def isValidSubtitleSource(self, inputfile):
@@ -901,7 +1008,7 @@ class MediaProcessor:
         self.settings.acodec = self.ffprobeSafeCodecs(self.settings.acodec)
         self.log.debug("Pool of audio codecs is %s." % (self.settings.acodec))
 
-        for a in info.audio:
+        for audio_stream_index, a in enumerate(info.audio):
             self.log.info("Audio detected for stream %s - %s %s %d channel." % (a.index, a.codec, a.metadata['language'], a.audio_channels))
 
             # Custom skip
@@ -956,6 +1063,15 @@ class MediaProcessor:
                         self.log.warning("Unable to determine universal audio bitrate from source stream %s, defaulting to %d per channel." % (a.index, self.default_channel_bitrate))
                         ua_bitrate = 2 * self.default_channel_bitrate
 
+                if self.settings.acompression:
+                    ua_filter = '%s,%s' % (ua_filter, self.settings.acompression_filter) if ua_filter else self.settings.acompression_filter
+                    self.log.info("Compression filter applied to UA audio from source stream %d [Audio.Compression]." % a.index)
+
+                if self.settings.loudnorm:
+                    ua_loudnorm_filter = self.getLoudNormFilter(inputfile, audio_stream_index, pre_filter=ua_filter)
+                    ua_filter = '%s,%s' % (ua_filter, ua_loudnorm_filter) if ua_filter else ua_loudnorm_filter
+                    self.log.info("Loudnorm filter applied to UA audio from source stream %d: %s [Audio.Loudnorm]." % (a.index, ua_loudnorm_filter))
+
                 self.log.debug("Audio codec: %s." % self.settings.ua[0])
                 self.log.debug("Channels: 2.")
                 self.log.debug("Filter: %s." % ua_filter)
@@ -980,6 +1096,13 @@ class MediaProcessor:
                     'debug': 'universal-audio'
                 }
                 uadata['title'] = self.audioStreamTitle(a, uadata, tagdata=tagdata)
+                ua_metadata = {}
+                if self.settings.acompression:
+                    ua_metadata['COMPAND'] = '1'
+                if self.settings.loudnorm:
+                    ua_metadata['LOUDNORM'] = '1'
+                if ua_metadata:
+                    uadata['metadata'] = ua_metadata
 
             adebug = "audio"
             # If the universal audio option is enabled and the source audio channel is only stereo, the additional universal stream will be skipped and a single channel will be made regardless of codec preference to avoid multiple stereo channels
@@ -1086,6 +1209,33 @@ class MediaProcessor:
                 self.log.debug("Source audio stream contains Atmos data, forcing codec copy to preserve [audio-atmos-force-copy].")
                 acodec = 'copy'
 
+            # Audio compression (compand) — skip if already compressed
+            compression_applied = False
+            if self.settings.acompression and not (self.settings.audio_atmos_force_copy and self.isAudioStreamAtmos(a)):
+                if self.isAudioCompressedProcessed(a):
+                    self.log.info("Audio stream %d already compressed, skipping compression [Audio.Compression]." % a.index)
+                else:
+                    if acodec == 'copy':
+                        self.log.debug("Compression enabled, forcing audio stream %d to encode [Audio.Compression]." % a.index)
+                        acodec = self.settings.ua[0] if (ua and a.audio_channels <= 2) else self.settings.acodec[0]
+                        adebug += ".compression"
+                    afilter = '%s,%s' % (afilter, self.settings.acompression_filter) if afilter else self.settings.acompression_filter
+                    compression_applied = True
+                    self.log.info("Compression filter applied to audio stream %d [Audio.Compression]." % a.index)
+
+            # Loudnorm normalization — re-normalizing with same values is idempotent, so no skip check.
+            # Measure loudnorm on the post-compression signal so the two-pass values are accurate.
+            loudnorm_applied = False
+            if self.settings.loudnorm and not (self.settings.audio_atmos_force_copy and self.isAudioStreamAtmos(a)):
+                if acodec == 'copy':
+                    self.log.debug("Loudnorm enabled, forcing audio stream %d to encode for normalization [Audio.Loudnorm]." % a.index)
+                    acodec = self.settings.ua[0] if (ua and a.audio_channels <= 2) else self.settings.acodec[0]
+                    adebug += ".loudnorm"
+                loudnorm_filter = self.getLoudNormFilter(inputfile, audio_stream_index, pre_filter=afilter)
+                afilter = '%s,%s' % (afilter, loudnorm_filter) if afilter else loudnorm_filter
+                loudnorm_applied = True
+                self.log.info("Loudnorm filter applied to audio stream %d: %s [Audio.Loudnorm]." % (a.index, loudnorm_filter))
+
             self.log.debug("Audio codec: %s." % acodec)
             self.log.debug("Channels: %s." % audio_channels)
             self.log.debug("Bitrate: %s." % abitrate)
@@ -1120,6 +1270,13 @@ class MediaProcessor:
                 'debug': adebug
             }
             audio_setting['title'] = self.audioStreamTitle(a, audio_setting, tagdata=tagdata)
+            output_metadata = {}
+            if compression_applied:
+                output_metadata['COMPAND'] = '1'
+            if loudnorm_applied:
+                output_metadata['LOUDNORM'] = '1'
+            if output_metadata:
+                audio_setting['metadata'] = output_metadata
             audio_settings.append(audio_setting)
 
             # Add the universal audio stream

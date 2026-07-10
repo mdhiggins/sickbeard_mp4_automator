@@ -135,6 +135,7 @@ class AudioCodec(BaseCodec):
         'disposition': str,
         'profile': str,
         'bsf': str,
+        'metadata': dict,
     }
 
     def parse_options(self, opt, stream=0):
@@ -210,6 +211,9 @@ class AudioCodec(BaseCodec):
         else:
             optlist.extend(['-metadata:s:a:' + stream, "title="])
             optlist.extend(['-metadata:s:a:' + stream, "handler_name="])
+        if 'metadata' in safe:
+            for k, v in safe['metadata'].items():
+                optlist.extend(['-metadata:s:a:' + stream, '%s=%s' % (k, v)])
         if 'bsf' in safe:
             optlist.extend(['-bsf:a', safe['bsf']])
         if 'language' in safe:

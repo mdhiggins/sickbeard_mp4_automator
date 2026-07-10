@@ -207,6 +207,17 @@ class ReadSettings:
         'Audio.ChannelFilters': {
             '6-2': 'pan=stereo|FL=0.5*FC+0.707*FL+0.707*BL+0.5*LFE|FR=0.5*FC+0.707*FR+0.707*BR+0.5*LFE',
         },
+        'Audio.Compression': {
+            'enabled': False,
+            'filter': 'attacks=0:points=-80/-90|-45/-45|-27/-25|0/-7|20/-7',
+        },
+        'Audio.Loudnorm': {
+            'enabled': False,
+            'i': -16.0,
+            'tp': -1.5,
+            'lra': 11.0,
+            'linear': True,
+        },
         'Subtitle': {
             'codec': 'mov_text',
             'codec-image-based': '',
@@ -655,6 +666,19 @@ class ReadSettings:
                     except:
                         self.log.exception("Unable to parse %s %s, skipping." % (section, key))
                         continue
+
+        # Audio Compression
+        section = "Audio.Compression"
+        self.acompression = config.getboolean(section, 'enabled')
+        self.acompression_filter = config.get(section, 'filter')
+
+        # Audio Loudnorm
+        section = "Audio.Loudnorm"
+        self.loudnorm = config.getboolean(section, 'enabled')
+        self.loudnorm_i = config.getfloat(section, 'i')
+        self.loudnorm_tp = config.getfloat(section, 'tp')
+        self.loudnorm_lra = config.getfloat(section, 'lra')
+        self.loudnorm_linear = config.getboolean(section, 'linear')
 
         # Universal Audio
         section = "Universal Audio"
