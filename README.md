@@ -1,6 +1,9 @@
 SMA Conversion/Tagging Automation Script
 ==============
 
+> **This is a personal fork of [sickbeard_mp4_automator](https://github.com/mdhiggins/sickbeard_mp4_automator) by [mdhiggins](https://github.com/mdhiggins).**
+> It extends the original with audio compression, EBU R128 loudness normalisation, and several quality-of-life improvements documented in the [Custom Changes](#custom-changes) section below.
+
 **Automatically converts media files downloaded by various programs to a standardized format, and tags them with the appropriate metadata from TMDB if the container supports tagging.**
 
 ![The Matrix](https://user-images.githubusercontent.com/3608298/76170063-e415c300-6154-11ea-88cd-d26653a47cc5.PNG)
@@ -449,11 +452,28 @@ This project makes use of, integrates with, or was inspired by the following pro
 - http://radarr.video/
 - https://github.com/ratoaq2/cleanit
 
-### Additional Features (this fork)
+Custom Changes
+--------------
 
-The following features were added by [Shaun Kleyn](https://github.com/shaunkleyn):
+The following changes have been made in this fork by [Shaun Kleyn](https://github.com/shaunkleyn). All modifications are relative to the upstream project at [mdhiggins/sickbeard_mp4_automator](https://github.com/mdhiggins/sickbeard_mp4_automator).
 
-- **Audio Compression** — Dynamic range compression via FFmpeg `compand` filter with idempotency protection (`COMPAND` tag prevents double-processing on re-runs)
-- **Audio Loudnorm Normalisation** — Two-pass EBU R128 loudness normalisation via FFmpeg `loudnorm` filter, with compression-aware measurement pass and `LOUDNORM` tag tracking
+### Audio Compression (`[Audio.Compression]`)
+Dynamic range compression via FFmpeg's `compand` filter applied to each audio stream and Universal Audio downmix. A `COMPAND=1` metadata tag is written to the output stream so the filter is never applied twice on re-processing. See the [Audio Processing Pipeline](#audio-processing-pipeline) section for the full decision flow.
+
+### Audio Loudnorm Normalisation (`[Audio.Loudnorm]`)
+Two-pass EBU R128 loudness normalisation via FFmpeg's `loudnorm` filter. The first measurement pass runs on the post-compression signal for accuracy. A `LOUDNORM=1` tag is written to the output stream. Re-normalising to the same LUFS target is idempotent so no skip guard is needed. See the [Audio Processing Pipeline](#audio-processing-pipeline) section for details.
+
+### Audio Stream Title Enhancements
+- Stereo tracks include the output codec in their title — e.g. `Stereo (AAC)` or `Stereo (AC3)` — making tracks easier to identify in media players
+- When a compand (compression) filter is active, ` Normalized)` is appended to the stream title so the track is visually distinguishable from unprocessed audio
+
+### Channel Filter Ordering Fix
+The per-channel conversion filter (configured under `[Audio.ChannelFilters]`, e.g. a `6-2` pan filter for surround→stereo) is **prepended** to the filter chain rather than appended. This ensures the channel conversion runs before any subsequent compression or normalisation filters, which is the correct processing order.
+
+### qBittorrent: Pause Active Downloads During Processing
+When `qBittorrentPostProcess.py` triggers a conversion, all currently active qBittorrent downloads are paused for the duration of processing and resumed afterwards. This prevents bandwidth and I/O contention between active downloads and the FFmpeg encode.
+
+### Windows Launcher Scripts
+`run.cmd` and `run-movies.cmd` are included as convenience wrappers for running SMA on Windows without needing to invoke Python directly from the command line.
 
 ## Enjoy
