@@ -35,6 +35,121 @@ Default Settings
 - Audio - AAC 2.0 with additional AC3 track when source has >2 channels (ex 5.1)
 - Subtitles - mov_text
 
+Audio Processing Pipeline
+--------------
+SMA processes each audio stream through a multi-stage pipeline. The diagram below shows the decision flow from source stream to final output options.
+
+```mermaid
+flowchart TD
+    START([Audio Stream]) --> LANG{Language\nwhitelisted?}
+    LANG -- No --> SKIP([Skip stream])
+    LANG -- Yes --> DISPO{Disposition\nignored?}
+    DISPO -- Yes --> SKIP
+    DISPO -- No --> ATMOS{"Atmos stream\n+ atmos-force-copy = True?"}
+
+    ATMOS -- Yes --> COPY_ATMOS[codec = copy\nNo filters applied]
+    ATMOS -- No --> SURROUND{"channels > 2\n+ Universal Audio enabled?"}
+
+    SURROUND -- Yes --> UA_BRANCH["[Universal Audio branch]\nCreate stereo AAC downmix"]
+    UA_BRANCH --> CHAN_FILTER{Channel filter\ndefined?}
+    CHAN_FILTER -- Yes --> UA_CF1[Apply channel filter\ne.g. 6ch → 2ch pan]
+    CHAN_FILTER -- No --> UA_COMP
+    UA_CF1 --> UA_COMP
+
+    UA_COMP{"Audio.Compression\nenabled?"}
+    UA_COMP -- Yes --> UA_COMPF[Apply compand filter\nSet COMPAND=1 tag]
+    UA_COMP -- No --> UA_LOUD
+    UA_COMPF --> UA_LOUD
+
+    UA_LOUD{"Audio.Loudnorm\nenabled?"}
+    UA_LOUD -- Yes --> UA_MEASURE["1st pass: measure LUFS\n(on post-compression signal)"]
+    UA_MEASURE --> UA_APPLY["2nd pass: apply loudnorm\nlinear=true\nSet LOUDNORM=1 tag"]
+    UA_LOUD -- No --> UA_OUT
+    UA_APPLY --> UA_OUT([UA stereo stream output])
+
+    SURROUND -- "Continue main stream" --> CODEC{Source codec\nin target list?}
+    CODEC -- Yes --> TRY_COPY[codec = copy]
+    CODEC -- No --> FORCE_ENC[codec = target acodec]
+    TRY_COPY --> COMP_CHECK
+    FORCE_ENC --> COMP_CHECK
+
+    COMP_CHECK{"Audio.Compression\nenabled?"}
+    COMP_CHECK -- No --> LOUD_CHECK
+    COMP_CHECK -- Yes --> ALREADY{"Already compressed?\nCOMPAND tag or\ncomp in stream title"}
+    ALREADY -- Yes --> KEEP_TAG["Skip filter\nPreserve COMPAND=1 tag\n(explicit write on re-encode)"]
+    ALREADY -- No --> APPLY_COMP["Force encode if copy\nApply compand filter\nSet COMPAND=1 tag"]
+    KEEP_TAG --> LOUD_CHECK
+    APPLY_COMP --> LOUD_CHECK
+
+    LOUD_CHECK{"Audio.Loudnorm\nenabled?"}
+    LOUD_CHECK -- No --> OUT
+    LOUD_CHECK -- Yes --> MEASURE["1st pass: measure LUFS\n(on post-compression signal)"]
+    MEASURE --> LOUD_APPLY["2nd pass: apply loudnorm\nlinear=true\nSet LOUDNORM=1 tag"]
+    LOUD_APPLY --> OUT
+
+    COPY_ATMOS --> OUT([Main stream output])
+    OUT --> SORT[Sort streams\nSet default stream]
+    UA_OUT --> SORT
+    SORT --> FINAL([Final audio options])
+```
+
+### Audio Compression (`[Audio.Compression]`)
+
+Dynamic range compression via FFmpeg's `compand` filter. Reduces dynamic range so quiet sounds are louder and peaks are softer — useful for consistent playback across devices and environments.
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `enabled` | `False` | Enable compression |
+| `filter` | `attacks=0:points=-80/-90\|-45/-45\|-27/-25\|0/-7\|20/-7` | FFmpeg `compand` filter string |
+
+**Behaviour:**
+- Skipped on Dolby Atmos streams when `atmos-force-copy = True` to preserve lossless passthrough
+- Skipped on re-processing if the stream already carries a `COMPAND` metadata tag or has `comp` in the stream title — prevents double-compression
+- `COMPAND=1` is explicitly written to the output stream (even when skipping) so the tag survives re-encoding and is readable by downstream tools
+- Applied to both the main surround track and the Universal Audio stereo downmix
+
+### Audio Normalisation (`[Audio.Loudnorm]`)
+
+Two-pass EBU R128 loudness normalisation via FFmpeg's `loudnorm` filter. Targets a consistent integrated loudness level across all content.
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `enabled` | `False` | Enable normalisation |
+| `i` | `-16.0` | Target integrated loudness (LUFS) |
+| `tp` | `-1.5` | True peak ceiling (dBTP) |
+| `lra` | `11.0` | Loudness range target (LU) |
+| `linear` | `True` | Use linear two-pass mode for accuracy |
+
+**Behaviour:**
+- Always runs when enabled — re-normalising to the same LUFS target is mathematically idempotent (identical result each time), so no skip check is needed
+- Skipped on Dolby Atmos streams when `atmos-force-copy = True`
+- When `linear = True`, a first FFmpeg pass measures the actual loudness of the source (post-compression when compression is also enabled), then a second pass applies those measured values — this gives accurate, linear correction rather than the dynamic single-pass mode
+- `LOUDNORM=1` is written to the output stream metadata
+- Applied to both the main surround track and the Universal Audio stereo downmix
+
+### Filter Chain Order
+
+When both are enabled, compression always runs before normalisation. The first-pass loudness measurement is taken **on the post-compression signal** so that the normalisation target accounts for the compressed level:
+
+```
+[source] → compand → [measure LUFS] → loudnorm=linear=true → [output]
+```
+
+### Example Config
+
+```ini
+[Audio.Compression]
+enabled = True
+filter = attacks=0:points=-80/-90|-45/-45|-27/-25|0/-7|20/-7
+
+[Audio.Loudnorm]
+enabled = True
+i = -16.0
+tp = -1.5
+lra = 11.0
+linear = True
+```
+
 Docker
 --------------
 Two official Docker containers are maintained for Radarr and Sonarr with SMA included. These are meant to work with **completed download handling** enabled. See the respective Docker Hub pages for details
@@ -330,5 +445,13 @@ This project makes use of, integrates with, or was inspired by the following pro
 - http://sonarr.tv/
 - http://radarr.video/
 - https://github.com/ratoaq2/cleanit
+
+### Additional Features (this fork)
+
+The following features were added by [Shaun Kleyn](https://github.com/shaunkleyn):
+
+- **Audio Compression** — Dynamic range compression via FFmpeg `compand` filter with idempotency protection (`COMPAND` tag prevents double-processing on re-runs)
+- **Audio Loudnorm Normalisation** — Two-pass EBU R128 loudness normalisation via FFmpeg `loudnorm` filter, with compression-aware measurement pass and `LOUDNORM` tag tracking
+- **Whisparr support** — Integration with the Whisparr media manager
 
 ## Enjoy
