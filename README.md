@@ -473,7 +473,4 @@ The per-channel conversion filter (configured under `[Audio.ChannelFilters]`, e.
 ### qBittorrent: Pause Active Downloads During Processing
 When `qBittorrentPostProcess.py` triggers a conversion, all currently active qBittorrent downloads are paused for the duration of processing and resumed afterwards. This prevents bandwidth and I/O contention between active downloads and the FFmpeg encode.
 
-### Windows Launcher Scripts
-`run.cmd` and `run-movies.cmd` are included as convenience wrappers for running SMA on Windows without needing to invoke Python directly from the command line.
-
 ## Enjoy
