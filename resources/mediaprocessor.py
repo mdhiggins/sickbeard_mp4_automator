@@ -1211,9 +1211,11 @@ class MediaProcessor:
 
             # Audio compression (compand) — skip if already compressed
             compression_applied = False
+            already_compressed = False
             if self.settings.acompression and not (self.settings.audio_atmos_force_copy and self.isAudioStreamAtmos(a)):
                 if self.isAudioCompressedProcessed(a):
                     self.log.info("Audio stream %d already compressed, skipping compression [Audio.Compression]." % a.index)
+                    already_compressed = True
                 else:
                     if acodec == 'copy':
                         self.log.debug("Compression enabled, forcing audio stream %d to encode [Audio.Compression]." % a.index)
@@ -1271,7 +1273,7 @@ class MediaProcessor:
             }
             audio_setting['title'] = self.audioStreamTitle(a, audio_setting, tagdata=tagdata)
             output_metadata = {}
-            if compression_applied:
+            if compression_applied or already_compressed:
                 output_metadata['COMPAND'] = '1'
             if loudnorm_applied:
                 output_metadata['LOUDNORM'] = '1'

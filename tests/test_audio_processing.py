@@ -553,17 +553,14 @@ class TestGenerateOptionsAudio(unittest.TestCase):
         self.assertIn(FAKE_LOUDNORM_FILTER,
                       main_tracks[0].get('filter', ''))
 
-    def test_already_compressed_stream_no_compand_metadata_tag(self):
-        """COMPAND=1 tag must not be set again if compression was skipped."""
+    def test_already_compressed_stream_preserves_compand_tag(self):
+        """COMPAND=1 must be written explicitly so the tag survives re-encoding."""
         settings = make_settings(acompression=True, loudnorm=False, ua=['aac'])
         audio = make_audio_stream(codec='dts', channels=6,
                                   metadata={'compand': '1'})
         result = self._run(settings, audio)
         main_tracks = [a for a in result if 'universal-audio' not in a.get('debug', '')]
-        # The output metadata dict should not include COMPAND (it's already on the stream)
-        self.assertNotEqual(
-            main_tracks[0].get('metadata', {}).get('COMPAND'), '1',
-        )
+        self.assertEqual(main_tracks[0].get('metadata', {}).get('COMPAND'), '1')
 
     # ------------------------------------------------------------------
     # Normalization always runs (idempotent)
