@@ -18,33 +18,10 @@
 
 
 import sys
-try:
-    from urllib.request import FancyURLopener
-    from urllib.parse import urlencode
-except ImportError:
-    from urllib import FancyURLopener
-    from urllib import urlencode
+from urllib.parse import urlencode
+from urllib.request import HTTPBasicAuthHandler, HTTPPasswordMgrWithDefaultRealm, build_opener
 import os
 import logging
-
-
-class AuthURLOpener(FancyURLopener):
-    def __init__(self, user, pw):
-        self.username = user
-        self.password = pw
-        self.numTries = 0
-        FancyURLopener.__init__(self)
-
-    def prompt_user_passwd(self, host, realm):
-        if self.numTries == 0:
-            self.numTries = 1
-            return (self.username, self.password)
-        else:
-            return ('', '')
-
-    def openit(self, url):
-        self.numTries = 0
-        return FancyURLopener.open(self, url)
 
 
 def processEpisode(dirName, settings, nzbName=None, logger=None, pathMapping={}):
@@ -81,14 +58,17 @@ def processEpisode(dirName, settings, nzbName=None, logger=None, pathMapping={})
     if nzbName is not None:
         params['nzbName'] = nzbName
 
-    myOpener = AuthURLOpener(username, password)
-
     if ssl:
         protocol = "https://"
     else:
         protocol = "http://"
 
-    url = protocol + host + ":" + str(port) + webroot + "/home/postprocess/processEpisode?" + urlencode(params)
+    base_url = protocol + host + ":" + str(port) + webroot
+    url = base_url + "/home/postprocess/processEpisode?" + urlencode(params)
+
+    password_manager = HTTPPasswordMgrWithDefaultRealm()
+    password_manager.add_password(None, base_url, username, password)
+    opener = build_opener(HTTPBasicAuthHandler(password_manager))
 
     log.debug('Host: %s.' % host)
     log.debug('Port: %s.' % port)
@@ -101,7 +81,7 @@ def processEpisode(dirName, settings, nzbName=None, logger=None, pathMapping={})
     log.info("Opening URL: %s." % url)
 
     try:
-        urlObj = myOpener.openit(url)
+        urlObj = opener.open(url)
     except IOError:
         log.exception("Unable to open URL")
         sys.exit(1)
