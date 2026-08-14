@@ -2203,7 +2203,7 @@ class MediaProcessor:
         try:
             if 'side_data_list' in framedata:
                 for side_data in framedata['side_data_list']:
-                    if side_data.get('side_data_type', '').lower() == "dolby vision metadata":
+                    if "dolby vision" in side_data.get('side_data_type', '').lower():
                         return True
         except:
             return False
@@ -2214,6 +2214,10 @@ class MediaProcessor:
         if len(self.settings.hdr['space']) < 1 and len(self.settings.hdr['transfer']) < 1 and len(self.settings.hdr['primaries']) < 1:
             self.log.debug("No HDR screening parameters defined, returning false [hdr].")
             return False
+
+        if self.isDolbyVision(videostream.framedata):
+            self.log.info("Dolby Vision video stream detected for %d [hdr]." % videostream.index)
+            return True
 
         params = ['space', 'transfer', 'primaries']
         for param in params:
