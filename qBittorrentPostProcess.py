@@ -9,12 +9,6 @@ from resources.log import getLogger
 from resources.readsettings import ReadSettings
 from resources.mediaprocessor import MediaProcessor
 
-
-def getHost(host='localhost', port=8080, ssl=False):
-    protocol = "https://" if ssl else "http://"
-    return protocol + host + ":" + str(port) + "/"
-
-
 log = getLogger("qBittorrentPostProcess")
 
 log.info("qBittorrent post processing started.")
@@ -62,36 +56,37 @@ try:
         log.error("Duplicate category detected. Category names must be unique.")
         sys.exit(1)
 
-    # Import python-qbittorrent
     try:
-        from qbittorrent import Client
+        import qbittorrentapi
     except ImportError:
-        log.exception("Python module PYTHON-QBITTORRENT is required. Install with 'pip install python-qbittorrent' then try again.")
+        log.exception("Python module qbittorrent-api is required. Install with 'pip install qbittorrent-api' then try again.")
         sys.exit(1)
 
     delete_dir = False
 
-    host = getHost(settings.qBittorrent['host'], settings.qBittorrent['port'], settings.qBittorrent['ssl'])
+    protocol = "https" if settings.qBittorrent['ssl'] else "http"
+    host = "%s://%s:%s" % (protocol, settings.qBittorrent['host'], settings.qBittorrent['port'])
 
-    qb = Client(host)
-    qb.login(settings.qBittorrent['username'], settings.qBittorrent['password'])
+    qb = qbittorrentapi.Client(
+        host=host,
+        username=settings.qBittorrent['username'],
+        password=settings.qBittorrent['password'],
+        VERIFY_WEBUI_CERTIFICATE=False if settings.qBittorrent['ssl'] else True
+    )
 
     if settings.qBittorrent['actionbefore']:
-        if settings.qBittorrent['actionbefore'] == 'pause':  # currently only support pausing
-            log.debug("Sending action %s to qBittorrent" % settings.qBittorrent['actionbefore'])
-            qb.pause(torrent_hash)
+        if settings.qBittorrent['actionbefore'] in ['pause', 'stop']:
+            log.debug("Sending action stop to qBittorrent")
+            qb.torrents_stop(torrent_hashes=torrent_hash)
 
     if settings.qBittorrent['convert']:
-        # Check for custom qBittorrent output directory
         if settings.qBittorrent['output-dir']:
             settings.output_dir = settings.qBittorrent['output-dir']
             log.debug("Overriding output_dir to %s." % settings.qBittorrent['output-dir'])
 
-        # Perform conversion.
         log.info("Performing conversion")
         settings.delete = False
         if not settings.output_dir:
-            # If the user hasn't set an output directory, go up one from the root path and create a directory there as [name]-convert
             suffix = "convert"
             settings.output_dir = os.path.abspath(os.path.join(root_path, '..', ("%s-%s" % (re.sub(settings.regex, '_', name), suffix))))
         else:
@@ -106,7 +101,6 @@ try:
         mp = MediaProcessor(settings)
 
         if single_file:
-            # single file
             inputfile = content_path
             info = mp.isValidSource(inputfile)
             if info:
@@ -144,7 +138,6 @@ try:
         path = settings.output_dir
     else:
         suffix = "copy"
-        # name = name[:260-len(suffix)]
         if single_file:
             log.info("Single File Torrent")
             root, filename = os.path.split(root_path)
@@ -189,31 +182,28 @@ try:
     elif [x for x in settings.qBittorrent['bypass'] if x.startswith(label)]:
         log.info("Bypassing any further processing as per category.")
 
-    # Run a qbittorrent action after conversion.
     if settings.qBittorrent['actionafter']:
-        # currently only support resuming or deleting torrent
-        if settings.qBittorrent['actionafter'] == 'resume':
-            log.debug("Sending action %s to qBittorrent" % settings.qBittorrent['actionafter'])
-            qb.resume(torrent_hash)
+        if settings.qBittorrent['actionafter'] in ['resume', 'start']:
+            log.debug("Sending action start to qBittorrent")
+            qb.torrents_start(torrent_hashes=torrent_hash)
         elif settings.qBittorrent['actionafter'] == 'delete':
-            # this will delete the torrent from qBittorrent but it WILL NOT delete the data
-            log.debug("Sending action %s to qBittorrent" % settings.qBittorrent['actionafter'])
-            qb.delete(torrent_hash)
+            log.debug("Sending action delete to qBittorrent")
+            qb.torrents_delete(torrent_hashes=torrent_hash, delete_files=False)
         elif settings.qBittorrent['actionafter'] == 'deletedata':
-            # this will delete the torrent from qBittorrent and delete data
-            log.debug("Sending action %s to qBittorrent" % settings.qBittorrent['actionafter'])
-            qb.delete_permanently(torrent_hash)
+            log.debug("Sending action deletedata to qBittorrent")
+            qb.torrents_delete(torrent_hashes=torrent_hash, delete_files=True)
 
     if delete_dir:
         if os.path.exists(delete_dir):
-            if os.listdir(delete_dir):
+            if not os.listdir(delete_dir):
                 try:
                     os.rmdir(delete_dir)
-                    log.debug("Successfully removed tempoary directory %s." % delete_dir)
-                except:
-                    log.exception("Unable to delete temporary directory")
+                    log.debug("Successfully removed temporary directory %s." % delete_dir)
+                except OSError:
+                    log.warning("Unable to delete temporary directory %s (still in use or not empty)" % delete_dir)
             else:
                 log.debug("Temporary directory %s is not empty, will not delete." % delete_dir)
 except:
     log.exception("Unexpected exception.")
     sys.exit(1)
+    
