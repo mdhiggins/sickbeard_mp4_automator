@@ -2219,10 +2219,14 @@ class MediaProcessor:
             self.log.info("Dolby Vision video stream detected for %d [hdr]." % videostream.index)
             return True
 
+        framedata = videostream.framedata or {}
         params = ['space', 'transfer', 'primaries']
         for param in params:
-            if param in videostream.color and len(self.settings.hdr.get(param)) > 0 and videostream.color.get(param) not in self.settings.hdr.get(param):
-                self.log.debug("Stream is not HDR, color parameter %s does not match %s [hdr-%s]." % (videostream.color.get(param), self.settings.hdr.get(param), self.settings.hdr.get(param)))
+            if len(self.settings.hdr.get(param)) < 1:
+                continue
+            values = [x.lower() for x in [videostream.color.get(param), framedata.get('color_' + param)] if x]
+            if values and not any(x in self.settings.hdr.get(param) for x in values):
+                self.log.debug("Stream is not HDR, color parameter %s does not match %s [hdr-%s]." % (values, self.settings.hdr.get(param), param))
                 return False
 
         self.log.info("HDR video stream detected for %d." % videostream.index)
