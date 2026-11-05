@@ -24,10 +24,14 @@ if len(sys.argv) < 8:
 # 6 Group that the NZB was posted in e.g. alt.binaries.x
 # 7 Status of post processing. 0 = OK, 1=failed verification, 2=failed unpack, 3=1+2
 
+lastProgress = -1
 
 def progressOutput(timecode, debug):
-    print("%d%%" % timecode)
-
+    global lastProgress
+    step = int(timecode) // 10 * 10
+    if step != lastProgress:
+        lastProgress = step
+        print("%d%%" % step)
 
 try:
     settings = ReadSettings()

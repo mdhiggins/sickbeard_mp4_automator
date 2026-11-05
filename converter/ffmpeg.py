@@ -489,6 +489,8 @@ class FFMpeg(object):
         self.ffmpeg_path = ffmpeg_path
         self.ffprobe_path = ffprobe_path
 
+        self.last_output = None
+
         if not os.path.exists(self.ffmpeg_path):
             raise FFMpegError("ffmpeg binary not found: " + self.ffmpeg_path)
 
@@ -774,6 +776,8 @@ class FFMpeg(object):
             signal.signal(signal.SIGALRM, signal.SIG_DFL)
 
         p.communicate()  # wait for process to exit
+
+        self.last_output = total_output
 
         if total_output == '':
             raise FFMpegError('Error while calling ffmpeg binary')
