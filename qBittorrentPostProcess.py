@@ -13,6 +13,16 @@ log = getLogger("qBittorrentPostProcess")
 
 log.info("qBittorrent post processing started.")
 
+lastProgress = -1
+
+def progressOutput(timecode, debug):
+    global lastProgress
+    step = int(timecode) // 10 * 10
+    if step != lastProgress:
+        lastProgress = step
+        log.info("Conversion progress %d%%." % step)
+    log.debug(debug)
+
 if len(sys.argv) < 6:
     log.error("Not enough command line parameters present, are you launching this from qBittorrent?")
     log.error("#Args: %L %T %R %F %N %I Category, Tracker, RootPath, ContentPath , TorrentName, InfoHash")
@@ -106,7 +116,7 @@ try:
             if info:
                 log.info("Processing file %s." % inputfile)
                 try:
-                    output = mp.process(inputfile, reportProgress=True, info=info)
+                    output = mp.process(inputfile, reportProgress=True, info=info, progressOutput=progressOutput)
                     if not output:
                         log.error("No output file generated for single torrent download.")
                         sys.exit(1)

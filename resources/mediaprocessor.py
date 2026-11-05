@@ -2277,6 +2277,24 @@ class MediaProcessor:
     def printableFFMPEGCommand(self, cmds):
         return " ".join("\"%s\"" % item if (" " in item or "|" in item) and "\"" not in item else item for item in cmds)
 
+    # Condense FFMPEG's output for logging, dropping the progress spam. 
+    def summarizeConversionOutput(self, output, limit=100):
+        if not output:
+            return []
+        counts = {}
+        order = []
+        for line in output.splitlines():
+            line = line.strip()
+            if not line or line.startswith("frame=") or line.startswith("size="):
+                continue
+            if line not in counts:
+                order.append(line)
+            counts[line] = counts.get(line, 0) + 1
+        summary = ["%s [x%d]" % (line, counts[line]) if counts[line] > 1 else line for line in order[:limit]]
+        if len(order) > limit:
+            summary.append("... %d additional unique lines omitted." % (len(order) - limit))
+        return summary
+
     # Encode a new file based on selected options, built in naming conflict resolution
     def convert(self, options, preopts, postopts, reportProgress=False, progressOutput=None):
         self.log.info("Starting conversion.")
@@ -2363,6 +2381,13 @@ class MediaProcessor:
 
             self.log.info("%s created." % outputfile)
             self.setPermissions(outputfile)
+
+            # FFMPEG exits 0 on non-fatal decode and muxing errors, so keep its output recoverable
+            output_summary = self.summarizeConversionOutput(getattr(self.converter.ffmpeg, "last_output", None))
+            if output_summary:
+                self.log.debug("FFmpeg output:")
+                for line in output_summary:
+                    self.log.debug(line)
 
         except FFMpegConvertError as e:
             self.log.exception("Error converting file, FFMPEG error.")
