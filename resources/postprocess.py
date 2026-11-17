@@ -68,5 +68,5 @@ class PostProcessor:
                 self.log.exception("Failed to execute script %s." % script)
 
     def run_script_command(self, script):
-        return Popen([str(script)], shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE, env=self.post_process_environment,
+        return Popen([str(script)], stdin=PIPE, stdout=PIPE, stderr=PIPE, env=self.post_process_environment,
                      close_fds=(os.name != 'nt'))
